@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $# -ne 2 ]]; then
+  echo 'Usage: scripts/deploy <staging|production> <artifact-path>' >&2
+  exit 2
+fi
+
+environment=$1
+artifact=$2
+
+case "$environment" in
+  staging|production) ;;
+  *) echo 'Environment must be staging or production.' >&2; exit 2 ;;
+esac
+
+if [[ ! -f "$artifact" ]]; then
+  echo 'Artifact must be an existing file.' >&2
+  exit 2
+fi
+
+echo "Deployment to $environment is not implemented. No deployment performed." >&2
+exit 1
