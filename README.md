@@ -17,5 +17,16 @@ The release workflow will call this script with the same artifact for staging
 and production. Production must wait for GitHub Environment approval. Configure
 and verify Environment protections before introducing that workflow.
 
-Pending setup: initial Git commit, an independent PR reviewer, release tag issuer,
-production reviewer, real CI/build commands, and the deployment destination.
+## Repository change management
+
+Changes to main require a PR and the successful `deploy-entrypoint` CI check.
+Required PR approvals are set to zero for single-person operation. Merge uses
+squash only; main rejects force pushes and deletion, with no ruleset bypass.
+
+Only Repository Admins may create `v*` release tags. Currently this is
+@omitsuhashi; future admins will also be able to create release tags. Existing
+`v*` tags cannot be moved or deleted, including by admins through bypass.
+
+Pending deployment setup: production reviewer, real build commands, and the
+deployment destination. The deployment entry point and CI are introduced through
+the setup PR and become available on main after it is merged.
