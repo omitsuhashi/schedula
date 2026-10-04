@@ -1,0 +1,136 @@
+{
+  "schema_version": "0.1",
+  "request_id": "restaurant_infeasible",
+  "problem_type": "assignment",
+  "planning_window": {
+    "start": "2026-10-05T11:00:00+09:00",
+    "end": "2026-10-05T13:00:00+09:00",
+    "slot_minutes": 30,
+    "timezone": "Asia/Tokyo"
+  },
+  "skills": [
+    {
+      "id": "cooking",
+      "label": "調理技能"
+    },
+    {
+      "id": "service",
+      "label": "接客技能"
+    }
+  ],
+  "roles": [
+    {
+      "id": "kitchen",
+      "label": "調理",
+      "required_skills": [
+        {
+          "skill_id": "cooking",
+          "min_level": 1
+        }
+      ]
+    },
+    {
+      "id": "hall",
+      "label": "ホール",
+      "required_skills": [
+        {
+          "skill_id": "service",
+          "min_level": 1
+        }
+      ]
+    },
+    {
+      "id": "washing",
+      "label": "皿洗い",
+      "required_skills": []
+    }
+  ],
+  "employees": [
+    {
+      "id": "alice",
+      "label": "Aさん",
+      "skills": [
+        {
+          "skill_id": "cooking",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-05T11:00:00+09:00",
+          "end": "2026-10-05T13:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "id": "bob",
+      "label": "Bさん",
+      "skills": [
+        {
+          "skill_id": "service",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-05T11:00:00+09:00",
+          "end": "2026-10-05T13:00:00+09:00"
+        }
+      ]
+    }
+  ],
+  "demand": [
+    {
+      "id": "d_kitchen",
+      "role_id": "kitchen",
+      "interval": {
+        "start": "2026-10-05T11:00:00+09:00",
+        "end": "2026-10-05T13:00:00+09:00"
+      },
+      "required_people": 1
+    },
+    {
+      "id": "d_hall",
+      "role_id": "hall",
+      "interval": {
+        "start": "2026-10-05T11:00:00+09:00",
+        "end": "2026-10-05T13:00:00+09:00"
+      },
+      "required_people": 1
+    },
+    {
+      "id": "d_washing",
+      "role_id": "washing",
+      "interval": {
+        "start": "2026-10-05T11:00:00+09:00",
+        "end": "2026-10-05T13:00:00+09:00"
+      },
+      "required_people": 1
+    }
+  ],
+  "shift_candidates": [],
+  "constraints": [],
+  "preferences": [
+    {
+      "id": "preserve_specialists",
+      "type": "avoid_role",
+      "employee_ids": [
+        "alice",
+        "bob"
+      ],
+      "role_id": "washing",
+      "penalty_per_minute": 1
+    }
+  ],
+  "objectives": [
+    {
+      "id": "use_skills",
+      "metric": "preference_penalty"
+    }
+  ],
+  "solver": {
+    "backend": "auto",
+    "time_limit_seconds": 10,
+    "seed": 0
+  }
+}
