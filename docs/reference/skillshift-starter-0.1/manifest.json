@@ -46,7 +46,7 @@
       "sha256": "3ccf726e1da21c3f73fed2aa5f832e9b7d0d08c86a47257272be09f1204dce22"
     },
     {
-      "path": "TEST_REPORT.md",
+      "path": "TEST_REPORT.original.md",
       "archive_path": "skillshift-starter/TEST_REPORT.md",
       "bytes": 3258,
       "sha256": "c39ed67d3966cdcb753ad2d21b33f7c052c015ab4efecf79671f1442693e25de"

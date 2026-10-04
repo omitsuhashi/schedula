@@ -73,7 +73,12 @@ SMILO、OptiMUS、Neural LNS などの研究も探索先の候補とする。
 | [infeasible.json](reference/skillshift-starter-0.1/examples/infeasible.json) | 人数不足 |
 | [linked_assignment.json](reference/skillshift-starter-0.1/examples/linked_assignment.json) | 担当切替の時間横断制約 |
 | [roster.json](reference/skillshift-starter-0.1/examples/roster.json) | 2日間の勤務候補生成と担当配置 |
-| [TEST_REPORT.md](reference/skillshift-starter-0.1/TEST_REPORT.md) | ZIP 作成時の検証と未検証事項 |
+| [TEST_REPORT.original.md](reference/skillshift-starter-0.1/TEST_REPORT.original.md) | ZIP 作成時の検証と未検証事項の原本 |
+
+[TEST_REPORT.md](reference/skillshift-starter-0.1/TEST_REPORT.md) は、原本の結果と当時の
+実行記録を引き継ぎ、公開前のセットアップ手順を uv に更新した文書である。
+原本は `TEST_REPORT.original.md` に同じバイト列で保存し、manifest の保存先だけを変更した。
+原本の pip 手順は当時の記録であり、現在の手順は [Python セットアップ](python-setup.md)を正とする。
 
 参照コードは ZIP から読み取り、schedula の実行コードとして取り込んでいない。
 Schema と例の保存、JSON の読取りやリンクの整合確認は、

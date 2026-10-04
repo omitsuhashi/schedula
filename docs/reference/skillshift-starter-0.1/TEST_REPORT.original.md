@@ -1,16 +1,12 @@
 # 検証結果 — 2026-10-04
 
-[ZIP の原本](TEST_REPORT.original.md)に基づく検証報告です。結果・環境・当時の実行コマンドを保持し、
-公開前の手順だけを [uv セットアップ方針](../../python-setup.md)に合わせて更新しています。
-uv による再実行結果を追加したものではありません。
-
 ## 結果
 
 ```text
 196 passed, 28 skipped in 8.10s
 ```
 
-ZIP 作成時の実行コマンド（当時の記録）:
+実行コマンド:
 
 ```sh
 python -m pytest -q
@@ -49,15 +45,15 @@ Mac、Windows、Python 3.11/3.12での実行、実務規模性能、並列リク
 
 ## 公開前の必須ゲート
 
-OR-Tools を導入できる隔離環境に ZIP を展開し、`pyproject.toml` のある
-`skillshift-starter/` で次を実行してください。schedula 直下やこの参照資料ディレクトリには
-実行コードがないため、ここでは実行できません。`dev` と `cp-sat` は元パッケージの extras です。
+OR-Toolsを導入できる隔離環境で、次を実行してください。
 
 ```sh
-uv sync --extra dev --extra cp-sat
-uv run --extra dev --extra cp-sat pytest -q
-uv run --extra dev --extra cp-sat python -m skillshift solve examples/linked_assignment.json
-uv run --extra dev --extra cp-sat python -m skillshift solve examples/roster.json
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e '.[dev,cp-sat]'
+python -m pytest -q
+python -m skillshift solve examples/linked_assignment.json
+python -m skillshift solve examples/roster.json
 ```
 
 OR-Tools導入時には、依存未導入時の状態を確認する1テストだけが意図的にスキップされ、CP-SATの28テストは実行される設計です。期待件数は223 passed / 1 skippedですが、**これは実測結果ではありません**。失敗があれば原因を修正してから公開判断してください。

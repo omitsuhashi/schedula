@@ -25,6 +25,21 @@
 ZIP の報告は 196 passed / 28 skipped で、CP-SAT は実行未検証です。
 今回の文書整備でエンジンの動作を再検証したという意味ではありません。
 
+## Python のセットアップ
+
+依存の追加・インストール・実行は uv を標準とし、
+[Python セットアップ](docs/python-setup.md)を手順の正本にします。
+現在は `pyproject.toml` と `uv.lock` がなく、デプロイ入口のテストは標準ライブラリだけで実行できます。
+リポジトリ直下で次を実行してください。
+
+```sh
+bash -n scripts/deploy
+uv run --no-project python -m unittest discover -s tests -v
+```
+
+エンジン導入時の開発依存・Git hook と、参照 ZIP を隔離環境で評価する手順も
+[Python セットアップ](docs/python-setup.md)に記載しています。
+
 ## デプロイ
 
 デプロイの入口は、環境名とビルド済みの成果物ファイルを引数で受け取ります。

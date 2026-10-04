@@ -217,10 +217,12 @@ Response の状態と最適性の整合も、公開前の検証対象にする�
 
 ## 実行・資源上限
 
-0.1 参照 API は `solve(request: dict) -> dict`、CLI は `python -m skillshift solve <入力ファイル>`。
+0.1 参照 API は `solve(request: dict) -> dict`、uv 環境での CLI は
+`uv run --extra dev --extra cp-sat python -m skillshift solve <入力ファイル>`。
 CLI は JSON だけを標準出力へ出し、解があれば終了コード0、それ以外は2。
 `INFEASIBLE` と入力エラーは終了コードではなく `status` で区別する。
 これらは ZIP の入口であり、現在の schedula で実行できるコマンドではない。
+実行環境は [参照 ZIP の評価手順](python-setup.md#参照-zip-を評価する場合)に従う。
 
 参照実装には従業員250人、役割50、時間枠3000、候補5000、
 従業員 × 時間枠 × 役割が1,000,000以下などの入力・意味上の制限がある。
