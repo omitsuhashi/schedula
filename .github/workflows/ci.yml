@@ -20,7 +20,7 @@ jobs:
         run: uv sync --locked --extra cp-sat
       - name: Validate Ruff hooks
         run: uv run --locked --extra cp-sat pre-commit run --all-files --show-diff-on-failure
-      - name: Validate deployment entry point
+      - name: Validate deployment entry point and scheduling engine
         run: |
           bash -n scripts/deploy
           uv run --locked --extra cp-sat pytest
