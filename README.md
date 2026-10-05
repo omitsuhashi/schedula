@@ -15,15 +15,19 @@
 | [設計方針](docs/design-policy.md) | アルゴリズム選択、制約・選好、検証、LLM の境界 |
 | [入出力契約](docs/io-contract.md) | JSON の意味、日時、履歴、目的順序、結果状態 |
 | [開発・検証方針](docs/development-policy.md) | 開発順序、完了条件、公開条件、未決定事項 |
+| [参照実装の評価](docs/evaluations/engine-introduction.md) | CP-SAT を含む実測、導入時の修正、コードの採用可否と公開入口 |
 | [用語集](GLOSSARY.md) | single-context の共通用語 |
 | [設計判断](docs/adr/0001-json-first-engine.md) | JSON を中心にしたエンジンと、[勤務計画の同時最適化](docs/adr/0002-joint-roster-optimization.md) |
 | [出典と採用判断](docs/sources.md) | 元チャット、ZIP、採用箇所、参照資料の来歴 |
 
-2026-10-04 時点で、このリポジトリには最適化エンジンを導入していません。
+2026-10-05 時点で、このリポジトリには最適化エンジンを導入していません。
 添付 `skillshift-starter-0.1.zip` は設計・実装の参照元です。
 その JSON Schema、例、検証報告を `docs/reference/skillshift-starter-0.1/` に保存しています。
-ZIP の報告は 196 passed / 28 skipped で、CP-SAT は実行未検証です。
-今回の文書整備でエンジンの動作を再検証したという意味ではありません。
+ZIP 作成時の報告は 196 passed / 28 skipped でした。
+今回の隔離評価では、初回の失敗を記録したうえで、未変更の参照テストの再実行が
+223 passed / 1 skipped、3例が検証済みの `OPTIMAL` となりました。
+参照コードはライセンス未選定のため取り込みを保留し、schedula は業務仕様から独自実装します。
+公開する Schema の版と API・CLI の入口、導入時の必須修正は上記の評価記録にまとめています。
 
 ## Python のセットアップ
 

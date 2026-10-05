@@ -1,0 +1,39 @@
+{
+  "initial": {
+    "command": "uv run --locked --extra dev --extra cp-sat pytest -q -ra",
+    "collected": 224,
+    "passed": 222,
+    "failed": 1,
+    "errors": 0,
+    "cp_sat_collected": 28,
+    "cp_sat_passed": 27,
+    "skipped": [
+      {
+        "test": "test_unavailable_backend_is_explicit",
+        "reason": "Only relevant when optional dependency is absent"
+      }
+    ],
+    "failures": [
+      {
+        "test": "test_cp_examples[assignment]",
+        "message": "name = 'assignment'\n\n    @pytest.mark.skipif(not HAS_CP,reason='OR-Tools optional dependency is unavailable in this execution environment')\n    @pytest.mark.parametrize('name',['assignment','linked_assignment','roster','infeasible'])\n    def test_cp_examples(name):\n        raw=example(name);raw['solver']['backend']='cp_sat';raw['solver']['time_limit_seconds']=20\n        result=solve(raw);valid_response(result)\n>       assert result['status']==('INFEASIBLE' if name=='infeasible' else 'OPTIMAL'),result\nE       AssertionError: {'schema_version': '0.1', 'request_id': 'restaurant_assignment_demo', 'status': 'UNKNOWN', 'solver': {'backend': 'cp_sat', 'engine_version': '0.1.0', 'library_version': '9.15.6755', 'selection_reason': 'EXPLICIT_BACKEND'}, ...}\nE       assert 'UNKNOWN' == 'OPTIMAL'\nE         \nE         - OPTIMAL\nE         + UNKNOWN\n\ntests/test_core.py:231: AssertionError"
+      }
+    ]
+  },
+  "rerun": {
+    "command": "uv run --locked --extra dev --extra cp-sat pytest -q -ra",
+    "collected": 224,
+    "passed": 223,
+    "failed": 0,
+    "errors": 0,
+    "cp_sat_collected": 28,
+    "cp_sat_passed": 28,
+    "skipped": [
+      {
+        "test": "test_unavailable_backend_is_explicit",
+        "reason": "Only relevant when optional dependency is absent"
+      }
+    ],
+    "failures": []
+  }
+}

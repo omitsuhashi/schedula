@@ -128,6 +128,10 @@ uv run --extra dev --extra cp-sat python -m skillshift solve examples/roster.jso
 uv が生成する lock file と、環境・依存版・結果・スキップ理由を評価記録に保存する。
 ZIP の過去の結果を、この手順による実測結果として扱わない。
 
+2026-10-05 の [評価記録](evaluations/engine-introduction.md)に、取得した ZIP の照合、
+Python 3.14.8 / OR-Tools 9.15.6755 での実行結果、評価用 lock file と再実行手順を保存した。
+参照ソースは取り込まず、探索前の準備と出力構造検証の差分を後続実装の条件にした。
+
 ## 公式資料
 
 - [uv のプロジェクト管理](https://docs.astral.sh/uv/guides/projects/)

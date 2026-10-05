@@ -1,0 +1,51 @@
+{
+  "schema_version": "0.1",
+  "request_id": "restaurant_infeasible",
+  "status": "INFEASIBLE",
+  "solver": {
+    "backend": "min_cost_flow",
+    "engine_version": "0.1.0",
+    "library_version": null,
+    "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+  },
+  "solution": null,
+  "objectives": [],
+  "diagnostics": [
+    {
+      "code": "SHARED_SKILL_BOTTLENECK",
+      "message": "Roles compete for the same eligible people; joint coverage is impossible.",
+      "json_pointer": "/demand",
+      "related_ids": [
+        "hall",
+        "kitchen",
+        "washing"
+      ],
+      "facts": [
+        {
+          "name": "start",
+          "value": "2026-10-05T11:00:00+09:00"
+        },
+        {
+          "name": "end",
+          "value": "2026-10-05T11:30:00+09:00"
+        },
+        {
+          "name": "required_people",
+          "value": 3
+        },
+        {
+          "name": "maximum_assignable_people",
+          "value": 2
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "performed": false,
+    "valid": null,
+    "violations": []
+  },
+  "stats": {
+    "elapsed_seconds": 0.002328
+  }
+}
