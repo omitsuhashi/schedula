@@ -19,6 +19,14 @@ LLM 入力はその後に追加する。以下は開発を整理するための�
 拡張の優先順位は利用例を踏まえて Issue で決める。
 研究方式の実装を、初期エンジン完成の条件にしない。
 
+## Python 環境と依存管理
+
+セットアップと依存管理の正本は [Python セットアップ](python-setup.md)とする。
+パッケージ追加は `uv add`、環境同期は `uv sync`、実行は `uv run` に揃える。
+Python 3.14.8 を固定し、jsonschema・OR-Tools と開発依存の Ruff・pytest・pre-commit を導入した。
+`unittest` で書かれた既存テストは pytest から実行し、CI も同じ uv 環境と検証入口を使う。
+最適化エンジンの実行コードの導入と、その検証は別途進める。
+
 ## 参照資料の検証状態
 
 ZIP の [TEST_REPORT.md](reference/skillshift-starter-0.1/TEST_REPORT.md)は、
@@ -49,16 +57,17 @@ CP-SAT の28件は依存がなくスキップされており、構文確認だ�
 
 参照コードを展開した隔離環境での確認例は次のとおり。
 現在の schedula にはこの Python パッケージを導入していないため、
-リポジトリ直下の実行手順として使わない。
+リポジトリ直下の実行手順として使わない。ZIP を展開した `skillshift-starter/` の
+`pyproject.toml` があるディレクトリで実行する。元パッケージの `dev` は
+`dependency-groups.dev` ではなく extra なので、`cp-sat` とともに明示する。
+同期後の実行にも同じ extras を指定する。
 
 ```sh
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -e '.[dev,cp-sat]'
-python -m pytest -q
-python -m skillshift solve examples/assignment.json
-python -m skillshift solve examples/linked_assignment.json
-python -m skillshift solve examples/roster.json
+uv sync --extra dev --extra cp-sat
+uv run --extra dev --extra cp-sat pytest -q
+uv run --extra dev --extra cp-sat python -m skillshift solve examples/assignment.json
+uv run --extra dev --extra cp-sat python -m skillshift solve examples/linked_assignment.json
+uv run --extra dev --extra cp-sat python -m skillshift solve examples/roster.json
 ```
 
 ## 実務規模の評価

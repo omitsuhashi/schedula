@@ -25,6 +25,26 @@
 ZIP の報告は 196 passed / 28 skipped で、CP-SAT は実行未検証です。
 今回の文書整備でエンジンの動作を再検証したという意味ではありません。
 
+## Python のセットアップ
+
+依存の追加・インストール・実行は uv を標準とし、
+[Python セットアップ](docs/python-setup.md)を手順の正本にします。
+Python は依存パッケージが対応する最新の 3.14.8 に固定しています。
+jsonschema・OR-Tools と Ruff・pytest・pre-commit を uv で管理します。
+リポジトリ直下で初回セットアップと検証を実行してください。
+
+```sh
+uv python install
+uv sync --locked --extra cp-sat
+uv run --locked --extra cp-sat pre-commit install --install-hooks
+uv run --locked --extra cp-sat pre-commit run --all-files --show-diff-on-failure
+uv run --locked --extra cp-sat pytest
+bash -n scripts/deploy
+```
+
+既存 hook と衝突する場合は上書きせず、[Git hook の確認手順](docs/python-setup.md#git-hook)に従ってください。
+参照 ZIP の評価手順と依存更新の方法も同じ文書に記載しています。
+
 ## デプロイ
 
 デプロイの入口は、環境名とビルド済みの成果物ファイルを引数で受け取ります。

@@ -3,7 +3,6 @@ import tempfile
 import unittest
 from pathlib import Path
 
-
 DEPLOY = Path(__file__).resolve().parents[1] / "scripts" / "deploy"
 
 
@@ -15,8 +14,12 @@ class DeploymentEntrypointTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             artifact = Path(directory) / "release.tar.gz"
             artifact.write_bytes(b"fixture")
-            for args in [(), ("other", str(artifact)), ("staging", directory),
-                         ("production", str(artifact) + ".missing")]:
+            for args in [
+                (),
+                ("other", str(artifact)),
+                ("staging", directory),
+                ("production", str(artifact) + ".missing"),
+            ]:
                 with self.subTest(args=args):
                     self.assertEqual(self.invoke(*args).returncode, 2)
 
