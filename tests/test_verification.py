@@ -209,3 +209,62 @@ def test_partial_solution_is_discarded_on_later_slot_timeout(assignment_request,
     assert calls[0] == 2
     assert_response(result, "UNKNOWN")
     assert result["verification"]["performed"] is False
+
+
+@pytest.mark.parametrize("reverse_order", [False, True])
+def test_split_same_assignment_is_detected_and_blocked(
+    assignment_request, monkeypatch, reverse_order
+):
+    solution = solve(assignment_request)["solution"]
+    original = solution["assignments"].pop(0)
+    solution["assignments"] += [
+        {**original, "interval": {**original["interval"], "end": "2026-10-05T12:00:00+09:00"}},
+        {**original, "interval": {**original["interval"], "start": "2026-10-05T12:00:00+09:00"}},
+    ]
+    if reverse_order:
+        solution["assignments"].reverse()
+    violations, penalty = verify_solution(normalize(assignment_request), solution)
+    assert penalty == 0
+    assert {item["code"] for item in violations} == {"UNMERGED_ASSIGNMENTS"}
+    assert violations[0]["related_ids"] == ["alice", "kitchen"]
+    monkeypatch.setattr(flow, "run", lambda _: flow.FlowResult("OPTIMAL", solution, 0))
+    result = solve(assignment_request)
+    assert_response(result, "INTERNAL_ERROR")
+    assert result["verification"]["performed"] is True
+    assert result["verification"]["valid"] is False
+    assert result["verification"]["violations"][0]["code"] == "UNMERGED_ASSIGNMENTS"
+
+
+@pytest.mark.parametrize("gap", [False, True])
+def test_distinct_adjacent_assignments_or_gaps_need_no_merging(assignment_request, gap):
+    request = assignment_request
+    request["demand"] = [
+        {
+            "id": "first",
+            "role_id": "kitchen",
+            "interval": {
+                "start": "2026-10-05T11:00:00+09:00",
+                "end": "2026-10-05T11:30:00+09:00",
+            },
+            "required_people": 1,
+        },
+        {
+            "id": "second",
+            "role_id": "kitchen" if gap else "washing",
+            "interval": {
+                "start": "2026-10-05T12:00:00+09:00" if gap else "2026-10-05T11:30:00+09:00",
+                "end": "2026-10-05T13:00:00+09:00",
+            },
+            "required_people": 1,
+        },
+    ]
+    request["preferences"] = []
+    request["objectives"] = []
+    solution = {
+        "assignments": [
+            {"employee_id": "alice", "role_id": item["role_id"], "interval": item["interval"]}
+            for item in request["demand"]
+        ],
+        "shifts": [],
+    }
+    assert verify_solution(normalize(request), solution) == ([], 0)

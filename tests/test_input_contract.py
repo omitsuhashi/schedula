@@ -1,10 +1,11 @@
 import copy
+import errno
 import math
 
 import pytest
 
-from schedula import solve
-from schedula.contract import InvalidInput, load_json
+from schedula import model, solve
+from schedula.contract import InvalidInput, load_json, schema_errors
 from schedula.model import normalize
 from tests.support import assert_response
 
@@ -249,3 +250,34 @@ def test_resource_limits(assignment_request):
 def test_identifier_cannot_end_in_newline(assignment_request):
     assignment_request["request_id"] = "valid_id\n"
     assert_response(solve(assignment_request), "INVALID_INPUT")
+
+
+def test_timezone_length_is_rejected_before_zoneinfo(assignment_request, monkeypatch):
+    assignment_request["planning_window"]["timezone"] = "A" * 256
+    assert schema_errors("request", assignment_request)
+
+    def unexpected_zoneinfo(_):
+        raise AssertionError("Schema validation must reject the name before ZoneInfo")
+
+    monkeypatch.setattr(model, "ZoneInfo", unexpected_zoneinfo)
+    result = solve(assignment_request)
+    assert_response(result, "INVALID_INPUT")
+    assert result["diagnostics"][0]["json_pointer"] == "/planning_window/timezone"
+
+
+@pytest.mark.parametrize(
+    ("error_number", "status"),
+    [(errno.ENAMETOOLONG, "INVALID_INPUT"), (errno.EIO, "INTERNAL_ERROR")],
+)
+def test_timezone_path_error_is_distinct_from_io_failure(
+    assignment_request, monkeypatch, error_number, status
+):
+    def failing_zoneinfo(_):
+        raise OSError(error_number, "Injected zoneinfo error")
+
+    monkeypatch.setattr(model, "ZoneInfo", failing_zoneinfo)
+    result = solve(assignment_request)
+    assert_response(result, status)
+    if status == "INVALID_INPUT":
+        assert result["diagnostics"][0]["code"] == "INVALID_TIMEZONE"
+        assert result["diagnostics"][0]["json_pointer"] == "/planning_window/timezone"

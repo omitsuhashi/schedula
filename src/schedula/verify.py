@@ -1,4 +1,4 @@
-from collections import Counter
+from collections import Counter, defaultdict
 
 from .contract import InvalidInput, check_json, diagnostic, parse_datetime, schema_errors
 
@@ -23,6 +23,7 @@ def verify_solution(problem, solution):
     employees = {employee["id"]: employee for employee in request["employees"]}
     roles = {role["id"]: role for role in request["roles"]}
     actual, occupied = Counter(), set()
+    intervals = defaultdict(list)
     penalty = 0
     for index, assignment in enumerate(solution["assignments"]):
         path = f"/assignments/{index}"
@@ -40,6 +41,7 @@ def verify_solution(problem, solution):
         except InvalidInput as error:
             violations.extend(error.diagnostics)
             continue
+        intervals[employee_id, role_id].append((start, end, index))
         employee, role = employees[employee_id], roles[role_id]
         levels = {skill["skill_id"]: skill["level"] for skill in employee["skills"]}
         if any(
@@ -76,6 +78,20 @@ def verify_solution(problem, solution):
         for preference in request["preferences"]:
             if employee_id in preference["employee_ids"] and role_id == preference["role_id"]:
                 penalty += minutes * int(preference["penalty_per_minute"])
+    for (employee_id, role_id), values in intervals.items():
+        ordered = sorted(values)
+        for (_, previous_end, previous_index), (start, _, index) in zip(
+            ordered, ordered[1:], strict=False
+        ):
+            if previous_end == start:
+                fail(
+                    "UNMERGED_ASSIGNMENTS",
+                    "隣接した同じ従業員・役割の担当をまとめてください。",
+                    f"/assignments/{index}/interval",
+                    [employee_id, role_id],
+                    previous_assignment_index=previous_index,
+                    slot=start,
+                )
     expected = Counter()
     for index, demand in enumerate(request["demand"]):
         start, end = grid.interval(demand["interval"], f"/demand/{index}/interval")

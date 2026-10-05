@@ -64,3 +64,22 @@ uv run --no-project --isolated --python 3.14.8 \
 `roster`、時間横断制約、CP-SAT、勤務候補の最適化は未実装。今回の成功で代替しない。
 実務規模の性能、HTTP API の隔離・期限・キャンセル、外部配布、Web・LLM、
 実運用デプロイは未検証。ライセンスなど公開条件は [開発方針](../development-policy.md)に従う。
+
+## マージ前レビューの修正検証
+
+2026-10-06（Asia/Tokyo）、PR #12 の `c0fe3f5` に対する指摘3件を修正した。
+
+- `planning_window.timezone` に128文字の上限を設け、長い入力を `ZoneInfo` の呼び出し前に拒否する。
+  名前のパス長エラー `ENAMETOOLONG` も `INVALID_INPUT` に変換し、その他の I/O 障害は内部エラーとして扱う。
+- Schema の読み取りに `encoding="utf-8"` を明示する。既定の文字コードを CP932 とする
+  リソース読み取りを模擬し、日本語を含む Request Schema が正しく読めることを確認する。
+- 独立検証器で同じ従業員・役割の区間を時刻順に照合し、隣接区間の結合漏れを
+  `UNMERGED_ASSIGNMENTS` として検出する。区間を逆順に返した場合も
+  `INTERNAL_ERROR` / `solution: null` とし、担当が変わる区間や空白を挟む区間は許可する。
+
+修正前の回帰テストは5件失敗・4件成功。修正後の
+`uv run --locked --extra cp-sat pytest -q -ra` は **313 passed / 6 subtests passed / 0 failed / 0 skipped**（3.25秒）。
+wheel の API・CLI・Schema、全探索比較150件、既存テストを含む。
+修正前の macOS では256文字の名前は `ZoneInfoNotFoundError` となったため、
+パス長・I/O 障害は例外注入で検証した。Windows 本体での実行は未検証であり、CP932 の確認は模擬実行である。
+Ruff hook と修正 head の GitHub CI の結果は PR 本文に記録する。

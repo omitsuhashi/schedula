@@ -109,7 +109,9 @@ def _date(value):
 def get_schema(kind):
     if kind not in {"request", "response"}:
         raise ValueError("request または response を指定します。")
-    return json.loads(files("schedula").joinpath(f"schemas/0.1/{kind}.schema.json").read_text())
+    return json.loads(
+        files("schedula").joinpath(f"schemas/0.1/{kind}.schema.json").read_text(encoding="utf-8")
+    )
 
 
 @lru_cache

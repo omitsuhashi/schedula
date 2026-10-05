@@ -27,7 +27,8 @@
         },
         "timezone": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "maxLength": 128
         },
         "slot_minutes": {
           "type": "integer",

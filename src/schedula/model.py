@@ -1,3 +1,4 @@
+import errno
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
@@ -124,6 +125,10 @@ def normalize(request):
         zone = ZoneInfo(window["timezone"])
     except ZoneInfoNotFoundError, ValueError:
         reject("INVALID_TIMEZONE", "IANA タイムゾーンを指定します。", "/planning_window/timezone")
+    except OSError as error:
+        if error.errno == errno.ENAMETOOLONG:
+            reject("INVALID_TIMEZONE", "timezone 名が長すぎます。", "/planning_window/timezone")
+        raise
     start = minute_datetime(window["start"], "/planning_window/start")
     end = minute_datetime(window["end"], "/planning_window/end")
     step = timedelta(minutes=int(window["slot_minutes"]))
