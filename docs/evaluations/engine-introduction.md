@@ -50,9 +50,8 @@ ZIP 自体と参照の Python コード・テストは schedula の配布物へ�
 参照は Python `>=3.11`、jsonschema `>=4.23,<5`、OR-Tools `==9.15.6755`、
 pytest `>=8,<10` を宣言している。現在の schedula の Python と直接依存で実行できた。
 参照の `dev` は extra なので、schedula の `dependency-groups.dev` と区別して指定した。
-隔離環境で解決した全依存・wheel のハッシュは
-[評価用 uv.lock](engine-introduction-20261005/uv.lock)、実際の版は
-[environment.json](engine-introduction-20261005/environment.json)に保存する。
+評価環境の版は上表に記録する。評価用 lock file・出力 JSON・一時スクリプトは
+リポジトリで継続管理せず、通常の開発・検証にはルートの `uv.lock` を使う。
 schedula 直下の依存定義と lock file は変更していない。
 
 インストール済み metadata / LICENSE と公式原本で、
@@ -74,8 +73,6 @@ schedula 直下の依存定義と lock file は変更していない。
 OR-Tools がない環境専用のテストで、今回の依存導入環境では意図どおりスキップされた。
 依存未導入時の実行検証は今回行っていない。
 150件の小規模担当配置と全探索の比較は、今回も参照テスト内で成功した。
-集計と失敗の詳細は [test-results.json](engine-introduction-20261005/test-results.json)に保存する。
-schedula の基本確認は [schedula-cpsat-smoke.json](engine-introduction-20261005/schedula-cpsat-smoke.json)に記録する。
 ZIP 作成時の `196 passed / 28 skipped` は過去の結果であり、今回の実測とは別である。
 
 CLI の各例は、入力を変更せず、新しいプロセスで順に実行した。
@@ -89,7 +86,6 @@ CLI の各例は、入力を変更せず、新しいプロセスで順に実行�
 | `infeasible.json` | `min_cost_flow` / `INFEASIBLE` | なし | `solution: null`、未検証、2 | 0.002328秒 |
 
 成功した目的はすべて `proven_optimal: true`、`verification.valid: true`。
-今回の出力 JSON は [評価結果ディレクトリ](engine-introduction-20261005/)に保存した。
 参照同梱の `assignment.result.json` は更新していない。
 時間は単発測定で、実務規模の性能保証や外部応答期限ではない。
 
@@ -105,7 +101,7 @@ CLI の各例は、入力を変更せず、新しいプロセスで順に実行�
 
 参照 `engine.py` は期限を設定してから依存とアダプターを読み込み、`cpsat.py` は
 `cp_model` の import とモデル構築の後に残り時間を確認する。
-[再現プローブ](../../scripts/probe-reference.py)で import に20msの人工遅延を入れ、
+評価時の一時スクリプトで import に20msの人工遅延を入れ、
 探索予算10msの入力が探索前に `UNKNOWN` / `TIME_LIMIT` になることを確認した。
 参照ソースを変更せず、プロセス内だけで障害を注入している。
 
@@ -127,7 +123,6 @@ Issue #6 では、共通の解の構造検証、独立した意味検証、出�
 Response 全体の構造・状態整合を確認してから解を返す。
 いずれかに失敗したら `INTERNAL_ERROR` / `solution: null` とし、検証失敗を診断に残す。
 未知項目・欠落項目・型不正の解を注入したテストも追加する。
-両プローブの実測は [boundary-probes.json](engine-introduction-20261005/boundary-probes.json)に保存する。
 
 ## 採用する構造と独自実装の範囲
 
@@ -164,48 +159,23 @@ Schema の取得は `python -m schedula schema request` / `response` とする�
 インストールした wheel から API・CLI・Schema を利用できることを同 Issue で確認する。
 現時点では入口を確定しただけで、schedula の実行パッケージや外部配布はまだない。
 
-## 再実行の手順
+## 実行コマンド
 
-リポジトリ直下で次のように原本を照合し、隔離先に展開する。
-`archive_path` は手元で取得できた同じ SHA-256 の ZIP に置き換える。
+原本の SHA-256 を確認して隔離先に展開し、参照の `pyproject.toml` がある
+ディレクトリで次のコマンドを実行した。
 
 ```sh
-repo_root="$(pwd)"
-archive_path="/path/to/skillshift-starter-0.1.zip"
-reference_dir="$(mktemp -d)"
-uv run --locked --extra cp-sat python - "$archive_path" "$reference_dir" <<'PY'
-import hashlib
-import json
-import sys
-from pathlib import Path
-from zipfile import ZipFile
-
-snapshot = Path("docs/reference/skillshift-starter-0.1")
-manifest = json.loads((snapshot / "manifest.json").read_text())
-archive_path, reference_dir = map(Path, sys.argv[1:])
-assert hashlib.sha256(archive_path.read_bytes()).hexdigest() == manifest["archive_sha256"]
-with ZipFile(archive_path) as archive:
-    for entry in manifest["files"]:
-        raw = archive.read(entry["archive_path"])
-        assert len(raw) == entry["bytes"]
-        assert hashlib.sha256(raw).hexdigest() == entry["sha256"]
-        assert raw == (snapshot / entry["path"]).read_bytes()
-    archive.extractall(reference_dir)
-PY
-cp docs/evaluations/engine-introduction-20261005/uv.lock "$reference_dir/skillshift-starter/uv.lock"
-cd "$reference_dir/skillshift-starter"
-uv sync --locked --python 3.14.8 --extra dev --extra cp-sat
+uv sync --python 3.14.8 --extra dev --extra cp-sat
 uv run --locked --extra dev --extra cp-sat pytest -q -ra
 uv run --locked --extra dev --extra cp-sat python -m skillshift solve examples/assignment.json
 uv run --locked --extra dev --extra cp-sat python -m skillshift solve examples/linked_assignment.json
 uv run --locked --extra dev --extra cp-sat python -m skillshift solve examples/roster.json
 uv run --locked --extra dev --extra cp-sat python -m skillshift solve examples/infeasible.json
-uv run --locked --extra dev --extra cp-sat python "$repo_root/scripts/probe-reference.py"
 ```
 
-今回の初回同期は lock file 生成のため `uv sync --python 3.14.8 --extra dev --extra cp-sat`。
-再同期では保存した評価用 lock を使う。人数不足例の終了コード2は期待値である。
-プローブは既知の不足を再現したときに終了コード0となり、修正を検証するテストではない。
+人数不足例の終了コード2は期待値である。
+この記録は今回の実行条件と結果を示す。将来の再評価で依存を再解決する場合は、
+そのときの版と結果を別に記録する。
 
 ## 後続の着手条件と未検証事項
 
