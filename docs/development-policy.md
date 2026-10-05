@@ -23,7 +23,9 @@ LLM 入力はその後に追加する。以下は開発を整理するための�
 
 セットアップと依存管理の正本は [Python セットアップ](python-setup.md)とする。
 パッケージ追加は `uv add`、環境同期は `uv sync`、実行は `uv run` に揃える。
-既存のテスト方式を尊重し、エンジン導入時には Ruff・pytest・pre-commit を整備する。
+Python 3.14.8 を固定し、jsonschema・OR-Tools と開発依存の Ruff・pytest・pre-commit を導入した。
+`unittest` で書かれた既存テストは pytest から実行し、CI も同じ uv 環境と検証入口を使う。
+最適化エンジンの実行コードの導入と、その検証は別途進める。
 
 ## 参照資料の検証状態
 

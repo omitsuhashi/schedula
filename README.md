@@ -29,16 +29,21 @@ ZIP の報告は 196 passed / 28 skipped で、CP-SAT は実行未検証です�
 
 依存の追加・インストール・実行は uv を標準とし、
 [Python セットアップ](docs/python-setup.md)を手順の正本にします。
-現在は `pyproject.toml` と `uv.lock` がなく、デプロイ入口のテストは標準ライブラリだけで実行できます。
-リポジトリ直下で次を実行してください。
+Python は依存パッケージが対応する最新の 3.14.8 に固定しています。
+jsonschema・OR-Tools と Ruff・pytest・pre-commit を uv で管理します。
+リポジトリ直下で初回セットアップと検証を実行してください。
 
 ```sh
+uv python install
+uv sync --locked --extra cp-sat
+uv run --locked --extra cp-sat pre-commit install --install-hooks
+uv run --locked --extra cp-sat pre-commit run --all-files --show-diff-on-failure
+uv run --locked --extra cp-sat pytest
 bash -n scripts/deploy
-uv run --no-project python -m unittest discover -s tests -v
 ```
 
-エンジン導入時の開発依存・Git hook と、参照 ZIP を隔離環境で評価する手順も
-[Python セットアップ](docs/python-setup.md)に記載しています。
+既存 hook と衝突する場合は上書きせず、[Git hook の確認手順](docs/python-setup.md#git-hook)に従ってください。
+参照 ZIP の評価手順と依存更新の方法も同じ文書に記載しています。
 
 ## デプロイ
 

@@ -11,7 +11,16 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Set up uv
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: "0.12.23"
+          enable-cache: true
+      - name: Sync Python environment
+        run: uv sync --locked --extra cp-sat
+      - name: Validate Ruff hooks
+        run: uv run --locked --extra cp-sat pre-commit run --all-files --show-diff-on-failure
       - name: Validate deployment entry point
         run: |
           bash -n scripts/deploy
-          python3 -m unittest discover -s tests -v
+          uv run --locked --extra cp-sat pytest
