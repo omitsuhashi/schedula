@@ -26,7 +26,8 @@ LLM 用の RequestDraft は実行契約と別に定義する。
 | CLI の入口 | `python -m schedula solve <入力ファイル>`。UTF-8 JSON、`-` は標準入力 |
 | Schema の取得 | `python -m schedula schema request` / `response`。初期版は0.1を返す |
 
-これらのファイルと入口は Issue #6 で実装した。利用例と現在の対応範囲は
+これらのファイルと入口は Issue #6、担当時間・担当切替と CP-SAT は Issue #7 で実装した。
+現在の目的は最大1件とし、複数目的は未対応として明示的に拒否する。利用例と対応範囲は
 [担当配置の利用手順](assignment.md)を参照する。
 `src/schedula/` を `setuptools.build_meta` でパッケージ化し、版別 JSON を package data に含める。
 参照コードのライセンス未選定を踏まえ、保存済み原本を直接編集・コピーせず、
@@ -256,7 +257,7 @@ CLI は JSON だけを標準出力へ出し、解があれば終了コード0、
 実行環境は [参照 ZIP の評価手順](python-setup.md#参照-zip-を評価する場合)に従う。
 現在の schedula の利用例は
 `uv run --locked python -m schedula solve <入力ファイル>`。
-CP-SAT の導入後は `--extra cp-sat` を指定する。標準出力は JSON のみとし、
+CP-SAT を使う場合は `--extra cp-sat` を指定する。標準出力は JSON のみとし、
 結果検証に成功した `OPTIMAL` / `FEASIBLE` は0、それ以外の結果状態は2とする。
 引数の誤りなど CLI の使用法エラーは標準エラーへ表示し、終了コード2とする。
 Schema 取得は JSON を標準出力へ出し、成功時は0とする。

@@ -1,13 +1,21 @@
 import time
 from importlib.metadata import version
 
-from . import flow
+from . import cp_sat, flow
 from .contract import InvalidInput, check_json, diagnostic, schema_errors
 from .model import normalize
 from .verify import verify_solution
 
 
-def response(request_id, status, diagnostics=(), backend="none", verification=None):
+def response(
+    request_id,
+    status,
+    diagnostics=(),
+    backend="none",
+    verification=None,
+    selection_reason="NOT_SELECTED",
+    library_version=None,
+):
     return {
         "schema_version": "0.1",
         "request_id": request_id,
@@ -15,10 +23,8 @@ def response(request_id, status, diagnostics=(), backend="none", verification=No
         "solver": {
             "backend": backend,
             "engine_version": version("schedula"),
-            "library_version": None,
-            "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
-            if backend == "min_cost_flow"
-            else "NOT_SELECTED",
+            "library_version": library_version,
+            "selection_reason": selection_reason,
         },
         "solution": None,
         "objectives": [],
@@ -44,27 +50,45 @@ def validate_response(result, request=None):
         raise InvalidInput(errors)
 
 
+def choose_backend(request):
+    if request["solver"]["backend"] != "auto":
+        return request["solver"]["backend"], "EXPLICIT_BACKEND"
+    if request["constraints"]:
+        return "cp_sat", "ASSIGNMENT_CONSTRAINTS"
+    if any(objective["metric"] == "role_switches" for objective in request["objectives"]):
+        return "cp_sat", "ROLE_SWITCH_OBJECTIVE"
+    return "min_cost_flow", "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+
+
 def solve(request: dict) -> dict:
     start = time.perf_counter()
     request_id = request.get("request_id") if isinstance(request, dict) else None
     if not isinstance(request_id, str):
         request_id = None
     backend = "none"
+    selection_reason = "NOT_SELECTED"
+    library_version = None
     verification = None
     try:
         problem = normalize(request)
-        backend = "min_cost_flow"
-        outcome = flow.run(problem)
+        backend, selection_reason = choose_backend(request)
+        if backend == "cp_sat":
+            module, library_version = cp_sat.load_backend()
+            outcome = cp_sat.run(problem, module)
+        else:
+            outcome = flow.run(problem)
+        if backend == "min_cost_flow" and outcome.status == "FEASIBLE":
+            raise RuntimeError("Unexpected flow outcome")
         result = response(request_id, outcome.status, outcome.diagnostics, backend)
-        if outcome.status == "OPTIMAL":
-            violations, penalty = verify_solution(problem, outcome.solution)
-            if not violations and penalty != outcome.cost:
+        if outcome.status in {"OPTIMAL", "FEASIBLE"}:
+            violations, value = verify_solution(problem, outcome.solution)
+            if not violations and value != outcome.cost:
                 violations = [
                     diagnostic(
                         "OBJECTIVE_VALUE_MISMATCH",
                         "再計算した評価値がソルバーの値と一致しません。",
                         "/objectives",
-                        recomputed_value=penalty,
+                        recomputed_value=value,
                         solver_value=outcome.cost,
                     )
                 ]
@@ -78,16 +102,31 @@ def solve(request: dict) -> dict:
                     {
                         "id": objective["id"],
                         "metric": objective["metric"],
-                        "value": penalty,
-                        "proven_optimal": True,
+                        "value": value,
+                        "proven_optimal": outcome.status == "OPTIMAL",
                     }
                     for objective in request["objectives"]
                 ]
         elif outcome.status not in {"INFEASIBLE", "UNKNOWN"} or outcome.solution is not None:
-            raise RuntimeError("Unexpected flow outcome")
+            raise RuntimeError("Unexpected solver outcome")
+        result["solver"]["selection_reason"] = selection_reason
+        result["solver"]["library_version"] = library_version
         result["stats"]["elapsed_seconds"] = time.perf_counter() - start
         validate_response(result, request)
         return result
+    except cp_sat.BackendUnavailable:
+        result = response(
+            request_id,
+            "BACKEND_UNAVAILABLE",
+            [
+                diagnostic(
+                    "BACKEND_UNAVAILABLE",
+                    "CP-SAT には cp-sat extra の導入が必要です。",
+                    "/solver/backend",
+                )
+            ],
+            backend,
+        )
     except InvalidInput as error:
         if backend == "none":
             result = response(request_id, "INVALID_INPUT", error.diagnostics)
@@ -104,6 +143,8 @@ def solve(request: dict) -> dict:
             [diagnostic("INTERNAL_ERROR", "エンジン内部の処理に失敗しました。")],
             backend,
         )
+    result["solver"]["selection_reason"] = selection_reason
+    result["solver"]["library_version"] = library_version
     result["stats"]["elapsed_seconds"] = time.perf_counter() - start
     validate_response(result)
     return result

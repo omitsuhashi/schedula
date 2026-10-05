@@ -4,7 +4,7 @@ from .contract import InvalidInput, check_json, diagnostic, parse_datetime, sche
 
 
 def verify_solution(problem, solution):
-    """正規化済みの資格・費用・需要やソルバーの変数を使わず、共通の解を照合する。"""
+    """元入力と共通の解を照合し、違反と単一目的の再計算値を返す。"""
     try:
         check_json(solution)
     except InvalidInput as error:
@@ -24,6 +24,7 @@ def verify_solution(problem, solution):
     roles = {role["id"]: role for role in request["roles"]}
     actual, occupied = Counter(), set()
     intervals = defaultdict(list)
+    assigned_roles = defaultdict(dict)
     penalty = 0
     for index, assignment in enumerate(solution["assignments"]):
         path = f"/assignments/{index}"
@@ -73,6 +74,7 @@ def verify_solution(problem, solution):
                     slot=slot,
                 )
             occupied.add((employee_id, slot))
+            assigned_roles[employee_id][slot] = role_id
             actual[slot, role_id] += 1
         minutes = (end - start) * grid.slot_minutes
         for preference in request["preferences"]:
@@ -110,4 +112,37 @@ def verify_solution(problem, solution):
                 required_people=required,
                 assigned_people=assigned,
             )
-    return violations[:1000], penalty
+    assigned_minutes = Counter(employee_id for employee_id, _ in occupied)
+    switches = {
+        employee_id: sum(
+            slot + 1 in values and role_id != values[slot + 1] for slot, role_id in values.items()
+        )
+        for employee_id, values in assigned_roles.items()
+    }
+    for index, constraint in enumerate(request["constraints"]):
+        minutes_limit = constraint["type"] == "max_assigned_minutes"
+        field = "limit_minutes" if minutes_limit else "limit_count"
+        for employee_id in constraint["employee_ids"]:
+            value = (
+                assigned_minutes[employee_id] * grid.slot_minutes
+                if minutes_limit
+                else switches.get(employee_id, 0)
+            )
+            if value > constraint[field]:
+                fail(
+                    "MAX_ASSIGNED_MINUTES_VIOLATION"
+                    if minutes_limit
+                    else "MAX_ROLE_SWITCHES_VIOLATION",
+                    "担当時間または担当切替の上限を超えています。",
+                    f"/constraints/{index}",
+                    [constraint["id"], employee_id],
+                    actual_value=value,
+                    limit=constraint[field],
+                )
+    # 現在は目的を最大1件に限定する。評価はソルバーの変数・費用から独立して再計算する。
+    value = (
+        sum(switches.values())
+        if request["objectives"] and request["objectives"][0]["metric"] == "role_switches"
+        else penalty
+    )
+    return violations[:1000], value
