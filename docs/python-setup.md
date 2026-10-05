@@ -125,8 +125,12 @@ uv run --extra dev --extra cp-sat python -m skillshift solve examples/roster.jso
 
 元の `dev` extra と、新規の `uv add --dev` が作る `dependency-groups.dev` は別の宣言である。
 毎回の実行で同じ extras を指定し、CP-SAT のテストが依存不足でスキップされないことを確認する。
-uv が生成する lock file と、環境・依存版・結果・スキップ理由を評価記録に保存する。
+環境・依存版・コマンド・結果・スキップ理由を評価記録に残す。
 ZIP の過去の結果を、この手順による実測結果として扱わない。
+
+2026-10-05 の [評価記録](evaluations/engine-introduction.md)に、取得した ZIP の照合、
+Python 3.14.8 / OR-Tools 9.15.6755 での実行コマンド・結果・導入判断を記録した。
+参照ソースは取り込まず、探索前の準備と出力構造検証の差分を後続実装の条件にした。
 
 ## 公式資料
 

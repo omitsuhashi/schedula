@@ -9,9 +9,39 @@
 これらは公開安定版ではなく、schedula の実装・互換性保証が完成したことを示すものではない。
 
 参照スナップショットは変更しない。schedula 用の実行契約の配置、版の付け方、移行方針は
-実装導入時に決め、意味を変える場合は新しい版と移行例を用意する。
+[参照実装の評価](evaluations/engine-introduction.md)で次のとおり確定した。
 `urn:skillshift:request:0.1` など元の `$id` は来歴のため保持する。
 LLM 用の RequestDraft は実行契約と別に定義する。
+
+## schedula の契約の公開単位
+
+| 対象 | 決定 |
+| --- | --- |
+| Request Schema | `src/schedula/schemas/0.1/request.schema.json`、`$id: urn:schedula:request:0.1` |
+| Response Schema | `src/schedula/schemas/0.1/response.schema.json`、`$id: urn:schedula:response:0.1` |
+| JSON Schema dialect | 両方に `$schema: https://json-schema.org/draft/2020-12/schema` を明示する |
+| 入出力の契約版 | `schema_version: "0.1"`。パッケージ版・`solver.engine_version` と区別する |
+| 配布単位 | Request / Response を対にして wheel に同梱する。版別 Schema が構造の正本 |
+| プログラムの入口 | `from schedula import solve`、`solve(request: dict) -> dict` |
+| CLI の入口 | `python -m schedula solve <入力ファイル>`。UTF-8 JSON、`-` は標準入力 |
+| Schema の取得 | `python -m schedula schema request` / `response`。初期版は0.1を返す |
+
+これらのファイルと入口は Issue #6 で実装する。現時点でコマンドは実行できない。
+`src/schedula/` を `setuptools.build_meta` でパッケージ化し、版別 JSON を package data に含める。
+参照コードのライセンス未選定を踏まえ、保存済み原本を直接編集・コピーせず、
+本書の業務仕様から schedula 用の Schema・例・コード・テストを作成する。
+
+0.1は開発中の初期契約であり、公開安定版やすべての機能の実装を示さない。
+Schema が表現できる条件でも、導入済み機能以外は意味検証で `INVALID_INPUT` として拒否する。
+対応機能はパッケージ版ごとに文書化し、`auto` や明示 backend が条件を捨てることは認めない。
+
+一度導入した契約版の受理構造・必須項目・状態・業務上の意味は同じ版で変更しない。
+未知項目を拒否するため、項目・ルールの追加も新しい契約版として Request / Response を揃える。
+説明文だけの訂正や既存仕様に従う実装修正は、構造・意味を変えずパッケージ版で記録する。
+新しい契約版では別の配置と `$id` を使い、変更理由、旧版との差分、入力の移行例、
+旧版の対応期間を同じ PR に記録する。旧版ファイルは保持し、無言の自動移行はしない。
+実行エンジンが未対応の契約版を受け取った場合も `INVALID_INPUT` とし、診断で版を示す。
+SDK 生成は版別の実行 Schema を基準とし、参照スナップショットを生成元にしない。
 
 ## Request の構成
 
@@ -223,10 +253,20 @@ CLI は JSON だけを標準出力へ出し、解があれば終了コード0、
 `INFEASIBLE` と入力エラーは終了コードではなく `status` で区別する。
 これらは ZIP の入口であり、現在の schedula で実行できるコマンドではない。
 実行環境は [参照 ZIP の評価手順](python-setup.md#参照-zip-を評価する場合)に従う。
+実装予定の schedula の利用例は
+`uv run --locked python -m schedula solve <入力ファイル>`。
+CP-SAT の導入後は `--extra cp-sat` を指定する。標準出力は JSON のみとし、
+結果検証に成功した `OPTIMAL` / `FEASIBLE` は0、それ以外の結果状態は2とする。
+引数の誤りなど CLI の使用法エラーは標準エラーへ表示し、終了コード2とする。
+Schema 取得は JSON を標準出力へ出し、成功時は0とする。
 
 参照実装には従業員250人、役割50、時間枠3000、候補5000、
 従業員 × 時間枠 × 役割が1,000,000以下などの入力・意味上の制限がある。
 上限内で性能が保証されるという意味ではない。将来の公開上限は測定して決める。
 探索予算は目的の各段階で共有し、後段が時間切れなら直前の実行可能解を保持する方針。
-この CP-SAT 経路は ZIP 作成時に実行未検証である。
+schedula では入力検証・依存読み込み・候補展開・モデル構築を探索予算から分け、
+探索を始めてから共有予算を消費する。総応答時間は結果検証を含めて別に測る。
+参照 CP-SAT 経路は ZIP 作成時には未検証だったが、今回の評価で実行した。
+初回読み込みで予算を使い切る構造と修正条件は
+[評価記録](evaluations/engine-introduction.md#後続実装で修正する差分)に残す。
 HTTP の状態コード、非同期ジョブ、キャンセル、再試行・冪等性の仕様は未決定。
