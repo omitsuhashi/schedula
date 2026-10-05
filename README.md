@@ -20,14 +20,27 @@
 | [設計判断](docs/adr/0001-json-first-engine.md) | JSON を中心にしたエンジンと、[勤務計画の同時最適化](docs/adr/0002-joint-roster-optimization.md) |
 | [出典と採用判断](docs/sources.md) | 元チャット、ZIP、採用箇所、参照資料の来歴 |
 
-2026-10-05 時点で、このリポジトリには最適化エンジンを導入していません。
-添付 `skillshift-starter-0.1.zip` は設計・実装の参照元です。
-その JSON Schema、例、検証報告を `docs/reference/skillshift-starter-0.1/` に保存しています。
-ZIP 作成時の報告は 196 passed / 28 skipped でした。
-今回の隔離評価では、初回の失敗を記録したうえで、未変更の参照テストの再実行が
-223 passed / 1 skipped、3例が検証済みの `OPTIMAL` となりました。
-参照コードはライセンス未選定のため取り込みを保留し、schedula は業務仕様から独自実装します。
-公開する Schema の版と API・CLI の入口、導入時の必須修正は上記の評価記録にまとめています。
+schedula 0.1.0 は独立した `assignment` を最小費用流で解き、
+結果の構造・担当資格・勤務可能時間・厳密な需要・二重配置と評価値を独立検証します。
+ライブラリは `from schedula import solve`、CLI は `python -m schedula solve` です。
+`roster`、時間横断制約、`cp_sat` は未対応で、指定すると `INVALID_INPUT` を返します。
+
+```sh
+uv sync --locked
+uv run --locked python -m schedula solve examples/assignment.json
+uv run --locked python -m schedula schema request
+uv run --locked python -m schedula schema response
+```
+
+例は選好ペナルティ0の検証済み `OPTIMAL` を返します。
+[担当配置の利用手順](docs/assignment.md)に、標準入力、ライブラリ、対応範囲、
+診断・終了コード、探索予算と上限を記載しています。
+[担当配置の検証記録](docs/evaluations/assignment.md)は、今回の実測と未検証事項を示します。
+
+添付 `skillshift-starter-0.1.zip` は設計の参照元です。
+保存済み原本は `docs/reference/skillshift-starter-0.1/` に保持し、変更していません。
+参照コードはライセンス未選定のため取り込みを保留し、schedula のコード・Schema・例・テストは
+採用済み業務仕様から独自実装しました。過去の参照評価は上記の評価記録と区別します。
 
 ## Python のセットアップ
 

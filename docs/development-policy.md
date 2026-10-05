@@ -25,7 +25,9 @@ LLM 入力はその後に追加する。以下は開発を整理するための�
 パッケージ追加は `uv add`、環境同期は `uv sync`、実行は `uv run` に揃える。
 Python 3.14.8 を固定し、jsonschema・OR-Tools と開発依存の Ruff・pytest・pre-commit を導入した。
 `unittest` で書かれた既存テストは pytest から実行し、CI も同じ uv 環境と検証入口を使う。
-最適化エンジンの実行コードの導入と、その検証は別途進める。
+独立した `assignment` は実行コードと検証を導入した。
+現在の対応範囲は [利用手順](assignment.md)、実測は [担当配置の検証記録](evaluations/assignment.md)を参照する。
+CP-SAT と勤務計画の実装・検証は後続の課題で扱う。
 
 ## 参照資料の検証状態
 
