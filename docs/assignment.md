@@ -1,6 +1,6 @@
 # 担当配置の利用手順
 
-schedula 0.1.1 は独立した配置と、担当時間上限・担当切替を含む `assignment` を解く。
+schedula 0.1.2 は独立した配置と、担当時間上限・担当切替を含む `assignment` を解く。
 飲食店の架空の例を [examples/assignment.json](../examples/assignment.json) と
 [examples/linked_assignment.json](../examples/linked_assignment.json) に用意した。
 JSON の意味と版の変更方針は [入出力契約](io-contract.md)、環境の正本は
@@ -51,7 +51,7 @@ uv run --locked --extra cp-sat python -m schedula solve examples/linked_assignme
 
 ## 対応する条件
 
-| 対象 | schedula 0.1.1 の対応 |
+| 対象 | schedula 0.1.2 の担当配置の対応 |
 | --- | --- |
 | `problem_type` | `assignment` |
 | `solver.backend` | `auto` / `min_cost_flow` / `cp_sat` |
@@ -64,7 +64,8 @@ uv run --locked --extra cp-sat python -m schedula solve examples/linked_assignme
 | `history` | `assignment` では受理しない |
 | `seed` | CP-SAT に渡し、worker 数は1。最小費用流は ID 順で探索し seed を使わない |
 
-`roster`、勤務量の目的、勤務用ルール、複数目的の組合せは `INVALID_INPUT`。
+`assignment` への勤務量の目的・勤務用ルール、複数目的の組合せは `INVALID_INPUT`。
+`roster` は [勤務計画の利用手順](roster.md)で扱う。
 Schema は契約0.1全体を表すが、未対応条件を意味検証で拒否する。
 必要な条件を捨てたり、需要不足のまま正式な解を返したりしない。
 担当時間は担当した枠数 × `slot_minutes`。上限は対象者全員の合計ではなく、一人ずつ適用する。

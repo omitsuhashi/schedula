@@ -513,14 +513,15 @@ request = json.loads((root / 'examples/assignment.json').read_text(encoding='utf
 result = schedula.solve(request)
 assert result['status'] == 'OPTIMAL' and result['verification']['valid'] is True
 assert result['solver']['backend'] == 'min_cost_flow' and not schema_errors('response', result)
-request = json.loads((root / 'examples/linked_assignment.json').read_text(encoding='utf-8'))
-for backend in ['auto', 'cp_sat']:
-    request['solver']['backend'] = backend
-    result = schedula.solve(request)
-    assert result['status'] == 'BACKEND_UNAVAILABLE' and result['solution'] is None
-    assert result['solver']['backend'] == 'cp_sat' and not schema_errors('response', result)
-request['solver']['backend'] = 'min_cost_flow'
-assert schedula.solve(request)['status'] == 'INVALID_INPUT'
+for example in ['linked_assignment.json', 'roster.json']:
+    request = json.loads((root / 'examples' / example).read_text(encoding='utf-8'))
+    for backend in ['auto', 'cp_sat']:
+        request['solver']['backend'] = backend
+        result = schedula.solve(request)
+        assert result['status'] == 'BACKEND_UNAVAILABLE' and result['solution'] is None
+        assert result['solver']['backend'] == 'cp_sat' and not schema_errors('response', result)
+    request['solver']['backend'] = 'min_cost_flow'
+    assert schedula.solve(request)['status'] == 'INVALID_INPUT'
 cli = subprocess.run(
     [sys.executable, '-I', '-m', 'schedula', 'solve',
      str(root / 'examples/linked_assignment.json')], capture_output=True, text=True,

@@ -1,7 +1,8 @@
 from collections import defaultdict
 from dataclasses import dataclass
+from datetime import timedelta
 
-from .contract import diagnostic
+from .contract import diagnostic, parse_datetime
 from .flow import make_solution
 
 
@@ -27,8 +28,65 @@ class SatResult:
     diagnostics: tuple = ()
 
 
+def prepare_roster(model, problem):
+    grid = problem.grid
+    shifts = {c.id: model.new_bool_var(f"shift_{c.id}") for c in problem.candidates}
+    by_day, by_employee, coverage = defaultdict(list), defaultdict(list), defaultdict(list)
+    for candidate in problem.candidates:
+        variable = shifts[candidate.id]
+        by_employee[candidate.employee_id].append(candidate)
+        by_day[candidate.employee_id, candidate.day.toordinal()].append(variable)
+        for slot in candidate.work_slots:
+            coverage[candidate.employee_id, slot].append(variable)
+    for variables in by_day.values():
+        model.add(sum(variables) <= 1)
+    scheduled = {
+        employee: sum(len(c.work_slots) * grid.slot_minutes * shifts[c.id] for c in candidates)
+        for employee, candidates in by_employee.items()
+    }
+    histories = {e["id"]: e["history"] for e in problem.request["employees"]}
+    first_day = grid.start.astimezone(grid.timezone).date().toordinal()
+    days = grid.end.astimezone(grid.timezone).date().toordinal() - first_day
+    for constraint in problem.request["constraints"]:
+        kind = constraint["type"]
+        for employee in constraint["employee_ids"]:
+            if kind == "max_scheduled_minutes":
+                model.add(scheduled.get(employee, 0) <= int(constraint["limit_minutes"]))
+            elif kind == "min_rest_minutes":
+                rest = timedelta(minutes=int(constraint["limit_minutes"]))
+                candidates = by_employee[employee]
+                last = histories[employee]["last_shift_end"]
+                if last is not None:
+                    last = parse_datetime(last)
+                    for c in candidates:
+                        start = grid.start + timedelta(minutes=c.start * grid.slot_minutes)
+                        if start - last < rest:
+                            model.add(shifts[c.id] == 0)
+                for index, c in enumerate(candidates):
+                    for other in candidates[index + 1 :]:
+                        if timedelta(minutes=(other.start - c.end) * grid.slot_minutes) >= rest:
+                            break
+                        if c.day != other.day:
+                            model.add(shifts[c.id] + shifts[other.id] <= 1)
+            elif kind == "max_consecutive_days":
+                previous = int(histories[employee]["consecutive_work_days_before_window"])
+                limit = int(constraint["limit_days"])
+                for day in range(first_day, first_day + days):
+                    working = model.new_bool_var(f"day_{constraint['id']}_{employee}_{day}")
+                    model.add(working == sum(by_day[employee, day]))
+                    consecutive = model.new_int_var(
+                        0, limit, f"run_{constraint['id']}_{employee}_{day}"
+                    )
+                    model.add(consecutive == previous + 1).only_enforce_if(working)
+                    model.add(consecutive == 0).only_enforce_if(working.Not())
+                    previous = consecutive
+    return shifts, coverage, sum(scheduled.values())
+
+
 def prepare(problem, cp_model):
     model = cp_model.CpModel()
+    roster = problem.request["problem_type"] == "roster"
+    shifts, coverage, scheduled = prepare_roster(model, problem) if roster else ({}, {}, 0)
     assignments = {}
     by_employee = defaultdict(list)
     by_slot = defaultdict(list)
@@ -38,7 +96,10 @@ def prepare(problem, cp_model):
             if not count:
                 continue
             for employee in sorted(problem.available):
-                if slot in problem.available[employee] and role in problem.qualified[employee]:
+                possible = (
+                    (employee, slot) in coverage if roster else slot in problem.available[employee]
+                )
+                if possible and role in problem.qualified[employee]:
                     variable = model.new_bool_var(f"assign_{employee}_{slot}_{role}")
                     assignments[employee, slot, role] = variable
                     by_employee[employee].append(variable)
@@ -47,6 +108,9 @@ def prepare(problem, cp_model):
             model.add(sum(by_role[slot, role]) == count)
     for values in by_slot.values():
         model.add(sum(variable for _, variable in values) <= 1)
+    if roster:
+        for key, values in by_slot.items():
+            model.add(sum(variable for _, variable in values) <= sum(coverage[key]))
 
     metric = problem.request["objectives"][0]["metric"] if problem.request["objectives"] else None
     switch_employees = set(problem.available) if metric == "role_switches" else set()
@@ -82,7 +146,7 @@ def prepare(problem, cp_model):
                     sum(by_employee[employee]) * problem.grid.slot_minutes
                     <= int(constraint["limit_minutes"])
                 )
-            else:
+            elif constraint["type"] == "max_role_switches":
                 model.add(sum(switches[employee]) <= int(constraint["limit_count"]))
     objective = 0
     if metric == "preference_penalty":
@@ -92,15 +156,17 @@ def prepare(problem, cp_model):
         )
     elif metric == "role_switches":
         objective = sum(variable for values in switches.values() for variable in values)
+    elif metric == "scheduled_minutes":
+        objective = scheduled
     if metric:
         model.minimize(objective)
     if model.validate():
         raise RuntimeError("Invalid CP-SAT model")
-    return model, assignments, objective
+    return model, assignments, shifts, objective
 
 
 def run(problem, cp_model):
-    model, variables, objective = prepare(problem, cp_model)
+    model, variables, shifts, objective = prepare(problem, cp_model)
     solver = cp_model.CpSolver()
     solver.parameters.random_seed = int(problem.request["solver"]["seed"])
     solver.parameters.num_search_workers = 1
@@ -113,9 +179,15 @@ def run(problem, cp_model):
         for (employee, slot, role), variable in variables.items():
             if solver.value(variable):
                 assignments[employee].append((slot, role))
+        solution = make_solution(problem.grid, assignments)
+        solution["shifts"] = [
+            candidate.output(problem.grid)
+            for candidate in problem.candidates
+            if solver.value(shifts[candidate.id])
+        ]
         return SatResult(
             "OPTIMAL" if status == cp_model.OPTIMAL else "FEASIBLE",
-            make_solution(problem.grid, assignments),
+            solution,
             int(solver.value(objective)),
         )
     if status == cp_model.INFEASIBLE:
