@@ -1,0 +1,259 @@
+{
+  "date": "2026-10-06",
+  "engine_commit": "1bace6ff8d8cd98ab593a0f85777384286e4c155",
+  "scope": "Issue #27 の全10条件の実計算。入力はサンプルと操作定義から再現する。HTTP・ブラウザーの計算操作は未実装。",
+  "python": "3.14.8",
+  "platform": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+  "dependencies": {
+    "schedula": "0.1.3",
+    "jsonschema": "4.26.0",
+    "pytest": "9.1.1"
+  },
+  "sources": {
+    "examples/playground/lunch.json": "faf5a47086f210a169f660a293604297dfd9786dfffd0c8410047b14e8cee5f4",
+    "examples/playground/scenarios.json": "6fc3c826f06d8c28e5ee0c9d1f6f88bbd6a6dfb134a5ed7b59ed8d987338db81",
+    "uv.lock": "ca6e4dfa241cdb48cc75a22fe4371877a59a8ed4237e2939f5ea545d253de488",
+    "tests/test_playground_scenarios.py": "5dc30a0bd2997dc65960cbb8a4f0272cf17bdc5c4220c775f7efc237e7e30918"
+  },
+  "request_hash_format": "UTF-8 json.dumps(request, ensure_ascii=False, sort_keys=True, separators=(',', ':'))",
+  "checks": {
+    "first_attempt": "受け入れテスト2成功・1失敗。facts を辞書と仮定したテストの誤り。配列に修正した。",
+    "after_fix": "受け入れテスト3成功。エンジン変更なし。",
+    "regression": "966 passed, 6 subtests passed in 107.04s; failures=0, errors=0, skipped=0"
+  },
+  "runs": [
+    {
+      "scenario": "normal",
+      "step": "initial",
+      "input_sha256": "c81105d0a10cc97363651c2072c089a08a2e595d25b42693738582a1f7592594",
+      "status": "OPTIMAL",
+      "solver": {
+        "backend": "min_cost_flow",
+        "engine_version": "0.1.3",
+        "library_version": null,
+        "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+      },
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [],
+      "assigned_slots": 22.0,
+      "diagnostics": [],
+      "elapsed_seconds": 0.04810358298709616
+    },
+    {
+      "scenario": "normal",
+      "step": "changed",
+      "input_sha256": "d8a175fdb9044a8c3f753420217520f8aabb629433b0eb824335e50bd9b1c101",
+      "status": "OPTIMAL",
+      "solver": {
+        "backend": "min_cost_flow",
+        "engine_version": "0.1.3",
+        "library_version": null,
+        "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+      },
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [],
+      "assigned_slots": 23.0,
+      "diagnostics": [],
+      "elapsed_seconds": 0.003994124999735504
+    },
+    {
+      "scenario": "normal",
+      "step": "restored",
+      "input_sha256": "c81105d0a10cc97363651c2072c089a08a2e595d25b42693738582a1f7592594",
+      "status": "OPTIMAL",
+      "solver": {
+        "backend": "min_cost_flow",
+        "engine_version": "0.1.3",
+        "library_version": null,
+        "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+      },
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [],
+      "assigned_slots": 22.0,
+      "diagnostics": [],
+      "elapsed_seconds": 0.0034963329671882093
+    },
+    {
+      "scenario": "absence",
+      "step": "initial",
+      "input_sha256": "c81105d0a10cc97363651c2072c089a08a2e595d25b42693738582a1f7592594",
+      "status": "OPTIMAL",
+      "solver": {
+        "backend": "min_cost_flow",
+        "engine_version": "0.1.3",
+        "library_version": null,
+        "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+      },
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [],
+      "assigned_slots": 22.0,
+      "diagnostics": [],
+      "elapsed_seconds": 0.0034675420029088855
+    },
+    {
+      "scenario": "absence",
+      "step": "changed",
+      "input_sha256": "49a1d6bb5ee00347c5b514db311601a27281b53ccd3e8a90dc96318157008af7",
+      "status": "INFEASIBLE",
+      "solver": {
+        "backend": "min_cost_flow",
+        "engine_version": "0.1.3",
+        "library_version": null,
+        "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+      },
+      "verification": {
+        "performed": false,
+        "valid": null,
+        "violations": []
+      },
+      "objectives": [],
+      "assigned_slots": null,
+      "diagnostics": [
+        {
+          "code": "INSUFFICIENT_QUALIFIED_EMPLOYEES",
+          "message": "この役割の勤務可能な有資格者が不足しています。",
+          "json_pointer": "/demand",
+          "related_ids": [
+            "kitchen"
+          ],
+          "facts": [
+            {
+              "name": "slot",
+              "value": 2
+            },
+            {
+              "name": "required_people",
+              "value": 2
+            },
+            {
+              "name": "eligible_people",
+              "value": 1
+            }
+          ]
+        }
+      ],
+      "elapsed_seconds": 0.0022277079988271
+    },
+    {
+      "scenario": "absence",
+      "step": "repaired",
+      "input_sha256": "3eb43a2a0c7b9f2ac9a6f8ce364e7982dbca7711169f1fe909fe5daaee0b5142",
+      "status": "OPTIMAL",
+      "solver": {
+        "backend": "min_cost_flow",
+        "engine_version": "0.1.3",
+        "library_version": null,
+        "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+      },
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [],
+      "assigned_slots": 20.0,
+      "diagnostics": [],
+      "elapsed_seconds": 0.0032696250127628446
+    },
+    {
+      "scenario": "absence",
+      "step": "restored",
+      "input_sha256": "c81105d0a10cc97363651c2072c089a08a2e595d25b42693738582a1f7592594",
+      "status": "OPTIMAL",
+      "solver": {
+        "backend": "min_cost_flow",
+        "engine_version": "0.1.3",
+        "library_version": null,
+        "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+      },
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [],
+      "assigned_slots": 22.0,
+      "diagnostics": [],
+      "elapsed_seconds": 0.00374904100317508
+    },
+    {
+      "scenario": "peak",
+      "step": "initial",
+      "input_sha256": "c81105d0a10cc97363651c2072c089a08a2e595d25b42693738582a1f7592594",
+      "status": "OPTIMAL",
+      "solver": {
+        "backend": "min_cost_flow",
+        "engine_version": "0.1.3",
+        "library_version": null,
+        "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+      },
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [],
+      "assigned_slots": 22.0,
+      "diagnostics": [],
+      "elapsed_seconds": 0.0036740830400958657
+    },
+    {
+      "scenario": "peak",
+      "step": "changed",
+      "input_sha256": "ebbe6a5c2020ad410194a5dcc5596bd4bb3de701f0c262ff2e04c8922401215e",
+      "status": "OPTIMAL",
+      "solver": {
+        "backend": "min_cost_flow",
+        "engine_version": "0.1.3",
+        "library_version": null,
+        "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+      },
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [],
+      "assigned_slots": 24.0,
+      "diagnostics": [],
+      "elapsed_seconds": 0.0036300839856266975
+    },
+    {
+      "scenario": "peak",
+      "step": "restored",
+      "input_sha256": "c81105d0a10cc97363651c2072c089a08a2e595d25b42693738582a1f7592594",
+      "status": "OPTIMAL",
+      "solver": {
+        "backend": "min_cost_flow",
+        "engine_version": "0.1.3",
+        "library_version": null,
+        "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+      },
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [],
+      "assigned_slots": 22.0,
+      "diagnostics": [],
+      "elapsed_seconds": 0.003624957986176014
+    }
+  ]
+}

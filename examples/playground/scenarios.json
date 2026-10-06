@@ -1,0 +1,169 @@
+[
+  {
+    "id": "normal",
+    "label": "通常のランチ営業",
+    "steps": [
+      {
+        "id": "initial",
+        "instruction": "元の条件で計算し、検証済みの担当配置を確認する。",
+        "restore": false,
+        "changes": {},
+        "expected": {
+          "status": "OPTIMAL",
+          "assigned_slots": 22
+        }
+      },
+      {
+        "id": "changed",
+        "instruction": "11:30〜12:00 のホールの必要人数を1人から2人にして再計算する。",
+        "restore": false,
+        "changes": {
+          "demand": {
+            "hall_1": {
+              "required_people": 2
+            }
+          }
+        },
+        "expected": {
+          "status": "OPTIMAL",
+          "assigned_slots": 23
+        }
+      },
+      {
+        "id": "restored",
+        "instruction": "「サンプルへ復元」で元の条件とガイド先頭に戻し、再計算する。",
+        "restore": true,
+        "changes": {},
+        "expected": {
+          "status": "OPTIMAL",
+          "assigned_slots": 22
+        }
+      }
+    ]
+  },
+  {
+    "id": "absence",
+    "label": "急な欠勤",
+    "steps": [
+      {
+        "id": "initial",
+        "instruction": "元の条件で計算し、検証済みの担当配置を確認する。",
+        "restore": false,
+        "changes": {},
+        "expected": {
+          "status": "OPTIMAL",
+          "assigned_slots": 22
+        }
+      },
+      {
+        "id": "changed",
+        "instruction": "あおいの「勤務不可」を選び、勤務可能時間を空にして再計算する。",
+        "restore": false,
+        "changes": {
+          "employees": {
+            "aoi": {
+              "availability": []
+            }
+          }
+        },
+        "expected": {
+          "status": "INFEASIBLE",
+          "diagnostic": {
+            "code": "INSUFFICIENT_QUALIFIED_EMPLOYEES",
+            "related_ids": [
+              "kitchen"
+            ],
+            "facts": [
+              {
+                "name": "slot",
+                "value": 2
+              },
+              {
+                "name": "required_people",
+                "value": 2
+              },
+              {
+                "name": "eligible_people",
+                "value": 1
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "repaired",
+        "instruction": "あおいを勤務不可のまま、12:00〜12:30 と12:30〜13:00 の調理の必要人数を2人から1人に変更して再計算する。",
+        "restore": false,
+        "changes": {
+          "demand": {
+            "kitchen_2": {
+              "required_people": 1
+            },
+            "kitchen_3": {
+              "required_people": 1
+            }
+          }
+        },
+        "expected": {
+          "status": "OPTIMAL",
+          "assigned_slots": 20
+        }
+      },
+      {
+        "id": "restored",
+        "instruction": "「サンプルへ復元」で元の条件とガイド先頭に戻し、再計算する。",
+        "restore": true,
+        "changes": {},
+        "expected": {
+          "status": "OPTIMAL",
+          "assigned_slots": 22
+        }
+      }
+    ]
+  },
+  {
+    "id": "peak",
+    "label": "ピーク時の必要人数増加",
+    "steps": [
+      {
+        "id": "initial",
+        "instruction": "元の条件で計算し、検証済みの担当配置を確認する。",
+        "restore": false,
+        "changes": {},
+        "expected": {
+          "status": "OPTIMAL",
+          "assigned_slots": 22
+        }
+      },
+      {
+        "id": "changed",
+        "instruction": "12:00〜12:30 と12:30〜13:00 のホールの必要人数を2人から3人にして再計算する。",
+        "restore": false,
+        "changes": {
+          "demand": {
+            "hall_2": {
+              "required_people": 3
+            },
+            "hall_3": {
+              "required_people": 3
+            }
+          }
+        },
+        "expected": {
+          "status": "OPTIMAL",
+          "assigned_slots": 24
+        }
+      },
+      {
+        "id": "restored",
+        "instruction": "「サンプルへ復元」で元の条件とガイド先頭に戻し、再計算する。",
+        "restore": true,
+        "changes": {},
+        "expected": {
+          "status": "OPTIMAL",
+          "assigned_slots": 22
+        }
+      }
+    ]
+  }
+]
