@@ -251,6 +251,14 @@
     {
       "id": "preferences",
       "metric": "preference_penalty"
+    },
+    {
+      "id": "work",
+      "metric": "scheduled_minutes"
+    },
+    {
+      "id": "changes",
+      "metric": "role_switches"
     }
   ],
   "solver": {

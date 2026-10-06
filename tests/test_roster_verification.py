@@ -94,7 +94,9 @@ def test_invalid_roster_results_detected_and_blocked(monkeypatch, mutation, code
     problem.candidates.clear()
     violations, _ = verify_solution(problem, solution)
     assert code in {v["code"] for v in violations}
-    monkeypatch.setattr(cp_sat, "run", lambda *_: cp_sat.SatResult("OPTIMAL", solution, 120))
+    monkeypatch.setattr(
+        cp_sat, "run", lambda *_: cp_sat.SatResult("OPTIMAL", solution, (120,), (True,))
+    )
     blocked = solve(data)
     assert_response(blocked, "INTERNAL_ERROR")
     assert blocked["verification"]["performed"] is True
@@ -111,14 +113,16 @@ def test_generated_solution_independent_of_solver_tables():
     problem = normalize(data)
     problem.candidates.clear()
     problem.available.clear()
-    assert verify_solution(problem, result["solution"]) == ([], 90)
+    assert verify_solution(problem, result["solution"]) == ([], (90,))
 
 
 def test_scheduled_value_mismatch_blocks_solution(monkeypatch):
     data = request()
     data["demand"] = [demand()]
     solution = solve(data)["solution"]
-    monkeypatch.setattr(cp_sat, "run", lambda *_: cp_sat.SatResult("FEASIBLE", solution, 30))
+    monkeypatch.setattr(
+        cp_sat, "run", lambda *_: cp_sat.SatResult("FEASIBLE", solution, (30,), (False,))
+    )
     result = solve(data)
     assert_response(result, "INTERNAL_ERROR")
     assert result["diagnostics"][0]["code"] == "OBJECTIVE_VALUE_MISMATCH"

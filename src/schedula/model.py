@@ -140,8 +140,6 @@ def normalize(request):
                 "assignment の対応目的は preference_penalty または role_switches です。",
                 f"/objectives/{index}/metric",
             )
-    if len(request["objectives"]) > 1:
-        reject("UNSUPPORTED_OBJECTIVES", "複数目的の優先順最適化は未対応です。", "/objectives")
     if request["preferences"] and "preference_penalty" not in metrics:
         reject(
             "MISSING_PREFERENCE_OBJECTIVE",

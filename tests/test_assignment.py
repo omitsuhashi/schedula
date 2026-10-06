@@ -21,7 +21,7 @@ def test_restaurant_example(assignment_request):
     assert len(result["solution"]["assignments"]) == 3
     assert result["solution"]["shifts"] == []
     assert assignment_request == original
-    assert verify_solution(normalize(assignment_request), result["solution"]) == ([], 0)
+    assert verify_solution(normalize(assignment_request), result["solution"]) == ([], (0,))
 
 
 @pytest.mark.parametrize("backend", ["auto", "min_cost_flow"])

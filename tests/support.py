@@ -7,7 +7,12 @@ def assert_response(result, status):
     if status in {"OPTIMAL", "FEASIBLE"}:
         assert result["solution"] is not None
         assert result["verification"] == {"performed": True, "valid": True, "violations": []}
-        assert all(item["proven_optimal"] == (status == "OPTIMAL") for item in result["objectives"])
+        proofs = [item["proven_optimal"] for item in result["objectives"]]
+        assert proofs == sorted(proofs, reverse=True)
+        if status == "OPTIMAL":
+            assert all(proofs)
+        elif proofs:
+            assert not all(proofs)
     else:
         assert result["solution"] is None
         assert result["objectives"] == []

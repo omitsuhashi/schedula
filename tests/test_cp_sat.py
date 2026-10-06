@@ -72,7 +72,7 @@ def test_linked_example(backend):
         "ASSIGNMENT_CONSTRAINTS" if backend == "auto" else "EXPLICIT_BACKEND"
     )
     assert result["objectives"][0]["value"] == 0
-    assert verify_solution(normalize(request), result["solution"]) == ([], 0)
+    assert verify_solution(normalize(request), result["solution"]) == ([], (0,))
     assert request == original
 
 
@@ -150,7 +150,7 @@ def test_two_employee_switch_objective(assignment_request, metric):
         "unknown_type",
         "roster_rule",
         "extra_field",
-        "multiple_objectives",
+        "duplicate_metric",
         "flow_constraint",
         "flow_switch_objective",
     ],
@@ -175,10 +175,10 @@ def test_invalid_linked_input_rejected_before_solver(assignment_request, monkeyp
         }
     elif mutation == "extra_field":
         request["constraints"][0]["unexpected"] = True
-    elif mutation == "multiple_objectives":
+    elif mutation == "duplicate_metric":
         request["objectives"] = [
             {"id": "first", "metric": "preference_penalty"},
-            {"id": "second", "metric": "role_switches"},
+            {"id": "second", "metric": "preference_penalty"},
         ]
     elif mutation == "flow_constraint":
         request["solver"]["backend"] = "min_cost_flow"
@@ -281,9 +281,11 @@ def test_corrupt_linked_solution_is_independently_blocked(assignment_request, mo
         else "MAX_ROLE_SWITCHES_VIOLATION"
     )
     assert code in {v["code"] for v in violations}
-    assert value == 2
+    assert value == (2,)
     assert violations[0]["related_ids"] == ["cap", "alice"]
-    monkeypatch.setattr(cp_sat, "run", lambda *_: cp_sat.SatResult("OPTIMAL", solution, 2))
+    monkeypatch.setattr(
+        cp_sat, "run", lambda *_: cp_sat.SatResult("OPTIMAL", solution, (2,), (True,))
+    )
     result = solve(request)
     assert_response(result, "INTERNAL_ERROR")
     assert result["verification"]["performed"]
@@ -294,7 +296,9 @@ def test_switch_objective_mismatch_is_blocked(assignment_request, monkeypatch):
     request = small_request(assignment_request, ["kitchen", "hall"])
     request["objectives"] = [{"id": "goal", "metric": "role_switches"}]
     solution = solve(request)["solution"]
-    monkeypatch.setattr(cp_sat, "run", lambda *_: cp_sat.SatResult("OPTIMAL", solution, 0))
+    monkeypatch.setattr(
+        cp_sat, "run", lambda *_: cp_sat.SatResult("OPTIMAL", solution, (0,), (True,))
+    )
     result = solve(request)
     assert_response(result, "INTERNAL_ERROR")
     assert result["diagnostics"][0]["code"] == "OBJECTIVE_VALUE_MISMATCH"
@@ -417,18 +421,17 @@ def exhaustive_linked_value(request):
             for e in c["employee_ids"]
         ):
             continue
-        metric = request["objectives"][0]["metric"] if request["objectives"] else None
-        value = (
-            sum(switches.values())
-            if metric == "role_switches"
-            else sum(
+        metrics = {
+            "role_switches": sum(switches.values()),
+            "preference_penalty": sum(
                 30 * p["penalty_per_minute"]
                 for e, row in per_employee.items()
                 for role in row
                 for p in request["preferences"]
                 if e in p["employee_ids"] and role == p["role_id"]
-            )
-        )
+            ),
+        }
+        value = tuple(metrics[o["metric"]] for o in request["objectives"])
         best = value if best is None else min(best, value)
     return best
 
@@ -451,10 +454,9 @@ def test_linked_optimum_matches_independent_exhaustive_search(assignment_request
         limit("max_role_switches", rng.randrange(3), (e["id"],), f"switches_{e['id']}")
         for e in request["employees"]
     ]
-    metric = rng.choice(["preference_penalty", "role_switches", None])
-    if metric:
-        request["objectives"] = [{"id": "goal", "metric": metric}]
-    if metric == "preference_penalty":
+    metrics = rng.sample(["preference_penalty", "role_switches"], rng.randrange(3))
+    request["objectives"] = [{"id": metric, "metric": metric} for metric in metrics]
+    if "preference_penalty" in metrics:
         request["preferences"] = [
             {
                 "id": "avoid",
@@ -467,8 +469,8 @@ def test_linked_optimum_matches_independent_exhaustive_search(assignment_request
     expected = exhaustive_linked_value(request)
     result = solve(request)
     assert_response(result, "INFEASIBLE" if expected is None else "OPTIMAL")
-    if expected is not None and metric:
-        assert result["objectives"][0]["value"] == expected
+    if expected is not None:
+        assert tuple(o["value"] for o in result["objectives"]) == expected
 
 
 def test_cp_sat_cli_json_only():

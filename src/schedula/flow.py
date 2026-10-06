@@ -18,8 +18,10 @@ class Edge:
 class FlowResult:
     status: str
     solution: dict | None
-    cost: int = 0
+    values: tuple = ()
+    proven_optimal: tuple = ()
     diagnostics: tuple = ()
+    search_elapsed_seconds: float = 0.0
 
 
 def add_edge(graph, source, target, capacity, cost):
@@ -133,7 +135,8 @@ def run(problem):
     networks, shortage = prepare(problem)
     if shortage:
         return FlowResult("INFEASIBLE", None, diagnostics=(shortage,))
-    deadline = time.monotonic() + problem.request["solver"]["time_limit_seconds"]
+    start = time.monotonic()
+    deadline = start + problem.request["solver"]["time_limit_seconds"]
     assignments = {}
     cost = 0
     for slot, graph, arcs, required in networks:
@@ -146,10 +149,19 @@ def run(problem):
                 else "複数役割の需要を同時に満たせません。"
             )
             return FlowResult(
-                status, None, diagnostics=(diagnostic(code, message, "/demand", slot=slot),)
+                status,
+                None,
+                diagnostics=(diagnostic(code, message, "/demand", slot=slot),),
+                search_elapsed_seconds=time.monotonic() - start,
             )
         cost += slot_cost
         for employee, role, edge in arcs:
             if edge.capacity == 0:
                 assignments.setdefault(employee, []).append((slot, role))
-    return FlowResult("OPTIMAL", make_solution(problem.grid, assignments), cost)
+    return FlowResult(
+        "OPTIMAL",
+        make_solution(problem.grid, assignments),
+        (cost,) if problem.request["objectives"] else (),
+        (True,) if problem.request["objectives"] else (),
+        search_elapsed_seconds=time.monotonic() - start,
+    )

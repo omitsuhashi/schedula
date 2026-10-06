@@ -1,3 +1,4 @@
+import time
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import timedelta
@@ -24,8 +25,10 @@ def load_backend():
 class SatResult:
     status: str
     solution: dict | None
-    cost: int = 0
+    values: tuple = ()
+    proven_optimal: tuple = ()
     diagnostics: tuple = ()
+    search_elapsed_seconds: float = 0.0
 
 
 def prepare_roster(model, problem):
@@ -115,8 +118,8 @@ def prepare(problem, cp_model):
         for key, values in by_slot.items():
             model.add(sum(variable for _, variable in values) <= sum(coverage[key]))
 
-    metric = problem.request["objectives"][0]["metric"] if problem.request["objectives"] else None
-    switch_employees = set(problem.available) if metric == "role_switches" else set()
+    metrics = {o["metric"] for o in problem.request["objectives"]}
+    switch_employees = set(problem.available) if "role_switches" in metrics else set()
     for constraint in problem.request["constraints"]:
         if constraint["type"] == "max_role_switches":
             switch_employees.update(constraint["employee_ids"])
@@ -151,33 +154,67 @@ def prepare(problem, cp_model):
                 )
             elif constraint["type"] == "max_role_switches":
                 model.add(sum(switches[employee]) <= int(constraint["limit_count"]))
-    objective = 0
-    if metric == "preference_penalty":
-        objective = sum(
+    expressions = {
+        "preference_penalty": sum(
             problem.costs.get((employee, role), 0) * variable
             for (employee, _, role), variable in assignments.items()
-        )
-    elif metric == "role_switches":
-        objective = sum(variable for values in switches.values() for variable in values)
-    elif metric == "scheduled_minutes":
-        objective = scheduled
-    if metric:
-        model.minimize(objective)
+        ),
+        "role_switches": sum(variable for values in switches.values() for variable in values),
+        "scheduled_minutes": scheduled,
+    }
+    objectives = tuple(expressions[o["metric"]] for o in problem.request["objectives"])
+    if objectives:
+        model.minimize(objectives[0])
     if model.validate():
         raise RuntimeError("Invalid CP-SAT model")
-    return model, assignments, shifts, objective
+    return model, assignments, shifts, objectives
 
 
 def run(problem, cp_model):
-    model, variables, shifts, objective = prepare(problem, cp_model)
+    model, variables, shifts, objectives = prepare(problem, cp_model)
     solver = cp_model.CpSolver()
     solver.parameters.random_seed = int(problem.request["solver"]["seed"])
     solver.parameters.num_search_workers = 1
     solver.parameters.log_search_progress = False
-    solver.parameters.max_time_in_seconds = problem.request["solver"]["time_limit_seconds"]
-    # 準備を終えてから探索する。読み込み・モデル構築は探索時間に含めない。
-    status = solver.solve(model)
-    if status in {cp_model.OPTIMAL, cp_model.FEASIBLE}:
+    budget = problem.request["solver"]["time_limit_seconds"]
+    # 準備を終えてから全段階で一つの予算を共有し、段階間の処理も含める。
+    start = time.monotonic()
+    deadline = start + budget
+    best = None
+    for index, objective in enumerate(objectives or (None,)):
+        remaining = budget if index == 0 else deadline - time.monotonic()
+        if remaining <= 0:
+            status = cp_model.UNKNOWN
+        else:
+            solver.parameters.max_time_in_seconds = remaining
+            status = solver.solve(model)
+        if status == cp_model.UNKNOWN:
+            best = best or SatResult("UNKNOWN", None)
+            if best.solution is not None:
+                best.status = "FEASIBLE"
+            best.diagnostics = (
+                diagnostic(
+                    "TIME_LIMIT",
+                    "探索予算内に目的順序の最適化を完了できませんでした。",
+                    f"/objectives/{index}" if objectives else "/solver/time_limit_seconds",
+                    completed_objectives=index,
+                ),
+            )
+            break
+        if status == cp_model.INFEASIBLE:
+            if best is not None:
+                # 上位の最適解を固定したモデルには、その解が必ず残る。
+                raise RuntimeError("Fixed optimal values became infeasible")
+            best = SatResult(
+                "INFEASIBLE",
+                None,
+                diagnostics=(
+                    diagnostic("NO_FEASIBLE_PLAN", "すべての必須条件を満たす配置はありません。"),
+                ),
+            )
+            break
+        if status not in {cp_model.OPTIMAL, cp_model.FEASIBLE}:
+            raise RuntimeError("Unexpected CP-SAT status")
         assignments = defaultdict(list)
         for (employee, slot, role), variable in variables.items():
             if solver.value(variable):
@@ -188,25 +225,31 @@ def run(problem, cp_model):
             for candidate in problem.candidates
             if solver.value(shifts[candidate.id])
         ]
-        return SatResult(
-            "OPTIMAL" if status == cp_model.OPTIMAL else "FEASIBLE",
-            solution,
-            int(solver.value(objective)),
+        values = tuple(int(solver.value(expression)) for expression in objectives)
+        if best is not None and values[:index] != best.values[:index]:
+            raise RuntimeError("Fixed optimal values changed")
+        if best is None or values < best.values:
+            best = SatResult("FEASIBLE", solution, values)
+        # 解の選択と証明の更新を分け、保持した解にも新しい証明を反映する。
+        if status == cp_model.OPTIMAL and best.values[: index + 1] != values[: index + 1]:
+            raise RuntimeError("Known solution contradicts optimal value")
+        best.status = "OPTIMAL" if status == cp_model.OPTIMAL else "FEASIBLE"
+        best.proven_optimal = tuple(
+            i < index + (status == cp_model.OPTIMAL) for i in range(len(objectives))
         )
-    if status == cp_model.INFEASIBLE:
-        return SatResult(
-            "INFEASIBLE",
-            None,
-            diagnostics=(
-                diagnostic("NO_FEASIBLE_PLAN", "すべての必須条件を満たす配置はありません。"),
-            ),
-        )
-    if status == cp_model.UNKNOWN:
-        return SatResult(
-            "UNKNOWN",
-            None,
-            diagnostics=(
-                diagnostic("TIME_LIMIT", "探索予算内に解や不可能性の証明を得られませんでした。"),
-            ),
-        )
-    raise RuntimeError("Unexpected CP-SAT status")
+        if status == cp_model.FEASIBLE:
+            best.diagnostics = (
+                diagnostic(
+                    "OPTIMALITY_UNPROVEN",
+                    "上位目的の最適性が未証明のため、後続の目的は探索しません。",
+                    f"/objectives/{index}" if objectives else "/objectives",
+                ),
+            )
+            break
+        if index + 1 < len(objectives):
+            model.add(objective == values[index])
+            model.minimize(objectives[index + 1])
+            if model.validate():
+                raise RuntimeError("Invalid CP-SAT model")
+    best.search_elapsed_seconds = time.monotonic() - start
+    return best

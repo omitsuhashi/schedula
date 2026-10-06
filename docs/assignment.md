@@ -1,6 +1,6 @@
 # 担当配置の利用手順
 
-schedula 0.1.2 は独立した配置と、担当時間上限・担当切替を含む `assignment` を解く。
+schedula 0.1.3 は独立した配置と、担当時間上限・担当切替を含む `assignment` を解く。
 飲食店の架空の例を [examples/assignment.json](../examples/assignment.json) と
 [examples/linked_assignment.json](../examples/linked_assignment.json) に用意した。
 JSON の意味と版の変更方針は [入出力契約](io-contract.md)、環境の正本は
@@ -51,12 +51,12 @@ uv run --locked --extra cp-sat python -m schedula solve examples/linked_assignme
 
 ## 対応する条件
 
-| 対象 | schedula 0.1.2 の担当配置の対応 |
+| 対象 | schedula 0.1.3 の担当配置の対応 |
 | --- | --- |
 | `problem_type` | `assignment` |
 | `solver.backend` | `auto` / `min_cost_flow` / `cp_sat` |
 | 基本条件 | 必要技能・最低レベルすべてを満たす、勤務可能時間内、厳密な需要、二重配置なし |
-| `objectives` | 空、または `preference_penalty` / `role_switches` のいずれか1件 |
+| `objectives` | 空、または `preference_penalty` / `role_switches` の順序付き配列。同じ指標は重複不可 |
 | `preferences` | `avoid_role`。同じ対象への複数指定はペナルティを加算。目的の指定が必要 |
 | `constraints` | `max_assigned_minutes` / `max_role_switches`。対象者ごとに全件を適用 |
 | `shift_candidates` | 空のみ |
@@ -64,7 +64,7 @@ uv run --locked --extra cp-sat python -m schedula solve examples/linked_assignme
 | `history` | `assignment` では受理しない |
 | `seed` | CP-SAT に渡し、worker 数は1。最小費用流は ID 順で探索し seed を使わない |
 
-`assignment` への勤務量の目的・勤務用ルール、複数目的の組合せは `INVALID_INPUT`。
+`assignment` への勤務量の目的・勤務用ルールは `INVALID_INPUT`。
 `roster` は [勤務計画の利用手順](roster.md)で扱う。
 Schema は契約0.1全体を表すが、未対応条件を意味検証で拒否する。
 必要な条件を捨てたり、需要不足のまま正式な解を返したりしない。
@@ -75,7 +75,7 @@ Schema は契約0.1全体を表すが、未対応条件を意味検証で拒否�
 同じ従業員に複数の上限が指定された場合はすべて守る。
 
 `preferences` がある場合は `preference_penalty` 目的が必須である。
-`role_switches` も併せて最適化したい入力は、複数目的の対応まで明示的に拒否する。
+`role_switches` も併せて指定でき、配列の先頭の目的を優先する。
 目的が空の場合は任意の実行可能解を求め、担当切替が最小になるとは保証しない。
 
 ## バックエンドと実行情報
@@ -87,7 +87,7 @@ Schema は契約0.1全体を表すが、未対応条件を意味検証で拒否�
 | `auto`、制約なしで `role_switches` 目的 | `cp_sat` | `ROLE_SWITCH_OBJECTIVE` |
 | 明示指定の対応方式 | 指定された方式 | `EXPLICIT_BACKEND` |
 
-一つの Request につき一つの方式だけを呼び出す。
+一つの Request につき一つの方式を選ぶ。CP-SAT は目的順序に沿って複数回探索できる。
 明示した `min_cost_flow` に制約・担当切替目的がある場合は、依存の有無によらず `INVALID_INPUT`。
 CP-SAT を選んで OR-Tools またはその import に必要な依存がなければ `BACKEND_UNAVAILABLE`。
 条件を捨てた方式へ退避しない。
@@ -107,7 +107,7 @@ zoneinfo の読み取りなど実行環境の I/O 障害は `INTERNAL_ERROR` と
 ## 結果の判断
 
 - `OPTIMAL`: 独立検証を通過し、指定されたモデルの最適解を得た。
-- `FEASIBLE`: 独立検証を通過したが、目的の最適性を証明できていない。
+- `FEASIBLE`: 独立検証を通過したが、一部またはすべての目的の最適性が未証明。
 - `INFEASIBLE`: 需要・担当資格・勤務可能時間・上限をすべて満たす解がないと証明された。
 - `UNKNOWN`: 探索予算が切れ、完全な解を得られていない。不可能性の証明ではない。
 - `INVALID_INPUT`: 構造、参照、日時、上限または対応範囲を修正する必要がある。
@@ -138,8 +138,11 @@ Schema は UTF-8 を明示して読み取る。
 
 `time_limit_seconds` は依存読み込み・グラフまたはモデル構築を終えてから始まる探索予算。
 最小費用流ではすべての時間枠で共有し、途中で切れた部分配置は返さず `UNKNOWN` にする。
-CP-SAT は今回は一回の探索で全枠を解く。最適性未証明の完全な解は検証後 `FEASIBLE`、
-解も不可能性の証明もない場合は `UNKNOWN`。
+CP-SAT は同じモデルで目的順に探索し、最適性を証明した上位目的の値だけを固定する。
+上位目的が `FEASIBLE` なら終了する。段階間の時間切れや後段の `UNKNOWN` では最良の既知解を
+保持して `FEASIBLE` とし、解も不可能性の証明もない場合は `UNKNOWN`。
+全目的の値を返す解から再計算し、`proven_optimal` は証明済みの先頭部分だけを `true` にする。
+`SEARCH_STATS` 診断の `facts` に共有予算と探索開始後の所要時間を記録する。
 入力検証・正規化・依存読み込み・構築・結果検証を含む総時間は
 `stats.elapsed_seconds` に記録する。外部応答期限やプロセス隔離は未導入。
 
@@ -156,4 +159,5 @@ uv build --wheel
 厳密な入力・出力、時計変更、時間切れ、CLI、wheel と依存不足を検証する。
 wheel のテストは、ソース checkout を import せず同梱 Schema・ライブラリ・CLI を実行する。
 独立配置の実測は [担当配置の検証記録](evaluations/assignment.md)、今回の実測と未検証事項は
-[時間横断配置の検証記録](evaluations/linked-assignment.md) に残す。
+[時間横断配置の検証記録](evaluations/linked-assignment.md)・
+[目的順序・終了状態の検証記録](evaluations/objectives.md) に残す。

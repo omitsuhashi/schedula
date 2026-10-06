@@ -113,14 +113,14 @@ def verify_shifts(request, grid, shifts, fail):
 
 
 def verify_solution(problem, solution):
-    """元入力と共通の解を照合し、違反と単一目的の再計算値を返す。"""
+    """元入力と共通の解を照合し、違反と目的順の再計算値を返す。"""
     try:
         check_json(solution)
     except InvalidInput as error:
-        return error.diagnostics, 0
+        return error.diagnostics, ()
     violations = schema_errors("solution", solution)
     if violations:
-        return violations, 0
+        return violations, ()
 
     def fail(code, message, path, related_ids=(), **facts):
         if len(violations) < 1000:
@@ -263,11 +263,10 @@ def verify_solution(problem, solution):
                     actual_value=value,
                     limit=constraint[field],
                 )
-    # 現在は目的を最大1件に限定する。評価はソルバーの変数・費用から独立して再計算する。
-    metric = request["objectives"][0]["metric"] if request["objectives"] else None
-    value = penalty
-    if metric == "role_switches":
-        value = sum(switches.values())
-    elif metric == "scheduled_minutes":
-        value = sum(scheduled.values())
-    return violations[:1000], value
+    # ソルバーの変数・費用から独立して、未探索の目的も同じ解から再計算する。
+    metrics = {
+        "preference_penalty": penalty,
+        "role_switches": sum(switches.values()),
+        "scheduled_minutes": sum(scheduled.values()),
+    }
+    return violations[:1000], tuple(metrics[o["metric"]] for o in request["objectives"])
