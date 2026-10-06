@@ -84,15 +84,13 @@ def normalize(request):
     validate_request(request)
     if request["problem_type"] != "assignment":
         reject("UNSUPPORTED_CONDITION", "roster は未対応です。", "/problem_type")
-    for field in ("shift_candidates", "shift_templates", "constraints"):
+    for field in ("shift_candidates", "shift_templates"):
         if request.get(field):
             reject(
                 "UNSUPPORTED_CONDITION",
-                "勤務候補・勤務テンプレート・明示制約は未対応です。",
+                "勤務候補・勤務テンプレートは未対応です。",
                 "/" + field,
             )
-    if request["solver"]["backend"] == "cp_sat":
-        reject("UNSUPPORTED_BACKEND", "cp_sat は未導入です。", "/solver/backend")
     for index, employee in enumerate(request["employees"]):
         if "history" in employee:
             reject(
@@ -103,21 +101,45 @@ def normalize(request):
 
     ids = {
         field: unique(request[field], "id", "/" + field)
-        for field in ("skills", "roles", "employees", "demand", "preferences", "objectives")
+        for field in (
+            "skills",
+            "roles",
+            "employees",
+            "demand",
+            "constraints",
+            "preferences",
+            "objectives",
+        )
     }
     metrics = unique(request["objectives"], "metric", "/objectives")
     for index, objective in enumerate(request["objectives"]):
-        if objective["metric"] != "preference_penalty":
+        if objective["metric"] not in {"preference_penalty", "role_switches"}:
             reject(
                 "UNSUPPORTED_CONDITION",
-                "対応目的は preference_penalty のみです。",
+                "assignment の対応目的は preference_penalty または role_switches です。",
                 f"/objectives/{index}/metric",
             )
+    if len(request["objectives"]) > 1:
+        reject("UNSUPPORTED_OBJECTIVES", "複数目的の優先順最適化は未対応です。", "/objectives")
     if request["preferences"] and "preference_penalty" not in metrics:
         reject(
             "MISSING_PREFERENCE_OBJECTIVE",
             "選好には preference_penalty 目的が必要です。",
             "/objectives",
+        )
+    for index, constraint in enumerate(request["constraints"]):
+        path = f"/constraints/{index}"
+        if constraint["type"] not in {"max_assigned_minutes", "max_role_switches"}:
+            reject("UNSUPPORTED_CONDITION", "assignment では未対応の制約です。", path + "/type")
+        for employee_index, identifier in enumerate(constraint["employee_ids"]):
+            reference(identifier, ids["employees"], f"{path}/employee_ids/{employee_index}")
+    if request["solver"]["backend"] == "min_cost_flow" and (
+        request["constraints"] or "role_switches" in metrics
+    ):
+        reject(
+            "UNSUPPORTED_BACKEND",
+            "min_cost_flow は明示制約と role_switches 目的を扱えません。",
+            "/solver/backend",
         )
 
     window = request["planning_window"]

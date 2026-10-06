@@ -26,7 +26,8 @@ uv は **0.12.23** を使用する。直接インストールした uv は `uv s
 
 依存定義は `pyproject.toml`、解決した版は `uv.lock` に記録し、両方を Git で管理する。
 `.venv/` とツールのキャッシュは Git の対象外である。
-独立した `assignment` の実行コードを導入した。パッケージは `src/schedula/` に置き、
+独立した `assignment` と、担当時間・担当切替を扱う CP-SAT の実行コードを導入した。
+パッケージは `src/schedula/` に置き、
 setuptools で版別 Schema を同梱する。利用・ビルドは [担当配置の手順](assignment.md)を参照する。
 最小費用流だけを利用する場合は `uv sync --locked` / `uv run --locked ...` で実行でき、
 OR-Tools は不要。開発・CI の検証では既存どおり `--extra cp-sat` を維持する。

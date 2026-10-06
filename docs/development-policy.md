@@ -27,7 +27,9 @@ Python 3.14.8 を固定し、jsonschema・OR-Tools と開発依存の Ruff・pyt
 `unittest` で書かれた既存テストは pytest から実行し、CI も同じ uv 環境と検証入口を使う。
 独立した `assignment` は実行コードと検証を導入した。
 現在の対応範囲は [利用手順](assignment.md)、実測は [担当配置の検証記録](evaluations/assignment.md)を参照する。
-CP-SAT と勤務計画の実装・検証は後続の課題で扱う。
+担当配置の CP-SAT と時間横断条件は Issue #7 で導入した。
+実測は [時間横断配置の検証記録](evaluations/linked-assignment.md)に記録する。
+勤務計画・複数目的は後続の課題で扱う。
 
 ## 参照資料の検証状態
 

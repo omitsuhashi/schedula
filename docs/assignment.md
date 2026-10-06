@@ -1,7 +1,8 @@
 # 担当配置の利用手順
 
-schedula 0.1.0 は独立した `assignment` を解く。飲食店の架空の例を
-[examples/assignment.json](../examples/assignment.json) に用意した。
+schedula 0.1.1 は独立した配置と、担当時間上限・担当切替を含む `assignment` を解く。
+飲食店の架空の例を [examples/assignment.json](../examples/assignment.json) と
+[examples/linked_assignment.json](../examples/linked_assignment.json) に用意した。
 JSON の意味と版の変更方針は [入出力契約](io-contract.md)、環境の正本は
 [Python セットアップ](python-setup.md) を参照する。
 
@@ -38,24 +39,62 @@ assert response["verification"]["valid"] is True
 ライブラリに渡す dict は JSON 型・有限数から構成する。重複キーは dict 化した後には
 検出できないため、外部 JSON を厳密に読む場合は CLI を使用する。
 
+CP-SAT を使う例は `cp-sat` extra を指定する。
+
+```sh
+uv sync --locked --extra cp-sat
+uv run --locked --extra cp-sat python -m schedula solve examples/linked_assignment.json
+```
+
+この例は各従業員の担当時間120分以下・担当切替0回を守り、
+`preference_penalty: 0` の検証済み `OPTIMAL` を返す。
+
 ## 対応する条件
 
-| 対象 | schedula 0.1.0 の対応 |
+| 対象 | schedula 0.1.1 の対応 |
 | --- | --- |
 | `problem_type` | `assignment` |
-| `solver.backend` | `auto` / `min_cost_flow`。実際の選択は `min_cost_flow` |
+| `solver.backend` | `auto` / `min_cost_flow` / `cp_sat` |
 | 基本条件 | 必要技能・最低レベルすべてを満たす、勤務可能時間内、厳密な需要、二重配置なし |
-| `objectives` | 空、または `preference_penalty` 1件 |
+| `objectives` | 空、または `preference_penalty` / `role_switches` のいずれか1件 |
 | `preferences` | `avoid_role`。同じ対象への複数指定はペナルティを加算。目的の指定が必要 |
-| `constraints` / `shift_candidates` | 空のみ |
+| `constraints` | `max_assigned_minutes` / `max_role_switches`。対象者ごとに全件を適用 |
+| `shift_candidates` | 空のみ |
 | `shift_templates` | 省略または空のみ |
 | `history` | `assignment` では受理しない |
-| `seed` | 契約に保持。現在の最小費用流は ID 順で探索し、seed は探索に使わない |
+| `seed` | CP-SAT に渡し、worker 数は1。最小費用流は ID 順で探索し seed を使わない |
 
-`roster`、`cp_sat`、時間横断制約、担当切替・勤務量の目的は `INVALID_INPUT`。
+`roster`、勤務量の目的、勤務用ルール、複数目的の組合せは `INVALID_INPUT`。
 Schema は契約0.1全体を表すが、未対応条件を意味検証で拒否する。
 必要な条件を捨てたり、需要不足のまま正式な解を返したりしない。
-`BACKEND_UNAVAILABLE` / `FEASIBLE` は共通契約に含むが、現在の方式では発生しない。
+担当時間は担当した枠数 × `slot_minutes`。上限は対象者全員の合計ではなく、一人ずつ適用する。
+上限が時間粒度の倍数でなくても受理し、丸めずに比較する。
+担当切替は隣接枠で両方とも役割を担当し、その役割が異なる場合に一回と数える。
+未担当の枠を挟んだ変更は数えない。`role_switches` 目的は全従業員の回数を最小化する。
+同じ従業員に複数の上限が指定された場合はすべて守る。
+
+`preferences` がある場合は `preference_penalty` 目的が必須である。
+`role_switches` も併せて最適化したい入力は、複数目的の対応まで明示的に拒否する。
+目的が空の場合は任意の実行可能解を求め、担当切替が最小になるとは保証しない。
+
+## バックエンドと実行情報
+
+| 入力 | 選択 | `selection_reason` |
+| --- | --- | --- |
+| `auto`、明示制約なし、目的は空または `preference_penalty` | `min_cost_flow` | `INDEPENDENT_ADDITIVE_ASSIGNMENTS` |
+| `auto`、明示制約あり | `cp_sat` | `ASSIGNMENT_CONSTRAINTS` |
+| `auto`、制約なしで `role_switches` 目的 | `cp_sat` | `ROLE_SWITCH_OBJECTIVE` |
+| 明示指定の対応方式 | 指定された方式 | `EXPLICIT_BACKEND` |
+
+一つの Request につき一つの方式だけを呼び出す。
+明示した `min_cost_flow` に制約・担当切替目的がある場合は、依存の有無によらず `INVALID_INPUT`。
+CP-SAT を選んで OR-Tools またはその import に必要な依存がなければ `BACKEND_UNAVAILABLE`。
+条件を捨てた方式へ退避しない。
+
+Response の `solver.library_version` は読み込んだ OR-Tools の実際の版である。
+標準ライブラリで実装した最小費用流と、依存を読み込めない CP-SAT は `null`。
+`solver.engine_version` は schedula のパッケージ版、`schema_version` は従来の0.1を維持する。
+同率解の配置や時間切れ結果の全環境での再現性は seed だけでは保証しない。
 
 IANA タイムゾーン名は128文字以内。名前が長すぎる入力は `INVALID_INPUT` とし、
 zoneinfo の読み取りなど実行環境の I/O 障害は `INTERNAL_ERROR` とする。
@@ -67,9 +106,11 @@ zoneinfo の読み取りなど実行環境の I/O 障害は `INTERNAL_ERROR` と
 ## 結果の判断
 
 - `OPTIMAL`: 独立検証を通過し、指定されたモデルの最適解を得た。
-- `INFEASIBLE`: 人数・担当資格の不足または技能の取り合いにより、厳密な需要を満たせない。
+- `FEASIBLE`: 独立検証を通過したが、目的の最適性を証明できていない。
+- `INFEASIBLE`: 需要・担当資格・勤務可能時間・上限をすべて満たす解がないと証明された。
 - `UNKNOWN`: 探索予算が切れ、完全な解を得られていない。不可能性の証明ではない。
 - `INVALID_INPUT`: 構造、参照、日時、上限または対応範囲を修正する必要がある。
+- `BACKEND_UNAVAILABLE`: CP-SAT の必要な依存がない。`cp-sat` extra を導入する。
 - `INTERNAL_ERROR`: ソルバーの障害、壊れた解、評価値・出力契約の不整合。正式な解は返さない。
 
 `INFEASIBLE` 以下の状態は `solution: null`、`objectives: []`。
@@ -78,9 +119,13 @@ zoneinfo の読み取りなど実行環境の I/O 障害は `INTERNAL_ERROR` と
 
 `INSUFFICIENT_QUALIFIED_EMPLOYEES` は単独役割の勤務可能な有資格者不足、
 `COMPETING_ROLE_DEMAND` は複数役割を同時に埋められないことを示す。
-診断の `facts` に時間枠インデックスと人数を保持する。最低追加人数は推測しない。
+これらは最小費用流の診断であり、`facts` に時間枠インデックスと人数を保持する。
+CP-SAT の `NO_FEASIBLE_PLAN` は全体の不可能性を示す。唯一の原因や最低追加人数は推測しない。
 ソルバーの正規化テーブルを検証器へ信用させず、元入力と担当区間から
-担当資格・勤務可能時間・需要・二重配置と目的値を照合し、Response 全体も検証する。
+担当資格・勤務可能時間・需要・二重配置・担当時間上限・担当切替上限と目的値を照合し、
+Response 全体も検証する。上限違反は `MAX_ASSIGNED_MINUTES_VIOLATION` /
+`MAX_ROLE_SWITCHES_VIOLATION`、目的値の不一致は `OBJECTIVE_VALUE_MISMATCH` として公開を遮断する。
+`FEASIBLE` も同じ検証を通し、目的の `proven_optimal` は `false` にする。
 隣接した同一担当の結合漏れも `UNMERGED_ASSIGNMENTS` として検出し、解の公開を遮断する。
 Schema は UTF-8 を明示して読み取る。
 
@@ -90,9 +135,11 @@ Schema は UTF-8 を明示して読み取る。
 従業員 × 時間枠 × 役割1,000,000以下。その他の配列上限は版別 Schema に記録する。
 上限内で応答性能を保証するものではない。
 
-`time_limit_seconds` はグラフ構築後に始まる、すべての時間枠に共通の探索予算。
-途中で切れた場合、部分的な配置を返さず `UNKNOWN` にする。
-空需要は探索を要しない。入力検証・正規化・構築・結果検証・出力を含む総時間は
+`time_limit_seconds` は依存読み込み・グラフまたはモデル構築を終えてから始まる探索予算。
+最小費用流ではすべての時間枠で共有し、途中で切れた部分配置は返さず `UNKNOWN` にする。
+CP-SAT は今回は一回の探索で全枠を解く。最適性未証明の完全な解は検証後 `FEASIBLE`、
+解も不可能性の証明もない場合は `UNKNOWN`。
+入力検証・正規化・依存読み込み・構築・結果検証を含む総時間は
 `stats.elapsed_seconds` に記録する。外部応答期限やプロセス隔離は未導入。
 
 ## 検証とビルド
@@ -104,6 +151,8 @@ uv build --wheel
 ```
 
 既存 CI の `deploy-entrypoint` で、既存テストに加え、全探索比較150件、
-壊れた解の検出、厳密な入力・出力、時計変更、時間切れ、CLI、wheel を検証する。
+両バックエンドの比較、時間横断条件を含む全探索80件、壊れた解の検出、
+厳密な入力・出力、時計変更、時間切れ、CLI、wheel と依存不足を検証する。
 wheel のテストは、ソース checkout を import せず同梱 Schema・ライブラリ・CLI を実行する。
-今回の実測と未検証事項は [担当配置の検証記録](evaluations/assignment.md) に残す。
+独立配置の実測は [担当配置の検証記録](evaluations/assignment.md)、今回の実測と未検証事項は
+[時間横断配置の検証記録](evaluations/linked-assignment.md) に残す。

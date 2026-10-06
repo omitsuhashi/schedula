@@ -114,8 +114,6 @@ def test_overlap_rejected_even_for_zero_demand(assignment_request, field):
     ("path", "value"),
     [
         (["problem_type"], "roster"),
-        (["solver", "backend"], "cp_sat"),
-        (["objectives", 0, "metric"], "role_switches"),
         (["objectives", 0, "metric"], "scheduled_minutes"),
         (
             ["employees", 0, "history"],
@@ -126,7 +124,7 @@ def test_overlap_rejected_even_for_zero_demand(assignment_request, field):
             [
                 {
                     "id": "limit",
-                    "type": "max_assigned_minutes",
+                    "type": "max_scheduled_minutes",
                     "employee_ids": ["alice"],
                     "limit_minutes": 0,
                 }

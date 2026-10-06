@@ -189,10 +189,12 @@ def exhaustive_value(request):
     return total
 
 
+@pytest.mark.parametrize("backend", ["min_cost_flow", "cp_sat"])
 @pytest.mark.parametrize("seed", range(150))
-def test_optimum_and_infeasibility_match_exhaustive_search(assignment_request, seed):
+def test_optimum_and_infeasibility_match_exhaustive_search(assignment_request, seed, backend):
     randomizer = random.Random(seed)
     request = assignment_request
+    request["solver"]["backend"] = backend
     request["planning_window"]["end"] = "2026-10-05T12:00:00+09:00"
     request["employees"].append({**copy.deepcopy(request["employees"][2]), "id": "dave"})
     for employee in request["employees"]:
