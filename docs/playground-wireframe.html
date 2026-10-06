@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>配置プレイグラウンド — 画面案</title>
+<style>
+:root { color-scheme:light; font-family:system-ui,sans-serif; color:#24302e; background:#fff; line-height:1.6; }
+* { box-sizing:border-box; } body { margin:0; } header, main, footer { max-width:1480px; margin:auto; padding:20px 32px; }
+header { border-bottom:1px solid #d7deda; } h1 { font-size:27px; margin:6px 0; } h2 { font-size:18px; margin:0 0 10px; } p { margin:8px 0; }
+a { color:#175e53; } .note { color:#59675f; font-size:13px; } .eyebrow { font-size:12px; font-weight:700; letter-spacing:.1em; color:#42766a; }
+.notice { background:#fff4db; color:#674e14; padding:10px 16px; font-size:14px; margin-bottom:14px; }
+.toolbar { display:flex; gap:16px; align-items:center; flex-wrap:wrap; } select,button,input { font:inherit; } select,button { padding:6px 10px; border:1px solid #aebcb4; border-radius:4px; background:#fff; }
+button.primary { background:#1e6957; color:white; border-color:#1e6957; } :disabled { opacity:1; color:inherit; -webkit-text-fill-color:currentColor; cursor:default; } input:disabled { background:#f8faf9; }
+.guide { margin:20px 0; padding:14px 18px; border-left:4px solid #448573; background:#f1f7f3; } .guide strong { font-size:16px; }
+.layout { display:grid; grid-template-columns:minmax(460px, .95fr) minmax(550px, 1.05fr); gap:32px; } .layout > div { min-width:0; } section { margin-bottom:26px; }
+table { border-collapse:collapse; width:100%; font-size:13px; text-align:center; } caption { text-align:left; color:#59675f; padding:0 0 8px; font-size:13px; }
+th,td { border-bottom:1px solid #e1e7e3; padding:9px 5px; white-space:nowrap; } th { font-weight:600; } thead { background:#f6f8f6; }
+input[type=number] { width:46px; padding:5px; border:1px solid #b3c1b8; border-radius:3px; } input[type=checkbox] { accent-color:#32725e; width:16px; height:16px; }
+small { color:#647168; font-weight:400; } .scroll { overflow:auto; } .people select { font-size:12px; padding:4px; }
+.result { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; } .status { color:#235f46; font-weight:700; } .tag { font-size:12px; padding:3px 8px; background:#edf5ed; border-radius:3px; }
+.kitchen { background:#e3eee8; color:#214c3c; } .hall { background:#e8eff7; color:#284765; } .washing { background:#f9f0db; color:#6b531d; } .empty { color:#6b756e; font-size:12px; }
+.comparison { border-top:1px solid #cbd8cf; padding-top:18px; } .compare-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:16px; } details { border-top:1px solid #d7dfd9; padding:14px 0; } summary { cursor:pointer; font-weight:600; }
+.error { color:#8a4227; background:#fff1e9; padding:14px; margin-top:12px; } footer { border-top:1px solid #d7dfd9; color:#5d6c63; font-size:13px; }
+@media(max-width:1100px) { .layout { grid-template-columns:1fr; } }
+@media(max-width:600px) { header,main,footer { padding:16px; } .compare-grid { grid-template-columns:1fr; } }
+</style>
+<header>
+<div class="eyebrow">schedula / 架空の飲食店</div>
+<h1>配置プレイグラウンド</h1>
+<p class="note">2026-10-06 · 11:00〜14:00 · 30分ごとの担当配置</p>
+</header>
+<main>
+<div class="notice">レビュー用の静的な画面案です。入力・再計算は後続 Issue で実装します。表示中の配置は既存 solve で検証した一例です。</div>
+<div class="toolbar"><label for="scenario">シナリオ</label><select id="scenario" disabled><option>通常のランチ営業</option><option>急な欠勤</option><option>ピーク時の必要人数増加</option></select><span class="note">切替時は編集した条件と比較結果を置き換えます。</span></div>
+<div class="guide"><strong>試してみる：ホールの必要人数を変える</strong><p>11:30〜12:00のホールを1人から2人にして、再計算します。</p><div class="actions"><button disabled>この変更を入力</button><button disabled>自由に編集する</button></div></div>
+<div class="layout"><div>
+<section><h2>従業員と勤務可能時間</h2><div class="scroll" tabindex="0" role="region" aria-label="従業員の条件表"><table class="people"><caption>技能は保有の有無を指定。勤務することを決める入力ではありません。</caption><thead><tr><th scope="col">名前</th><th scope="col">調理</th><th scope="col">接客</th><th scope="col">洗浄</th><th scope="col">勤務可能時間</th><th scope="col">勤務不可</th></tr>
+</thead><tbody><tr><th scope="row">あおい</th><td><input disabled type="checkbox" aria-label="あおいの調理技能" checked></td><td><input disabled type="checkbox" aria-label="あおいの接客技能" ></td><td><input disabled type="checkbox" aria-label="あおいの洗浄技能" checked></td><td><select disabled aria-label="あおいの開始"><option>11:00</option></select> 〜 <select disabled aria-label="あおいの終了"><option>14:00</option></select></td><td><input disabled type="checkbox" aria-label="あおいを勤務不可にする"></td></tr>
+<tr><th scope="row">れん</th><td><input disabled type="checkbox" aria-label="れんの調理技能" checked></td><td><input disabled type="checkbox" aria-label="れんの接客技能" checked></td><td><input disabled type="checkbox" aria-label="れんの洗浄技能" checked></td><td><select disabled aria-label="れんの開始"><option>11:00</option></select> 〜 <select disabled aria-label="れんの終了"><option>14:00</option></select></td><td><input disabled type="checkbox" aria-label="れんを勤務不可にする"></td></tr>
+<tr><th scope="row">みか</th><td><input disabled type="checkbox" aria-label="みかの調理技能" ></td><td><input disabled type="checkbox" aria-label="みかの接客技能" checked></td><td><input disabled type="checkbox" aria-label="みかの洗浄技能" checked></td><td><select disabled aria-label="みかの開始"><option>11:00</option></select> 〜 <select disabled aria-label="みかの終了"><option>14:00</option></select></td><td><input disabled type="checkbox" aria-label="みかを勤務不可にする"></td></tr>
+<tr><th scope="row">そら</th><td><input disabled type="checkbox" aria-label="そらの調理技能" ></td><td><input disabled type="checkbox" aria-label="そらの接客技能" checked></td><td><input disabled type="checkbox" aria-label="そらの洗浄技能" checked></td><td><select disabled aria-label="そらの開始"><option>11:00</option></select> 〜 <select disabled aria-label="そらの終了"><option>14:00</option></select></td><td><input disabled type="checkbox" aria-label="そらを勤務不可にする"></td></tr>
+<tr><th scope="row">ゆい</th><td><input disabled type="checkbox" aria-label="ゆいの調理技能" ></td><td><input disabled type="checkbox" aria-label="ゆいの接客技能" ></td><td><input disabled type="checkbox" aria-label="ゆいの洗浄技能" checked></td><td><select disabled aria-label="ゆいの開始"><option>11:00</option></select> 〜 <select disabled aria-label="ゆいの終了"><option>13:00</option></select></td><td><input disabled type="checkbox" aria-label="ゆいを勤務不可にする"></td></tr>
+<tr><th scope="row">けい</th><td><input disabled type="checkbox" aria-label="けいの調理技能" ></td><td><input disabled type="checkbox" aria-label="けいの接客技能" checked></td><td><input disabled type="checkbox" aria-label="けいの洗浄技能" checked></td><td><select disabled aria-label="けいの開始"><option>12:00</option></select> 〜 <select disabled aria-label="けいの終了"><option>14:00</option></select></td><td><input disabled type="checkbox" aria-label="けいを勤務不可にする"></td></tr>
+</tbody></table></div><p class="note">実装時は名前も編集可能。従業員の追加・削除は初版の対象外です。</p></section>
+<section><h2>役割ごとの必要人数</h2><div class="scroll" tabindex="0" role="region" aria-label="必要人数の条件表"><table><caption>各枠0〜6人。入力した人数ちょうどを配置します。</caption><thead><tr><th scope="col">役割</th><th scope="col">11:00<br><small>〜11:30</small></th><th scope="col">11:30<br><small>〜12:00</small></th><th scope="col">12:00<br><small>〜12:30</small></th><th scope="col">12:30<br><small>〜13:00</small></th><th scope="col">13:00<br><small>〜13:30</small></th><th scope="col">13:30<br><small>〜14:00</small></th></tr>
+</thead><tbody><tr><th scope="row">調理</th><td><input disabled type="number" min="0" max="6" step="1" value="1" aria-label="11:00〜11:30の調理の必要人数"></td><td><input disabled type="number" min="0" max="6" step="1" value="1" aria-label="11:30〜12:00の調理の必要人数"></td><td><input disabled type="number" min="0" max="6" step="1" value="2" aria-label="12:00〜12:30の調理の必要人数"></td><td><input disabled type="number" min="0" max="6" step="1" value="2" aria-label="12:30〜13:00の調理の必要人数"></td><td><input disabled type="number" min="0" max="6" step="1" value="1" aria-label="13:00〜13:30の調理の必要人数"></td><td><input disabled type="number" min="0" max="6" step="1" value="1" aria-label="13:30〜14:00の調理の必要人数"></td></tr>
+<tr><th scope="row">ホール</th><td><input disabled type="number" min="0" max="6" step="1" value="1" aria-label="11:00〜11:30のホールの必要人数"></td><td><input disabled type="number" min="0" max="6" step="1" value="1" aria-label="11:30〜12:00のホールの必要人数"></td><td><input disabled type="number" min="0" max="6" step="1" value="2" aria-label="12:00〜12:30のホールの必要人数"></td><td><input disabled type="number" min="0" max="6" step="1" value="2" aria-label="12:30〜13:00のホールの必要人数"></td><td><input disabled type="number" min="0" max="6" step="1" value="1" aria-label="13:00〜13:30のホールの必要人数"></td><td><input disabled type="number" min="0" max="6" step="1" value="1" aria-label="13:30〜14:00のホールの必要人数"></td></tr>
+<tr><th scope="row">皿洗い</th><td><input disabled type="number" min="0" max="6" step="1" value="1" aria-label="11:00〜11:30の皿洗いの必要人数"></td><td><input disabled type="number" min="0" max="6" step="1" value="1" aria-label="11:30〜12:00の皿洗いの必要人数"></td><td><input disabled type="number" min="0" max="6" step="1" value="1" aria-label="12:00〜12:30の皿洗いの必要人数"></td><td><input disabled type="number" min="0" max="6" step="1" value="1" aria-label="12:30〜13:00の皿洗いの必要人数"></td><td><input disabled type="number" min="0" max="6" step="1" value="1" aria-label="13:00〜13:30の皿洗いの必要人数"></td><td><input disabled type="number" min="0" max="6" step="1" value="1" aria-label="13:30〜14:00の皿洗いの必要人数"></td></tr>
+</tbody></table></div><div class="actions"><button class="primary" disabled>再計算</button><button disabled>サンプルへ復元</button></div><p class="note">復元すると条件・結果・比較元・ガイドを初期状態に戻します。</p></section>
+</div><div>
+<section><div class="result"><h2>担当配置</h2><span class="tag">独立検証：成功</span></div><p class="status">条件を満たす配置です <small>OPTIMAL</small></p><div class="scroll" tabindex="0" role="region" aria-label="担当配置の結果表"><table><caption>通常サンプルを計算した結果。時間外＝勤務可能時間外。</caption><thead><tr><th scope="col">従業員</th><th scope="col">11:00<br><small>〜11:30</small></th><th scope="col">11:30<br><small>〜12:00</small></th><th scope="col">12:00<br><small>〜12:30</small></th><th scope="col">12:30<br><small>〜13:00</small></th><th scope="col">13:00<br><small>〜13:30</small></th><th scope="col">13:30<br><small>〜14:00</small></th></tr>
+</thead><tbody><tr><th scope="row">あおい</th><td class="kitchen">調理</td><td class="kitchen">調理</td><td class="kitchen">調理</td><td class="kitchen">調理</td><td class="kitchen">調理</td><td class="kitchen">調理</td></tr>
+<tr><th scope="row">れん</th><td class="washing">皿洗い</td><td class="washing">皿洗い</td><td class="kitchen">調理</td><td class="kitchen">調理</td><td class="empty">担当なし</td><td class="empty">担当なし</td></tr>
+<tr><th scope="row">みか</th><td class="hall">ホール</td><td class="hall">ホール</td><td class="hall">ホール</td><td class="hall">ホール</td><td class="washing">皿洗い</td><td class="washing">皿洗い</td></tr>
+<tr><th scope="row">そら</th><td class="empty">担当なし</td><td class="empty">担当なし</td><td class="washing">皿洗い</td><td class="washing">皿洗い</td><td class="empty">担当なし</td><td class="empty">担当なし</td></tr>
+<tr><th scope="row">ゆい</th><td class="empty">担当なし</td><td class="empty">担当なし</td><td class="empty">担当なし</td><td class="empty">担当なし</td><td class="empty">時間外</td><td class="empty">時間外</td></tr>
+<tr><th scope="row">けい</th><td class="empty">時間外</td><td class="empty">時間外</td><td class="hall">ホール</td><td class="hall">ホール</td><td class="hall">ホール</td><td class="hall">ホール</td></tr>
+</tbody></table></div><p class="note">担当なしは、欠勤・退勤・休憩を意味しません。</p></section>
+<section><h2>必要人数の充足</h2><div class="scroll" tabindex="0" role="region" aria-label="需要充足の結果表"><table><caption>配置人数 / 必要人数</caption><thead><tr><th scope="col">役割</th><th scope="col">11:00<br><small>〜11:30</small></th><th scope="col">11:30<br><small>〜12:00</small></th><th scope="col">12:00<br><small>〜12:30</small></th><th scope="col">12:30<br><small>〜13:00</small></th><th scope="col">13:00<br><small>〜13:30</small></th><th scope="col">13:30<br><small>〜14:00</small></th></tr>
+</thead><tbody><tr><th scope="row">調理</th><td>1 / 1</td><td>1 / 1</td><td>2 / 2</td><td>2 / 2</td><td>1 / 1</td><td>1 / 1</td></tr>
+<tr><th scope="row">ホール</th><td>1 / 1</td><td>1 / 1</td><td>2 / 2</td><td>2 / 2</td><td>1 / 1</td><td>1 / 1</td></tr>
+<tr><th scope="row">皿洗い</th><td>1 / 1</td><td>1 / 1</td><td>1 / 1</td><td>1 / 1</td><td>1 / 1</td><td>1 / 1</td></tr>
+</tbody></table></div></section>
+<section class="comparison"><h2>元の条件と比較する</h2><div class="compare-grid"><div><strong>元の条件</strong><p>通常のランチ営業<br><span class="status">OPTIMAL · 検証成功</span></p></div><div><strong>現在の条件</strong><p>まだ変更はありません。<br>条件を変えて再計算してください。</p></div></div><p class="note">入力の変更 → 担当の変更を表示します。変更量の最小化は行いません。</p></section>
+</div></div>
+<details><summary>解なしになったときの表示案を見る</summary><div class="error"><strong>この条件を満たす配置はありません · INFEASIBLE</strong><p>あおいの勤務可能時間を空にした結果、12:00〜12:30の調理は必要2人に対し、担当資格があり勤務可能な従業員が1人です。</p><p>現在の担当表は表示しません。元の成立した配置と、変更した条件を比較欄に残します。</p></div><p>復帰ガイド：あおいを勤務不可のまま、12:00〜13:00の調理を2人から1人に変更し、再計算する。</p><p class="note">需要を減らすかは利用者が選びます。無断で緩和しません。実店舗への推奨ではありません。</p></details>
+<details><summary>計算の詳細と状態の仕様</summary><p>追加の目的は指定していません。OPTIMAL は入力条件の範囲での状態であり、人選の優劣や変更最小化を保証しません。</p><p>編集後は「再計算が必要」と表示し、前回結果を現在の有効な配置として扱いません。UNKNOWN は未確定、通信失敗は取得失敗として区別します。</p><a href="playground.md">編集上限・全状態・実行入口・検証記録を読む</a></details>
+</main><footer>全データは架空です。勤務計画・法令判定・実店舗の適正人数を示すものではありません。</footer>
+</html>
