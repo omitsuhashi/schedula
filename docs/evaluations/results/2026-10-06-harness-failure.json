@@ -1,0 +1,162 @@
+{
+  "measured_at": "2026-10-06T05:30:15.767372+00:00",
+  "command": [
+    "scripts/evaluate.py",
+    "docs/evaluations/inputs/missing-evaluation-input.json",
+    "--repeat",
+    "2",
+    "--mode",
+    "warm",
+    "--source-ref",
+    "76d3534a0cd79253691f76c82da82e4d71daef9c",
+    "--output",
+    "docs/evaluations/results/2026-10-06-harness-failure.json"
+  ],
+  "source": {
+    "commit": "76d3534a0cd79253691f76c82da82e4d71daef9c",
+    "dirty": false,
+    "snapshot": "git_archive",
+    "source_tree_sha256": "18406fc579c9635f38117ca84080ff7ff4ae5e2fdd1a4666e0cfd60395adc591",
+    "runner_sha256": "fa6c58cda477c062abfb3d30132e9aaad78f9cf5a81ee84812a6122687c6d359",
+    "uv_lock_sha256": "ca6e4dfa241cdb48cc75a22fe4371877a59a8ed4237e2939f5ea545d253de488",
+    "package_version": "0.1.3"
+  },
+  "conditions": {
+    "mode": "warm",
+    "repeat": 2,
+    "processes": 1,
+    "worker_processes_started": 1,
+    "worker_timeout_seconds": 60,
+    "quantile_method": "nearest_rank",
+    "cold_definition": "新規 Python プロセス。OS のファイルキャッシュは消去しない。"
+  },
+  "environment": {
+    "platform": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "cpu_count": 8,
+    "python": "3.14.8 (main, Oct  3 2026, 00:54:40) [Clang 22.1.3 ]",
+    "uv": "uv 0.12.23 (46b84fd0b 2026-10-03 aarch64-apple-darwin)",
+    "packages": {
+      "PyYAML": "6.0.3",
+      "Pygments": "2.21.0",
+      "absl-py": "2.5.0",
+      "attrs": "26.1.0",
+      "cfgv": "3.5.0",
+      "distlib": "0.4.3",
+      "filelock": "4.0.10",
+      "identify": "2.6.20",
+      "immutabledict": "4.3.1",
+      "iniconfig": "2.3.0",
+      "jsonschema": "4.26.0",
+      "jsonschema-specifications": "2025.9.1",
+      "nodeenv": "1.11.0",
+      "numpy": "2.5.3",
+      "ortools": "9.15.6755",
+      "packaging": "26.3",
+      "pandas": "3.0.6",
+      "platformdirs": "4.12.3",
+      "pluggy": "1.6.0",
+      "pre_commit": "4.6.2",
+      "protobuf": "6.33.6",
+      "pytest": "9.1.1",
+      "python-dateutil": "2.9.0.post0",
+      "python-discovery": "1.6.1",
+      "referencing": "0.37.0",
+      "rpds-py": "2026.6.3",
+      "ruff": "0.16.10",
+      "schedula": "0.1.3",
+      "six": "1.17.0",
+      "typing_extensions": "4.16.0",
+      "virtualenv": "21.14.5"
+    }
+  },
+  "measurements": [
+    {
+      "input_file": "docs/evaluations/inputs/missing-evaluation-input.json",
+      "status": "WORKER_ERROR",
+      "error": "Traceback (most recent call last):\n  File \"/Users/omitsuhashi/.codex/worktrees/b51f/schedula/scripts/evaluate.py\", line 370, in <module>\n    main()\n    ~~~~^^\n  File \"/Users/omitsuhashi/.codex/worktrees/b51f/schedula/scripts/evaluate.py\", line 276, in main\n    print(json.dumps(measure(args.inputs[0], args.backend), allow_nan=False), flush=True)\n                     ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/omitsuhashi/.codex/worktrees/b51f/schedula/scripts/evaluate.py\", line 60, in measure\n    raw = path.read_bytes()\n  File \"/Users/omitsuhashi/.local/share/uv/python/cpython-3.14.8-macos-aarch64-none/lib/python3.14/pathlib/__init__.py\", line 777, in read_bytes\n    with self.open(mode='rb', buffering=0) as f:\n         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/omitsuhashi/.local/share/uv/python/cpython-3.14.8-macos-aarch64-none/lib/python3.14/pathlib/__init__.py\", line 771, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: 'docs/evaluations/inputs/missing-evaluation-input.json'\n",
+      "group": 1,
+      "iteration": 1,
+      "mode": "warm",
+      "execution": "cold_initial",
+      "input_sha256": null
+    },
+    {
+      "input_file": "docs/evaluations/inputs/missing-evaluation-input.json",
+      "status": "WORKER_NOT_RUN",
+      "error": "Traceback (most recent call last):\n  File \"/Users/omitsuhashi/.codex/worktrees/b51f/schedula/scripts/evaluate.py\", line 370, in <module>\n    main()\n    ~~~~^^\n  File \"/Users/omitsuhashi/.codex/worktrees/b51f/schedula/scripts/evaluate.py\", line 276, in main\n    print(json.dumps(measure(args.inputs[0], args.backend), allow_nan=False), flush=True)\n                     ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/omitsuhashi/.codex/worktrees/b51f/schedula/scripts/evaluate.py\", line 60, in measure\n    raw = path.read_bytes()\n  File \"/Users/omitsuhashi/.local/share/uv/python/cpython-3.14.8-macos-aarch64-none/lib/python3.14/pathlib/__init__.py\", line 777, in read_bytes\n    with self.open(mode='rb', buffering=0) as f:\n         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/omitsuhashi/.local/share/uv/python/cpython-3.14.8-macos-aarch64-none/lib/python3.14/pathlib/__init__.py\", line 771, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: 'docs/evaluations/inputs/missing-evaluation-input.json'\n",
+      "group": 1,
+      "iteration": 2,
+      "mode": "warm",
+      "execution": "continued",
+      "input_sha256": null
+    }
+  ],
+  "workers": [
+    {
+      "input_file": "docs/evaluations/inputs/missing-evaluation-input.json",
+      "group": 1,
+      "elapsed_seconds": 0.09309470898006111,
+      "completed": 0,
+      "failure": "WORKER_ERROR",
+      "timeout_seconds": 60
+    }
+  ],
+  "summaries": [
+    {
+      "input_file": "docs/evaluations/inputs/missing-evaluation-input.json",
+      "attempts": 2,
+      "statuses": {
+        "WORKER_ERROR": 1,
+        "WORKER_NOT_RUN": 1
+      },
+      "verified_solutions": 0,
+      "solution_rate": 0.0,
+      "statistics": {
+        "elapsed_seconds": {
+          "samples": 0,
+          "mean": null,
+          "median": null,
+          "p95": null,
+          "maximum": null
+        },
+        "request_elapsed_seconds": {
+          "samples": 0,
+          "mean": null,
+          "median": null,
+          "p95": null,
+          "maximum": null
+        },
+        "peak_rss_mib": {
+          "samples": 0,
+          "mean": null,
+          "median": null,
+          "p95": null,
+          "maximum": null
+        }
+      },
+      "first_request_elapsed_seconds": {
+        "samples": 0,
+        "mean": null,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "continued_request_elapsed_seconds": {
+        "samples": 0,
+        "mean": null,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "process_elapsed_seconds": {
+        "samples": 1,
+        "mean": 0.09309470898006111,
+        "median": 0.09309470898006111,
+        "p95": 0.09309470898006111,
+        "maximum": 0.09309470898006111
+      },
+      "objective_quality": []
+    }
+  ]
+}

@@ -22,6 +22,7 @@ class FlowResult:
     proven_optimal: tuple = ()
     diagnostics: tuple = ()
     search_elapsed_seconds: float = 0.0
+    preparation_elapsed_seconds: float = 0.0
 
 
 def add_edge(graph, source, target, capacity, cost):
@@ -132,9 +133,16 @@ def make_solution(grid, assignments):
 
 
 def run(problem):
+    preparation_start = time.perf_counter()
     networks, shortage = prepare(problem)
+    preparation_elapsed = time.perf_counter() - preparation_start
     if shortage:
-        return FlowResult("INFEASIBLE", None, diagnostics=(shortage,))
+        return FlowResult(
+            "INFEASIBLE",
+            None,
+            diagnostics=(shortage,),
+            preparation_elapsed_seconds=preparation_elapsed,
+        )
     start = time.monotonic()
     deadline = start + problem.request["solver"]["time_limit_seconds"]
     assignments = {}
@@ -153,6 +161,7 @@ def run(problem):
                 None,
                 diagnostics=(diagnostic(code, message, "/demand", slot=slot),),
                 search_elapsed_seconds=time.monotonic() - start,
+                preparation_elapsed_seconds=preparation_elapsed,
             )
         cost += slot_cost
         for employee, role, edge in arcs:
@@ -164,4 +173,5 @@ def run(problem):
         (cost,) if problem.request["objectives"] else (),
         (True,) if problem.request["objectives"] else (),
         search_elapsed_seconds=time.monotonic() - start,
+        preparation_elapsed_seconds=preparation_elapsed,
     )

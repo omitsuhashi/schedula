@@ -85,12 +85,16 @@ def solve(request: dict) -> dict:
     verification = None
     try:
         problem = normalize(request)
+        normalized_at = time.perf_counter()
         backend, selection_reason = choose_backend(request)
         if backend == "cp_sat":
             module, library_version = cp_sat.load_backend()
+            loaded_at = time.perf_counter()
             outcome = cp_sat.run(problem, module)
         else:
+            loaded_at = time.perf_counter()
             outcome = flow.run(problem)
+        solved_at = time.perf_counter()
         if backend == "min_cost_flow" and outcome.status == "FEASIBLE":
             raise RuntimeError("Unexpected flow outcome")
         result = response(request_id, outcome.status, outcome.diagnostics, backend)
@@ -139,6 +143,7 @@ def solve(request: dict) -> dict:
                 ]
         elif outcome.status not in {"INFEASIBLE", "UNKNOWN"} or outcome.solution is not None:
             raise RuntimeError("Unexpected solver outcome")
+        verified_at = time.perf_counter()
         result["diagnostics"].append(
             diagnostic(
                 "SEARCH_STATS",
@@ -146,8 +151,25 @@ def solve(request: dict) -> dict:
                 "/solver/time_limit_seconds",
                 time_limit_seconds=request["solver"]["time_limit_seconds"],
                 search_elapsed_seconds=outcome.search_elapsed_seconds,
+                normalization_elapsed_seconds=normalized_at - start,
+                backend_loading_elapsed_seconds=loaded_at - normalized_at,
+                preparation_elapsed_seconds=outcome.preparation_elapsed_seconds,
+                verification_elapsed_seconds=verified_at - solved_at,
             )
         )
+        if backend == "cp_sat" and result["solution"] is not None:
+            for index, bound in enumerate(outcome.objective_bounds):
+                if bound is not None:
+                    result["diagnostics"].append(
+                        diagnostic(
+                            "OBJECTIVE_BOUND",
+                            "この目的の下限です。上位目的を固定した探索だけに適用します。",
+                            f"/objectives/{index}",
+                            [request["objectives"][index]["id"]],
+                            objective_index=index,
+                            best_bound=bound,
+                        )
+                    )
         result["solver"]["selection_reason"] = selection_reason
         result["solver"]["library_version"] = library_version
         validate_response(result, request)

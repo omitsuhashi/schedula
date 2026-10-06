@@ -29,6 +29,8 @@ class SatResult:
     proven_optimal: tuple = ()
     diagnostics: tuple = ()
     search_elapsed_seconds: float = 0.0
+    preparation_elapsed_seconds: float = 0.0
+    objective_bounds: tuple = ()
 
 
 def prepare_roster(model, problem):
@@ -171,7 +173,9 @@ def prepare(problem, cp_model):
 
 
 def run(problem, cp_model):
+    preparation_start = time.perf_counter()
     model, variables, shifts, objectives = prepare(problem, cp_model)
+    preparation_elapsed = time.perf_counter() - preparation_start
     solver = cp_model.CpSolver()
     solver.parameters.random_seed = int(problem.request["solver"]["seed"])
     solver.parameters.num_search_workers = 1
@@ -181,6 +185,7 @@ def run(problem, cp_model):
     start = time.monotonic()
     deadline = start + budget
     best = None
+    bounds = [None] * len(objectives)
     for index, objective in enumerate(objectives or (None,)):
         remaining = budget if index == 0 else deadline - time.monotonic()
         if remaining <= 0:
@@ -215,6 +220,8 @@ def run(problem, cp_model):
             break
         if status not in {cp_model.OPTIMAL, cp_model.FEASIBLE}:
             raise RuntimeError("Unexpected CP-SAT status")
+        if objective is not None:
+            bounds[index] = solver.best_objective_bound
         assignments = defaultdict(list)
         for (employee, slot, role), variable in variables.items():
             if solver.value(variable):
@@ -252,4 +259,6 @@ def run(problem, cp_model):
             if model.validate():
                 raise RuntimeError("Invalid CP-SAT model")
     best.search_elapsed_seconds = time.monotonic() - start
+    best.preparation_elapsed_seconds = preparation_elapsed
+    best.objective_bounds = tuple(bounds)
     return best

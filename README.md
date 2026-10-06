@@ -88,6 +88,10 @@ uv run --locked --extra cp-sat python -m schedula solve request.json
 テンプレートは対象者・日付・始業・勤務長・休憩位置の選択肢から有限候補を生成します。
 詳細な入力条件は [担当配置](docs/assignment.md)・[勤務計画](docs/roster.md)を参照してください。
 
+実務条件の追加は [マイルストーン #2](https://github.com/omitsuhashi/schedula/milestone/2)で進めています。
+[次期契約の仕様案](docs/io-contract-next.md)と[性能評価・合格基準案](docs/evaluations/performance.md)は
+確認用の提案です。夜勤・分割勤務・公平性・変更最小化は、現在の契約0.1では引き続き未対応です。
+
 ## ライブラリで解と診断を読む
 
 同じ環境で次を実行できます。自作入力に切り替える場合はファイル名を変更します。

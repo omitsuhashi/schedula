@@ -301,8 +301,30 @@ def test_shared_budget_excludes_preparation_and_records_total_elapsed(monkeypatc
     assert {f["name"]: f["value"] for f in stats["facts"]} == {
         "time_limit_seconds": 10,
         "search_elapsed_seconds": 6,
+        "normalization_elapsed_seconds": 0,
+        "backend_loading_elapsed_seconds": 100,
+        "preparation_elapsed_seconds": 200,
+        "verification_elapsed_seconds": 400,
     }
     assert result["stats"]["elapsed_seconds"] == 756
+
+
+@pytest.mark.parametrize("statuses", [("OPTIMAL",) * 3, ("FEASIBLE",), ("OPTIMAL", "UNKNOWN")])
+def test_objective_bounds_only_describe_reached_objectives(monkeypatch, statuses):
+    control_search(monkeypatch, statuses)
+    data = tradeoff_request()
+    result = solve(data)
+    bounds = [d for d in result["diagnostics"] if d["code"] == "OBJECTIVE_BOUND"]
+    reached = sum(status != "UNKNOWN" for status in statuses)
+    assert len(bounds) == reached
+    for index, item in enumerate(bounds):
+        facts = {f["name"]: f["value"] for f in item["facts"]}
+        assert item["json_pointer"] == f"/objectives/{index}"
+        assert item["related_ids"] == [data["objectives"][index]["id"]]
+        assert facts["objective_index"] == index
+        assert 0 <= facts["best_bound"] <= result["objectives"][index]["value"]
+        if result["objectives"][index]["proven_optimal"]:
+            assert facts["best_bound"] == result["objectives"][index]["value"]
 
 
 @pytest.mark.parametrize("index", range(3))

@@ -1,0 +1,2194 @@
+{
+  "measured_at": "2026-10-06T05:29:48.741135+00:00",
+  "command": [
+    "scripts/evaluate.py",
+    "docs/evaluations/inputs/roster-week.json",
+    "docs/evaluations/inputs/roster-fortnight-large.json",
+    "docs/evaluations/inputs/roster-week-15min.json",
+    "examples/linked_assignment.json",
+    "--repeat",
+    "3",
+    "--output",
+    "docs/evaluations/results/2026-10-06-profile.json"
+  ],
+  "source": {
+    "commit": "76d3534a0cd79253691f76c82da82e4d71daef9c",
+    "dirty": true,
+    "snapshot": "working_tree_copy",
+    "source_tree_sha256": "d67766df51cf491e390a789345b05ab6759f0b941915bd586e6638d5cc3b3723",
+    "runner_sha256": "fa6c58cda477c062abfb3d30132e9aaad78f9cf5a81ee84812a6122687c6d359",
+    "uv_lock_sha256": "ca6e4dfa241cdb48cc75a22fe4371877a59a8ed4237e2939f5ea545d253de488",
+    "package_version": "0.1.3"
+  },
+  "conditions": {
+    "mode": "cold",
+    "repeat": 3,
+    "processes": 1,
+    "worker_processes_started": 12,
+    "worker_timeout_seconds": 60,
+    "quantile_method": "nearest_rank",
+    "cold_definition": "新規 Python プロセス。OS のファイルキャッシュは消去しない。"
+  },
+  "environment": {
+    "platform": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "cpu_count": 8,
+    "python": "3.14.8 (main, Oct  3 2026, 00:54:40) [Clang 22.1.3 ]",
+    "uv": "uv 0.12.23 (46b84fd0b 2026-10-03 aarch64-apple-darwin)",
+    "packages": {
+      "PyYAML": "6.0.3",
+      "Pygments": "2.21.0",
+      "absl-py": "2.5.0",
+      "attrs": "26.1.0",
+      "cfgv": "3.5.0",
+      "distlib": "0.4.3",
+      "filelock": "4.0.10",
+      "identify": "2.6.20",
+      "immutabledict": "4.3.1",
+      "iniconfig": "2.3.0",
+      "jsonschema": "4.26.0",
+      "jsonschema-specifications": "2025.9.1",
+      "nodeenv": "1.11.0",
+      "numpy": "2.5.3",
+      "ortools": "9.15.6755",
+      "packaging": "26.3",
+      "pandas": "3.0.6",
+      "platformdirs": "4.12.3",
+      "pluggy": "1.6.0",
+      "pre_commit": "4.6.2",
+      "protobuf": "6.33.6",
+      "pytest": "9.1.1",
+      "python-dateutil": "2.9.0.post0",
+      "python-discovery": "1.6.1",
+      "referencing": "0.37.0",
+      "rpds-py": "2026.6.3",
+      "ruff": "0.16.10",
+      "schedula": "0.1.3",
+      "six": "1.17.0",
+      "typing_extensions": "4.16.0",
+      "virtualenv": "21.14.5"
+    }
+  },
+  "measurements": [
+    {
+      "input_file": "docs/evaluations/inputs/roster-week.json",
+      "input_sha256": "b9c3f1f9713027b9534b304fd4f9e0366aecbb97d9d90a01aab105ac1ef9941c",
+      "problem_type": "roster",
+      "employees": 20,
+      "roles": 3,
+      "days": 7.0,
+      "slot_minutes": 30,
+      "slots": 336,
+      "candidates": 560,
+      "objective_order": [
+        "preference_penalty",
+        "scheduled_minutes",
+        "role_switches"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 5,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.3",
+        "library_version": "9.15.6755",
+        "selection_reason": "JOINT_ROSTER"
+      },
+      "status": "FEASIBLE",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 630,
+          "proven_optimal": false
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 32670,
+          "proven_optimal": false
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 83,
+          "proven_optimal": false
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 630,
+          "proven_optimal": false,
+          "best_bound": 0.0,
+          "absolute_gap": 630.0,
+          "relative_gap": 1.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 32670,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 83,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "OPTIMALITY_UNPROVEN",
+          "message": "上位目的の最適性が未証明のため、後続の目的は探索しません。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 5
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 5.008440791978501
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.03135233299690299
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.2224108329974115
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.08196745801251382
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.04234212500159629
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "preferences"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        }
+      ],
+      "search_stats": {
+        "time_limit_seconds": 5,
+        "search_elapsed_seconds": 5.008440791978501,
+        "normalization_elapsed_seconds": 0.03135233299690299,
+        "backend_loading_elapsed_seconds": 0.2224108329974115,
+        "preparation_elapsed_seconds": 0.08196745801251382,
+        "verification_elapsed_seconds": 0.04234212500159629
+      },
+      "assignments": 391,
+      "shifts": 99,
+      "import_seconds": 0.036216459004208446,
+      "input_seconds": 0.0008048329909797758,
+      "elapsed_seconds": 5.430932166986167,
+      "request_elapsed_seconds": 5.467953458981356,
+      "engine_elapsed_seconds": 5.430846083007054,
+      "metadata_seconds": 0.013360333017772064,
+      "peak_rss_mib": 192.28125,
+      "group": 1,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-week.json",
+      "input_sha256": "b9c3f1f9713027b9534b304fd4f9e0366aecbb97d9d90a01aab105ac1ef9941c",
+      "problem_type": "roster",
+      "employees": 20,
+      "roles": 3,
+      "days": 7.0,
+      "slot_minutes": 30,
+      "slots": 336,
+      "candidates": 560,
+      "objective_order": [
+        "preference_penalty",
+        "scheduled_minutes",
+        "role_switches"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 5,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.3",
+        "library_version": "9.15.6755",
+        "selection_reason": "JOINT_ROSTER"
+      },
+      "status": "FEASIBLE",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 630,
+          "proven_optimal": false
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 32670,
+          "proven_optimal": false
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 83,
+          "proven_optimal": false
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 630,
+          "proven_optimal": false,
+          "best_bound": 0.0,
+          "absolute_gap": 630.0,
+          "relative_gap": 1.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 32670,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 83,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "OPTIMALITY_UNPROVEN",
+          "message": "上位目的の最適性が未証明のため、後続の目的は探索しません。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 5
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 5.0080313330108766
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.029819500021403655
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.21759479198954068
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.0833719999936875
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.042283291986677796
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "preferences"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        }
+      ],
+      "search_stats": {
+        "time_limit_seconds": 5,
+        "search_elapsed_seconds": 5.0080313330108766,
+        "normalization_elapsed_seconds": 0.029819500021403655,
+        "backend_loading_elapsed_seconds": 0.21759479198954068,
+        "preparation_elapsed_seconds": 0.0833719999936875,
+        "verification_elapsed_seconds": 0.042283291986677796
+      },
+      "assignments": 391,
+      "shifts": 99,
+      "import_seconds": 0.026745334005681798,
+      "input_seconds": 0.0007882079808041453,
+      "elapsed_seconds": 5.425475708005251,
+      "request_elapsed_seconds": 5.453009249991737,
+      "engine_elapsed_seconds": 5.425409832998412,
+      "metadata_seconds": 0.013310750015079975,
+      "peak_rss_mib": 191.28125,
+      "group": 2,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-week.json",
+      "input_sha256": "b9c3f1f9713027b9534b304fd4f9e0366aecbb97d9d90a01aab105ac1ef9941c",
+      "problem_type": "roster",
+      "employees": 20,
+      "roles": 3,
+      "days": 7.0,
+      "slot_minutes": 30,
+      "slots": 336,
+      "candidates": 560,
+      "objective_order": [
+        "preference_penalty",
+        "scheduled_minutes",
+        "role_switches"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 5,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.3",
+        "library_version": "9.15.6755",
+        "selection_reason": "JOINT_ROSTER"
+      },
+      "status": "FEASIBLE",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 630,
+          "proven_optimal": false
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 32670,
+          "proven_optimal": false
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 83,
+          "proven_optimal": false
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 630,
+          "proven_optimal": false,
+          "best_bound": 0.0,
+          "absolute_gap": 630.0,
+          "relative_gap": 1.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 32670,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 83,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "OPTIMALITY_UNPROVEN",
+          "message": "上位目的の最適性が未証明のため、後続の目的は探索しません。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 5
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 5.00810099998489
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.029621082998346537
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.21630129200639203
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.08235662497463636
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.04201120900688693
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "preferences"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        }
+      ],
+      "search_stats": {
+        "time_limit_seconds": 5,
+        "search_elapsed_seconds": 5.00810099998489,
+        "normalization_elapsed_seconds": 0.029621082998346537,
+        "backend_loading_elapsed_seconds": 0.21630129200639203,
+        "preparation_elapsed_seconds": 0.08235662497463636,
+        "verification_elapsed_seconds": 0.04201120900688693
+      },
+      "assignments": 391,
+      "shifts": 99,
+      "import_seconds": 0.026015707990154624,
+      "input_seconds": 0.00081366699305363,
+      "elapsed_seconds": 5.4229585000139195,
+      "request_elapsed_seconds": 5.449787874997128,
+      "engine_elapsed_seconds": 5.422891541005811,
+      "metadata_seconds": 0.013460124988341704,
+      "peak_rss_mib": 192.25,
+      "group": 3,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-fortnight-large.json",
+      "input_sha256": "ae4f89e8be42368213533ea8da508c514e33a49a034a74c301f921cd29b0fec1",
+      "problem_type": "roster",
+      "employees": 40,
+      "roles": 3,
+      "days": 14.0,
+      "slot_minutes": 30,
+      "slots": 672,
+      "candidates": 2240,
+      "objective_order": [
+        "preference_penalty",
+        "scheduled_minutes",
+        "role_switches"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 5,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.3",
+        "library_version": "9.15.6755",
+        "selection_reason": "JOINT_ROSTER"
+      },
+      "status": "UNKNOWN",
+      "verification": {
+        "performed": false,
+        "valid": null,
+        "violations": []
+      },
+      "objectives": [],
+      "objective_quality": [],
+      "diagnostics": [
+        {
+          "code": "TIME_LIMIT",
+          "message": "探索予算内に目的順序の最適化を完了できませんでした。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "completed_objectives",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 5
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 5.009468208998442
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.06442091698409058
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.2159452910127584
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.330922583991196
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.003247457992983982
+            }
+          ]
+        }
+      ],
+      "search_stats": {
+        "time_limit_seconds": 5,
+        "search_elapsed_seconds": 5.009468208998442,
+        "normalization_elapsed_seconds": 0.06442091698409058,
+        "backend_loading_elapsed_seconds": 0.2159452910127584,
+        "preparation_elapsed_seconds": 0.330922583991196,
+        "verification_elapsed_seconds": 0.003247457992983982
+      },
+      "assignments": 0,
+      "shifts": 0,
+      "import_seconds": 0.026230707997456193,
+      "input_seconds": 0.0020800839993171394,
+      "elapsed_seconds": 5.6395865000085905,
+      "request_elapsed_seconds": 5.667897292005364,
+      "engine_elapsed_seconds": 5.639283708005678,
+      "metadata_seconds": 0.04735112498747185,
+      "peak_rss_mib": 456.921875,
+      "group": 1,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-fortnight-large.json",
+      "input_sha256": "ae4f89e8be42368213533ea8da508c514e33a49a034a74c301f921cd29b0fec1",
+      "problem_type": "roster",
+      "employees": 40,
+      "roles": 3,
+      "days": 14.0,
+      "slot_minutes": 30,
+      "slots": 672,
+      "candidates": 2240,
+      "objective_order": [
+        "preference_penalty",
+        "scheduled_minutes",
+        "role_switches"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 5,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.3",
+        "library_version": "9.15.6755",
+        "selection_reason": "JOINT_ROSTER"
+      },
+      "status": "UNKNOWN",
+      "verification": {
+        "performed": false,
+        "valid": null,
+        "violations": []
+      },
+      "objectives": [],
+      "objective_quality": [],
+      "diagnostics": [
+        {
+          "code": "TIME_LIMIT",
+          "message": "探索予算内に目的順序の最適化を完了できませんでした。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "completed_objectives",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 5
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 5.009052334004082
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.06444745900807902
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.21785179097787477
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.32716737501323223
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.0033422090054955333
+            }
+          ]
+        }
+      ],
+      "search_stats": {
+        "time_limit_seconds": 5,
+        "search_elapsed_seconds": 5.009052334004082,
+        "normalization_elapsed_seconds": 0.06444745900807902,
+        "backend_loading_elapsed_seconds": 0.21785179097787477,
+        "preparation_elapsed_seconds": 0.32716737501323223,
+        "verification_elapsed_seconds": 0.0033422090054955333
+      },
+      "assignments": 0,
+      "shifts": 0,
+      "import_seconds": 0.02596783300396055,
+      "input_seconds": 0.002059041988104582,
+      "elapsed_seconds": 5.637051166006131,
+      "request_elapsed_seconds": 5.665078040998196,
+      "engine_elapsed_seconds": 5.636814291996416,
+      "metadata_seconds": 0.04732145901652984,
+      "peak_rss_mib": 457.390625,
+      "group": 2,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-fortnight-large.json",
+      "input_sha256": "ae4f89e8be42368213533ea8da508c514e33a49a034a74c301f921cd29b0fec1",
+      "problem_type": "roster",
+      "employees": 40,
+      "roles": 3,
+      "days": 14.0,
+      "slot_minutes": 30,
+      "slots": 672,
+      "candidates": 2240,
+      "objective_order": [
+        "preference_penalty",
+        "scheduled_minutes",
+        "role_switches"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 5,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.3",
+        "library_version": "9.15.6755",
+        "selection_reason": "JOINT_ROSTER"
+      },
+      "status": "UNKNOWN",
+      "verification": {
+        "performed": false,
+        "valid": null,
+        "violations": []
+      },
+      "objectives": [],
+      "objective_quality": [],
+      "diagnostics": [
+        {
+          "code": "TIME_LIMIT",
+          "message": "探索予算内に目的順序の最適化を完了できませんでした。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "completed_objectives",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 5
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 5.009273959003622
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.06429058298817836
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.21582462498918176
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.3270534159964882
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.003524832980474457
+            }
+          ]
+        }
+      ],
+      "search_stats": {
+        "time_limit_seconds": 5,
+        "search_elapsed_seconds": 5.009273959003622,
+        "normalization_elapsed_seconds": 0.06429058298817836,
+        "backend_loading_elapsed_seconds": 0.21582462498918176,
+        "preparation_elapsed_seconds": 0.3270534159964882,
+        "verification_elapsed_seconds": 0.003524832980474457
+      },
+      "assignments": 0,
+      "shifts": 0,
+      "import_seconds": 0.026028666994534433,
+      "input_seconds": 0.0020688329823315144,
+      "elapsed_seconds": 5.635474500013515,
+      "request_elapsed_seconds": 5.663571999990381,
+      "engine_elapsed_seconds": 5.635241040989058,
+      "metadata_seconds": 0.04659641699981876,
+      "peak_rss_mib": 454.65625,
+      "group": 3,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-week-15min.json",
+      "input_sha256": "68e1a1d94e0af9c4b4d2d14b2fe9adf6c6e8eb5df021807be6eafc6a9eb42f6e",
+      "problem_type": "roster",
+      "employees": 20,
+      "roles": 3,
+      "days": 7.0,
+      "slot_minutes": 15,
+      "slots": 672,
+      "candidates": 560,
+      "objective_order": [
+        "preference_penalty",
+        "scheduled_minutes",
+        "role_switches"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 5,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.3",
+        "library_version": "9.15.6755",
+        "selection_reason": "JOINT_ROSTER"
+      },
+      "status": "FEASIBLE",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 930,
+          "proven_optimal": false
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 33000,
+          "proven_optimal": false
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 84,
+          "proven_optimal": false
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 930,
+          "proven_optimal": false,
+          "best_bound": 0.0,
+          "absolute_gap": 930.0,
+          "relative_gap": 1.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 33000,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 84,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "OPTIMALITY_UNPROVEN",
+          "message": "上位目的の最適性が未証明のため、後続の目的は探索しません。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 5
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 5.014331500016851
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.030694958986714482
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.22687858302379027
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.16359270800603554
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.05057204098557122
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "preferences"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        }
+      ],
+      "search_stats": {
+        "time_limit_seconds": 5,
+        "search_elapsed_seconds": 5.014331500016851,
+        "normalization_elapsed_seconds": 0.030694958986714482,
+        "backend_loading_elapsed_seconds": 0.22687858302379027,
+        "preparation_elapsed_seconds": 0.16359270800603554,
+        "verification_elapsed_seconds": 0.05057204098557122
+      },
+      "assignments": 475,
+      "shifts": 100,
+      "import_seconds": 0.02699591702548787,
+      "input_seconds": 0.0008041669789236039,
+      "elapsed_seconds": 5.535961875022622,
+      "request_elapsed_seconds": 5.563761959027033,
+      "engine_elapsed_seconds": 5.535858916991856,
+      "metadata_seconds": 0.013481290981872007,
+      "peak_rss_mib": 283.3125,
+      "group": 1,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-week-15min.json",
+      "input_sha256": "68e1a1d94e0af9c4b4d2d14b2fe9adf6c6e8eb5df021807be6eafc6a9eb42f6e",
+      "problem_type": "roster",
+      "employees": 20,
+      "roles": 3,
+      "days": 7.0,
+      "slot_minutes": 15,
+      "slots": 672,
+      "candidates": 560,
+      "objective_order": [
+        "preference_penalty",
+        "scheduled_minutes",
+        "role_switches"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 5,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.3",
+        "library_version": "9.15.6755",
+        "selection_reason": "JOINT_ROSTER"
+      },
+      "status": "FEASIBLE",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 930,
+          "proven_optimal": false
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 33000,
+          "proven_optimal": false
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 84,
+          "proven_optimal": false
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 930,
+          "proven_optimal": false,
+          "best_bound": 0.0,
+          "absolute_gap": 930.0,
+          "relative_gap": 1.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 33000,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 84,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "OPTIMALITY_UNPROVEN",
+          "message": "上位目的の最適性が未証明のため、後続の目的は探索しません。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 5
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 5.014493333001155
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.029464124992955476
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.21627237502252683
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.15686229098355398
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.04965737499878742
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "preferences"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        }
+      ],
+      "search_stats": {
+        "time_limit_seconds": 5,
+        "search_elapsed_seconds": 5.014493333001155,
+        "normalization_elapsed_seconds": 0.029464124992955476,
+        "backend_loading_elapsed_seconds": 0.21627237502252683,
+        "preparation_elapsed_seconds": 0.15686229098355398,
+        "verification_elapsed_seconds": 0.04965737499878742
+      },
+      "assignments": 475,
+      "shifts": 100,
+      "import_seconds": 0.025948166992748156,
+      "input_seconds": 0.0007882909849286079,
+      "elapsed_seconds": 5.5165396250085905,
+      "request_elapsed_seconds": 5.543276082986267,
+      "engine_elapsed_seconds": 5.5164533340139315,
+      "metadata_seconds": 0.01348645900725387,
+      "peak_rss_mib": 283.234375,
+      "group": 2,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-week-15min.json",
+      "input_sha256": "68e1a1d94e0af9c4b4d2d14b2fe9adf6c6e8eb5df021807be6eafc6a9eb42f6e",
+      "problem_type": "roster",
+      "employees": 20,
+      "roles": 3,
+      "days": 7.0,
+      "slot_minutes": 15,
+      "slots": 672,
+      "candidates": 560,
+      "objective_order": [
+        "preference_penalty",
+        "scheduled_minutes",
+        "role_switches"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 5,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.3",
+        "library_version": "9.15.6755",
+        "selection_reason": "JOINT_ROSTER"
+      },
+      "status": "FEASIBLE",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 930,
+          "proven_optimal": false
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 33000,
+          "proven_optimal": false
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 84,
+          "proven_optimal": false
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 930,
+          "proven_optimal": false,
+          "best_bound": 0.0,
+          "absolute_gap": 930.0,
+          "relative_gap": 1.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 33000,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 84,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "OPTIMALITY_UNPROVEN",
+          "message": "上位目的の最適性が未証明のため、後続の目的は探索しません。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 5
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 5.014620834001107
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.029665792011655867
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.2189155830128584
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.160953958024038
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.050635958003113046
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "preferences"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        }
+      ],
+      "search_stats": {
+        "time_limit_seconds": 5,
+        "search_elapsed_seconds": 5.014620834001107,
+        "normalization_elapsed_seconds": 0.029665792011655867,
+        "backend_loading_elapsed_seconds": 0.2189155830128584,
+        "preparation_elapsed_seconds": 0.160953958024038,
+        "verification_elapsed_seconds": 0.050635958003113046
+      },
+      "assignments": 475,
+      "shifts": 100,
+      "import_seconds": 0.026644375000614673,
+      "input_seconds": 0.0007862500206101686,
+      "elapsed_seconds": 5.525361124979099,
+      "request_elapsed_seconds": 5.552791750000324,
+      "engine_elapsed_seconds": 5.525272417027736,
+      "metadata_seconds": 0.013632167014293373,
+      "peak_rss_mib": 283.4375,
+      "group": 3,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "examples/linked_assignment.json",
+      "input_sha256": "87da0b0c00e5721e65b4b1586bb1927196c86e977c2a083d24a7306ed15b0311",
+      "problem_type": "assignment",
+      "employees": 3,
+      "roles": 3,
+      "days": 0.08333333333333333,
+      "slot_minutes": 30,
+      "slots": 4,
+      "candidates": 0,
+      "objective_order": [
+        "preference_penalty"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.3",
+        "library_version": "9.15.6755",
+        "selection_reason": "ASSIGNMENT_CONSTRAINTS"
+      },
+      "status": "OPTIMAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "use_skills",
+          "metric": "preference_penalty",
+          "value": 0,
+          "proven_optimal": true
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "use_skills",
+          "metric": "preference_penalty",
+          "value": 0,
+          "proven_optimal": true,
+          "best_bound": 0.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 10
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.0017704170022625476
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.016441416984889656
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.2186305409995839
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.0008438749937340617
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.00760558299953118
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "use_skills"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        }
+      ],
+      "search_stats": {
+        "time_limit_seconds": 10,
+        "search_elapsed_seconds": 0.0017704170022625476,
+        "normalization_elapsed_seconds": 0.016441416984889656,
+        "backend_loading_elapsed_seconds": 0.2186305409995839,
+        "preparation_elapsed_seconds": 0.0008438749937340617,
+        "verification_elapsed_seconds": 0.00760558299953118
+      },
+      "assignments": 3,
+      "shifts": 0,
+      "import_seconds": 0.026028208987554535,
+      "input_seconds": 0.00016833300469443202,
+      "elapsed_seconds": 0.2577339999843389,
+      "request_elapsed_seconds": 0.28393054197658785,
+      "engine_elapsed_seconds": 0.25773037498584017,
+      "metadata_seconds": 0.000867292023031041,
+      "peak_rss_mib": 102.984375,
+      "group": 1,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "examples/linked_assignment.json",
+      "input_sha256": "87da0b0c00e5721e65b4b1586bb1927196c86e977c2a083d24a7306ed15b0311",
+      "problem_type": "assignment",
+      "employees": 3,
+      "roles": 3,
+      "days": 0.08333333333333333,
+      "slot_minutes": 30,
+      "slots": 4,
+      "candidates": 0,
+      "objective_order": [
+        "preference_penalty"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.3",
+        "library_version": "9.15.6755",
+        "selection_reason": "ASSIGNMENT_CONSTRAINTS"
+      },
+      "status": "OPTIMAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "use_skills",
+          "metric": "preference_penalty",
+          "value": 0,
+          "proven_optimal": true
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "use_skills",
+          "metric": "preference_penalty",
+          "value": 0,
+          "proven_optimal": true,
+          "best_bound": 0.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 10
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.001835040980949998
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.016402082983404398
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.2160397080006078
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.0008537090034224093
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.007536457997048274
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "use_skills"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        }
+      ],
+      "search_stats": {
+        "time_limit_seconds": 10,
+        "search_elapsed_seconds": 0.001835040980949998,
+        "normalization_elapsed_seconds": 0.016402082983404398,
+        "backend_loading_elapsed_seconds": 0.2160397080006078,
+        "preparation_elapsed_seconds": 0.0008537090034224093,
+        "verification_elapsed_seconds": 0.007536457997048274
+      },
+      "assignments": 3,
+      "shifts": 0,
+      "import_seconds": 0.02616333300829865,
+      "input_seconds": 0.00015762500697746873,
+      "elapsed_seconds": 0.2549806669994723,
+      "request_elapsed_seconds": 0.2813016250147484,
+      "engine_elapsed_seconds": 0.25497770798392594,
+      "metadata_seconds": 0.0008536659879609942,
+      "peak_rss_mib": 102.875,
+      "group": 2,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "examples/linked_assignment.json",
+      "input_sha256": "87da0b0c00e5721e65b4b1586bb1927196c86e977c2a083d24a7306ed15b0311",
+      "problem_type": "assignment",
+      "employees": 3,
+      "roles": 3,
+      "days": 0.08333333333333333,
+      "slot_minutes": 30,
+      "slots": 4,
+      "candidates": 0,
+      "objective_order": [
+        "preference_penalty"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.3",
+        "library_version": "9.15.6755",
+        "selection_reason": "ASSIGNMENT_CONSTRAINTS"
+      },
+      "status": "OPTIMAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "use_skills",
+          "metric": "preference_penalty",
+          "value": 0,
+          "proven_optimal": true
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "use_skills",
+          "metric": "preference_penalty",
+          "value": 0,
+          "proven_optimal": true,
+          "best_bound": 0.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 10
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.0017929580062627792
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.01645212498260662
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.21789487500791438
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.0008588339842390269
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.007694333005929366
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "use_skills"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        }
+      ],
+      "search_stats": {
+        "time_limit_seconds": 10,
+        "search_elapsed_seconds": 0.0017929580062627792,
+        "normalization_elapsed_seconds": 0.01645212498260662,
+        "backend_loading_elapsed_seconds": 0.21789487500791438,
+        "preparation_elapsed_seconds": 0.0008588339842390269,
+        "verification_elapsed_seconds": 0.007694333005929366
+      },
+      "assignments": 3,
+      "shifts": 0,
+      "import_seconds": 0.025936666992492974,
+      "input_seconds": 0.00015437501133419573,
+      "elapsed_seconds": 0.2571852919936646,
+      "request_elapsed_seconds": 0.28327633399749175,
+      "engine_elapsed_seconds": 0.2571819169970695,
+      "metadata_seconds": 0.0009452080121263862,
+      "peak_rss_mib": 102.921875,
+      "group": 3,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    }
+  ],
+  "workers": [
+    {
+      "input_file": "docs/evaluations/inputs/roster-week.json",
+      "group": 1,
+      "elapsed_seconds": 5.581561583006987,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-week.json",
+      "group": 2,
+      "elapsed_seconds": 5.565649541997118,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-week.json",
+      "group": 3,
+      "elapsed_seconds": 5.562504000001354,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-fortnight-large.json",
+      "group": 1,
+      "elapsed_seconds": 5.839743125019595,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-fortnight-large.json",
+      "group": 2,
+      "elapsed_seconds": 5.815986667003017,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-fortnight-large.json",
+      "group": 3,
+      "elapsed_seconds": 5.813368207978783,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-week-15min.json",
+      "group": 1,
+      "elapsed_seconds": 5.677611124992836,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-week-15min.json",
+      "group": 2,
+      "elapsed_seconds": 5.656213625014061,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-week-15min.json",
+      "group": 3,
+      "elapsed_seconds": 5.666487292008242,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "examples/linked_assignment.json",
+      "group": 1,
+      "elapsed_seconds": 0.3784586660040077,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "examples/linked_assignment.json",
+      "group": 2,
+      "elapsed_seconds": 0.3758325839880854,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "examples/linked_assignment.json",
+      "group": 3,
+      "elapsed_seconds": 0.3779815419984516,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    }
+  ],
+  "summaries": [
+    {
+      "input_file": "docs/evaluations/inputs/roster-week.json",
+      "attempts": 3,
+      "statuses": {
+        "FEASIBLE": 3
+      },
+      "verified_solutions": 3,
+      "solution_rate": 1.0,
+      "statistics": {
+        "elapsed_seconds": {
+          "samples": 3,
+          "mean": 5.426455458335113,
+          "median": 5.425475708005251,
+          "p95": 5.430932166986167,
+          "maximum": 5.430932166986167
+        },
+        "request_elapsed_seconds": {
+          "samples": 3,
+          "mean": 5.456916861323407,
+          "median": 5.453009249991737,
+          "p95": 5.467953458981356,
+          "maximum": 5.467953458981356
+        },
+        "peak_rss_mib": {
+          "samples": 3,
+          "mean": 191.9375,
+          "median": 192.25,
+          "p95": 192.28125,
+          "maximum": 192.28125
+        }
+      },
+      "first_request_elapsed_seconds": {
+        "samples": 3,
+        "mean": 5.456916861323407,
+        "median": 5.453009249991737,
+        "p95": 5.467953458981356,
+        "maximum": 5.467953458981356
+      },
+      "continued_request_elapsed_seconds": {
+        "samples": 0,
+        "mean": null,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "process_elapsed_seconds": {
+        "samples": 3,
+        "mean": 5.569905041668487,
+        "median": 5.565649541997118,
+        "p95": 5.581561583006987,
+        "maximum": 5.581561583006987
+      },
+      "objective_quality": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "observed_values": {
+            "samples": 3,
+            "mean": 630,
+            "median": 630,
+            "p95": 630,
+            "maximum": 630
+          },
+          "proven_count": 0,
+          "relative_gap": {
+            "samples": 3,
+            "mean": 1.0,
+            "median": 1.0,
+            "p95": 1.0,
+            "maximum": 1.0
+          }
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "observed_values": {
+            "samples": 3,
+            "mean": 32670,
+            "median": 32670,
+            "p95": 32670,
+            "maximum": 32670
+          },
+          "proven_count": 0,
+          "relative_gap": {
+            "samples": 0,
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "maximum": null
+          }
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "observed_values": {
+            "samples": 3,
+            "mean": 83,
+            "median": 83,
+            "p95": 83,
+            "maximum": 83
+          },
+          "proven_count": 0,
+          "relative_gap": {
+            "samples": 0,
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "maximum": null
+          }
+        }
+      ]
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-fortnight-large.json",
+      "attempts": 3,
+      "statuses": {
+        "UNKNOWN": 3
+      },
+      "verified_solutions": 0,
+      "solution_rate": 0.0,
+      "statistics": {
+        "elapsed_seconds": {
+          "samples": 3,
+          "mean": 5.637370722009412,
+          "median": 5.637051166006131,
+          "p95": 5.6395865000085905,
+          "maximum": 5.6395865000085905
+        },
+        "request_elapsed_seconds": {
+          "samples": 3,
+          "mean": 5.665515777664647,
+          "median": 5.665078040998196,
+          "p95": 5.667897292005364,
+          "maximum": 5.667897292005364
+        },
+        "peak_rss_mib": {
+          "samples": 3,
+          "mean": 456.3229166666667,
+          "median": 456.921875,
+          "p95": 457.390625,
+          "maximum": 457.390625
+        }
+      },
+      "first_request_elapsed_seconds": {
+        "samples": 3,
+        "mean": 5.665515777664647,
+        "median": 5.665078040998196,
+        "p95": 5.667897292005364,
+        "maximum": 5.667897292005364
+      },
+      "continued_request_elapsed_seconds": {
+        "samples": 0,
+        "mean": null,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "process_elapsed_seconds": {
+        "samples": 3,
+        "mean": 5.823032666667132,
+        "median": 5.815986667003017,
+        "p95": 5.839743125019595,
+        "maximum": 5.839743125019595
+      },
+      "objective_quality": []
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-week-15min.json",
+      "attempts": 3,
+      "statuses": {
+        "FEASIBLE": 3
+      },
+      "verified_solutions": 3,
+      "solution_rate": 1.0,
+      "statistics": {
+        "elapsed_seconds": {
+          "samples": 3,
+          "mean": 5.5259542083367705,
+          "median": 5.525361124979099,
+          "p95": 5.535961875022622,
+          "maximum": 5.535961875022622
+        },
+        "request_elapsed_seconds": {
+          "samples": 3,
+          "mean": 5.553276597337875,
+          "median": 5.552791750000324,
+          "p95": 5.563761959027033,
+          "maximum": 5.563761959027033
+        },
+        "peak_rss_mib": {
+          "samples": 3,
+          "mean": 283.328125,
+          "median": 283.3125,
+          "p95": 283.4375,
+          "maximum": 283.4375
+        }
+      },
+      "first_request_elapsed_seconds": {
+        "samples": 3,
+        "mean": 5.553276597337875,
+        "median": 5.552791750000324,
+        "p95": 5.563761959027033,
+        "maximum": 5.563761959027033
+      },
+      "continued_request_elapsed_seconds": {
+        "samples": 0,
+        "mean": null,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "process_elapsed_seconds": {
+        "samples": 3,
+        "mean": 5.666770680671713,
+        "median": 5.666487292008242,
+        "p95": 5.677611124992836,
+        "maximum": 5.677611124992836
+      },
+      "objective_quality": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "observed_values": {
+            "samples": 3,
+            "mean": 930,
+            "median": 930,
+            "p95": 930,
+            "maximum": 930
+          },
+          "proven_count": 0,
+          "relative_gap": {
+            "samples": 3,
+            "mean": 1.0,
+            "median": 1.0,
+            "p95": 1.0,
+            "maximum": 1.0
+          }
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "observed_values": {
+            "samples": 3,
+            "mean": 33000,
+            "median": 33000,
+            "p95": 33000,
+            "maximum": 33000
+          },
+          "proven_count": 0,
+          "relative_gap": {
+            "samples": 0,
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "maximum": null
+          }
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "observed_values": {
+            "samples": 3,
+            "mean": 84,
+            "median": 84,
+            "p95": 84,
+            "maximum": 84
+          },
+          "proven_count": 0,
+          "relative_gap": {
+            "samples": 0,
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "maximum": null
+          }
+        }
+      ]
+    },
+    {
+      "input_file": "examples/linked_assignment.json",
+      "attempts": 3,
+      "statuses": {
+        "OPTIMAL": 3
+      },
+      "verified_solutions": 3,
+      "solution_rate": 1.0,
+      "statistics": {
+        "elapsed_seconds": {
+          "samples": 3,
+          "mean": 0.2566333196591586,
+          "median": 0.2571852919936646,
+          "p95": 0.2577339999843389,
+          "maximum": 0.2577339999843389
+        },
+        "request_elapsed_seconds": {
+          "samples": 3,
+          "mean": 0.282836166996276,
+          "median": 0.28327633399749175,
+          "p95": 0.28393054197658785,
+          "maximum": 0.28393054197658785
+        },
+        "peak_rss_mib": {
+          "samples": 3,
+          "mean": 102.92708333333333,
+          "median": 102.921875,
+          "p95": 102.984375,
+          "maximum": 102.984375
+        }
+      },
+      "first_request_elapsed_seconds": {
+        "samples": 3,
+        "mean": 0.282836166996276,
+        "median": 0.28327633399749175,
+        "p95": 0.28393054197658785,
+        "maximum": 0.28393054197658785
+      },
+      "continued_request_elapsed_seconds": {
+        "samples": 0,
+        "mean": null,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "process_elapsed_seconds": {
+        "samples": 3,
+        "mean": 0.3774242639968482,
+        "median": 0.3779815419984516,
+        "p95": 0.3784586660040077,
+        "maximum": 0.3784586660040077
+      },
+      "objective_quality": [
+        {
+          "id": "use_skills",
+          "metric": "preference_penalty",
+          "observed_values": {
+            "samples": 3,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "maximum": 0
+          },
+          "proven_count": 3,
+          "relative_gap": {
+            "samples": 3,
+            "mean": 0.0,
+            "median": 0.0,
+            "p95": 0.0,
+            "maximum": 0.0
+          }
+        }
+      ]
+    }
+  ]
+}

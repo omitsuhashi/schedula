@@ -56,3 +56,103 @@ def test_evaluation_records_verified_result_and_process_measurements(tmp_path):
     assert roster["status"] == "OPTIMAL" and roster["verification"]["valid"] is True
     assert roster["candidates"] == 32
     assert [o["value"] for o in roster["objectives"]] == [60, 2640, 0]
+
+
+def run_evaluation(tmp_path, *arguments):
+    output = tmp_path / "results.json"
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts/evaluate.py"),
+            *map(str, arguments),
+            "--output",
+            str(output),
+        ],
+        capture_output=True,
+        text=True,
+        cwd=tmp_path,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    return json.loads(output.read_text())
+
+
+def test_repeated_cold_parallel_and_warm_first_call_are_distinguished(tmp_path):
+    source = ROOT / "examples/assignment.json"
+    cold = run_evaluation(tmp_path, source, "--repeat", 2, "--processes", 2, "--source-ref", "HEAD")
+    assert cold["source"]["snapshot"] == "git_archive"
+    assert cold["source"]["dirty"] is False
+    assert len(cold["source"]["source_tree_sha256"]) == 64
+    assert len(cold["workers"]) == 2
+    assert cold["summaries"][0]["solution_rate"] == 1
+    assert cold["summaries"][0]["first_request_elapsed_seconds"]["samples"] == 2
+    assert cold["summaries"][0]["continued_request_elapsed_seconds"]["samples"] == 0
+    warm = run_evaluation(tmp_path, source, "--repeat", 3, "--mode", "warm")
+    assert len(warm["workers"]) == 1
+    assert [item["iteration"] for item in warm["measurements"]] == [1, 2, 3]
+    assert warm["summaries"][0]["first_request_elapsed_seconds"]["samples"] == 1
+    assert warm["summaries"][0]["continued_request_elapsed_seconds"]["samples"] == 2
+
+
+def test_invalid_input_failures_and_external_timeout_remain_in_denominator(tmp_path):
+    report = run_evaluation(
+        tmp_path,
+        ROOT / "examples/invalid-input.json",
+        tmp_path / "missing.json",
+        "--repeat",
+        2,
+        "--mode",
+        "warm",
+    )
+    invalid, missing = report["summaries"]
+    assert invalid["statuses"] == {"INVALID_INPUT": 2}
+    assert missing["statuses"] == {"WORKER_ERROR": 1, "WORKER_NOT_RUN": 1}
+    assert missing["attempts"] == 2 and missing["solution_rate"] == 0
+    assert missing["statistics"]["elapsed_seconds"]["samples"] == 0
+    timeout = run_evaluation(
+        tmp_path, ROOT / "examples/assignment.json", "--repeat", 2, "--timeout-seconds", 0.000001
+    )
+    assert timeout["summaries"][0]["statuses"] == {"WORKER_TIMEOUT": 2}
+    assert timeout["summaries"][0]["process_elapsed_seconds"]["samples"] == 2
+    assert all(item["input_sha256"] for item in timeout["measurements"])
+    malformed = tmp_path / "malformed.json"
+    malformed.write_text('{"employees":null}')
+    invalid_shape = run_evaluation(tmp_path, malformed)["measurements"][0]
+    assert invalid_shape["status"] == "INVALID_INPUT"
+    assert invalid_shape["employees"] is None
+    assert invalid_shape["diagnostics"]
+
+
+def test_objective_bound_scope_zero_denominator_and_nearest_rank():
+    import runpy
+
+    functions = runpy.run_path(str(ROOT / "scripts/evaluate.py"))
+    response = {
+        "objectives": [
+            {"id": "first", "metric": "preference_penalty", "value": 10, "proven_optimal": False},
+            {"id": "second", "metric": "role_switches", "value": 2, "proven_optimal": False},
+        ],
+        "diagnostics": [
+            {
+                "code": "OBJECTIVE_BOUND",
+                "json_pointer": f"/objectives/{index}",
+                "facts": [{"name": "best_bound", "value": value}],
+            }
+            for index, value in enumerate([8, 1])
+        ],
+    }
+    first, second = functions["objective_quality"](response)
+    assert first["absolute_gap"] == 2 and first["relative_gap"] == 0.2
+    assert second["best_bound"] is None and second["relative_gap"] is None
+    response["objectives"] = [
+        {"id": "zero", "metric": "preference_penalty", "value": 0, "proven_optimal": True}
+    ]
+    response["diagnostics"] = []
+    assert functions["objective_quality"](response)[0]["relative_gap"] == 0
+    assert functions["distribution"](range(1, 21)) == {
+        "samples": 20,
+        "mean": 10.5,
+        "median": 10.5,
+        "p95": 19,
+        "maximum": 20,
+    }
+    assert functions["distribution"]([])["p95"] is None
