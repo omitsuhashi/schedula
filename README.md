@@ -173,10 +173,12 @@ uv run --locked --extra cp-sat python scripts/evaluate.py examples/assignment.js
 成功・失敗・スキップ理由は pytest ログと保存される `pytest-results` の JUnit XML で追跡できます。
 全探索との比較、両バックエンドの共通問題、独立検証器の違反検出に加え、
 wheel を lock file の実行依存とともに新しい隔離環境へ導入し、ライブラリ・CLI・Schema を確認します。
+別の空環境では wheel の依存宣言から導入し、lock file はバージョン制約だけに使います。
 OR-Tools なしの別の隔離環境でも、最小費用流と依存不足の経路を確認します。
 
 評価スクリプトは macOS / Linux の各入力を別プロセスで1回測定し、環境・依存版・入力 SHA-256・
 条件・目的値・証明範囲・検証結果・時間・ピーク RSS を JSON に保存します。
+測定した checkout の commit SHA・未コミット変更の有無・uv.lock の SHA-256 も記録します。
 架空の30人・7日の担当配置、20人・7日の勤務計画は実務規模が未確定のため提案値です。
 入力・測定方法・実測・未測定範囲は [利用入口・CI・実行評価の記録](docs/evaluations/runtime.md)を参照してください。
 

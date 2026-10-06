@@ -17,6 +17,9 @@
 wheel のテストではソース checkout を import せず、lock file から取り出した実行依存と wheel を
 新しい uv の隔離環境へインストールする。担当配置の2例・勤務計画・不可能・不正入力を
 ライブラリと CLI の両方で実行し、Response Schema・検証結果・目的値・終了コードを確認する。
+もう一つの空環境では wheel の `cp-sat` extra だけをインストール対象とし、lock file の実行依存を
+constraints として渡す。制約の記載だけでは依存をインストールせず、wheel の `Requires-Dist` に
+導入を委ねる。両環境で同じ利用例を確認し、wheel の依存宣言の欠落も検出する。
 OR-Tools がない別の隔離環境でも、最小費用流の `OPTIMAL` と
 CP-SAT の `BACKEND_UNAVAILABLE`、非対応方式の `INVALID_INPUT` を確認する。
 README の完全な JSON もテストで読み取り、記載した配置と目的値を確認する。
@@ -84,6 +87,10 @@ Python・JSON・依存・ネイティブの OR-Tools を含む。エンジンだ
 評価対象は正規化できる入力で、ファイル・JSON・正規化のエラーは非ゼロ終了となる。
 
 各コマンドの測定は入力あたり1回で、最適値・解の有効性・性能を分けて記録する。
+新しい評価結果では、測定開始前にスクリプトが置かれた checkout の `source.commit`、
+`source.dirty`、`source.uv_lock_sha256` を記録する。呼び出し元の作業ディレクトリには依存しない。
+`dirty` は Git の追跡済み変更と非無視の未追跡ファイルの有無であり、未コミット内容そのものの識別ではない。
+以下の既存の測定 JSON は追加前の記録として保持し、当時記録していない source 情報は後付けしない。
 `--backend` は入力の backend だけを変更し、有効な指定を `solver_request` に保存する。
 結果は [auto の再測定](results/2026-10-06-auto.json) と
 [共通問題の CP-SAT](results/2026-10-06-cp-sat.json)に保存した。
@@ -116,7 +123,9 @@ wheel の隔離導入テストと並行していた初回の時間横断配置�
 
 検証コマンドは `uv run --locked --extra cp-sat pytest -q -ra --junitxml=test-results/pytest.xml`、
 Ruff の lint・format、`bash -n scripts/deploy`、`git diff --check`。
-全テストは802件と subtest 6件成功、失敗・スキップ0件、47.55秒だった。
+導入時の全テストは802件と subtest 6件成功、失敗・スキップ0件、47.55秒だった。
+wheel の依存宣言と評価の source 記録の検証を追加した後は、803件と subtest 6件成功、
+失敗・スキップ0件、66.17秒だった。対象テストは23件成功、55.31秒だった。
 Ruff の lint・format も成功した。GitHub CI の実行 URL・結果は PR に記録する。
 
 マイルストーン「検証済みの担当配置・勤務計画をライブラリと CLI で生成する」の

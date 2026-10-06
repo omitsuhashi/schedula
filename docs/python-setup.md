@@ -91,6 +91,9 @@ pytest の `-ra` で失敗・スキップ理由を表示し、`pytest-results` a
 
 wheel のテストは `uv export --locked --extra cp-sat --no-dev --no-emit-project` で
 実行依存を取り出し、新しい `uv run --no-project --isolated` 環境へ wheel と一緒に導入する。
+別の空環境では wheel の `cp-sat` extra だけをインストール対象とし、
+export した実行依存は `uv pip install --constraints` によるバージョン制約としてのみ使う。
+これにより、`Requires-Dist` の依存や extra が欠落した場合は requirements による補完で見逃さない。
 ソース checkout の import を避け、担当配置・勤務計画・不可能・不正入力のライブラリと CLI を確認する。
 OR-Tools なしの別の隔離環境では最小費用流が動き、CP-SAT は `BACKEND_UNAVAILABLE` となることを確認する。
 利用者向けのセットアップ・入力作成は [README](../README.md)、

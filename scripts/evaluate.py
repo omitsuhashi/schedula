@@ -66,6 +66,16 @@ def main():
         return
     if args.output is None:
         parser.error("--output に測定結果の保存先を指定します。")
+    root = Path(__file__).resolve().parents[1]
+    source = {
+        "commit": subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=root, text=True
+        ).strip(),
+        "dirty": bool(
+            subprocess.check_output(["git", "status", "--porcelain"], cwd=root, text=True)
+        ),
+        "uv_lock_sha256": hashlib.sha256((root / "uv.lock").read_bytes()).hexdigest(),
+    }
     measurements = []
     for path in args.inputs:
         command = [sys.executable, str(Path(__file__).resolve()), "--worker", str(path)]
@@ -76,6 +86,7 @@ def main():
     report = {
         "measured_at": datetime.now(UTC).isoformat(),
         "command": sys.argv,
+        "source": source,
         "environment": {
             "platform": platform.platform(),
             "machine": platform.machine(),

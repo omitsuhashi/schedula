@@ -99,7 +99,8 @@ def test_cli_usage_errors(args):
     assert result.stderr
 
 
-def test_wheel_installs_and_runs_library_and_cli_in_clean_environment(tmp_path):
+@pytest.mark.parametrize("dependencies", ["requirements", "metadata"])
+def test_wheel_installs_and_runs_library_and_cli_in_clean_environment(tmp_path, dependencies):
     build = subprocess.run(
         ["uv", "build", "--wheel", "--out-dir", str(tmp_path)],
         cwd=ROOT,
@@ -163,8 +164,8 @@ for filename, status, values in [
             assert response['solution'] is None and response['diagnostics']
 print('clean wheel: library and CLI; assignment, roster, infeasible, invalid input')
 """
-    result = subprocess.run(
-        [
+    if dependencies == "requirements":
+        command = [
             "uv",
             "run",
             "--no-project",
@@ -180,7 +181,34 @@ print('clean wheel: library and CLI; assignment, roster, infeasible, invalid inp
             "-c",
             script,
             str(ROOT),
-        ],
+        ]
+    else:
+        environment = tmp_path / "metadata-env"
+        setup = subprocess.run(
+            ["uv", "venv", "--python", sys.executable, str(environment)],
+            capture_output=True,
+            text=True,
+        )
+        assert setup.returncode == 0, setup.stderr
+        python = environment / "bin/python"
+        install = subprocess.run(
+            [
+                "uv",
+                "pip",
+                "install",
+                "--python",
+                str(python),
+                "--constraints",
+                str(requirements),
+                f"{wheel}[cp-sat]",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        assert install.returncode == 0, install.stderr
+        command = [str(python), "-I", "-c", script, str(ROOT)]
+    result = subprocess.run(
+        command,
         cwd=tmp_path,
         capture_output=True,
         text=True,

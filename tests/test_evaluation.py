@@ -23,9 +23,21 @@ def test_evaluation_records_verified_result_and_process_measurements(tmp_path):
         ],
         capture_output=True,
         text=True,
+        cwd=tmp_path,
     )
     assert result.returncode == 0, result.stdout + result.stderr
     report = json.loads(output.read_text(encoding="utf-8"))
+    assert (
+        report["source"]["commit"]
+        == subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+    )
+    assert report["source"]["dirty"] == bool(
+        subprocess.check_output(["git", "status", "--porcelain"], cwd=ROOT, text=True)
+    )
+    assert (
+        report["source"]["uv_lock_sha256"]
+        == hashlib.sha256((ROOT / "uv.lock").read_bytes()).hexdigest()
+    )
     measurement, roster = report["measurements"]
     assert (
         measurement["solver_response"]["engine_version"]
