@@ -1,0 +1,215 @@
+import copy
+import json
+import socket
+import subprocess
+import sys
+from http.client import HTTPConnection
+from threading import Event, Thread
+
+import pytest
+
+from demo import server
+from schedula import solve
+from tests.support import assert_response
+from tests.test_playground_scenarios import BASELINE, SCENARIOS, scenario_requests
+
+
+@pytest.fixture
+def http_server():
+    with server.DemoServer(0) as instance:
+        thread = Thread(target=instance.serve_forever, daemon=True)
+        thread.start()
+        try:
+            yield instance
+        finally:
+            instance.shutdown()
+            thread.join(timeout=5)
+
+
+def call(instance, request=None, *, method="POST", path="/solve", body=None, headers=None):
+    connection = HTTPConnection("127.0.0.1", instance.server_port, timeout=10)
+    if body is None and request is not None:
+        body = json.dumps(request, ensure_ascii=False).encode("utf-8")
+    connection.request(method, path, body, headers or {"Content-Type": "application/json"})
+    response = connection.getresponse()
+    content = response.read()
+    status = response.status
+    connection.close()
+    return status, json.loads(content) if content else None
+
+
+@pytest.mark.parametrize("scenario", SCENARIOS, ids=lambda item: item["id"])
+def test_http_scenarios_match_library(http_server, scenario):
+    for step, request in scenario_requests(scenario):
+        status, result = call(http_server, request)
+        assert status == 200
+        assert_response(result, step["expected"]["status"])
+        direct = solve(request)
+        for key in ("request_id", "status", "solution", "objectives", "verification"):
+            assert result[key] == direct[key]
+
+
+def test_http_matches_cli_and_only_serves_allowlist(http_server):
+    status, result = call(http_server, BASELINE)
+    cli = subprocess.run(
+        [sys.executable, "-m", "schedula", "solve", str(server.SAMPLES / "lunch.json")],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert status == 200
+    assert json.loads(cli.stdout)["solution"] == result["solution"]
+    for path in ("/samples/lunch.json", "/samples/scenarios.json"):
+        assert call(http_server, method="GET", path=path)[0] == 200
+    for path in ("/../pyproject.toml", "/.git/config", "/samples/", "/solve"):
+        assert call(http_server, method="GET", path=path)[0] == 404
+    assert call(http_server, BASELINE, method="PUT")[0] == 405
+    assert call(http_server, BASELINE, method="CUSTOM")[1]["error"]["code"] == "METHOD_NOT_ALLOWED"
+    assert call(http_server, BASELINE, path="/elsewhere")[0] == 404
+
+
+@pytest.mark.parametrize(
+    ("body", "headers", "status", "code"),
+    [
+        (b"{", None, 400, "INVALID_JSON"),
+        (b'{"a":1,"a":2}', None, 400, "DUPLICATE_JSON_KEY"),
+        (b'{"a":NaN}', None, 400, "NON_FINITE_NUMBER"),
+        (b"\xff", None, 400, "INVALID_JSON"),
+        (b" " * (server.MAX_BODY + 1), None, 413, "BODY_TOO_LARGE"),
+        (b"{}", {"Content-Type": "text/plain"}, 415, "UNSUPPORTED_MEDIA_TYPE"),
+        (
+            b"{}",
+            {"Content-Type": "application/json; charset=latin-1"},
+            415,
+            "UNSUPPORTED_MEDIA_TYPE",
+        ),
+        (b"{}", {"Origin": "https://example.com"}, 403, "FORBIDDEN_ORIGIN"),
+        (b"{}", {"Host": "example.com"}, 403, "FORBIDDEN_ORIGIN"),
+        (b"{}", {"Transfer-Encoding": "chunked"}, 400, "INVALID_BODY"),
+        (b"{}", {"Content-Length": "-1"}, 400, "INVALID_BODY"),
+        (b"{}", {"Content-Length": "99999999999999999999"}, 400, "INVALID_BODY"),
+    ],
+)
+def test_http_rejects_invalid_transport(http_server, body, headers, status, code):
+    actual, result = call(http_server, body=body, headers=headers)
+    assert (actual, result["error"]["code"]) == (status, code)
+    assert "status" not in result
+
+
+@pytest.mark.parametrize(
+    ("path", "value"),
+    [
+        (("employees", 0, "label"), " "),
+        (("employees", 0, "label"), "あ" * 21),
+        (("employees", 0, "id"), "ren"),
+        (("employees", 0, "skills"), [{"skill_id": "unknown", "level": 1}]),
+        (("employees", 0, "skills"), [{"skill_id": "cooking", "level": True}]),
+        (("employees", 0, "skills"), [{"skill_id": "cooking", "level": 2}]),
+        (("employees", 0, "availability", 0, "start"), "2026-10-06T11:15:00+09:00"),
+        (("employees", 0, "availability", 0, "end"), "2026-10-06T11:00:00+09:00"),
+        (("demand", 0, "required_people"), True),
+        (("demand", 0, "required_people"), 1.5),
+        (("demand", 0, "required_people"), 7),
+        (("demand", 0, "role_id"), "hall"),
+        (("solver", "seed"), 1),
+        (("schema_version",), "0.2"),
+        (("constraints",), [{"id": "custom"}]),
+        (("employees",), []),
+        (("demand",), []),
+        (("extra",), "unknown"),
+    ],
+)
+def test_http_rejects_out_of_range_without_mutation(http_server, path, value):
+    request = copy.deepcopy(BASELINE)
+    target = request
+    for key in path[:-1]:
+        target = target[key]
+    target[path[-1]] = value
+    before = copy.deepcopy(request)
+    status, result = call(http_server, request)
+    assert status == 400
+    assert result["error"]["code"] == "DEMO_INPUT_OUT_OF_RANGE"
+    assert result["error"]["json_pointer"] is not None
+    assert request == before
+
+
+def test_editable_limits_and_ids_independent_of_order(http_server):
+    request = copy.deepcopy(BASELINE)
+    request["employees"].reverse()
+    request["demand"].reverse()
+    request["employees"][0]["label"] = "😀" * 20
+    request["employees"][0]["skills"] = []
+    for item in request["demand"]:
+        item["required_people"] = 0
+    status, result = call(
+        http_server,
+        request,
+        headers={
+            "Content-Type": "application/json; charset=utf-8",
+            "Origin": f"http://127.0.0.1:{http_server.server_port}",
+        },
+    )
+    assert status == 200
+    assert_response(result, "OPTIMAL")
+    assert result["solution"]["assignments"] == []
+
+
+def test_engine_states_and_entrance_failure_are_distinct(http_server, monkeypatch):
+    from schedula.engine import response
+
+    for state in ("INVALID_INPUT", "BACKEND_UNAVAILABLE", "INTERNAL_ERROR", "UNKNOWN"):
+        result = response(BASELINE["request_id"], state)
+        monkeypatch.setattr(server, "solve", lambda _, result=result: result)
+        assert call(http_server, BASELINE) == (200, result)
+
+    def fail(_):
+        raise RuntimeError("本文や内部情報を返さない")
+
+    monkeypatch.setattr(server, "solve", fail)
+    status, result = call(http_server, BASELINE)
+    assert (status, result["error"]["code"]) == (500, "SERVER_ERROR")
+    monkeypatch.setattr(server, "solve", solve)
+    assert call(http_server, BASELINE)[1]["status"] == "OPTIMAL"
+
+
+def test_concurrent_solve_is_busy_then_recovers(http_server, monkeypatch):
+    entered, release = Event(), Event()
+
+    def slow(request):
+        entered.set()
+        assert release.wait(timeout=5)
+        return solve(request)
+
+    monkeypatch.setattr(server, "solve", slow)
+    results = []
+    thread = Thread(target=lambda: results.append(call(http_server, BASELINE)))
+    thread.start()
+    try:
+        assert entered.wait(timeout=5)
+        status, result = call(http_server, BASELINE)
+        assert (status, result["error"]["code"]) == (503, "BUSY")
+    finally:
+        release.set()
+        thread.join(timeout=5)
+    assert results[0][1]["status"] == "OPTIMAL"
+    assert call(http_server, BASELINE)[1]["status"] == "OPTIMAL"
+
+
+def test_missing_duplicate_headers_and_read_deadline(http_server, monkeypatch):
+    host = f"127.0.0.1:{http_server.server_port}"
+    monkeypatch.setattr(server, "READ_TIMEOUT", 0.1)
+    for headers, code in [
+        ("", "INVALID_BODY"),
+        ("Content-Length: 2\r\nContent-Length: 2\r\n", "INVALID_BODY"),
+        (f"Host: {host}\r\nContent-Length: 2\r\n", "FORBIDDEN_ORIGIN"),
+        ("Content-Length: 2\r\n", "READ_TIMEOUT"),
+    ]:
+        with socket.create_connection(("127.0.0.1", http_server.server_port), timeout=5) as client:
+            client.sendall(
+                f"POST /solve HTTP/1.1\r\nHost: {host}\r\nContent-Type: application/json\r\n"
+                f"{headers}\r\n".encode()
+            )
+            content = b""
+            while block := client.recv(65536):
+                content += block
+            assert json.loads(content.split(b"\r\n\r\n", 1)[1])["error"]["code"] == code

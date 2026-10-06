@@ -3,8 +3,10 @@
 Issue [#27](https://github.com/omitsuhashi/schedula/issues/27) の推奨方針として、
 **条件を左、担当配置と比較を右に置く1画面**を採用する。
 初めて使う人が入力を準備せず、条件を一つ変えて結果との関係を確かめるためのデモである。
-画面実装は #28〜#31 が担当する。本書・[画面案](playground-wireframe.html)・
-[サンプル](../examples/playground/lunch.json)・[操作定義](../examples/playground/scenarios.json)が引き継ぎの正本となる。
+画面実装は #28〜#31 で導入した。本書・[画面案](playground-wireframe.html)・
+[サンプル](../examples/playground/lunch.json)・[操作定義](../examples/playground/scenarios.json)を仕様の正本とする。
+実際の利用手順は [README](../README.md#ブラウザーで担当配置を試す)、
+実ブラウザー・実エンジンの確認は[デモの検証記録](evaluations/playground.md)を参照する。
 
 ## 採用する構成
 
@@ -167,11 +169,11 @@ API 公開、勤務計画 `roster`、変更最小化、認証、実データ取�
 実行世代番号は単調増加させ、取得失敗・タイムアウトで失効させる。
 ボタン無効化を通り抜けた古い応答も、世代番号と `request_id` が合わなければ採用しない。
 
-## 後続で実装するローカル入口
+## ローカル実行入口
 
 リポジトリ内の `demo/` に `server.py` / `index.html` / `app.js` / `style.css` を置く。
 サンプルは `examples/playground/` を正本としてサーバーから読む。パッケージと既存 CLI の入口は変更しない。
-以下は **#28 で実装する起動契約**であり、#27 時点では実行できない。
+以下の起動契約を #28 で実装した。新しい環境では最初に Git と uv を導入し、リポジトリを clone する。
 
 ```sh
 uv python install

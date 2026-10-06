@@ -37,6 +37,29 @@ uv run --locked --extra cp-sat python -m schedula schema request
 uv run --locked --extra cp-sat python -m schedula schema response
 ```
 
+## ブラウザーで担当配置を試す
+
+clone 済みのリポジトリ直下で起動します。デモだけなら OR-Tools や Node.js は不要です。
+
+```sh
+uv python install
+uv sync --locked
+uv run --locked python demo/server.py
+```
+
+[http://127.0.0.1:8765](http://127.0.0.1:8765) をブラウザーで開くと、架空の飲食店の配置を実計算します。
+「通常のランチ営業」「急な欠勤」「ピーク時の必要人数増加」を選び、
+「この変更を入力」→「再計算」で元の条件と比較できます。
+欠勤で解なしになった場合は、次のガイドから調理の必要人数を明示的に減らして再計算します。
+「サンプルへ復元」で初期計算に戻り、「自由に編集する」で条件と比較元を保持して編集を続けられます。
+
+名前、技能、勤務可能時間、必要人数を編集できます。編集後の結果は再計算まで無効です。
+`INFEASIBLE` は解なし、`UNKNOWN` は未確定です。入力不備・依存不足・内部障害・通信失敗も文字と診断で読み分けます。
+登録・JSON の手作成は不要です。終了はターミナルで Ctrl+C。
+8765が使用中なら `--port 8766` を追加し、表示されるURLを開いてください。
+編集上限・全状態は[配置プレイグラウンドの仕様](docs/playground.md)、
+再実行コマンドと検証結果は[デモの検証記録](docs/evaluations/playground.md)を参照してください。
+
 ## 入力を作る
 
 次を `request.json` として UTF-8 で保存すれば、1人・1役割の担当配置を実行できます。
@@ -173,7 +196,8 @@ uv run --locked --extra cp-sat python -m schedula solve examples/invalid-input.j
 `stats.elapsed_seconds`、探索時間は `SEARCH_STATS` の `facts` で確認できます。
 
 夜勤・分割勤務、候補外の時刻、契約時間に対する公平性、変更最小化、給与計算・法令判定、
-詳細な矛盾原因・自動緩和は未対応です。Web UI・外部 API・LLM・PyPI 公開・production デプロイは対象外です。
+詳細な矛盾原因・自動緩和は未対応です。外部 API・LLM・PyPI 公開・production デプロイは対象外です。
+ブラウザーの利用入口は、上記のローカル担当配置デモに限定します。
 参照 ZIP のコードはライセンス未選定のため取り込まず、採用した業務仕様から独自実装しています。
 公開条件は [開発・検証方針](docs/development-policy.md)に記載しています。
 
@@ -208,7 +232,7 @@ Git には採用判断で使う入力・条件・集計・失敗を含む生デ�
 
 飲食店デモの推奨構成・編集範囲・3シナリオは
 [配置プレイグラウンドの仕様](docs/playground.md)と[静的な画面案](docs/playground-wireframe.html)を参照してください。
-サンプルは既存エンジンで検証済みですが、ブラウザーから計算するデモは後続 Issue #28〜#31 で実装します。
+ブラウザーから計算するデモは、上記の起動手順で試せます。
 
 開発者・仕様を決める人が、導入済み機能の対象範囲と守るべき意味を共有するための文書です。
 次の順に読むと、全体から個別の実装条件まで確認できます。

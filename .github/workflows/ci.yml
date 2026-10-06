@@ -8,7 +8,7 @@ permissions:
 jobs:
   deploy-entrypoint:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Set up uv
@@ -27,10 +27,18 @@ jobs:
       - name: Reject skipped tests
         run: |
           uv run --locked --extra cp-sat python -c 'import xml.etree.ElementTree as ET; assert not ET.parse("test-results/pytest.xml").findall(".//skipped"), "Skipped tests are not allowed; see the JUnit report and pytest log"'
+      - name: Install browser verification tools
+        run: |
+          npm install --prefix "$RUNNER_TEMP/playground-check" --no-save --package-lock=false playwright@1.62.1
+          "$RUNNER_TEMP/playground-check/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Validate playground in Chromium
+        env:
+          PLAYWRIGHT_MODULE_PATH: ${{ runner.temp }}/playground-check/node_modules/playwright
+        run: node tests/playground-browser.cjs
       - name: Save test results
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: pytest-results
-          path: test-results/pytest.xml
+          path: test-results/
           if-no-files-found: warn
