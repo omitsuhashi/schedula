@@ -9,7 +9,7 @@ OR-Tools 9.15.6755、pytest 9.1.1、Ruff 0.16.10、pre-commit 4.6.2 を使用し
 
 CP-SAT は `objectives` の順に同じモデルを解き、証明済みの上位目的値だけを固定する。
 上位目的が `FEASIBLE` なら後段へ進めない。後段の `UNKNOWN` や段階間の予算切れでは、
-直前の解と証明済みの先頭部分を保持する。返す解の全目的値を独立に再計算し、
+最良の既知解と証明済みの先頭部分を保持する。返す解の全目的値を独立に再計算し、
 解・目的値・証明範囲・Response の検証に成功した場合だけ正式な解を返す。
 後段の `INFEASIBLE`、モデル不正、内部例外では `INTERNAL_ERROR` として解を返さない。
 
@@ -23,7 +23,7 @@ CP-SAT は `objectives` の順に同じモデルを解き、証明済みの上�
 | `uv sync --locked --extra cp-sat` | 既存依存で同期成功 | なし |
 | `uv run --locked --extra cp-sat ruff check .` | 成功 | なし |
 | `uv run --locked --extra cp-sat ruff format --check .` | 成功 | なし |
-| `uv run --locked --extra cp-sat pytest -q -ra` | 792件と subtest 6件成功 | なし |
+| `uv run --locked --extra cp-sat pytest -q -ra` | 800件と subtest 6件成功 | なし |
 | `uv run --locked --extra cp-sat python -m schedula solve examples/roster.json` | `OPTIMAL`、目的値60・2640・0、全目的証明済み、検証成功、終了コード0 | なし |
 | 担当配置の既存2例を同じ CLI で実行 | 両方 `OPTIMAL`、ペナルティ0、検証成功、終了コード0 | なし |
 | wheel の Schema / API / CLI、OR-Tools 不在の隔離実行 | 全テストの中で成功 | なし |
@@ -49,7 +49,7 @@ Ruff は正本の hook を使わない場合の同等コマンドで実行した
 - 実際に求めた変数値を使い、各段階で `FEASIBLE` を注入してその段階で停止することを確認した。
   証明範囲は先頭から `false/false/false`、`true/false/false`、`true/true/false` となる。
 - 解なしの `UNKNOWN`、後段の `UNKNOWN`、1段目・2段目終了直後の予算切れを制御して確認した。
-  解なしは未検証・`solution: null`、解ありは直前の解と証明範囲を保持した検証済み `FEASIBLE`。
+  解なしは未検証・`solution: null`、解ありは最良の既知解と証明範囲を保持した検証済み `FEASIBLE`。
   極端に短い実時間制限だけに依存せず、既存の実 CP-SAT の時間切れ統合試験も実行した。
 - 制御時計では初期準備・読み込みに300秒、各探索に2秒、解検証・Response 検証に450秒を割り当て、
   各段階の予算10・8・6秒、探索所要6秒、総時間756秒を別々に確認した。
@@ -57,6 +57,22 @@ Ruff は正本の hook を使わない場合の同等コマンドで実行した
   時間切れで保持した解を壊した場合も独立検証で拒否した。
 - 初段の `INFEASIBLE` と、解が残るはずの後段の `INFEASIBLE` を区別した。
   初段・後段の `MODEL_INVALID`、内部例外、段階間のモデル検証失敗は正式な解にしなかった。
+
+## 既知解を保持する修正
+
+`3b00f28a7a70b53af071633e4304eb9d65f078d7` のレビューで、後段の `FEASIBLE` が
+既知解より悪くても上書きされる問題を確認した。全目的値の辞書式比較で改善した解だけを採用し、
+証明範囲は解の選択と別に更新する。`OPTIMAL` を得たときは保持した解も新しく証明した値を
+満たすことを確認し、既知解より悪い値を最適とする矛盾は `INTERNAL_ERROR` とする。
+
+回帰テスト8件では元の実モデルを複製し、追加条件で指定の解を CP-SAT に求めさせた。
+各解の必須条件と目的値は独立検証器、宣言した正常な最適性は元入力の全探索で照合した。
+勤務90分から150分への悪化、150分から90分への改善、同じ勤務量での担当切替の改善・悪化、
+既知解を保持したまま証明範囲を更新してから `UNKNOWN` または `OPTIMAL` で終了するケース、
+既知解と矛盾する最適値の拒否を確認した。
+修正前は回帰テスト4件失敗・4件成功、修正後は目的順序の43件が成功した。
+全テストは800件と subtest 6件成功、失敗・スキップ0件、8.13秒だった。
+Ruff の lint・format、`bash -n scripts/deploy`、`git diff --check` も成功した。
 
 ## 未検証事項
 

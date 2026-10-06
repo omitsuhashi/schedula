@@ -122,12 +122,110 @@ def test_stage_endings_preserve_only_valid_solutions(monkeypatch, statuses, expe
     assert len(calls) == len(statuses)
     assert tuple(o["proven_optimal"] for o in result["objectives"]) == proofs
     if result["solution"] is not None:
-        assert result["solution"] == snapshots[-1]
+        assert result["solution"] in snapshots
+        assert tuple(o["value"] for o in result["objectives"]) == min(
+            verify_solution(normalize(data), solution)[1] for solution in snapshots
+        )
         assert verify_solution(normalize(data), result["solution"]) == (
             [],
             tuple(o["value"] for o in result["objectives"]),
         )
         assert result["objectives"][0]["value"] == 0
+
+
+@pytest.mark.parametrize(
+    "first,second,status,ending,expected,proofs",
+    [
+        ("long", "split", "FEASIBLE", None, "long", (True, False, False)),
+        ("split", "long", "FEASIBLE", None, "long", (True, False, False)),
+        ("short_split", "long", "FEASIBLE", None, "short_split", (True, False, False)),
+        ("long", "short_split", "FEASIBLE", None, "short_split", (True, False, False)),
+        ("short_split", "long", "OPTIMAL", "UNKNOWN", "short_split", (True, True, False)),
+        ("long", "short_split", "OPTIMAL", "UNKNOWN", "short_split", (True, True, False)),
+        ("short_split", "long", "OPTIMAL", "OPTIMAL", "short_split", (True, True, True)),
+        ("long", "split", "OPTIMAL", "UNKNOWN", None, ()),
+    ],
+)
+def test_known_solution_and_proof_updates(
+    monkeypatch, first, second, status, ending, expected, proofs
+):
+    data = tradeoff_request()
+    long, bob = data["shift_candidates"]
+    short = candidate("alice", end=630)
+    data["shift_candidates"].append(short)
+    plans = {
+        "long": ({long["id"]}, {("alice", 20, "kitchen"), ("alice", 21, "hall")}, (0, 90, 1)),
+        "split": (
+            {long["id"], bob["id"]},
+            {("alice", 20, "kitchen"), ("bob", 21, "hall")},
+            (0, 150, 0),
+        ),
+        "short_split": (
+            {short["id"], bob["id"]},
+            {("alice", 20, "kitchen"), ("bob", 21, "hall")},
+            (0, 90, 0),
+        ),
+    }
+    assert exhaustive_value(data) == (0, 90, 0)
+    problem = normalize(data)
+    for selected, assigned, values in plans.values():
+        solution = {
+            "assignments": [
+                {
+                    "employee_id": e,
+                    "role_id": r,
+                    "interval": problem.grid.output_interval(s, s + 1),
+                }
+                for e, s, r in sorted(assigned)
+            ],
+            "shifts": [c.output(problem.grid) for c in problem.candidates if c.id in selected],
+        }
+        assert verify_solution(problem, solution) == ([], values)
+    stages = [(first, "OPTIMAL"), (second, status)]
+    if ending:
+        stages.append(("short_split", ending))
+    prepare, search = cp_sat.prepare, cp_model.CpSolver.solve
+    prepared, observed = [], []
+
+    def capture_prepare(*args):
+        result = prepare(*args)
+        prepared.append(result)
+        return result
+
+    def controlled(solver, model):
+        name, status = stages[len(observed)]
+        observed.append(name)
+        if status == "UNKNOWN":
+            return cp_model.UNKNOWN
+        _, assignments, shifts, objectives = prepared[0]
+        selected, assigned, values = plans[name]
+        # 複製した実モデルで指定解を求める。追加の固定条件を次段へ持ち越さない。
+        fixed = model.clone()
+        for key, variable in assignments.items():
+            fixed.add(variable == int(key in assigned))
+        for key, variable in shifts.items():
+            fixed.add(variable == int(key in selected))
+        assert search(solver, fixed) == cp_model.OPTIMAL
+        assert tuple(solver.value(o) for o in objectives) == values
+        if status == "OPTIMAL" and expected is not None:
+            # 宣言した最適性は、追加の固定条件がない元入力の全探索とも照合する。
+            prefix = {**data, "objectives": data["objectives"][: len(observed)]}
+            assert values[: len(observed)] == exhaustive_value(prefix)
+        return getattr(cp_model, status)
+
+    monkeypatch.setattr(cp_sat, "prepare", capture_prepare)
+    monkeypatch.setattr(cp_model.CpSolver, "solve", controlled)
+    result = solve(data)
+    assert_response(
+        result, "INTERNAL_ERROR" if expected is None else "OPTIMAL" if all(proofs) else "FEASIBLE"
+    )
+    assert len(observed) == (2 if expected is None else len(stages))
+    assert tuple(o["proven_optimal"] for o in result["objectives"]) == proofs
+    if expected is not None:
+        selected, _, values = plans[expected]
+        assert {s["candidate_id"] for s in result["solution"]["shifts"]} == selected
+        assert tuple(o["value"] for o in result["objectives"]) == values
+        assert verify_solution(normalize(data), result["solution"]) == ([], values)
 
 
 @pytest.mark.parametrize("completed", [1, 2])
@@ -147,7 +245,10 @@ def test_budget_expires_between_stages(monkeypatch, completed):
     result = solve(data)
     assert_response(result, "FEASIBLE")
     assert len(calls) == completed
-    assert result["solution"] == snapshots[-1]
+    assert result["solution"] in snapshots
+    assert tuple(o["value"] for o in result["objectives"]) == min(
+        verify_solution(normalize(data), solution)[1] for solution in snapshots
+    )
     assert [o["proven_optimal"] for o in result["objectives"]] == [i < completed for i in range(3)]
     assert result["diagnostics"][0]["code"] == "TIME_LIMIT"
     assert result["diagnostics"][0]["json_pointer"] == f"/objectives/{completed}"

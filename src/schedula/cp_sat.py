@@ -228,11 +228,14 @@ def run(problem, cp_model):
         values = tuple(int(solver.value(expression)) for expression in objectives)
         if best is not None and values[:index] != best.values[:index]:
             raise RuntimeError("Fixed optimal values changed")
-        best = SatResult(
-            "OPTIMAL" if status == cp_model.OPTIMAL else "FEASIBLE",
-            solution,
-            values,
-            tuple(i < index + (status == cp_model.OPTIMAL) for i in range(len(objectives))),
+        if best is None or values < best.values:
+            best = SatResult("FEASIBLE", solution, values)
+        # 解の選択と証明の更新を分け、保持した解にも新しい証明を反映する。
+        if status == cp_model.OPTIMAL and best.values[: index + 1] != values[: index + 1]:
+            raise RuntimeError("Known solution contradicts optimal value")
+        best.status = "OPTIMAL" if status == cp_model.OPTIMAL else "FEASIBLE"
+        best.proven_optimal = tuple(
+            i < index + (status == cp_model.OPTIMAL) for i in range(len(objectives))
         )
         if status == cp_model.FEASIBLE:
             best.diagnostics = (
