@@ -212,6 +212,12 @@ def run(problem, cp_model):
         else:
             solver.parameters.max_time_in_seconds = remaining
             status = solver.solve(model)
+            if objective is not None and status in {
+                cp_model.OPTIMAL,
+                cp_model.FEASIBLE,
+                cp_model.UNKNOWN,
+            }:
+                bounds[index] = solver.best_objective_bound
         if status == cp_model.UNKNOWN:
             best = best or SatResult("UNKNOWN", None)
             if best.solution is not None:
@@ -239,8 +245,6 @@ def run(problem, cp_model):
             break
         if status not in {cp_model.OPTIMAL, cp_model.FEASIBLE}:
             raise RuntimeError("Unexpected CP-SAT status")
-        if objective is not None:
-            bounds[index] = solver.best_objective_bound
         assignments = defaultdict(list)
         for (employee, slot, role), variable in variables.items():
             if solver.value(variable):

@@ -154,3 +154,26 @@ uv run --locked --extra cp-sat python scripts/evaluate.py docs/evaluations/input
 追加のworker4、独自の探索方式、キャッシュサービスは追加しない。
 合格はこの架空入力・候補集合・OS/CPU・粒度・目的順序と予算に限定する。
 実データ、異なる技能偏在/期間/目的順序、ホスト全体の専有、他OS/CPUの性能保証は含まない。
+
+## 診断参照と途中終了時の下限の修正
+
+2026-10-06、PR #26の `55d31c29c89da4969c905d461f1039fad81e76d1` に対するレビュー指摘2件を修正した。
+基準計画の制約違反は `/baseline/source_request/constraints/...`、解の違反は
+`/baseline/source_solution/...` を指す。旧契約0.1の勤務区間・休憩にも、存在しない `segments` を付けず、
+旧解の `interval`・`breaks` を指すよう共有検証器を修正した。
+担当時間・勤務量・連勤の上限違反、担当不足・候補不一致、0.1/0.2の区間・休憩の粒度違反で、
+拒否状態に加え、診断のJSON Pointerから実際の入力項目へ到達できることを回帰テストで確認した。
+
+CP-SATは実際に実行した `UNKNOWN` 段の下限も保存する。
+[OR-Tools 9.15の定義](https://github.com/google/or-tools/blob/v9.15/ortools/sat/cp_model.proto)に従い、
+下限と実行可能解の有無を区別する。上位目的を最適値へ固定して探索した段では、保持解とその下限でgapを評価できる。
+残予算がなく次段を実行していない場合は下限を `null` に保ち、前段の値を再利用しない。
+保持解・証明済みの目的prefixは維持し、先頭が未証明なら後段gapを `null` にする既存runnerの評価範囲も維持する。
+制御した探索で実行済み段の下限40と公開診断を確認し、保持値100・下限40の絶対gap60/相対gap0.6、
+段階間の予算切れによる未実行段の下限・gap不明を別に検証した。
+
+独立した静的レビューで具体的な未解消問題は見つからず、実OR-Tools・wheel隔離導入を含む全回帰は
+963件・subtest6件成功、失敗/スキップ0、82.82秒だった。
+検証コマンドは `UV_CACHE_DIR=/private/tmp/schedula-uv-cache uv run --locked --extra cp-sat pytest -q -ra --junitxml=test-results/pytest.xml`。
+上の性能測定は記載した固定sourceの結果として保持し、過去の測定JSONへ新しい下限を後付けしない。
+この修正は診断参照と探索後の下限保存に限定し、候補・必須条件・目的順序・探索パラメーターは変更していない。

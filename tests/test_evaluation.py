@@ -143,6 +143,18 @@ def test_objective_bound_scope_zero_denominator_and_nearest_rank():
     first, second = functions["objective_quality"](response)
     assert first["absolute_gap"] == 2 and first["relative_gap"] == 0.2
     assert second["best_bound"] is None and second["relative_gap"] is None
+    response["objectives"][0].update(value=10, proven_optimal=True)
+    response["objectives"][1].update(value=100, proven_optimal=False)
+    response["diagnostics"][0]["facts"][0]["value"] = 10
+    response["diagnostics"][1]["facts"][0]["value"] = 40
+    first, second = functions["objective_quality"](response)
+    assert first["absolute_gap"] == 0
+    assert second["best_bound"] == 40
+    assert second["absolute_gap"] == 60 and second["relative_gap"] == 0.6
+    response["diagnostics"].pop()
+    second = functions["objective_quality"](response)[1]
+    assert second["best_bound"] is None
+    assert second["absolute_gap"] is None and second["relative_gap"] is None
     response["objectives"] = [
         {"id": "zero", "metric": "preference_penalty", "value": 0, "proven_optimal": True}
     ]

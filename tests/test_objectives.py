@@ -115,6 +115,10 @@ def control_search(monkeypatch, statuses):
             raise RuntimeError("controlled backend failure")
         if status in {"OPTIMAL", "FEASIBLE"}:
             assert search(solver, model) == cp_model.OPTIMAL
+        elif status == "UNKNOWN":
+            # 当該段の応答を作り、前段の解・下限を残したスタブにしない。
+            solver.parameters.max_time_in_seconds = 1e-12
+            assert search(solver, model) == cp_model.UNKNOWN
         return getattr(cp_model, status)
 
     def capture(*args):
@@ -226,6 +230,8 @@ def test_known_solution_and_proof_updates(
         name, status = stages[len(observed)]
         observed.append(name)
         if status == "UNKNOWN":
+            solver.parameters.max_time_in_seconds = 1e-12
+            assert search(solver, model) == cp_model.UNKNOWN
             return cp_model.UNKNOWN
         _, assignments, shifts, objectives = prepared[0]
         selected, assigned, values = plans[name]
@@ -264,6 +270,13 @@ def test_budget_expires_between_stages(monkeypatch, completed):
     clock = [0.0]
     calls, snapshots = control_search(monkeypatch, ("OPTIMAL",) * completed)
     controlled = cp_model.CpSolver.solve
+    bound = cp_model.CpSolver.best_objective_bound
+    bound_reads = []
+
+    def read_bound(solver):
+        bound_reads.append(len(calls))
+        assert len(bound_reads) <= completed
+        return bound.fget(solver)
 
     def search(*args):
         status = controlled(*args)
@@ -272,9 +285,11 @@ def test_budget_expires_between_stages(monkeypatch, completed):
 
     monkeypatch.setattr(cp_sat.time, "monotonic", lambda: clock[0])
     monkeypatch.setattr(cp_model.CpSolver, "solve", search)
+    monkeypatch.setattr(cp_model.CpSolver, "best_objective_bound", property(read_bound))
     result = solve(data)
     assert_response(result, "FEASIBLE")
     assert len(calls) == completed
+    assert bound_reads == list(range(1, completed + 1))
     assert result["solution"] in snapshots
     assert tuple(o["value"] for o in result["objectives"]) == min(
         verify_solution(normalize(data), solution)[1] for solution in snapshots
@@ -282,6 +297,8 @@ def test_budget_expires_between_stages(monkeypatch, completed):
     assert [o["proven_optimal"] for o in result["objectives"]] == [i < completed for i in range(3)]
     assert result["diagnostics"][0]["code"] == "TIME_LIMIT"
     assert result["diagnostics"][0]["json_pointer"] == f"/objectives/{completed}"
+    bounds = [d for d in result["diagnostics"] if d["code"] == "OBJECTIVE_BOUND"]
+    assert [d["json_pointer"] for d in bounds] == [f"/objectives/{i}" for i in range(completed)]
 
 
 def test_shared_budget_excludes_preparation_and_records_total_elapsed(monkeypatch):
@@ -345,8 +362,7 @@ def test_objective_bounds_only_describe_reached_objectives(monkeypatch, statuses
     data = tradeoff_request()
     result = solve(data)
     bounds = [d for d in result["diagnostics"] if d["code"] == "OBJECTIVE_BOUND"]
-    reached = sum(status != "UNKNOWN" for status in statuses)
-    assert len(bounds) == reached
+    assert len(bounds) == len(statuses)
     for index, item in enumerate(bounds):
         facts = {f["name"]: f["value"] for f in item["facts"]}
         assert item["json_pointer"] == f"/objectives/{index}"
@@ -355,6 +371,35 @@ def test_objective_bounds_only_describe_reached_objectives(monkeypatch, statuses
         assert 0 <= facts["best_bound"] <= result["objectives"][index]["value"]
         if result["objectives"][index]["proven_optimal"]:
             assert facts["best_bound"] == result["objectives"][index]["value"]
+
+
+def test_unknown_stage_keeps_its_bound_and_the_previous_verified_solution(monkeypatch):
+    data = tradeoff_request(METRICS[:2])
+    calls, snapshots = control_search(monkeypatch, ("OPTIMAL", "UNKNOWN"))
+    bound = cp_model.CpSolver.best_objective_bound
+    monkeypatch.setattr(
+        cp_model.CpSolver,
+        "best_objective_bound",
+        property(lambda solver: 40 if len(calls) == 2 else bound.fget(solver)),
+    )
+    problem = normalize(data)
+    outcome = cp_sat.run(problem, cp_model)
+    assert len(calls) == 2
+    assert outcome.status == "FEASIBLE"
+    assert outcome.solution == snapshots[0]
+    assert verify_solution(problem, outcome.solution) == ([], outcome.values)
+    assert outcome.proven_optimal == (True, False)
+    assert outcome.objective_bounds == (0, 40)
+
+    monkeypatch.setattr(cp_sat, "run", lambda *_: outcome)
+    result = solve(data)
+    assert_response(result, "FEASIBLE")
+    bounds = [d for d in result["diagnostics"] if d["code"] == "OBJECTIVE_BOUND"]
+    assert [d["json_pointer"] for d in bounds] == ["/objectives/0", "/objectives/1"]
+    assert [next(f["value"] for f in d["facts"] if f["name"] == "best_bound") for d in bounds] == [
+        0,
+        40,
+    ]
 
 
 @pytest.mark.parametrize("index", range(3))

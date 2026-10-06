@@ -9,7 +9,7 @@ from schedula import solve
 from schedula.extensions import evaluate
 from schedula.model import normalize
 from schedula.verify import verify_solution
-from tests.roster_support import candidate, demand, interval, request
+from tests.roster_support import candidate, demand, interval, request, rule
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -301,6 +301,79 @@ def test_invalid_baseline_and_fixed_reference(mutation):
     else:
         del data["baseline"]
     assert solve(data)["status"] == "INVALID_INPUT"
+
+
+@pytest.mark.parametrize(
+    "kind",
+    ["max_assigned_minutes", "max_scheduled_minutes", "max_consecutive_days"],
+)
+def test_baseline_constraint_violation_points_to_source_request(kind):
+    data = baseline()
+    constraint = rule(kind, 0)
+    data["baseline"]["source_request"]["constraints"] = [constraint]
+    result = solve(data)
+    assert result["status"] == "INVALID_INPUT"
+    assert result["diagnostics"][0]["code"] == kind.upper() + "_VIOLATION"
+    pointer = result["diagnostics"][0]["json_pointer"]
+    assert pointer == "/baseline/source_request/constraints/0"
+    value = data
+    for token in pointer.lstrip("/").split("/"):
+        value = value[int(token)] if isinstance(value, list) else value[token]
+    assert value == constraint
+
+
+@pytest.mark.parametrize("field", ["assignments", "shifts"])
+def test_baseline_solution_violation_points_to_source_solution(field):
+    data = baseline()
+    solution = data["baseline"]["source_solution"]
+    if field == "assignments":
+        solution[field] = []
+        code, suffix = "DEMAND_SHORTAGE", "/assignments"
+    else:
+        solution[field][0]["employee_id"] = "bob"
+        code, suffix = "CANDIDATE_MISMATCH", "/shifts/0"
+    result = solve(data)
+    assert result["status"] == "INVALID_INPUT"
+    item = next(item for item in result["diagnostics"] if item["code"] == code)
+    pointer = item["json_pointer"]
+    assert pointer == "/baseline/source_solution" + suffix
+    value = data
+    for token in pointer.lstrip("/").split("/"):
+        value = value[int(token)] if isinstance(value, list) else value[token]
+    assert value == (solution[field] if field == "assignments" else solution[field][0])
+
+
+@pytest.mark.parametrize("schema_version", ["0.1", "0.2"])
+@pytest.mark.parametrize("field", ["interval", "breaks"])
+def test_baseline_misaligned_shift_points_to_existing_solution_interval(schema_version, field):
+    data = baseline()
+    if schema_version == "0.2":
+        old = extended(data["baseline"]["source_request"])
+        data["baseline"]["source_request"] = old
+        data["baseline"]["source_solution"]["shifts"] = [selected(old["shift_candidates"][0])]
+    # 候補と旧解の区間は別々に保持し、旧解だけを改ざんする。
+    data["baseline"]["source_solution"] = copy.deepcopy(data["baseline"]["source_solution"])
+    shift = data["baseline"]["source_solution"]["shifts"][0]
+    segment = shift["segments"][0] if schema_version == "0.2" else shift
+    if field == "interval":
+        segment[field]["start"] = interval(start=615)["start"]
+        expected, suffix = segment[field], "/interval"
+    else:
+        segment[field] = [interval(start=615, end=630)]
+        expected, suffix = segment[field][0], "/breaks/0"
+    result = solve(data)
+    assert result["status"] == "INVALID_INPUT"
+    item = next(item for item in result["diagnostics"] if item["code"] == "MISALIGNED_INTERVAL")
+    pointer = item["json_pointer"]
+    assert pointer == (
+        "/baseline/source_solution/shifts/0"
+        + ("/segments/0" if schema_version == "0.2" else "")
+        + suffix
+    )
+    value = data
+    for token in pointer.lstrip("/").split("/"):
+        value = value[int(token)] if isinstance(value, list) else value[token]
+    assert value == expected
 
 
 def test_replan_accepts_zero_two_baseline_and_fairness_summary_is_independent():

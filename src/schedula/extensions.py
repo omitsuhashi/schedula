@@ -85,7 +85,15 @@ def validate(problem):
     if violations:
         raise InvalidInput(
             [
-                {**item, "json_pointer": "/baseline/source_solution" + item["json_pointer"]}
+                {
+                    **item,
+                    "json_pointer": (
+                        "/baseline/source_request"
+                        if item["json_pointer"].startswith("/constraints/")
+                        else "/baseline/source_solution"
+                    )
+                    + item["json_pointer"],
+                }
                 for item in violations
             ]
         )

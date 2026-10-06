@@ -24,10 +24,18 @@ def verify_shifts(request, grid, shifts, fail):
         try:
             segments = tuple(
                 (
-                    *grid.interval(s["interval"], f"{path}/segments/{i}/interval"),
+                    *grid.interval(
+                        s["interval"],
+                        f"{path}/segments/{i}/interval" if extended else path + "/interval",
+                    ),
                     tuple(
                         sorted(
-                            grid.interval(b, f"{path}/segments/{i}/breaks/{j}")
+                            grid.interval(
+                                b,
+                                f"{path}/segments/{i}/breaks/{j}"
+                                if extended
+                                else f"{path}/breaks/{j}",
+                            )
                             for j, b in enumerate(s["breaks"])
                         )
                     ),
