@@ -1,0 +1,197 @@
+{
+  "base_commit": "4ad9714d1a636b9559c02a410e3004e20d6ed45e",
+  "source_sha256": {
+    "demo/server.py": "571cbb8f6ca365931dae15c1b50ce2cfbeb467cdab328c8a269dc963caffdad8",
+    "demo/index.html": "ee3b9fc99c6bf2b79c693ef0135a545a6b64ece74d89ef88b2850d70ee316140",
+    "demo/app.js": "49ecb1d2ad030fbd9c0b2456e667dc5d3020b2b651b591f3a8a22099e3a7077d",
+    "demo/style.css": "6bb88f0ede930dce8916e32d487566aca349d940f4cd57a5cf83d876d868fa6e",
+    "tests/test_playground_server.py": "4346db3dac8a13b55a811518a91f17e654e34a3139d8e5eb54638253b526b36b",
+    "tests/playground-browser.cjs": "c47f6ddfa7c0adbda5aa4f7dcb88dcee15b055029ae3855cd6bd4f7c97316e62",
+    ".github/workflows/ci.yml": "9347665210c9726ed775faac7ca59848d9d83d849a6f5ccd894a7f49cc2de384"
+  },
+  "environment": {
+    "os": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+    "python": "3.14.8",
+    "packages": {
+      "schedula": "0.1.3",
+      "jsonschema": "4.26.0",
+      "pytest": "9.1.1",
+      "ortools": "9.15.6755"
+    },
+    "playwright": "1.62.1"
+  },
+  "pytest": {
+    "passed": 1004,
+    "subtests_passed": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 121.33
+  },
+  "final_http_check": {
+    "passed": 38,
+    "failures": 0,
+    "skipped": 0,
+    "elapsed_seconds": 19.73
+  },
+  "browser": {
+    "scenarios": [
+      {
+        "scenario": "normal",
+        "step": "initial",
+        "status": "OPTIMAL",
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        }
+      },
+      {
+        "scenario": "normal",
+        "step": "changed",
+        "status": "OPTIMAL",
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        }
+      },
+      {
+        "scenario": "normal",
+        "step": "restored",
+        "status": "OPTIMAL",
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        }
+      },
+      {
+        "scenario": "absence",
+        "step": "initial",
+        "status": "OPTIMAL",
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        }
+      },
+      {
+        "scenario": "absence",
+        "step": "changed",
+        "status": "INFEASIBLE",
+        "verification": {
+          "performed": false,
+          "valid": null,
+          "violations": []
+        }
+      },
+      {
+        "scenario": "absence",
+        "step": "repaired",
+        "status": "OPTIMAL",
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        }
+      },
+      {
+        "scenario": "absence",
+        "step": "restored",
+        "status": "OPTIMAL",
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        }
+      },
+      {
+        "scenario": "peak",
+        "step": "initial",
+        "status": "OPTIMAL",
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        }
+      },
+      {
+        "scenario": "peak",
+        "step": "changed",
+        "status": "OPTIMAL",
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        }
+      },
+      {
+        "scenario": "peak",
+        "step": "restored",
+        "status": "OPTIMAL",
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        }
+      }
+    ],
+    "response_samples": [
+      "FEASIBLE",
+      "INFEASIBLE",
+      "UNKNOWN",
+      "INVALID_INPUT",
+      "BACKEND_UNAVAILABLE",
+      "INTERNAL_ERROR",
+      "http-error",
+      "communication",
+      "request-id",
+      "verification",
+      "malformed",
+      "計算中・二重送信抑止・編集で失効した遅延応答",
+      "待機期限（テスト時のみ100msに短縮）・期限後応答の拒否・復帰"
+    ],
+    "interactions": [
+      "キーボード編集・再計算・復元、自由編集の保持、シナリオ切替の取消、重複名のID比較",
+      "空欄・小数・範囲外の入力不備、ラベルの文字表示",
+      {
+        "viewport": 1440,
+        "geometry": {
+          "width": 1440,
+          "document": 1440,
+          "columns": 2
+        },
+        "keyboard_focus": true
+      },
+      {
+        "viewport": 390,
+        "geometry": {
+          "width": 390,
+          "document": 390,
+          "columns": 1
+        },
+        "keyboard_focus": true
+      },
+      "強制配色でも状態・役割名を文字で確認",
+      "技能チェックをキーボードで編集して解なしを実計算、勤務可能時間の逆転を拒否"
+    ],
+    "browser": "154.0.8037.98",
+    "page_errors": []
+  },
+  "clean_environment": {
+    "new_virtual_environment": true,
+    "ortools_installed": false,
+    "startup_scenarios_and_shutdown": "passed",
+    "cached_python_and_dependencies": true
+  },
+  "commands": [
+    "uv run --locked --extra cp-sat pre-commit run --all-files --show-diff-on-failure",
+    "uv run --locked --extra cp-sat pytest -q -ra --junitxml=test-results/pytest.xml",
+    "uv build --wheel",
+    "uv python install",
+    "uv sync --locked",
+    "uv run --locked python demo/server.py",
+    "node tests/playground-browser.cjs"
+  ]
+}

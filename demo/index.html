@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>配置プレイグラウンド | schedula</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+<header>
+  <p class="eyebrow">schedula / 架空の飲食店</p>
+  <h1>配置プレイグラウンド</h1>
+  <p>技能・勤務可能時間・必要人数を変えて、担当配置を試してみましょう。</p>
+  <p class="note">2026-10-06 · 11:00〜14:00 · 30分ごと · 架空データのみ</p>
+</header>
+<main>
+  <form id="editor">
+    <fieldset id="controls" disabled>
+      <legend class="sr-only">配置の条件と操作</legend>
+      <div class="toolbar">
+        <label for="scenario">シナリオ</label>
+        <select id="scenario"></select>
+        <button id="restore" type="button">サンプルへ復元</button>
+      </div>
+      <p class="note">切替・復元は、変更した条件と比較結果を置き換え、初期計算に戻します。</p>
+      <section id="guide" class="guide" aria-label="操作ガイド"></section>
+      <div class="layout">
+        <div>
+          <section>
+            <h2>従業員と勤務可能時間</h2>
+            <div id="employees" class="scroll" tabindex="0" role="region" aria-label="従業員の条件表"></div>
+            <p class="note">勤務可能時間は勤務の決定ではありません。勤務不可は対象時間なしを表します。</p>
+          </section>
+          <section>
+            <h2>役割ごとの必要人数</h2>
+            <div id="demand" class="scroll" tabindex="0" role="region" aria-label="必要人数の条件表"></div>
+            <div class="actions"><button class="primary" id="calculate" type="submit">再計算</button></div>
+            <p class="note">各枠0〜6人を入力します。条件を自動で緩めることはありません。</p>
+          </section>
+        </div>
+        <div>
+          <section aria-labelledby="result-heading" aria-busy="false" id="result">
+            <h2 id="result-heading">担当配置</h2>
+            <p id="status" role="status" aria-live="polite">まだ計算していません。</p>
+            <div id="output"></div>
+            <div id="diagnostics"></div>
+          </section>
+          <section class="comparison">
+            <h2>元の条件と比較する</h2>
+            <div id="comparison"></div>
+            <p class="note">元の条件と独立に計算した結果を比較します。担当の変更を最小化する計算ではありません。</p>
+          </section>
+          <div id="previous"></div>
+        </div>
+      </div>
+    </fieldset>
+  </form>
+</main>
+<footer>保存・登録は不要です。再読み込みで通常サンプルに戻ります。担当なしは欠勤・退勤・休憩を意味しません。</footer>
+</body>
+</html>
