@@ -72,7 +72,7 @@ Git worktree では hook 保存先を同じリポジトリ内で共有する。
 
 ```sh
 uv run --locked --extra cp-sat pre-commit run --all-files --show-diff-on-failure
-uv run --locked --extra cp-sat pytest
+uv run --locked --extra cp-sat pytest -q -ra --junitxml=test-results/pytest.xml
 bash -n scripts/deploy
 ```
 
@@ -84,7 +84,21 @@ hook を使わない場合は `uv run --locked --extra cp-sat ruff check .` と
 
 CI の `deploy-entrypoint` も、uv 0.12.23 と `.python-version` を使い、
 `uv sync --locked --extra cp-sat`、Ruff hook、pytest、デプロイスクリプトの構文を確認する。
-CI 設定の導入と GitHub 上での実行成功は別であり、外部実行結果は workflow 実行時に確認する。
+全探索比較・両バックエンド比較・違反検出・依存不足の既存テストも同じ実行に含む。
+CP-SAT 導入下でスキップがあれば JUnit XML の確認を失敗させる。
+pytest の `-ra` で失敗・スキップ理由を表示し、`pytest-results` artifact に
+`test-results/pytest.xml` を成功・失敗時とも保存する。依存読み込みの失敗は収集エラーとなる。
+
+wheel のテストは `uv export --locked --extra cp-sat --no-dev --no-emit-project` で
+実行依存を取り出し、新しい `uv run --no-project --isolated` 環境へ wheel と一緒に導入する。
+別の空環境では wheel の `cp-sat` extra だけをインストール対象とし、
+export した実行依存は `uv pip install --constraints` によるバージョン制約としてのみ使う。
+これにより、`Requires-Dist` の依存や extra が欠落した場合は requirements による補完で見逃さない。
+ソース checkout の import を避け、担当配置・勤務計画・不可能・不正入力のライブラリと CLI を確認する。
+OR-Tools なしの別の隔離環境では最小費用流が動き、CP-SAT は `BACKEND_UNAVAILABLE` となることを確認する。
+利用者向けのセットアップ・入力作成は [README](../README.md)、
+今回の結果・評価入力・再測定手順は [実行評価](evaluations/runtime.md)を参照する。
+CI 設定の導入と GitHub 上での実行成功は別であり、実行 URL と結果は PR に記録する。
 
 ## 依存の変更と更新
 

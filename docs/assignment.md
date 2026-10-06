@@ -161,3 +161,5 @@ wheel のテストは、ソース checkout を import せず同梱 Schema・ラ�
 独立配置の実測は [担当配置の検証記録](evaluations/assignment.md)、今回の実測と未検証事項は
 [時間横断配置の検証記録](evaluations/linked-assignment.md)・
 [目的順序・終了状態の検証記録](evaluations/objectives.md) に残す。
+クリーンな wheel の隔離導入、CI のスキップ検出、週単位の架空入力の時間・メモリは
+[利用入口・CI・実行評価](evaluations/runtime.md)に記録する。

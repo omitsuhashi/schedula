@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from schedula.contract import schema_errors
+from schedula import solve
 from tests.support import assert_response
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -26,6 +26,21 @@ def test_cli_example_and_stdin(assignment_request):
         assert result.returncode == 0
         assert result.stderr == ""
         assert_response(json.loads(result.stdout), "OPTIMAL")
+
+
+def test_readme_request_is_a_complete_working_input():
+    text = (ROOT / "README.md").read_text(encoding="utf-8")
+    request = json.loads(text.split("```json\n", 1)[1].split("```", 1)[0])
+    result = solve(request)
+    assert_response(result, "OPTIMAL")
+    assert result["objectives"][0]["value"] == 0
+    assert result["solution"]["assignments"] == [
+        {
+            "employee_id": "alice",
+            "role_id": "kitchen",
+            "interval": {"start": "2026-10-05T11:00:00+09:00", "end": "2026-10-05T12:00:00+09:00"},
+        }
+    ]
 
 
 def test_cli_infeasible(assignment_request):
@@ -84,7 +99,8 @@ def test_cli_usage_errors(args):
     assert result.stderr
 
 
-def test_wheel_contains_schemas_and_runs_without_checkout_imports(tmp_path):
+@pytest.mark.parametrize("dependencies", ["requirements", "metadata"])
+def test_wheel_installs_and_runs_library_and_cli_in_clean_environment(tmp_path, dependencies):
     build = subprocess.run(
         ["uv", "build", "--wheel", "--out-dir", str(tmp_path)],
         cwd=ROOT,
@@ -97,28 +113,108 @@ def test_wheel_contains_schemas_and_runs_without_checkout_imports(tmp_path):
         assert "schedula/schemas/0.1/request.schema.json" in archive.namelist()
         assert "schedula/schemas/0.1/response.schema.json" in archive.namelist()
         assert not any("reference/" in name or "tests/" in name for name in archive.namelist())
+    requirements = tmp_path / "runtime-requirements.txt"
+    export = subprocess.run(
+        [
+            "uv",
+            "export",
+            "--locked",
+            "--extra",
+            "cp-sat",
+            "--no-dev",
+            "--no-emit-project",
+            "--output-file",
+            str(requirements),
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+    assert export.returncode == 0, export.stderr
     script = """
-import json, runpy, sys
-sys.path.insert(0, sys.argv[1])
+import json, pathlib, subprocess, sys
 import schedula
-assert sys.argv[1] in schedula.__file__
-from schedula.contract import get_schema
+root = pathlib.Path(sys.argv[1])
+assert str(root) not in schedula.__file__
+from schedula.contract import get_schema, schema_errors
 assert get_schema("request")["$id"] == "urn:schedula:request:0.1"
 assert get_schema("response")["$id"] == "urn:schedula:response:0.1"
-request = json.load(open(sys.argv[2]))
-assert schedula.solve(request)["status"] == "OPTIMAL"
-sys.argv = ["schedula", "solve", sys.argv[2]]
-runpy.run_module("schedula", run_name="__main__")
+for filename, status, values in [
+    ('assignment.json', 'OPTIMAL', [0]),
+    ('linked_assignment.json', 'OPTIMAL', [0]),
+    ('roster.json', 'OPTIMAL', [60, 2640, 0]),
+    ('infeasible.json', 'INFEASIBLE', []),
+    ('invalid-input.json', 'INVALID_INPUT', []),
+]:
+    path = root / 'examples' / filename
+    request = json.loads(path.read_text(encoding='utf-8'))
+    result = schedula.solve(request)
+    cli = subprocess.run([sys.executable, '-I', '-m', 'schedula', 'solve', str(path)],
+                         capture_output=True, text=True)
+    assert cli.returncode == (0 if status == 'OPTIMAL' else 2) and cli.stderr == ''
+    for response in [result, json.loads(cli.stdout)]:
+        assert response['status'] == status
+        assert not schema_errors('response', response)
+        assert [o['value'] for o in response['objectives']] == values
+        if status == 'OPTIMAL':
+            assert response['verification'] == {
+                'performed': True, 'valid': True, 'violations': []}
+            assert all(o['proven_optimal'] for o in response['objectives'])
+        else:
+            assert response['solution'] is None and response['diagnostics']
+print('clean wheel: library and CLI; assignment, roster, infeasible, invalid input')
 """
+    if dependencies == "requirements":
+        command = [
+            "uv",
+            "run",
+            "--no-project",
+            "--isolated",
+            "--python",
+            sys.executable,
+            "--with",
+            str(wheel),
+            "--with-requirements",
+            str(requirements),
+            "python",
+            "-I",
+            "-c",
+            script,
+            str(ROOT),
+        ]
+    else:
+        environment = tmp_path / "metadata-env"
+        setup = subprocess.run(
+            ["uv", "venv", "--python", sys.executable, str(environment)],
+            capture_output=True,
+            text=True,
+        )
+        assert setup.returncode == 0, setup.stderr
+        python = environment / "bin/python"
+        install = subprocess.run(
+            [
+                "uv",
+                "pip",
+                "install",
+                "--python",
+                str(python),
+                "--constraints",
+                str(requirements),
+                f"{wheel}[cp-sat]",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        assert install.returncode == 0, install.stderr
+        command = [str(python), "-I", "-c", script, str(ROOT)]
     result = subprocess.run(
-        [sys.executable, "-I", "-c", script, str(wheel), str(ROOT / "examples/assignment.json")],
+        command,
         cwd=tmp_path,
         capture_output=True,
         text=True,
     )
     assert result.returncode == 0, result.stderr
-    assert not schema_errors("response", json.loads(result.stdout))
-    assert json.loads(result.stdout)["objectives"][0]["value"] == 0
+    assert "clean wheel: library and CLI" in result.stdout
 
 
 def test_invalid_unicode_identifier_still_returns_json(assignment_request):

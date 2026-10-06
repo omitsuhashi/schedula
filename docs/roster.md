@@ -106,3 +106,5 @@ JSON 表現の SHA-256 から生成する。入力配列の順序を変えても
 探索時間の記録は [入出力契約](io-contract.md#response-と呼び出し側の扱い)に従う。
 勤務計画の実測は [勤務計画の検証記録](evaluations/roster.md)、
 目的順序と終了状態の実測は [目的順序・終了状態の検証記録](evaluations/objectives.md)に記録する。
+クリーンな wheel の隔離導入と20人・7日・560候補の架空入力による時間・メモリは
+[利用入口・CI・実行評価](evaluations/runtime.md)に記録する。

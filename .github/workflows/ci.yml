@@ -23,4 +23,14 @@ jobs:
       - name: Validate deployment entry point and scheduling engine
         run: |
           bash -n scripts/deploy
-          uv run --locked --extra cp-sat pytest
+          uv run --locked --extra cp-sat pytest -q -ra --junitxml=test-results/pytest.xml
+      - name: Reject skipped tests
+        run: |
+          uv run --locked --extra cp-sat python -c 'import xml.etree.ElementTree as ET; assert not ET.parse("test-results/pytest.xml").findall(".//skipped"), "Skipped tests are not allowed; see the JUnit report and pytest log"'
+      - name: Save test results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: pytest-results
+          path: test-results/pytest.xml
+          if-no-files-found: warn
