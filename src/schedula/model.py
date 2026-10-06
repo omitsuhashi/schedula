@@ -1,6 +1,6 @@
 import errno
-from dataclasses import dataclass
-from datetime import datetime, timedelta
+from dataclasses import dataclass, field
+from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from .contract import parse_datetime, reject, validate_request
@@ -49,6 +49,30 @@ class TimeGrid:
 
 
 @dataclass
+class ShiftCandidate:
+    id: str
+    employee_id: str
+    day: date
+    start: int
+    end: int
+    breaks: tuple[tuple[int, int], ...]
+
+    @property
+    def work_slots(self):
+        return set(range(self.start, self.end)) - {
+            slot for start, end in self.breaks for slot in range(start, end)
+        }
+
+    def output(self, grid):
+        return {
+            "candidate_id": self.id,
+            "employee_id": self.employee_id,
+            "interval": grid.output_interval(self.start, self.end),
+            "breaks": [grid.output_interval(start, end) for start, end in self.breaks],
+        }
+
+
+@dataclass
 class Problem:
     request: dict
     grid: TimeGrid
@@ -56,6 +80,7 @@ class Problem:
     qualified: dict[str, set[str]]
     demand: list[dict[str, int]]
     costs: dict[tuple[str, str], int]
+    candidates: list[ShiftCandidate] = field(default_factory=list)
 
 
 def unique(items, field, path):
@@ -82,22 +107,18 @@ def nonoverlapping(intervals, path):
 
 def normalize(request):
     validate_request(request)
-    if request["problem_type"] != "assignment":
-        reject("UNSUPPORTED_CONDITION", "roster は未対応です。", "/problem_type")
-    for field in ("shift_candidates", "shift_templates"):
-        if request.get(field):
-            reject(
-                "UNSUPPORTED_CONDITION",
-                "勤務候補・勤務テンプレートは未対応です。",
-                "/" + field,
-            )
-    for index, employee in enumerate(request["employees"]):
-        if "history" in employee:
-            reject(
-                "UNSUPPORTED_CONDITION",
-                "assignment は計画前履歴を扱いません。",
-                f"/employees/{index}/history",
-            )
+    roster = request["problem_type"] == "roster"
+    if not roster:
+        for name in ("shift_candidates", "shift_templates"):
+            if request.get(name):
+                reject("UNSUPPORTED_CONDITION", "assignment は勤務候補を扱いません。", "/" + name)
+        for index, employee in enumerate(request["employees"]):
+            if "history" in employee:
+                reject(
+                    "UNSUPPORTED_CONDITION",
+                    "assignment は計画前履歴を扱いません。",
+                    f"/employees/{index}/history",
+                )
 
     ids = {
         field: unique(request[field], "id", "/" + field)
@@ -113,7 +134,7 @@ def normalize(request):
     }
     metrics = unique(request["objectives"], "metric", "/objectives")
     for index, objective in enumerate(request["objectives"]):
-        if objective["metric"] not in {"preference_penalty", "role_switches"}:
+        if not roster and objective["metric"] == "scheduled_minutes":
             reject(
                 "UNSUPPORTED_CONDITION",
                 "assignment の対応目的は preference_penalty または role_switches です。",
@@ -129,16 +150,16 @@ def normalize(request):
         )
     for index, constraint in enumerate(request["constraints"]):
         path = f"/constraints/{index}"
-        if constraint["type"] not in {"max_assigned_minutes", "max_role_switches"}:
+        if not roster and constraint["type"] not in {"max_assigned_minutes", "max_role_switches"}:
             reject("UNSUPPORTED_CONDITION", "assignment では未対応の制約です。", path + "/type")
         for employee_index, identifier in enumerate(constraint["employee_ids"]):
             reference(identifier, ids["employees"], f"{path}/employee_ids/{employee_index}")
     if request["solver"]["backend"] == "min_cost_flow" and (
-        request["constraints"] or "role_switches" in metrics
+        roster or request["constraints"] or "role_switches" in metrics
     ):
         reject(
             "UNSUPPORTED_BACKEND",
-            "min_cost_flow は明示制約と role_switches 目的を扱えません。",
+            "min_cost_flow は roster・明示制約・role_switches 目的を扱えません。",
             "/solver/backend",
         )
 
@@ -169,6 +190,14 @@ def normalize(request):
             slots=slots,
         )
     grid = TimeGrid(start, end, zone, int(window["slot_minutes"]), slots)
+    if roster and any(
+        value.astimezone(zone).time() != datetime.min.time() for value in (start, end)
+    ):
+        reject(
+            "INVALID_ROSTER_WINDOW",
+            "roster の計画期間の両端はローカル日付の00:00にします。",
+            "/planning_window",
+        )
 
     for index, role in enumerate(request["roles"]):
         path = f"/roles/{index}/required_skills"
@@ -219,4 +248,10 @@ def normalize(request):
             reference(identifier, ids["employees"], f"{path}/employee_ids/{employee_index}")
             key = identifier, item["role_id"]
             costs[key] = costs.get(key, 0) + int(item["penalty_per_minute"]) * grid.slot_minutes
-    return Problem(request, grid, available, qualified, demand, costs)
+    problem = Problem(request, grid, available, qualified, demand, costs)
+    if roster:
+        from .roster import expand_candidates, validate_history
+
+        validate_history(request, grid)
+        problem.candidates = expand_candidates(request, grid)
+    return problem

@@ -26,9 +26,10 @@ LLM 用の RequestDraft は実行契約と別に定義する。
 | CLI の入口 | `python -m schedula solve <入力ファイル>`。UTF-8 JSON、`-` は標準入力 |
 | Schema の取得 | `python -m schedula schema request` / `response`。初期版は0.1を返す |
 
-これらのファイルと入口は Issue #6、担当時間・担当切替と CP-SAT は Issue #7 で実装した。
+これらのファイルと入口は Issue #6、担当時間・担当切替と CP-SAT は Issue #7、
+勤務計画・テンプレート・計画前履歴は Issue #8 で実装した。
 現在の目的は最大1件とし、複数目的は未対応として明示的に拒否する。利用例と対応範囲は
-[担当配置の利用手順](assignment.md)を参照する。
+[担当配置の利用手順](assignment.md)・[勤務計画の利用手順](roster.md)を参照する。
 `src/schedula/` を `setuptools.build_meta` でパッケージ化し、版別 JSON を package data に含める。
 参照コードのライセンス未選定を踏まえ、保存済み原本を直接編集・コピーせず、
 本書の業務仕様から schedula 用の Schema・例・コード・テストを作成する。

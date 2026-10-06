@@ -53,6 +53,8 @@ def validate_response(result, request=None):
 def choose_backend(request):
     if request["solver"]["backend"] != "auto":
         return request["solver"]["backend"], "EXPLICIT_BACKEND"
+    if request["problem_type"] == "roster":
+        return "cp_sat", "JOINT_ROSTER"
     if request["constraints"]:
         return "cp_sat", "ASSIGNMENT_CONSTRAINTS"
     if any(objective["metric"] == "role_switches" for objective in request["objectives"]):

@@ -29,7 +29,9 @@ Python 3.14.8 を固定し、jsonschema・OR-Tools と開発依存の Ruff・pyt
 現在の対応範囲は [利用手順](assignment.md)、実測は [担当配置の検証記録](evaluations/assignment.md)を参照する。
 担当配置の CP-SAT と時間横断条件は Issue #7 で導入した。
 実測は [時間横断配置の検証記録](evaluations/linked-assignment.md)に記録する。
-勤務計画・複数目的は後続の課題で扱う。
+勤務計画・候補展開・計画前履歴は Issue #8 で導入した。
+利用手順は [勤務計画](roster.md)、実測は [勤務計画の検証記録](evaluations/roster.md)を参照する。
+複数目的は後続の課題で扱う。
 
 ## 参照資料の検証状態
 
