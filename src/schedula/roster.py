@@ -1,6 +1,6 @@
 import hashlib
 import json
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from itertools import product
 
 from .contract import reject
@@ -10,6 +10,7 @@ MAX_CANDIDATES = 5000
 
 
 def validate_history(request, grid):
+    extended = request["schema_version"] == "0.2"
     first_day = grid.start.astimezone(grid.timezone).date().toordinal()
     for index, employee in enumerate(request["employees"]):
         path = f"/employees/{index}/history"
@@ -19,7 +20,7 @@ def validate_history(request, grid):
         count = int(history["consecutive_work_days_before_window"])
         last = history["last_shift_end"]
         if last is None:
-            if count:
+            if count or (extended and history["last_work_day"] is not None):
                 reject("INVALID_HISTORY", "最終勤務なしの連勤数は0にします。", path)
             continue
         last = minute_datetime(last, path + "/last_shift_end")
@@ -30,6 +31,13 @@ def validate_history(request, grid):
             last_day = (
                 (last - timedelta(microseconds=1)).astimezone(grid.timezone).date().toordinal()
             )
+            if extended:
+                if history["last_work_day"] is None:
+                    reject("INVALID_HISTORY", "最終勤務がある場合は勤務日を明示します。", path)
+                work_day = date.fromisoformat(history["last_work_day"]).toordinal()
+                if work_day >= first_day or work_day > last_day:
+                    reject("INVALID_HISTORY", "勤務日は計画前かつ最終終了より前にします。", path)
+                last_day = work_day
         except OverflowError:
             reject("INVALID_HISTORY", "最終勤務日を表現できません。", path)
         if (last_day == first_day - 1) != (count > 0) or count >= first_day:
@@ -66,6 +74,7 @@ def local_start(day, clock, grid, path):
 
 def expand_candidates(request, grid):
     """元入力から有限候補を生成する。ソルバー用のテーブルは参照しない。"""
+    extended = request["schema_version"] == "0.2"
     employees = {e["id"]: e for e in request["employees"]}
     available = {
         e["id"]: {
@@ -81,13 +90,19 @@ def expand_candidates(request, grid):
     unique(templates, "id", "/shift_templates")
     # 除外後の件数だけでなく、展開前の組合せ数も制限する。
     attempts = len(request["shift_candidates"])
+    if attempts > MAX_CANDIDATES:
+        reject("INPUT_LIMIT", "勤務候補の展開数が5000件を超えています。", "/shift_candidates")
     for index, template in enumerate(templates):
         attempts += (
             len(template["employee_ids"])
             * len(template["dates"])
             * len(template["start_times"])
-            * len(template["duration_minutes_options"])
-            * max(1, len(template["break_options"]))
+            * (
+                len(template["segment_options"])
+                if extended
+                else len(template["duration_minutes_options"])
+                * max(1, len(template["break_options"]))
+            )
         )
         if attempts > MAX_CANDIDATES:
             reject(
@@ -97,33 +112,59 @@ def expand_candidates(request, grid):
             )
     result = []
 
-    def add(identifier, employee, start, end, breaks, path, generated=False):
+    def add(identifier, employee, segments, path, generated=False):
         step = timedelta(minutes=grid.slot_minutes)
-        if start >= end:
-            reject("INVALID_INTERVAL", "勤務は正の区間にします。", path + "/interval")
-        if (start - grid.start) % step or (end - grid.start) % step:
-            reject("MISALIGNED_INTERVAL", "勤務が時間粒度に揃っていません。", path + "/interval")
-        if (
-            start.astimezone(grid.timezone).date()
-            != (end - timedelta(microseconds=1)).astimezone(grid.timezone).date()
-        ):
-            reject("UNSUPPORTED_OVERNIGHT_SHIFT", "日付をまたぐ勤務は未対応です。", path)
-        for index, (a, b) in enumerate(breaks):
-            if not start < a < b < end:
-                reject(
-                    "INVALID_BREAK",
-                    "休憩は始業・終業に接しない勤務内の区間にします。",
-                    f"{path}/breaks/{index}",
-                )
-            if (a - grid.start) % step or (b - grid.start) % step:
+        if not 1 <= len(segments) <= 4:
+            reject("INVALID_SEGMENTS", "勤務区間数は1〜4件にします。", path + "/segments")
+        slots, eligible = [], True
+        for index, (start, end, breaks) in enumerate(segments):
+            segment_path = f"{path}/segments/{index}" if extended else path
+            if start >= end:
+                reject("INVALID_INTERVAL", "勤務は正の区間にします。", segment_path + "/interval")
+            if (start - grid.start) % step or (end - grid.start) % step:
                 reject(
                     "MISALIGNED_INTERVAL",
-                    "休憩が時間粒度に揃っていません。",
-                    f"{path}/breaks/{index}",
+                    "勤務が時間粒度に揃っていません。",
+                    segment_path + "/interval",
                 )
-        nonoverlapping(breaks, path + "/breaks")
-        a, b = (start - grid.start) // step, (end - grid.start) // step
-        if not grid.start <= start < end <= grid.end or not set(range(a, b)) <= available[employee]:
+            if index and start <= segments[index - 1][1]:
+                reject(
+                    "INVALID_SEGMENT_ORDER",
+                    "勤務区間は時刻順で正の間隔を空けます。",
+                    segment_path + "/interval",
+                )
+            if not extended and (
+                start.astimezone(grid.timezone).date()
+                != (end - timedelta(microseconds=1)).astimezone(grid.timezone).date()
+            ):
+                reject("UNSUPPORTED_OVERNIGHT_SHIFT", "日付をまたぐ勤務は未対応です。", path)
+            for j, (a, b) in enumerate(breaks):
+                break_path = f"{segment_path}/breaks/{j}"
+                if not start < a < b < end:
+                    reject(
+                        "INVALID_BREAK",
+                        "休憩は始業・終業に接しない勤務内の区間にします。",
+                        break_path,
+                    )
+                if (a - grid.start) % step or (b - grid.start) % step:
+                    reject("MISALIGNED_INTERVAL", "休憩が時間粒度に揃っていません。", break_path)
+            nonoverlapping(breaks, segment_path + "/breaks")
+            a, b = (start - grid.start) // step, (end - grid.start) // step
+            eligible &= (
+                grid.start <= start < end <= grid.end and set(range(a, b)) <= available[employee]
+            )
+            slots.append(
+                (
+                    a,
+                    b,
+                    tuple(
+                        sorted(
+                            ((x - grid.start) // step, (y - grid.start) // step) for x, y in breaks
+                        )
+                    ),
+                )
+            )
+        if not eligible:
             if generated:
                 return
             reject(
@@ -135,72 +176,120 @@ def expand_candidates(request, grid):
             ShiftCandidate(
                 identifier,
                 employee,
-                start.astimezone(grid.timezone).date(),
-                a,
-                b,
-                tuple(
-                    sorted(
-                        ((left - grid.start) // step, (right - grid.start) // step)
-                        for left, right in breaks
-                    )
-                ),
+                segments[0][0].astimezone(grid.timezone).date(),
+                slots[0][0],
+                slots[-1][1],
+                tuple(interval for _, _, rests in slots for interval in rests),
+                tuple(slots) if extended else (),
             )
         )
 
     for index, candidate in enumerate(request["shift_candidates"]):
         path = f"/shift_candidates/{index}"
         reference(candidate["employee_id"], employees, path + "/employee_id")
-        start = minute_datetime(candidate["interval"]["start"], path + "/interval/start")
-        end = minute_datetime(candidate["interval"]["end"], path + "/interval/end")
-        breaks = [
-            (
-                minute_datetime(i["start"], f"{path}/breaks/{j}/start"),
-                minute_datetime(i["end"], f"{path}/breaks/{j}/end"),
+        segments = []
+        for j, segment in enumerate(candidate["segments"] if extended else [candidate]):
+            segment_path = f"{path}/segments/{j}" if extended else path
+            segments.append(
+                (
+                    minute_datetime(segment["interval"]["start"], segment_path + "/interval/start"),
+                    minute_datetime(segment["interval"]["end"], segment_path + "/interval/end"),
+                    [
+                        (
+                            minute_datetime(b["start"], f"{segment_path}/breaks/{k}/start"),
+                            minute_datetime(b["end"], f"{segment_path}/breaks/{k}/end"),
+                        )
+                        for k, b in enumerate(segment["breaks"])
+                    ],
+                )
             )
-            for j, i in enumerate(candidate["breaks"])
-        ]
-        add(candidate["id"], candidate["employee_id"], start, end, breaks, path)
+        add(candidate["id"], candidate["employee_id"], segments, path)
     for index, template in enumerate(templates):
         path = f"/shift_templates/{index}"
         for j, employee in enumerate(template["employee_ids"]):
             reference(employee, employees, f"{path}/employee_ids/{j}")
-        for employee, day, clock, duration, option in product(
+        if extended:
+            shapes = [
+                [
+                    {
+                        **s,
+                        "breaks": sorted(
+                            s["breaks"], key=lambda b: (b["offset_minutes"], b["duration_minutes"])
+                        ),
+                    }
+                    for s in option
+                ]
+                for option in template["segment_options"]
+            ]
+        options = (
+            sorted(shapes, key=lambda s: json.dumps(s, sort_keys=True))
+            if extended
+            else list(
+                product(
+                    sorted(template["duration_minutes_options"]),
+                    sorted(
+                        template["break_options"],
+                        key=lambda b: (b["offset_minutes"], b["duration_minutes"]),
+                    )
+                    or [None],
+                )
+            )
+        )
+        for employee, day, clock, option in product(
             sorted(template["employee_ids"]),
             sorted(template["dates"]),
             sorted(template["start_times"]),
-            sorted(template["duration_minutes_options"]),
-            sorted(
-                template["break_options"],
-                key=lambda b: (b["offset_minutes"], b["duration_minutes"]),
-            )
-            or [None],
+            options,
         ):
             start = local_start(day, clock, grid, path + "/start_times")
             try:
-                end = start + timedelta(minutes=int(duration))
-                breaks = (
-                    []
-                    if option is None
-                    else [
-                        (
-                            start + timedelta(minutes=int(option["offset_minutes"])),
-                            start
-                            + timedelta(
-                                minutes=int(option["offset_minutes"] + option["duration_minutes"])
-                            ),
+                if extended:
+                    if not option or option[0]["offset_minutes"] != 0:
+                        reject(
+                            "INVALID_TEMPLATE_SEGMENTS",
+                            "最初の勤務区間のオフセットは0にします。",
+                            path + "/segment_options",
                         )
+                    shape = option
+                else:
+                    duration, rest = option
+                    shape = [
+                        {
+                            "offset_minutes": 0,
+                            "duration_minutes": duration,
+                            "breaks": [rest] if rest else [],
+                        }
                     ]
-                )
+                segments = [
+                    (
+                        a := start + timedelta(minutes=int(s["offset_minutes"])),
+                        a + timedelta(minutes=int(s["duration_minutes"])),
+                        [
+                            (
+                                a + timedelta(minutes=int(b["offset_minutes"])),
+                                a
+                                + timedelta(
+                                    minutes=int(b["offset_minutes"] + b["duration_minutes"])
+                                ),
+                            )
+                            for b in s["breaks"]
+                        ],
+                    )
+                    for s in shape
+                ]
             except OverflowError:
                 reject(
                     "INVALID_INTERVAL", "テンプレートの日時が表現できる範囲を超えています。", path
                 )
             key = json.dumps(
-                [template["id"], employee, day, clock, int(duration), option], sort_keys=True
+                ["0.2", template["id"], employee, day, clock, option]
+                if extended
+                else [template["id"], employee, day, clock, int(duration), rest],
+                sort_keys=True,
             )
             identifier = "tmpl." + hashlib.sha256(key.encode("utf-8")).hexdigest()
             if identifier in identifiers:
                 reject("DUPLICATE_ID", "明示・生成候補の ID が重複しています。", path, [identifier])
             identifiers.add(identifier)
-            add(identifier, employee, start, end, breaks, path, generated=True)
+            add(identifier, employee, segments, path, generated=True)
     return sorted(result, key=lambda c: (c.employee_id, c.start, c.end, c.id))

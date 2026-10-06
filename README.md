@@ -2,7 +2,7 @@
 
 技能・勤務可能時間・役割別需要・業務ルールから、担当配置（`assignment`）と
 出退勤・休憩を含む勤務計画（`roster`）の検証済み解を求める Python ライブラリと CLI です。
-schedula 0.1.3 / JSON 契約0.1で、独立した配置は最小費用流、
+JSON 契約0.1・0.2に対応し、独立した配置は最小費用流、
 担当時間・担当切替を含む配置と勤務計画は CP-SAT を使用します。
 
 ## クリーンな環境から実行する
@@ -87,6 +87,24 @@ uv run --locked --extra cp-sat python -m schedula solve request.json
 計画期間の両端はローカル00:00、1人1日最大1勤務です。
 テンプレートは対象者・日付・始業・勤務長・休憩位置の選択肢から有限候補を生成します。
 詳細な入力条件は [担当配置](docs/assignment.md)・[勤務計画](docs/roster.md)を参照してください。
+
+夜勤・分割勤務は [契約0.2](docs/io-contract-next.md) の `segments` を指定します。
+[夜勤・分割勤務](docs/roster-next.md)、[公平性・再計画](docs/replanning.md)、
+[不可能性診断](docs/diagnosis.md) の例を API と CLI で実行できます。
+勤務日・目標勤務量・変更単位は明示し、固定は必須条件として保持します。
+
+```sh
+uv run --locked --extra cp-sat python -m schedula solve examples/overnight.json
+uv run --locked --extra cp-sat python -m schedula solve examples/split_roster.json
+uv run --locked --extra cp-sat python -m schedula solve examples/fairness.json
+uv run --locked --extra cp-sat python -m schedula solve examples/replan.json
+uv run --locked --extra cp-sat python -m schedula solve examples/diagnosis.json
+uv run --locked --extra cp-sat python -m schedula schema request --schema-version 0.2
+```
+
+診断例は元条件の `INFEASIBLE` と終了コード2を維持し、許可した人数変更後の検証済み解を別に返します。
+性能の条件・反復測定は [性能評価](docs/evaluations/performance.md) と
+[5秒制限解除後の比較](docs/evaluations/search-budget.md)を参照してください。
 
 ## ライブラリで解と診断を読む
 
@@ -176,11 +194,15 @@ wheel を lock file の実行依存とともに新しい隔離環境へ導入し
 別の空環境では wheel の依存宣言から導入し、lock file はバージョン制約だけに使います。
 OR-Tools なしの別の隔離環境でも、最小費用流と依存不足の経路を確認します。
 
-評価スクリプトは macOS / Linux の各入力を別プロセスで1回測定し、環境・依存版・入力 SHA-256・
+評価スクリプトは macOS / Linux で冷起動・継続・並行実行を反復測定し、環境・依存版・入力 SHA-256・
 条件・目的値・証明範囲・検証結果・時間・ピーク RSS を JSON に保存します。
 測定した checkout の commit SHA・未コミット変更の有無・uv.lock の SHA-256 も記録します。
 架空の30人・7日の担当配置、20人・7日の勤務計画は実務規模が未確定のため提案値です。
 入力・測定方法・実測・未測定範囲は [利用入口・CI・実行評価の記録](docs/evaluations/runtime.md)を参照してください。
+
+通常の再測定出力は Git 対象外の `test-results/` に置き、CI のテストログと JUnit XML は Actions 側に残します。
+Git には採用判断で使う入力・条件・集計・失敗を含む生データを保存します。
+保存先と追加基準は [評価結果と実行ログの保存](docs/development-policy.md#評価結果と実行ログの保存)を参照してください。
 
 ## 設計ドキュメント
 
@@ -191,7 +213,7 @@ OR-Tools なしの別の隔離環境でも、最小費用流と依存不足の�
 | --- | --- |
 | [全体像](docs/overview.md) | 目的、利用例、対象範囲、構成、公開物 |
 | [設計方針](docs/design-policy.md) | アルゴリズム選択、制約・選好、検証、LLM の境界 |
-| [入出力契約](docs/io-contract.md) | JSON の意味、日時、履歴、目的順序、結果状態 |
+| [入出力契約0.1](docs/io-contract.md)・[契約0.2](docs/io-contract-next.md) | JSON の意味、日時、履歴、目的順序、結果状態と移行 |
 | [開発・検証方針](docs/development-policy.md) | 開発順序、完了条件、公開条件、未決定事項 |
 | [参照実装の評価](docs/evaluations/engine-introduction.md) | CP-SAT を含む実測、導入時の修正、コードの採用可否と公開入口 |
 | [用語集](GLOSSARY.md) | single-context の共通用語 |

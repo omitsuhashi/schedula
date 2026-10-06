@@ -313,6 +313,9 @@ def test_native_statuses_and_feasible_verification(assignment_request, monkeypat
     def controlled(solver, model):
         if status == "FEASIBLE":
             assert original(solver, model) == cp_model.OPTIMAL
+        elif status == "UNKNOWN":
+            solver.parameters.max_time_in_seconds = 1e-12
+            assert original(solver, model) == cp_model.UNKNOWN
         return getattr(cp_model, status)
 
     monkeypatch.setattr(cp_model.CpSolver, "solve", controlled)

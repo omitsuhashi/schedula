@@ -1,0 +1,112 @@
+{
+  "schema_version": "0.2",
+  "request_id": "overnight",
+  "problem_type": "roster",
+  "planning_window": {
+    "start": "2026-10-06T00:00:00+09:00",
+    "end": "2026-10-08T00:00:00+09:00",
+    "timezone": "Asia/Tokyo",
+    "slot_minutes": 30
+  },
+  "skills": [],
+  "roles": [
+    {
+      "id": "kitchen",
+      "label": "kitchen",
+      "required_skills": []
+    },
+    {
+      "id": "hall",
+      "label": "hall",
+      "required_skills": []
+    }
+  ],
+  "employees": [
+    {
+      "id": "alice",
+      "label": "alice",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-06T22:00:00+09:00",
+          "end": "2026-10-07T06:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    }
+  ],
+  "demand": [
+    {
+      "id": "need_1_1320_kitchen",
+      "role_id": "kitchen",
+      "interval": {
+        "start": "2026-10-06T22:00:00+09:00",
+        "end": "2026-10-06T23:30:00+09:00"
+      },
+      "required_people": 1
+    },
+    {
+      "id": "need_1_1470_kitchen",
+      "role_id": "kitchen",
+      "interval": {
+        "start": "2026-10-07T00:30:00+09:00",
+        "end": "2026-10-07T06:00:00+09:00"
+      },
+      "required_people": 1
+    }
+  ],
+  "shift_candidates": [
+    {
+      "id": "overnight_alice",
+      "employee_id": "alice",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-06T22:00:00+09:00",
+            "end": "2026-10-07T06:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-06T23:30:00+09:00",
+              "end": "2026-10-07T00:30:00+09:00"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "constraints": [
+    {
+      "id": "cap",
+      "type": "max_scheduled_minutes",
+      "employee_ids": [
+        "alice"
+      ],
+      "limit_minutes": 420
+    },
+    {
+      "id": "days",
+      "type": "max_consecutive_days",
+      "employee_ids": [
+        "alice"
+      ],
+      "limit_days": 1
+    }
+  ],
+  "preferences": [],
+  "objectives": [
+    {
+      "id": "work",
+      "metric": "scheduled_minutes"
+    }
+  ],
+  "solver": {
+    "backend": "auto",
+    "time_limit_seconds": 10,
+    "seed": 0
+  }
+}

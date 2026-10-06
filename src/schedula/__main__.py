@@ -15,9 +15,10 @@ def main():
     solve_parser.add_argument("input_file")
     schema_parser = commands.add_parser("schema")
     schema_parser.add_argument("kind", choices=["request", "response"])
+    schema_parser.add_argument("--schema-version", choices=["0.1", "0.2"], default="0.1")
     args = parser.parse_args()
     if args.command == "schema":
-        result, exit_code = get_schema(args.kind), 0
+        result, exit_code = get_schema(args.kind, args.schema_version), 0
     else:
         try:
             text = (

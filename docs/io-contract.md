@@ -1,5 +1,11 @@
 # 入出力契約
 
+本書は継続利用できる契約0.1の仕様である。夜勤・分割勤務・公平性・再計画・
+追加診断は [契約0.2](io-contract-next.md) を参照する。
+`solve` は入力の `schema_version` を選び、`get_schema(kind, "0.2")` または
+CLI の `schema request --schema-version 0.2` で新しい Schema を取得できる。
+既定の Schema 取得は0.1を維持する。
+
 ## 基準と変更の扱い
 
 初期設計の基準は SkillShift Starter の `schema_version: "0.1"`。
@@ -262,6 +268,19 @@ ID は種類ごとの集合内で一意とし、参照先が存在すること�
 後者は段階間の値取得・固定・目的更新も含む。`stats.elapsed_seconds` は入力検証・依存読み込み・
 候補展開・モデル構築・結果検証・Response 検証を含む呼び出し全体の時間とする。
 入力拒否・依存不足・内部例外で探索結果を取得できない場合、`SEARCH_STATS` は記録しない。
+
+性能評価では同じ診断に `normalization_elapsed_seconds`（入力検証・候補展開）、
+`backend_loading_elapsed_seconds`（方式選択・任意依存読み込み）、
+`preparation_elapsed_seconds`（モデル・グラフ構築）、
+`verification_elapsed_seconds`（独立検証と結果準備）も秒単位で記録する。
+出力 Schema の検証とこれらの区間外の処理は総時間に含むため、区間の和を総時間とは扱わない。
+
+検証済み CP-SAT 解の `OBJECTIVE_BOUND` は `/objectives/<index>` と目的 ID を参照し、
+`facts.objective_index` と `facts.best_bound` に、その段階で取得した最小化目的の下限を記録する。
+上位目的がある場合は、その最適値を固定した問題だけに適用する。
+`UNKNOWN`・未探索の目的の下限は記録せず、目的全体の最適性の保証に使わない。
+同じ返却解の目的値との差を評価し、最小費用流の証明済み目的は値そのものが下限となる。
+この追加は診断の観測情報であり、契約0.1の必須条件・目的順序・状態の意味を変えない。
 
 `facts` は `name` / `value` を持つ配列。診断の根拠を機械で読める形で保持する。
 最小費用流では単独役割の有資格者不足と、複数役割で同じ人を取り合う不足を区別する。

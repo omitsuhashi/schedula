@@ -29,6 +29,8 @@ class SatResult:
     proven_optimal: tuple = ()
     diagnostics: tuple = ()
     search_elapsed_seconds: float = 0.0
+    preparation_elapsed_seconds: float = 0.0
+    objective_bounds: tuple = ()
 
 
 def prepare_roster(model, problem):
@@ -43,6 +45,14 @@ def prepare_roster(model, problem):
             coverage[candidate.employee_id, slot].append(variable)
     for variables in by_day.values():
         model.add(sum(variables) <= 1)
+    if problem.request["schema_version"] == "0.2":
+        for candidates in by_employee.values():
+            model.add_no_overlap(
+                model.new_optional_fixed_size_interval_var(
+                    c.start, c.end - c.start, shifts[c.id], f"span_{c.id}"
+                )
+                for c in candidates
+            )
     scheduled = {
         employee: sum(len(c.work_slots) * grid.slot_minutes * shifts[c.id] for c in candidates)
         for employee, candidates in by_employee.items()
@@ -86,13 +96,20 @@ def prepare_roster(model, problem):
                     model.add(consecutive == previous + 1).only_enforce_if(working)
                     model.add(consecutive == 0).only_enforce_if(working.Not())
                     previous = consecutive
-    return shifts, coverage, sum(scheduled.values())
+            elif kind == "min_split_gap_minutes":
+                for c in by_employee[employee]:
+                    if any(
+                        (b[0] - a[1]) * grid.slot_minutes < constraint["limit_minutes"]
+                        for a, b in zip(c.segments, c.segments[1:], strict=False)
+                    ):
+                        model.add(shifts[c.id] == 0)
+    return shifts, coverage, scheduled
 
 
 def prepare(problem, cp_model):
     model = cp_model.CpModel()
     roster = problem.request["problem_type"] == "roster"
-    shifts, coverage, scheduled = prepare_roster(model, problem) if roster else ({}, {}, 0)
+    shifts, coverage, scheduled = prepare_roster(model, problem) if roster else ({}, {}, {})
     assignments = {}
     by_employee = defaultdict(list)
     by_slot = defaultdict(list)
@@ -160,8 +177,12 @@ def prepare(problem, cp_model):
             for (employee, _, role), variable in assignments.items()
         ),
         "role_switches": sum(variable for values in switches.values() for variable in values),
-        "scheduled_minutes": scheduled,
+        "scheduled_minutes": sum(scheduled.values()),
     }
+    if problem.request["schema_version"] == "0.2":
+        from .extensions import prepare as prepare_extensions
+
+        expressions.update(prepare_extensions(model, problem, assignments, shifts, scheduled))
     objectives = tuple(expressions[o["metric"]] for o in problem.request["objectives"])
     if objectives:
         model.minimize(objectives[0])
@@ -171,16 +192,19 @@ def prepare(problem, cp_model):
 
 
 def run(problem, cp_model):
+    preparation_start = time.perf_counter()
     model, variables, shifts, objectives = prepare(problem, cp_model)
+    preparation_elapsed = time.perf_counter() - preparation_start
     solver = cp_model.CpSolver()
     solver.parameters.random_seed = int(problem.request["solver"]["seed"])
-    solver.parameters.num_search_workers = 1
+    solver.parameters.num_search_workers = 2
     solver.parameters.log_search_progress = False
     budget = problem.request["solver"]["time_limit_seconds"]
     # 準備を終えてから全段階で一つの予算を共有し、段階間の処理も含める。
     start = time.monotonic()
     deadline = start + budget
     best = None
+    bounds = [None] * len(objectives)
     for index, objective in enumerate(objectives or (None,)):
         remaining = budget if index == 0 else deadline - time.monotonic()
         if remaining <= 0:
@@ -188,6 +212,12 @@ def run(problem, cp_model):
         else:
             solver.parameters.max_time_in_seconds = remaining
             status = solver.solve(model)
+            if objective is not None and status in {
+                cp_model.OPTIMAL,
+                cp_model.FEASIBLE,
+                cp_model.UNKNOWN,
+            }:
+                bounds[index] = solver.best_objective_bound
         if status == cp_model.UNKNOWN:
             best = best or SatResult("UNKNOWN", None)
             if best.solution is not None:
@@ -252,4 +282,6 @@ def run(problem, cp_model):
             if model.validate():
                 raise RuntimeError("Invalid CP-SAT model")
     best.search_elapsed_seconds = time.monotonic() - start
+    best.preparation_elapsed_seconds = preparation_elapsed
+    best.objective_bounds = tuple(bounds)
     return best

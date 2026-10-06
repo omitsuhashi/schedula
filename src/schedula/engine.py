@@ -37,6 +37,8 @@ def response(
 def validate_response(result, request=None):
     check_json(result)
     errors = schema_errors("response", result)
+    if errors:
+        raise InvalidInput(errors)
     if request is not None and result["status"] in {"OPTIMAL", "FEASIBLE"}:
         expected = [(item["id"], item["metric"]) for item in request["objectives"]]
         actual = [(item["id"], item["metric"]) for item in result["objectives"]]
@@ -46,6 +48,26 @@ def validate_response(result, request=None):
                     "OBJECTIVE_MISMATCH", "結果の目的が Request と一致しません。", "/objectives"
                 )
             )
+        if request["schema_version"] == "0.2":
+            from .extensions import evaluate
+
+            problem = normalize(request)
+            violations, values = verify_solution(problem, result["solution"])
+            errors.extend(violations)
+            if values != tuple(item["value"] for item in result["objectives"]):
+                errors.append(
+                    diagnostic(
+                        "OBJECTIVE_VALUE_MISMATCH", "返却解の評価値が一致しません。", "/objectives"
+                    )
+                )
+            _, _, summaries = evaluate(problem, result["solution"])
+            for name, value in summaries.items():
+                if result[name] != value:
+                    errors.append(
+                        diagnostic(
+                            "SUMMARY_MISMATCH", "結果の集計が返却解と一致しません。", "/" + name
+                        )
+                    )
     if result["status"] in {"OPTIMAL", "FEASIBLE"}:
         proofs = [item["proven_optimal"] for item in result["objectives"]]
         if proofs != sorted(proofs, reverse=True) or (
@@ -58,6 +80,10 @@ def validate_response(result, request=None):
                     "/objectives",
                 )
             )
+    if request is not None and request["schema_version"] == "0.2":
+        from .diagnosis import validate_result
+
+        errors.extend(validate_result(request, result))
     if errors:
         raise InvalidInput(errors)
 
@@ -67,6 +93,8 @@ def choose_backend(request):
         return request["solver"]["backend"], "EXPLICIT_BACKEND"
     if request["problem_type"] == "roster":
         return "cp_sat", "JOINT_ROSTER"
+    if request.get("diagnosis"):
+        return "cp_sat", "INFEASIBILITY_DIAGNOSIS"
     if request["constraints"]:
         return "cp_sat", "ASSIGNMENT_CONSTRAINTS"
     if any(objective["metric"] == "role_switches" for objective in request["objectives"]):
@@ -83,17 +111,31 @@ def solve(request: dict) -> dict:
     selection_reason = "NOT_SELECTED"
     library_version = None
     verification = None
+    schema_version = (
+        "0.2" if isinstance(request, dict) and request.get("schema_version") == "0.2" else "0.1"
+    )
+
+    def extend(result):
+        result["schema_version"] = schema_version
+        if schema_version == "0.2":
+            result.update(fairness_summary=None, change_summary=None, diagnosis_result=None)
+        return result
+
     try:
         problem = normalize(request)
+        normalized_at = time.perf_counter()
         backend, selection_reason = choose_backend(request)
         if backend == "cp_sat":
             module, library_version = cp_sat.load_backend()
+            loaded_at = time.perf_counter()
             outcome = cp_sat.run(problem, module)
         else:
+            loaded_at = time.perf_counter()
             outcome = flow.run(problem)
+        solved_at = time.perf_counter()
         if backend == "min_cost_flow" and outcome.status == "FEASIBLE":
             raise RuntimeError("Unexpected flow outcome")
-        result = response(request_id, outcome.status, outcome.diagnostics, backend)
+        result = extend(response(request_id, outcome.status, outcome.diagnostics, backend))
         if outcome.status in {"OPTIMAL", "FEASIBLE"}:
             violations, values = verify_solution(problem, outcome.solution)
             if not violations and values != outcome.values:
@@ -122,9 +164,16 @@ def solve(request: dict) -> dict:
                     ]
             verification = {"performed": True, "valid": not violations, "violations": violations}
             if violations:
-                result = response(request_id, "INTERNAL_ERROR", violations, backend, verification)
+                result = extend(
+                    response(request_id, "INTERNAL_ERROR", violations, backend, verification)
+                )
             else:
                 result["solution"] = outcome.solution
+                if schema_version == "0.2":
+                    from .extensions import evaluate
+
+                    _, _, summaries = evaluate(problem, outcome.solution)
+                    result.update(summaries)
                 result["verification"] = verification
                 result["objectives"] = [
                     {
@@ -139,6 +188,7 @@ def solve(request: dict) -> dict:
                 ]
         elif outcome.status not in {"INFEASIBLE", "UNKNOWN"} or outcome.solution is not None:
             raise RuntimeError("Unexpected solver outcome")
+        verified_at = time.perf_counter()
         result["diagnostics"].append(
             diagnostic(
                 "SEARCH_STATS",
@@ -146,11 +196,63 @@ def solve(request: dict) -> dict:
                 "/solver/time_limit_seconds",
                 time_limit_seconds=request["solver"]["time_limit_seconds"],
                 search_elapsed_seconds=outcome.search_elapsed_seconds,
+                normalization_elapsed_seconds=normalized_at - start,
+                backend_loading_elapsed_seconds=loaded_at - normalized_at,
+                preparation_elapsed_seconds=outcome.preparation_elapsed_seconds,
+                verification_elapsed_seconds=verified_at - solved_at,
             )
         )
+        if backend == "cp_sat" and result["solution"] is not None:
+            for index, bound in enumerate(outcome.objective_bounds):
+                if bound is not None:
+                    result["diagnostics"].append(
+                        diagnostic(
+                            "OBJECTIVE_BOUND",
+                            "この目的の下限です。上位目的を固定した探索だけに適用します。",
+                            f"/objectives/{index}",
+                            [request["objectives"][index]["id"]],
+                            objective_index=index,
+                            best_bound=bound,
+                        )
+                    )
         result["solver"]["selection_reason"] = selection_reason
         result["solver"]["library_version"] = library_version
-        validate_response(result, request)
+        validated = False
+        if request.get("diagnosis") and result["status"] in {
+            "OPTIMAL",
+            "FEASIBLE",
+            "INFEASIBLE",
+            "UNKNOWN",
+        }:
+            from .diagnosis import diagnose
+
+            diagnosis_start = time.perf_counter()
+            try:
+                result["diagnosis_result"] = diagnose(request, result["status"], solve)
+                validate_response(result, request)
+                detail = result["diagnosis_result"]
+                detail["elapsed_seconds"] = time.perf_counter() - diagnosis_start
+                if (
+                    detail["status"] == "COMPLETE"
+                    and detail["elapsed_seconds"] > detail["time_limit_seconds"]
+                ):
+                    detail["status"] = "TIME_LIMIT"
+                validated = True
+            except Exception:
+                result["diagnosis_result"] = {
+                    "status": "ERROR",
+                    "reason": None,
+                    "conflict": None,
+                    "suggestions": [],
+                    "suggestion_minimality": "not_proven",
+                    "time_limit_seconds": request["diagnosis"]["time_limit_seconds"],
+                    "elapsed_seconds": time.perf_counter() - diagnosis_start,
+                    "diagnostics": [
+                        diagnostic("DIAGNOSIS_ERROR", "追加診断の出力検証に失敗しました。")
+                    ],
+                }
+        if not validated:
+            validate_response(result, request)
         result["stats"]["elapsed_seconds"] = time.perf_counter() - start
         return result
     except cp_sat.BackendUnavailable:
@@ -182,6 +284,7 @@ def solve(request: dict) -> dict:
             [diagnostic("INTERNAL_ERROR", "エンジン内部の処理に失敗しました。")],
             backend,
         )
+    extend(result)
     result["solver"]["selection_reason"] = selection_reason
     result["solver"]["library_version"] = library_version
     validate_response(result)

@@ -1,0 +1,1304 @@
+{
+  "schema_version": "0.1",
+  "request_id": "roster_week_timeout",
+  "problem_type": "roster",
+  "planning_window": {
+    "start": "2026-10-05T00:00:00+09:00",
+    "end": "2026-10-12T00:00:00+09:00",
+    "timezone": "Asia/Tokyo",
+    "slot_minutes": 30
+  },
+  "skills": [
+    {
+      "id": "cooking",
+      "label": "調理技能"
+    },
+    {
+      "id": "service",
+      "label": "接客技能"
+    }
+  ],
+  "roles": [
+    {
+      "id": "kitchen",
+      "label": "調理",
+      "required_skills": [
+        {
+          "skill_id": "cooking",
+          "min_level": 1
+        }
+      ]
+    },
+    {
+      "id": "hall",
+      "label": "ホール",
+      "required_skills": [
+        {
+          "skill_id": "service",
+          "min_level": 1
+        }
+      ]
+    },
+    {
+      "id": "washing",
+      "label": "皿洗い",
+      "required_skills": []
+    }
+  ],
+  "employees": [
+    {
+      "id": "cook_0",
+      "label": "架空の従業員 cook 0",
+      "skills": [
+        {
+          "skill_id": "cooking",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-06T10:00:00+09:00",
+          "end": "2026-10-06T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-07T10:00:00+09:00",
+          "end": "2026-10-07T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-08T10:00:00+09:00",
+          "end": "2026-10-08T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-09T10:00:00+09:00",
+          "end": "2026-10-09T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-10T10:00:00+09:00",
+          "end": "2026-10-10T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-11T10:00:00+09:00",
+          "end": "2026-10-11T16:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0
+      }
+    },
+    {
+      "id": "server_0",
+      "label": "架空の従業員 server 0",
+      "skills": [
+        {
+          "skill_id": "service",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-06T10:00:00+09:00",
+          "end": "2026-10-06T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-07T10:00:00+09:00",
+          "end": "2026-10-07T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-08T10:00:00+09:00",
+          "end": "2026-10-08T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-09T10:00:00+09:00",
+          "end": "2026-10-09T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-10T10:00:00+09:00",
+          "end": "2026-10-10T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-11T10:00:00+09:00",
+          "end": "2026-10-11T16:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0
+      }
+    },
+    {
+      "id": "assistant_0",
+      "label": "架空の従業員 assistant 0",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-06T10:00:00+09:00",
+          "end": "2026-10-06T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-07T10:00:00+09:00",
+          "end": "2026-10-07T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-08T10:00:00+09:00",
+          "end": "2026-10-08T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-09T10:00:00+09:00",
+          "end": "2026-10-09T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-10T10:00:00+09:00",
+          "end": "2026-10-10T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-11T10:00:00+09:00",
+          "end": "2026-10-11T16:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0
+      }
+    },
+    {
+      "id": "versatile_0",
+      "label": "架空の従業員 versatile 0",
+      "skills": [
+        {
+          "skill_id": "cooking",
+          "level": 1
+        },
+        {
+          "skill_id": "service",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-06T10:00:00+09:00",
+          "end": "2026-10-06T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-07T10:00:00+09:00",
+          "end": "2026-10-07T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-08T10:00:00+09:00",
+          "end": "2026-10-08T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-09T10:00:00+09:00",
+          "end": "2026-10-09T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-10T10:00:00+09:00",
+          "end": "2026-10-10T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-11T10:00:00+09:00",
+          "end": "2026-10-11T16:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0
+      }
+    },
+    {
+      "id": "cook_1",
+      "label": "架空の従業員 cook 1",
+      "skills": [
+        {
+          "skill_id": "cooking",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-06T10:00:00+09:00",
+          "end": "2026-10-06T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-07T10:00:00+09:00",
+          "end": "2026-10-07T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-08T10:00:00+09:00",
+          "end": "2026-10-08T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-09T10:00:00+09:00",
+          "end": "2026-10-09T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-10T10:00:00+09:00",
+          "end": "2026-10-10T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-11T10:00:00+09:00",
+          "end": "2026-10-11T16:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0
+      }
+    },
+    {
+      "id": "server_1",
+      "label": "架空の従業員 server 1",
+      "skills": [
+        {
+          "skill_id": "service",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-06T10:00:00+09:00",
+          "end": "2026-10-06T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-07T10:00:00+09:00",
+          "end": "2026-10-07T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-08T10:00:00+09:00",
+          "end": "2026-10-08T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-09T10:00:00+09:00",
+          "end": "2026-10-09T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-10T10:00:00+09:00",
+          "end": "2026-10-10T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-11T10:00:00+09:00",
+          "end": "2026-10-11T16:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0
+      }
+    },
+    {
+      "id": "assistant_1",
+      "label": "架空の従業員 assistant 1",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-06T10:00:00+09:00",
+          "end": "2026-10-06T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-07T10:00:00+09:00",
+          "end": "2026-10-07T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-08T10:00:00+09:00",
+          "end": "2026-10-08T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-09T10:00:00+09:00",
+          "end": "2026-10-09T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-10T10:00:00+09:00",
+          "end": "2026-10-10T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-11T10:00:00+09:00",
+          "end": "2026-10-11T16:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0
+      }
+    },
+    {
+      "id": "versatile_1",
+      "label": "架空の従業員 versatile 1",
+      "skills": [
+        {
+          "skill_id": "cooking",
+          "level": 1
+        },
+        {
+          "skill_id": "service",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-06T10:00:00+09:00",
+          "end": "2026-10-06T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-07T10:00:00+09:00",
+          "end": "2026-10-07T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-08T10:00:00+09:00",
+          "end": "2026-10-08T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-09T10:00:00+09:00",
+          "end": "2026-10-09T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-10T10:00:00+09:00",
+          "end": "2026-10-10T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-11T10:00:00+09:00",
+          "end": "2026-10-11T16:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0
+      }
+    },
+    {
+      "id": "cook_2",
+      "label": "架空の従業員 cook 2",
+      "skills": [
+        {
+          "skill_id": "cooking",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-06T10:00:00+09:00",
+          "end": "2026-10-06T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-07T10:00:00+09:00",
+          "end": "2026-10-07T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-08T10:00:00+09:00",
+          "end": "2026-10-08T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-09T10:00:00+09:00",
+          "end": "2026-10-09T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-10T10:00:00+09:00",
+          "end": "2026-10-10T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-11T10:00:00+09:00",
+          "end": "2026-10-11T16:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0
+      }
+    },
+    {
+      "id": "server_2",
+      "label": "架空の従業員 server 2",
+      "skills": [
+        {
+          "skill_id": "service",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-06T10:00:00+09:00",
+          "end": "2026-10-06T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-07T10:00:00+09:00",
+          "end": "2026-10-07T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-08T10:00:00+09:00",
+          "end": "2026-10-08T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-09T10:00:00+09:00",
+          "end": "2026-10-09T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-10T10:00:00+09:00",
+          "end": "2026-10-10T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-11T10:00:00+09:00",
+          "end": "2026-10-11T16:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0
+      }
+    },
+    {
+      "id": "assistant_2",
+      "label": "架空の従業員 assistant 2",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-06T10:00:00+09:00",
+          "end": "2026-10-06T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-07T10:00:00+09:00",
+          "end": "2026-10-07T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-08T10:00:00+09:00",
+          "end": "2026-10-08T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-09T10:00:00+09:00",
+          "end": "2026-10-09T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-10T10:00:00+09:00",
+          "end": "2026-10-10T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-11T10:00:00+09:00",
+          "end": "2026-10-11T16:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0
+      }
+    },
+    {
+      "id": "versatile_2",
+      "label": "架空の従業員 versatile 2",
+      "skills": [
+        {
+          "skill_id": "cooking",
+          "level": 1
+        },
+        {
+          "skill_id": "service",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-06T10:00:00+09:00",
+          "end": "2026-10-06T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-07T10:00:00+09:00",
+          "end": "2026-10-07T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-08T10:00:00+09:00",
+          "end": "2026-10-08T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-09T10:00:00+09:00",
+          "end": "2026-10-09T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-10T10:00:00+09:00",
+          "end": "2026-10-10T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-11T10:00:00+09:00",
+          "end": "2026-10-11T16:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0
+      }
+    },
+    {
+      "id": "cook_3",
+      "label": "架空の従業員 cook 3",
+      "skills": [
+        {
+          "skill_id": "cooking",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-06T10:00:00+09:00",
+          "end": "2026-10-06T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-07T10:00:00+09:00",
+          "end": "2026-10-07T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-08T10:00:00+09:00",
+          "end": "2026-10-08T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-09T10:00:00+09:00",
+          "end": "2026-10-09T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-10T10:00:00+09:00",
+          "end": "2026-10-10T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-11T10:00:00+09:00",
+          "end": "2026-10-11T16:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0
+      }
+    },
+    {
+      "id": "server_3",
+      "label": "架空の従業員 server 3",
+      "skills": [
+        {
+          "skill_id": "service",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-06T10:00:00+09:00",
+          "end": "2026-10-06T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-07T10:00:00+09:00",
+          "end": "2026-10-07T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-08T10:00:00+09:00",
+          "end": "2026-10-08T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-09T10:00:00+09:00",
+          "end": "2026-10-09T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-10T10:00:00+09:00",
+          "end": "2026-10-10T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-11T10:00:00+09:00",
+          "end": "2026-10-11T16:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0
+      }
+    },
+    {
+      "id": "assistant_3",
+      "label": "架空の従業員 assistant 3",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-06T10:00:00+09:00",
+          "end": "2026-10-06T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-07T10:00:00+09:00",
+          "end": "2026-10-07T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-08T10:00:00+09:00",
+          "end": "2026-10-08T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-09T10:00:00+09:00",
+          "end": "2026-10-09T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-10T10:00:00+09:00",
+          "end": "2026-10-10T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-11T10:00:00+09:00",
+          "end": "2026-10-11T16:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0
+      }
+    },
+    {
+      "id": "versatile_3",
+      "label": "架空の従業員 versatile 3",
+      "skills": [
+        {
+          "skill_id": "cooking",
+          "level": 1
+        },
+        {
+          "skill_id": "service",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-06T10:00:00+09:00",
+          "end": "2026-10-06T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-07T10:00:00+09:00",
+          "end": "2026-10-07T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-08T10:00:00+09:00",
+          "end": "2026-10-08T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-09T10:00:00+09:00",
+          "end": "2026-10-09T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-10T10:00:00+09:00",
+          "end": "2026-10-10T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-11T10:00:00+09:00",
+          "end": "2026-10-11T16:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0
+      }
+    },
+    {
+      "id": "cook_4",
+      "label": "架空の従業員 cook 4",
+      "skills": [
+        {
+          "skill_id": "cooking",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-06T10:00:00+09:00",
+          "end": "2026-10-06T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-07T10:00:00+09:00",
+          "end": "2026-10-07T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-08T10:00:00+09:00",
+          "end": "2026-10-08T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-09T10:00:00+09:00",
+          "end": "2026-10-09T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-10T10:00:00+09:00",
+          "end": "2026-10-10T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-11T10:00:00+09:00",
+          "end": "2026-10-11T16:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0
+      }
+    },
+    {
+      "id": "server_4",
+      "label": "架空の従業員 server 4",
+      "skills": [
+        {
+          "skill_id": "service",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-06T10:00:00+09:00",
+          "end": "2026-10-06T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-07T10:00:00+09:00",
+          "end": "2026-10-07T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-08T10:00:00+09:00",
+          "end": "2026-10-08T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-09T10:00:00+09:00",
+          "end": "2026-10-09T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-10T10:00:00+09:00",
+          "end": "2026-10-10T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-11T10:00:00+09:00",
+          "end": "2026-10-11T16:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0
+      }
+    },
+    {
+      "id": "assistant_4",
+      "label": "架空の従業員 assistant 4",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-06T10:00:00+09:00",
+          "end": "2026-10-06T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-07T10:00:00+09:00",
+          "end": "2026-10-07T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-08T10:00:00+09:00",
+          "end": "2026-10-08T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-09T10:00:00+09:00",
+          "end": "2026-10-09T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-10T10:00:00+09:00",
+          "end": "2026-10-10T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-11T10:00:00+09:00",
+          "end": "2026-10-11T16:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0
+      }
+    },
+    {
+      "id": "versatile_4",
+      "label": "架空の従業員 versatile 4",
+      "skills": [
+        {
+          "skill_id": "cooking",
+          "level": 1
+        },
+        {
+          "skill_id": "service",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-06T10:00:00+09:00",
+          "end": "2026-10-06T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-07T10:00:00+09:00",
+          "end": "2026-10-07T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-08T10:00:00+09:00",
+          "end": "2026-10-08T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-09T10:00:00+09:00",
+          "end": "2026-10-09T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-10T10:00:00+09:00",
+          "end": "2026-10-10T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-11T10:00:00+09:00",
+          "end": "2026-10-11T16:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0
+      }
+    }
+  ],
+  "demand": [
+    {
+      "id": "need_0_kitchen",
+      "role_id": "kitchen",
+      "interval": {
+        "start": "2026-10-05T10:00:00+09:00",
+        "end": "2026-10-05T16:00:00+09:00"
+      },
+      "required_people": 3
+    },
+    {
+      "id": "need_0_hall",
+      "role_id": "hall",
+      "interval": {
+        "start": "2026-10-05T10:00:00+09:00",
+        "end": "2026-10-05T16:00:00+09:00"
+      },
+      "required_people": 3
+    },
+    {
+      "id": "need_0_washing",
+      "role_id": "washing",
+      "interval": {
+        "start": "2026-10-05T10:00:00+09:00",
+        "end": "2026-10-05T16:00:00+09:00"
+      },
+      "required_people": 3
+    },
+    {
+      "id": "need_1_kitchen",
+      "role_id": "kitchen",
+      "interval": {
+        "start": "2026-10-06T10:00:00+09:00",
+        "end": "2026-10-06T16:00:00+09:00"
+      },
+      "required_people": 3
+    },
+    {
+      "id": "need_1_hall",
+      "role_id": "hall",
+      "interval": {
+        "start": "2026-10-06T10:00:00+09:00",
+        "end": "2026-10-06T16:00:00+09:00"
+      },
+      "required_people": 3
+    },
+    {
+      "id": "need_1_washing",
+      "role_id": "washing",
+      "interval": {
+        "start": "2026-10-06T10:00:00+09:00",
+        "end": "2026-10-06T16:00:00+09:00"
+      },
+      "required_people": 3
+    },
+    {
+      "id": "need_2_kitchen",
+      "role_id": "kitchen",
+      "interval": {
+        "start": "2026-10-07T10:00:00+09:00",
+        "end": "2026-10-07T16:00:00+09:00"
+      },
+      "required_people": 3
+    },
+    {
+      "id": "need_2_hall",
+      "role_id": "hall",
+      "interval": {
+        "start": "2026-10-07T10:00:00+09:00",
+        "end": "2026-10-07T16:00:00+09:00"
+      },
+      "required_people": 3
+    },
+    {
+      "id": "need_2_washing",
+      "role_id": "washing",
+      "interval": {
+        "start": "2026-10-07T10:00:00+09:00",
+        "end": "2026-10-07T16:00:00+09:00"
+      },
+      "required_people": 3
+    },
+    {
+      "id": "need_3_kitchen",
+      "role_id": "kitchen",
+      "interval": {
+        "start": "2026-10-08T10:00:00+09:00",
+        "end": "2026-10-08T16:00:00+09:00"
+      },
+      "required_people": 3
+    },
+    {
+      "id": "need_3_hall",
+      "role_id": "hall",
+      "interval": {
+        "start": "2026-10-08T10:00:00+09:00",
+        "end": "2026-10-08T16:00:00+09:00"
+      },
+      "required_people": 3
+    },
+    {
+      "id": "need_3_washing",
+      "role_id": "washing",
+      "interval": {
+        "start": "2026-10-08T10:00:00+09:00",
+        "end": "2026-10-08T16:00:00+09:00"
+      },
+      "required_people": 3
+    },
+    {
+      "id": "need_4_kitchen",
+      "role_id": "kitchen",
+      "interval": {
+        "start": "2026-10-09T10:00:00+09:00",
+        "end": "2026-10-09T16:00:00+09:00"
+      },
+      "required_people": 3
+    },
+    {
+      "id": "need_4_hall",
+      "role_id": "hall",
+      "interval": {
+        "start": "2026-10-09T10:00:00+09:00",
+        "end": "2026-10-09T16:00:00+09:00"
+      },
+      "required_people": 3
+    },
+    {
+      "id": "need_4_washing",
+      "role_id": "washing",
+      "interval": {
+        "start": "2026-10-09T10:00:00+09:00",
+        "end": "2026-10-09T16:00:00+09:00"
+      },
+      "required_people": 3
+    },
+    {
+      "id": "need_5_kitchen",
+      "role_id": "kitchen",
+      "interval": {
+        "start": "2026-10-10T10:00:00+09:00",
+        "end": "2026-10-10T16:00:00+09:00"
+      },
+      "required_people": 3
+    },
+    {
+      "id": "need_5_hall",
+      "role_id": "hall",
+      "interval": {
+        "start": "2026-10-10T10:00:00+09:00",
+        "end": "2026-10-10T16:00:00+09:00"
+      },
+      "required_people": 3
+    },
+    {
+      "id": "need_5_washing",
+      "role_id": "washing",
+      "interval": {
+        "start": "2026-10-10T10:00:00+09:00",
+        "end": "2026-10-10T16:00:00+09:00"
+      },
+      "required_people": 3
+    },
+    {
+      "id": "need_6_kitchen",
+      "role_id": "kitchen",
+      "interval": {
+        "start": "2026-10-11T10:00:00+09:00",
+        "end": "2026-10-11T16:00:00+09:00"
+      },
+      "required_people": 3
+    },
+    {
+      "id": "need_6_hall",
+      "role_id": "hall",
+      "interval": {
+        "start": "2026-10-11T10:00:00+09:00",
+        "end": "2026-10-11T16:00:00+09:00"
+      },
+      "required_people": 3
+    },
+    {
+      "id": "need_6_washing",
+      "role_id": "washing",
+      "interval": {
+        "start": "2026-10-11T10:00:00+09:00",
+        "end": "2026-10-11T16:00:00+09:00"
+      },
+      "required_people": 3
+    }
+  ],
+  "shift_candidates": [],
+  "constraints": [
+    {
+      "id": "scheduled_cap",
+      "type": "max_scheduled_minutes",
+      "employee_ids": [
+        "cook_0",
+        "server_0",
+        "assistant_0",
+        "versatile_0",
+        "cook_1",
+        "server_1",
+        "assistant_1",
+        "versatile_1",
+        "cook_2",
+        "server_2",
+        "assistant_2",
+        "versatile_2",
+        "cook_3",
+        "server_3",
+        "assistant_3",
+        "versatile_3",
+        "cook_4",
+        "server_4",
+        "assistant_4",
+        "versatile_4"
+      ],
+      "limit_minutes": 1650
+    },
+    {
+      "id": "rest",
+      "type": "min_rest_minutes",
+      "employee_ids": [
+        "cook_0",
+        "server_0",
+        "assistant_0",
+        "versatile_0",
+        "cook_1",
+        "server_1",
+        "assistant_1",
+        "versatile_1",
+        "cook_2",
+        "server_2",
+        "assistant_2",
+        "versatile_2",
+        "cook_3",
+        "server_3",
+        "assistant_3",
+        "versatile_3",
+        "cook_4",
+        "server_4",
+        "assistant_4",
+        "versatile_4"
+      ],
+      "limit_minutes": 600
+    },
+    {
+      "id": "consecutive",
+      "type": "max_consecutive_days",
+      "employee_ids": [
+        "cook_0",
+        "server_0",
+        "assistant_0",
+        "versatile_0",
+        "cook_1",
+        "server_1",
+        "assistant_1",
+        "versatile_1",
+        "cook_2",
+        "server_2",
+        "assistant_2",
+        "versatile_2",
+        "cook_3",
+        "server_3",
+        "assistant_3",
+        "versatile_3",
+        "cook_4",
+        "server_4",
+        "assistant_4",
+        "versatile_4"
+      ],
+      "limit_days": 5
+    }
+  ],
+  "preferences": [
+    {
+      "id": "preserve_skills",
+      "type": "avoid_role",
+      "employee_ids": [
+        "cook_0",
+        "server_0",
+        "versatile_0",
+        "cook_1",
+        "server_1",
+        "versatile_1",
+        "cook_2",
+        "server_2",
+        "versatile_2",
+        "cook_3",
+        "server_3",
+        "versatile_3",
+        "cook_4",
+        "server_4",
+        "versatile_4"
+      ],
+      "role_id": "washing",
+      "penalty_per_minute": 1
+    }
+  ],
+  "objectives": [
+    {
+      "id": "preferences",
+      "metric": "preference_penalty"
+    },
+    {
+      "id": "work",
+      "metric": "scheduled_minutes"
+    },
+    {
+      "id": "changes",
+      "metric": "role_switches"
+    }
+  ],
+  "solver": {
+    "backend": "auto",
+    "time_limit_seconds": 0.001,
+    "seed": 0
+  },
+  "shift_templates": [
+    {
+      "id": "day_shift",
+      "employee_ids": [
+        "cook_0",
+        "server_0",
+        "assistant_0",
+        "versatile_0",
+        "cook_1",
+        "server_1",
+        "assistant_1",
+        "versatile_1",
+        "cook_2",
+        "server_2",
+        "assistant_2",
+        "versatile_2",
+        "cook_3",
+        "server_3",
+        "assistant_3",
+        "versatile_3",
+        "cook_4",
+        "server_4",
+        "assistant_4",
+        "versatile_4"
+      ],
+      "dates": [
+        "2026-10-05",
+        "2026-10-06",
+        "2026-10-07",
+        "2026-10-08",
+        "2026-10-09",
+        "2026-10-10",
+        "2026-10-11"
+      ],
+      "start_times": [
+        "10:00"
+      ],
+      "duration_minutes_options": [
+        360
+      ],
+      "break_options": [
+        {
+          "offset_minutes": 120,
+          "duration_minutes": 30
+        },
+        {
+          "offset_minutes": 150,
+          "duration_minutes": 30
+        },
+        {
+          "offset_minutes": 180,
+          "duration_minutes": 30
+        },
+        {
+          "offset_minutes": 210,
+          "duration_minutes": 30
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,249 @@
+{
+  "measured_at": "2026-10-06T05:41:27.695194+00:00",
+  "command": [
+    "scripts/evaluate.py",
+    "docs/evaluations/inputs/roster-fortnight-large.json",
+    "--time-limit-seconds",
+    "120",
+    "--timeout-seconds",
+    "150",
+    "--source-ref",
+    "3e19b0c0edf6507237dc30de92041c0af6af733c",
+    "--output",
+    "docs/evaluations/results/2026-10-06-screening-large-120.json"
+  ],
+  "source": {
+    "commit": "3e19b0c0edf6507237dc30de92041c0af6af733c",
+    "dirty": false,
+    "snapshot": "git_archive",
+    "source_tree_sha256": "889581118ddf5860ef33d3e1ba1abe82e4620dabc2ce3935068a3190e9e63a2c",
+    "runner_sha256": "cd70318fb04015f293dff3db625823f020dba8b83e388098407c9bbf01363400",
+    "uv_lock_sha256": "ca6e4dfa241cdb48cc75a22fe4371877a59a8ed4237e2939f5ea545d253de488",
+    "package_version": "0.1.3"
+  },
+  "conditions": {
+    "mode": "cold",
+    "repeat": 1,
+    "processes": 1,
+    "worker_processes_started": 1,
+    "worker_timeout_seconds": 150.0,
+    "time_limit_seconds_override": 120.0,
+    "quantile_method": "nearest_rank",
+    "cold_definition": "新規 Python プロセス。OS のファイルキャッシュは消去しない。"
+  },
+  "environment": {
+    "platform": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "cpu_count": 8,
+    "python": "3.14.8 (main, Oct  3 2026, 00:54:40) [Clang 22.1.3 ]",
+    "uv": "uv 0.12.23 (46b84fd0b 2026-10-03 aarch64-apple-darwin)",
+    "packages": {
+      "PyYAML": "6.0.3",
+      "Pygments": "2.21.0",
+      "absl-py": "2.5.0",
+      "attrs": "26.1.0",
+      "cfgv": "3.5.0",
+      "distlib": "0.4.3",
+      "filelock": "4.0.10",
+      "identify": "2.6.20",
+      "immutabledict": "4.3.1",
+      "iniconfig": "2.3.0",
+      "jsonschema": "4.26.0",
+      "jsonschema-specifications": "2025.9.1",
+      "nodeenv": "1.11.0",
+      "numpy": "2.5.3",
+      "ortools": "9.15.6755",
+      "packaging": "26.3",
+      "pandas": "3.0.6",
+      "platformdirs": "4.12.3",
+      "pluggy": "1.6.0",
+      "pre_commit": "4.6.2",
+      "protobuf": "6.33.6",
+      "pytest": "9.1.1",
+      "python-dateutil": "2.9.0.post0",
+      "python-discovery": "1.6.1",
+      "referencing": "0.37.0",
+      "rpds-py": "2026.6.3",
+      "ruff": "0.16.10",
+      "schedula": "0.1.3",
+      "six": "1.17.0",
+      "typing_extensions": "4.16.0",
+      "virtualenv": "21.14.5"
+    }
+  },
+  "measurements": [
+    {
+      "input_file": "docs/evaluations/inputs/roster-fortnight-large.json",
+      "input_sha256": "ae4f89e8be42368213533ea8da508c514e33a49a034a74c301f921cd29b0fec1",
+      "problem_type": "roster",
+      "employees": 40,
+      "roles": 3,
+      "days": 14.0,
+      "slot_minutes": 30,
+      "slots": 672,
+      "candidates": 2240,
+      "objective_order": [
+        "preference_penalty",
+        "scheduled_minutes",
+        "role_switches"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 120.0,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 5,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.3",
+        "library_version": "9.15.6755",
+        "selection_reason": "JOINT_ROSTER"
+      },
+      "status": "UNKNOWN",
+      "verification": {
+        "performed": false,
+        "valid": null,
+        "violations": []
+      },
+      "objectives": [],
+      "objective_quality": [],
+      "diagnostics": [
+        {
+          "code": "TIME_LIMIT",
+          "message": "探索予算内に目的順序の最適化を完了できませんでした。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "completed_objectives",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 120.0
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 120.11325645798934
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.06489129198598675
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.22027050002361648
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.329128709010547
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.0038630000199191272
+            }
+          ]
+        }
+      ],
+      "search_stats": {
+        "time_limit_seconds": 120.0,
+        "search_elapsed_seconds": 120.11325645798934,
+        "normalization_elapsed_seconds": 0.06489129198598675,
+        "backend_loading_elapsed_seconds": 0.22027050002361648,
+        "preparation_elapsed_seconds": 0.329128709010547,
+        "verification_elapsed_seconds": 0.0038630000199191272
+      },
+      "assignments": 0,
+      "shifts": 0,
+      "import_seconds": 0.036161916999844834,
+      "input_seconds": 0.0020747499947901815,
+      "elapsed_seconds": 120.74689750000834,
+      "request_elapsed_seconds": 120.78513416700298,
+      "engine_elapsed_seconds": 120.74665266700322,
+      "metadata_seconds": 0.04732916600187309,
+      "peak_rss_mib": 473.03125,
+      "group": 1,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    }
+  ],
+  "workers": [
+    {
+      "input_file": "docs/evaluations/inputs/roster-fortnight-large.json",
+      "group": 1,
+      "elapsed_seconds": 120.93714633400668,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 150.0
+    }
+  ],
+  "summaries": [
+    {
+      "input_file": "docs/evaluations/inputs/roster-fortnight-large.json",
+      "attempts": 1,
+      "statuses": {
+        "UNKNOWN": 1
+      },
+      "verified_solutions": 0,
+      "solution_rate": 0.0,
+      "statistics": {
+        "elapsed_seconds": {
+          "samples": 1,
+          "mean": 120.74689750000834,
+          "median": 120.74689750000834,
+          "p95": 120.74689750000834,
+          "maximum": 120.74689750000834
+        },
+        "request_elapsed_seconds": {
+          "samples": 1,
+          "mean": 120.78513416700298,
+          "median": 120.78513416700298,
+          "p95": 120.78513416700298,
+          "maximum": 120.78513416700298
+        },
+        "peak_rss_mib": {
+          "samples": 1,
+          "mean": 473.03125,
+          "median": 473.03125,
+          "p95": 473.03125,
+          "maximum": 473.03125
+        }
+      },
+      "first_request_elapsed_seconds": {
+        "samples": 1,
+        "mean": 120.78513416700298,
+        "median": 120.78513416700298,
+        "p95": 120.78513416700298,
+        "maximum": 120.78513416700298
+      },
+      "continued_request_elapsed_seconds": {
+        "samples": 0,
+        "mean": null,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "process_elapsed_seconds": {
+        "samples": 1,
+        "mean": 120.93714633400668,
+        "median": 120.93714633400668,
+        "p95": 120.93714633400668,
+        "maximum": 120.93714633400668
+      },
+      "objective_quality": []
+    }
+  ]
+}

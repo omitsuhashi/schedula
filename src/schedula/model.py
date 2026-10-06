@@ -56,14 +56,32 @@ class ShiftCandidate:
     start: int
     end: int
     breaks: tuple[tuple[int, int], ...]
+    segments: tuple = ()
 
     @property
     def work_slots(self):
-        return set(range(self.start, self.end)) - {
-            slot for start, end in self.breaks for slot in range(start, end)
-        }
+        return (
+            {slot for a, b, _ in self.segments for slot in range(a, b)}
+            - {slot for start, end in self.breaks for slot in range(start, end)}
+            if self.segments
+            else set(range(self.start, self.end))
+            - {slot for start, end in self.breaks for slot in range(start, end)}
+        )
 
     def output(self, grid):
+        if self.segments:
+            return {
+                "candidate_id": self.id,
+                "employee_id": self.employee_id,
+                "work_day": self.day.isoformat(),
+                "segments": [
+                    {
+                        "interval": grid.output_interval(a, b),
+                        "breaks": [grid.output_interval(x, y) for x, y in rests],
+                    }
+                    for a, b, rests in self.segments
+                ],
+            }
         return {
             "candidate_id": self.id,
             "employee_id": self.employee_id,
@@ -81,6 +99,7 @@ class Problem:
     demand: list[dict[str, int]]
     costs: dict[tuple[str, str], int]
     candidates: list[ShiftCandidate] = field(default_factory=list)
+    baseline: dict | None = None
 
 
 def unique(items, field, path):
@@ -134,7 +153,7 @@ def normalize(request):
     }
     metrics = unique(request["objectives"], "metric", "/objectives")
     for index, objective in enumerate(request["objectives"]):
-        if not roster and objective["metric"] == "scheduled_minutes":
+        if not roster and objective["metric"] not in {"preference_penalty", "role_switches"}:
             reject(
                 "UNSUPPORTED_CONDITION",
                 "assignment の対応目的は preference_penalty または role_switches です。",
@@ -153,7 +172,7 @@ def normalize(request):
         for employee_index, identifier in enumerate(constraint["employee_ids"]):
             reference(identifier, ids["employees"], f"{path}/employee_ids/{employee_index}")
     if request["solver"]["backend"] == "min_cost_flow" and (
-        roster or request["constraints"] or "role_switches" in metrics
+        roster or request["constraints"] or "role_switches" in metrics or request.get("diagnosis")
     ):
         reject(
             "UNSUPPORTED_BACKEND",
@@ -252,4 +271,22 @@ def normalize(request):
 
         validate_history(request, grid)
         problem.candidates = expand_candidates(request, grid)
+    if request["schema_version"] == "0.2":
+        from .diagnosis import validate_options
+        from .extensions import validate
+
+        validate(problem)
+        validate_options(request)
+        bounds = [
+            slots * len(ids["employees"]) * max(costs.values(), default=0),
+            sum(len(c.work_slots) * grid.slot_minutes for c in problem.candidates),
+            slots * len(ids["employees"]),
+            sum(
+                max(slots * grid.slot_minutes, t["target_minutes"])
+                for t in request.get("fairness", {}).get("employee_targets", [])
+            ),
+            2 * slots * 500,
+        ]
+        if max(bounds) > 2**60 - 1:
+            reject("INTEGER_EXPRESSION_LIMIT", "整数式の保守的な上界を超えています。")
     return problem

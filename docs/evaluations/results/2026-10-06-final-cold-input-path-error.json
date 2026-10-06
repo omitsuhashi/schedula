@@ -1,0 +1,21 @@
+{
+  "record_type": "interrupted_evaluation_command",
+  "date": "2026-10-06",
+  "source_ref_requested": "b6128903668095297cdb03a8be95a5d738ae8e6b",
+  "command": "UV_CACHE_DIR=/private/tmp/schedula-uv-cache UV_PYTHON_INSTALL_DIR=/private/tmp/schedula-python uv run --no-sync python scripts/evaluate.py examples/roster-week.json docs/evaluations/inputs/roster-fortnight-large.json docs/evaluations/inputs/roster-week-15min.json docs/evaluations/inputs/roster-extended.json --repeat 3 --time-limit-seconds 30 --timeout-seconds 60 --source-ref b6128903668095297cdb03a8be95a5d738ae8e6b --output docs/evaluations/results/2026-10-06-final-cold.json",
+  "incorrect_input_file": "examples/roster-week.json",
+  "correct_input_file": "docs/evaluations/inputs/roster-week.json",
+  "reason": "通常入力に存在しないパスを指定した誤りに気付き、結果ファイル保存前に Ctrl-C で中断した。正しい入力での最終反復とは別の実行として保持する。",
+  "process_exit_code": 130,
+  "completed_attempts": null,
+  "measurements": null,
+  "peak_rss_mib": null,
+  "measurement_availability": "試行別の状態、時間、RSS は結果ファイルへ保存されておらず未取得。中断時の Python KeyboardInterrupt と終了コードのみ確認した。試行数や値は補完しない。",
+  "process_inspection": {
+    "checked_at": "2026-10-06T06:13:32Z",
+    "command": "ps -ax -o pid=,ppid=,pgid=,lstart=,command= | rg '[p]ython.*scripts/evaluate[.]py|[u]v run --no-sync python scripts/evaluate[.]py'",
+    "exit_code": 1,
+    "matching_processes": [],
+    "scope": "最終の冷起動・並行測定終了後、evaluation runner / worker の残存がないことを読み取り確認した。中断直後の子プロセス一覧は取得していないため、この確認だけでは最終冷起動開始時の重複実行がなかったと断定しない。"
+  }
+}

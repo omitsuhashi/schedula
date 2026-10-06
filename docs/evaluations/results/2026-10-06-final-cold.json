@@ -1,0 +1,4626 @@
+{
+  "measured_at": "2026-10-06T06:11:09.480067+00:00",
+  "command": [
+    "scripts/evaluate.py",
+    "docs/evaluations/inputs/roster-week.json",
+    "docs/evaluations/inputs/roster-fortnight-large.json",
+    "docs/evaluations/inputs/roster-week-15min.json",
+    "docs/evaluations/inputs/roster-extended.json",
+    "--repeat",
+    "3",
+    "--time-limit-seconds",
+    "30",
+    "--timeout-seconds",
+    "60",
+    "--source-ref",
+    "b6128903668095297cdb03a8be95a5d738ae8e6b",
+    "--output",
+    "docs/evaluations/results/2026-10-06-final-cold.json"
+  ],
+  "source": {
+    "commit": "b6128903668095297cdb03a8be95a5d738ae8e6b",
+    "dirty": false,
+    "snapshot": "git_archive",
+    "source_directory": null,
+    "source_tree_sha256": "1b4362f993b5acb6e180e8759ebb2a5511377f562d4174b91d9139d86308ccb7",
+    "runner_sha256": "04dfcc93c92b96d738f272f23c50ececd4576997bb921fcb44ff879c9a7412f5",
+    "uv_lock_sha256": "ca6e4dfa241cdb48cc75a22fe4371877a59a8ed4237e2939f5ea545d253de488",
+    "package_version": "0.1.3"
+  },
+  "conditions": {
+    "mode": "cold",
+    "repeat": 3,
+    "processes": 1,
+    "worker_processes_started": 12,
+    "worker_timeout_seconds": 60.0,
+    "time_limit_seconds_override": 30.0,
+    "quantile_method": "nearest_rank",
+    "cold_definition": "新規 Python プロセス。OS のファイルキャッシュは消去しない。"
+  },
+  "environment": {
+    "platform": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "cpu_count": 8,
+    "python": "3.14.8 (main, Oct  3 2026, 00:54:40) [Clang 22.1.3 ]",
+    "uv": "uv 0.12.23 (46b84fd0b 2026-10-03 aarch64-apple-darwin)",
+    "packages": {
+      "PyYAML": "6.0.3",
+      "Pygments": "2.21.0",
+      "absl-py": "2.5.0",
+      "attrs": "26.1.0",
+      "cfgv": "3.5.0",
+      "distlib": "0.4.3",
+      "filelock": "4.0.10",
+      "identify": "2.6.20",
+      "immutabledict": "4.3.1",
+      "iniconfig": "2.3.0",
+      "jsonschema": "4.26.0",
+      "jsonschema-specifications": "2025.9.1",
+      "nodeenv": "1.11.0",
+      "numpy": "2.5.3",
+      "ortools": "9.15.6755",
+      "packaging": "26.3",
+      "pandas": "3.0.6",
+      "platformdirs": "4.12.3",
+      "pluggy": "1.6.0",
+      "pre_commit": "4.6.2",
+      "protobuf": "6.33.6",
+      "pytest": "9.1.1",
+      "python-dateutil": "2.9.0.post0",
+      "python-discovery": "1.6.1",
+      "referencing": "0.37.0",
+      "rpds-py": "2026.6.3",
+      "ruff": "0.16.10",
+      "schedula": "0.1.3",
+      "six": "1.17.0",
+      "typing_extensions": "4.16.0",
+      "virtualenv": "21.14.5"
+    }
+  },
+  "measurements": [
+    {
+      "input_file": "docs/evaluations/inputs/roster-week.json",
+      "input_sha256": "b9c3f1f9713027b9534b304fd4f9e0366aecbb97d9d90a01aab105ac1ef9941c",
+      "problem_type": "roster",
+      "employees": 20,
+      "roles": 3,
+      "days": 7.0,
+      "slot_minutes": 30,
+      "slots": 336,
+      "candidates": 560,
+      "objective_order": [
+        "preference_penalty",
+        "scheduled_minutes",
+        "role_switches"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 30.0,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 5,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.3",
+        "library_version": "9.15.6755",
+        "selection_reason": "JOINT_ROSTER"
+      },
+      "schema_version": "0.1",
+      "status": "FEASIBLE",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 270,
+          "proven_optimal": false
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 33000,
+          "proven_optimal": false
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 33,
+          "proven_optimal": false
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 270,
+          "proven_optimal": false,
+          "best_bound": 0.0,
+          "absolute_gap": 270.0,
+          "relative_gap": 1.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 33000,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 33,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "OPTIMALITY_UNPROVEN",
+          "message": "上位目的の最適性が未証明のため、後続の目的は探索しません。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 30.0
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 30.012441458995454
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.0326960000093095
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.2628838330274448
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.08285924996016547
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.03852433298015967
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "preferences"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 30.0,
+        "search_elapsed_seconds": 30.012441458995454,
+        "normalization_elapsed_seconds": 0.0326960000093095,
+        "backend_loading_elapsed_seconds": 0.2628838330274448,
+        "preparation_elapsed_seconds": 0.08285924996016547,
+        "verification_elapsed_seconds": 0.03852433298015967
+      },
+      "assignments": 264,
+      "shifts": 100,
+      "import_seconds": 0.04510575003223494,
+      "input_seconds": 0.0009275419870391488,
+      "elapsed_seconds": 30.46682899998268,
+      "request_elapsed_seconds": 30.512862292001955,
+      "engine_elapsed_seconds": 30.466754458029754,
+      "metadata_seconds": 0.014107875002082437,
+      "peak_rss_mib": 245.171875,
+      "group": 1,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-week.json",
+      "input_sha256": "b9c3f1f9713027b9534b304fd4f9e0366aecbb97d9d90a01aab105ac1ef9941c",
+      "problem_type": "roster",
+      "employees": 20,
+      "roles": 3,
+      "days": 7.0,
+      "slot_minutes": 30,
+      "slots": 336,
+      "candidates": 560,
+      "objective_order": [
+        "preference_penalty",
+        "scheduled_minutes",
+        "role_switches"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 30.0,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 5,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.3",
+        "library_version": "9.15.6755",
+        "selection_reason": "JOINT_ROSTER"
+      },
+      "schema_version": "0.1",
+      "status": "FEASIBLE",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 270,
+          "proven_optimal": false
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 33000,
+          "proven_optimal": false
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 66,
+          "proven_optimal": false
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 270,
+          "proven_optimal": false,
+          "best_bound": 0.0,
+          "absolute_gap": 270.0,
+          "relative_gap": 1.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 33000,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 66,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "OPTIMALITY_UNPROVEN",
+          "message": "上位目的の最適性が未証明のため、後続の目的は探索しません。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 30.0
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 30.011163957999088
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.03077783400658518
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.21877929102629423
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.0835017500212416
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.040973959024995565
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "preferences"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 30.0,
+        "search_elapsed_seconds": 30.011163957999088,
+        "normalization_elapsed_seconds": 0.03077783400658518,
+        "backend_loading_elapsed_seconds": 0.21877929102629423,
+        "preparation_elapsed_seconds": 0.0835017500212416,
+        "verification_elapsed_seconds": 0.040973959024995565
+      },
+      "assignments": 332,
+      "shifts": 100,
+      "import_seconds": 0.02669616596540436,
+      "input_seconds": 0.0008015840430743992,
+      "elapsed_seconds": 30.426482540962752,
+      "request_elapsed_seconds": 30.45398029097123,
+      "engine_elapsed_seconds": 30.426421125011984,
+      "metadata_seconds": 0.013934209011495113,
+      "peak_rss_mib": 244.171875,
+      "group": 2,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-week.json",
+      "input_sha256": "b9c3f1f9713027b9534b304fd4f9e0366aecbb97d9d90a01aab105ac1ef9941c",
+      "problem_type": "roster",
+      "employees": 20,
+      "roles": 3,
+      "days": 7.0,
+      "slot_minutes": 30,
+      "slots": 336,
+      "candidates": 560,
+      "objective_order": [
+        "preference_penalty",
+        "scheduled_minutes",
+        "role_switches"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 30.0,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 5,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.3",
+        "library_version": "9.15.6755",
+        "selection_reason": "JOINT_ROSTER"
+      },
+      "schema_version": "0.1",
+      "status": "FEASIBLE",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 270,
+          "proven_optimal": false
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 32670,
+          "proven_optimal": false
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 15,
+          "proven_optimal": false
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 270,
+          "proven_optimal": false,
+          "best_bound": 0.0,
+          "absolute_gap": 270.0,
+          "relative_gap": 1.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 32670,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 15,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "OPTIMALITY_UNPROVEN",
+          "message": "上位目的の最適性が未証明のため、後続の目的は探索しません。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 30.0
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 30.010960458021145
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.030381834018044174
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.21723662497242913
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.08172262500738725
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.03697704098885879
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "preferences"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 30.0,
+        "search_elapsed_seconds": 30.010960458021145,
+        "normalization_elapsed_seconds": 0.030381834018044174,
+        "backend_loading_elapsed_seconds": 0.21723662497242913,
+        "preparation_elapsed_seconds": 0.08172262500738725,
+        "verification_elapsed_seconds": 0.03697704098885879
+      },
+      "assignments": 242,
+      "shifts": 99,
+      "import_seconds": 0.02911391598172486,
+      "input_seconds": 0.0008754170266911387,
+      "elapsed_seconds": 30.413300124986563,
+      "request_elapsed_seconds": 30.44328945799498,
+      "engine_elapsed_seconds": 30.413237000000663,
+      "metadata_seconds": 0.014414292003493756,
+      "peak_rss_mib": 260.828125,
+      "group": 3,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-fortnight-large.json",
+      "input_sha256": "ae4f89e8be42368213533ea8da508c514e33a49a034a74c301f921cd29b0fec1",
+      "problem_type": "roster",
+      "employees": 40,
+      "roles": 3,
+      "days": 14.0,
+      "slot_minutes": 30,
+      "slots": 672,
+      "candidates": 2240,
+      "objective_order": [
+        "preference_penalty",
+        "scheduled_minutes",
+        "role_switches"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 30.0,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 5,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.3",
+        "library_version": "9.15.6755",
+        "selection_reason": "JOINT_ROSTER"
+      },
+      "schema_version": "0.1",
+      "status": "FEASIBLE",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 1080,
+          "proven_optimal": false
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 128370,
+          "proven_optimal": false
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 91,
+          "proven_optimal": false
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 1080,
+          "proven_optimal": false,
+          "best_bound": 0.0,
+          "absolute_gap": 1080.0,
+          "relative_gap": 1.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 128370,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 91,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "OPTIMALITY_UNPROVEN",
+          "message": "上位目的の最適性が未証明のため、後続の目的は探索しません。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 30.0
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 30.039580334036145
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.06696274998830631
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.21773616701830178
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.3326331250136718
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.14412679098313674
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "preferences"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 30.0,
+        "search_elapsed_seconds": 30.039580334036145,
+        "normalization_elapsed_seconds": 0.06696274998830631,
+        "backend_loading_elapsed_seconds": 0.21773616701830178,
+        "preparation_elapsed_seconds": 0.3326331250136718,
+        "verification_elapsed_seconds": 0.14412679098313674
+      },
+      "assignments": 1071,
+      "shifts": 389,
+      "import_seconds": 0.02674520801519975,
+      "input_seconds": 0.0030179169843904674,
+      "elapsed_seconds": 30.915265207993798,
+      "request_elapsed_seconds": 30.945028332993388,
+      "engine_elapsed_seconds": 30.91501287498977,
+      "metadata_seconds": 0.051002166990656406,
+      "peak_rss_mib": 658.21875,
+      "group": 1,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-fortnight-large.json",
+      "input_sha256": "ae4f89e8be42368213533ea8da508c514e33a49a034a74c301f921cd29b0fec1",
+      "problem_type": "roster",
+      "employees": 40,
+      "roles": 3,
+      "days": 14.0,
+      "slot_minutes": 30,
+      "slots": 672,
+      "candidates": 2240,
+      "objective_order": [
+        "preference_penalty",
+        "scheduled_minutes",
+        "role_switches"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 30.0,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 5,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.3",
+        "library_version": "9.15.6755",
+        "selection_reason": "JOINT_ROSTER"
+      },
+      "schema_version": "0.1",
+      "status": "FEASIBLE",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 1080,
+          "proven_optimal": false
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 129030,
+          "proven_optimal": false
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 86,
+          "proven_optimal": false
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 1080,
+          "proven_optimal": false,
+          "best_bound": 0.0,
+          "absolute_gap": 1080.0,
+          "relative_gap": 1.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 129030,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 86,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "OPTIMALITY_UNPROVEN",
+          "message": "上位目的の最適性が未証明のため、後続の目的は探索しません。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 30.0
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 30.04123079101555
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.0669219580013305
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.21833395899739116
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.3348209169926122
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.14736708399141207
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "preferences"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 30.0,
+        "search_elapsed_seconds": 30.04123079101555,
+        "normalization_elapsed_seconds": 0.0669219580013305,
+        "backend_loading_elapsed_seconds": 0.21833395899739116,
+        "preparation_elapsed_seconds": 0.3348209169926122,
+        "verification_elapsed_seconds": 0.14736708399141207
+      },
+      "assignments": 1122,
+      "shifts": 391,
+      "import_seconds": 0.026759875006973743,
+      "input_seconds": 0.0023828749544918537,
+      "elapsed_seconds": 30.92592687503202,
+      "request_elapsed_seconds": 30.955069624993484,
+      "engine_elapsed_seconds": 30.925644292030483,
+      "metadata_seconds": 0.050059958011843264,
+      "peak_rss_mib": 672.375,
+      "group": 2,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-fortnight-large.json",
+      "input_sha256": "ae4f89e8be42368213533ea8da508c514e33a49a034a74c301f921cd29b0fec1",
+      "problem_type": "roster",
+      "employees": 40,
+      "roles": 3,
+      "days": 14.0,
+      "slot_minutes": 30,
+      "slots": 672,
+      "candidates": 2240,
+      "objective_order": [
+        "preference_penalty",
+        "scheduled_minutes",
+        "role_switches"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 30.0,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 5,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.3",
+        "library_version": "9.15.6755",
+        "selection_reason": "JOINT_ROSTER"
+      },
+      "schema_version": "0.1",
+      "status": "FEASIBLE",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 1080,
+          "proven_optimal": false
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 130350,
+          "proven_optimal": false
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 71,
+          "proven_optimal": false
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 1080,
+          "proven_optimal": false,
+          "best_bound": 0.0,
+          "absolute_gap": 1080.0,
+          "relative_gap": 1.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 130350,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 71,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "OPTIMALITY_UNPROVEN",
+          "message": "上位目的の最適性が未証明のため、後続の目的は探索しません。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 30.0
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 30.03730370901758
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.06857033300912008
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.26009258400881663
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.3321526669897139
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.13725120801245794
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "preferences"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 30.0,
+        "search_elapsed_seconds": 30.03730370901758,
+        "normalization_elapsed_seconds": 0.06857033300912008,
+        "backend_loading_elapsed_seconds": 0.26009258400881663,
+        "preparation_elapsed_seconds": 0.3321526669897139,
+        "verification_elapsed_seconds": 0.13725120801245794
+      },
+      "assignments": 922,
+      "shifts": 395,
+      "import_seconds": 0.0345917500089854,
+      "input_seconds": 0.0023051250027492642,
+      "elapsed_seconds": 30.941768917022273,
+      "request_elapsed_seconds": 30.978665792034008,
+      "engine_elapsed_seconds": 30.941496875020675,
+      "metadata_seconds": 0.05023291596444324,
+      "peak_rss_mib": 668.96875,
+      "group": 3,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-week-15min.json",
+      "input_sha256": "68e1a1d94e0af9c4b4d2d14b2fe9adf6c6e8eb5df021807be6eafc6a9eb42f6e",
+      "problem_type": "roster",
+      "employees": 20,
+      "roles": 3,
+      "days": 7.0,
+      "slot_minutes": 15,
+      "slots": 672,
+      "candidates": 560,
+      "objective_order": [
+        "preference_penalty",
+        "scheduled_minutes",
+        "role_switches"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 30.0,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 5,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.3",
+        "library_version": "9.15.6755",
+        "selection_reason": "JOINT_ROSTER"
+      },
+      "schema_version": "0.1",
+      "status": "FEASIBLE",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 270,
+          "proven_optimal": false
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 33000,
+          "proven_optimal": false
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 92,
+          "proven_optimal": false
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 270,
+          "proven_optimal": false,
+          "best_bound": 0.0,
+          "absolute_gap": 270.0,
+          "relative_gap": 1.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 33000,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 92,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "OPTIMALITY_UNPROVEN",
+          "message": "上位目的の最適性が未証明のため、後続の目的は探索しません。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 30.0
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 30.020366749959067
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.03139741701306775
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.2606256249709986
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.1615252920310013
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.05152158398414031
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "preferences"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 30.0,
+        "search_elapsed_seconds": 30.020366749959067,
+        "normalization_elapsed_seconds": 0.03139741701306775,
+        "backend_loading_elapsed_seconds": 0.2606256249709986,
+        "preparation_elapsed_seconds": 0.1615252920310013,
+        "verification_elapsed_seconds": 0.05152158398414031
+      },
+      "assignments": 460,
+      "shifts": 100,
+      "import_seconds": 0.0346158750471659,
+      "input_seconds": 0.0008236249559558928,
+      "elapsed_seconds": 30.575428208045196,
+      "request_elapsed_seconds": 30.610867708048318,
+      "engine_elapsed_seconds": 30.57533154200064,
+      "metadata_seconds": 0.014318374975118786,
+      "peak_rss_mib": 387.125,
+      "group": 1,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-week-15min.json",
+      "input_sha256": "68e1a1d94e0af9c4b4d2d14b2fe9adf6c6e8eb5df021807be6eafc6a9eb42f6e",
+      "problem_type": "roster",
+      "employees": 20,
+      "roles": 3,
+      "days": 7.0,
+      "slot_minutes": 15,
+      "slots": 672,
+      "candidates": 560,
+      "objective_order": [
+        "preference_penalty",
+        "scheduled_minutes",
+        "role_switches"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 30.0,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 5,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.3",
+        "library_version": "9.15.6755",
+        "selection_reason": "JOINT_ROSTER"
+      },
+      "schema_version": "0.1",
+      "status": "FEASIBLE",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 270,
+          "proven_optimal": false
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 33000,
+          "proven_optimal": false
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 86,
+          "proven_optimal": false
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 270,
+          "proven_optimal": false,
+          "best_bound": 0.0,
+          "absolute_gap": 270.0,
+          "relative_gap": 1.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 33000,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 86,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "OPTIMALITY_UNPROVEN",
+          "message": "上位目的の最適性が未証明のため、後続の目的は探索しません。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 30.0
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 30.017938334029168
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.030347624968271703
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.22080770903266966
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.15922358399257064
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.0512252920307219
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "preferences"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 30.0,
+        "search_elapsed_seconds": 30.017938334029168,
+        "normalization_elapsed_seconds": 0.030347624968271703,
+        "backend_loading_elapsed_seconds": 0.22080770903266966,
+        "preparation_elapsed_seconds": 0.15922358399257064,
+        "verification_elapsed_seconds": 0.0512252920307219
+      },
+      "assignments": 487,
+      "shifts": 100,
+      "import_seconds": 0.02623287501046434,
+      "input_seconds": 0.0007869169930927455,
+      "elapsed_seconds": 30.530347958032507,
+      "request_elapsed_seconds": 30.557367750036065,
+      "engine_elapsed_seconds": 30.530262499989476,
+      "metadata_seconds": 0.01444399997126311,
+      "peak_rss_mib": 386.5625,
+      "group": 2,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-week-15min.json",
+      "input_sha256": "68e1a1d94e0af9c4b4d2d14b2fe9adf6c6e8eb5df021807be6eafc6a9eb42f6e",
+      "problem_type": "roster",
+      "employees": 20,
+      "roles": 3,
+      "days": 7.0,
+      "slot_minutes": 15,
+      "slots": 672,
+      "candidates": 560,
+      "objective_order": [
+        "preference_penalty",
+        "scheduled_minutes",
+        "role_switches"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 30.0,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 5,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.3",
+        "library_version": "9.15.6755",
+        "selection_reason": "JOINT_ROSTER"
+      },
+      "schema_version": "0.1",
+      "status": "FEASIBLE",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 270,
+          "proven_optimal": false
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 32670,
+          "proven_optimal": false
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 61,
+          "proven_optimal": false
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "value": 270,
+          "proven_optimal": false,
+          "best_bound": 0.0,
+          "absolute_gap": 270.0,
+          "relative_gap": 1.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 32670,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "value": 61,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "OPTIMALITY_UNPROVEN",
+          "message": "上位目的の最適性が未証明のため、後続の目的は探索しません。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 30.0
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 30.018519292003475
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.03033629199489951
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.21778691600775346
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.16194262501085177
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.048657291976269335
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "preferences"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 30.0,
+        "search_elapsed_seconds": 30.018519292003475,
+        "normalization_elapsed_seconds": 0.03033629199489951,
+        "backend_loading_elapsed_seconds": 0.21778691600775346,
+        "preparation_elapsed_seconds": 0.16194262501085177,
+        "verification_elapsed_seconds": 0.048657291976269335
+      },
+      "assignments": 400,
+      "shifts": 99,
+      "import_seconds": 0.027592332975473255,
+      "input_seconds": 0.000784417032264173,
+      "elapsed_seconds": 30.52324712497648,
+      "request_elapsed_seconds": 30.551623874984216,
+      "engine_elapsed_seconds": 30.523162833007518,
+      "metadata_seconds": 0.014334667008370161,
+      "peak_rss_mib": 383.453125,
+      "group": 3,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-extended.json",
+      "input_sha256": "a8d05d7f57b57a59c732f99782225af37d201f7ddb0e63bd985e1df89295a06f",
+      "problem_type": "roster",
+      "employees": 2,
+      "roles": 2,
+      "days": 2.0,
+      "slot_minutes": 30,
+      "slots": 96,
+      "candidates": 2,
+      "objective_order": [
+        "plan_changes",
+        "fairness_deviation_minutes",
+        "scheduled_minutes"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 30.0,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.3",
+        "library_version": "9.15.6755",
+        "selection_reason": "JOINT_ROSTER"
+      },
+      "schema_version": "0.2",
+      "status": "INFEASIBLE",
+      "verification": {
+        "performed": false,
+        "valid": null,
+        "violations": []
+      },
+      "objectives": [],
+      "objective_quality": [],
+      "diagnostics": [
+        {
+          "code": "NO_FEASIBLE_PLAN",
+          "message": "すべての必須条件を満たす配置はありません。",
+          "json_pointer": "",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 30.0
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.0011942499550059438
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.03274075000081211
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.22326254204381257
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.0006873340462334454
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.0034419999574311078
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "diagnosis_result": {
+        "status": "COMPLETE",
+        "reason": null,
+        "conflict": {
+          "conditions": [
+            {
+              "code": "PLANNING_GRID",
+              "json_pointer": "/planning_window",
+              "related_ids": [],
+              "interval": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-08T00:00:00+09:00"
+              }
+            },
+            {
+              "code": "EXACT_DEMAND_AND_SINGLE_ASSIGNMENT",
+              "json_pointer": "/problem_type",
+              "related_ids": [],
+              "interval": null
+            },
+            {
+              "code": "DEMAND",
+              "json_pointer": "/demand/0",
+              "related_ids": [
+                "need_1_1200_kitchen",
+                "kitchen"
+              ],
+              "interval": {
+                "start": "2026-10-06T20:00:00+09:00",
+                "end": "2026-10-06T22:00:00+09:00"
+              }
+            },
+            {
+              "code": "DEMAND",
+              "json_pointer": "/demand/1",
+              "related_ids": [
+                "need_2_120_kitchen",
+                "kitchen"
+              ],
+              "interval": {
+                "start": "2026-10-07T02:00:00+09:00",
+                "end": "2026-10-07T04:00:00+09:00"
+              }
+            },
+            {
+              "code": "REQUIRED_SKILLS",
+              "json_pointer": "/roles/0/required_skills",
+              "related_ids": [
+                "kitchen"
+              ],
+              "interval": null
+            },
+            {
+              "code": "REQUIRED_SKILLS",
+              "json_pointer": "/roles/1/required_skills",
+              "related_ids": [
+                "hall"
+              ],
+              "interval": null
+            },
+            {
+              "code": "EMPLOYEE_SKILLS",
+              "json_pointer": "/employees/0/skills",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": null
+            },
+            {
+              "code": "AVAILABILITY",
+              "json_pointer": "/employees/0/availability",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-08T00:00:00+09:00"
+              }
+            },
+            {
+              "code": "HISTORY",
+              "json_pointer": "/employees/0/history",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": null
+            },
+            {
+              "code": "EMPLOYEE_SKILLS",
+              "json_pointer": "/employees/1/skills",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": null
+            },
+            {
+              "code": "AVAILABILITY",
+              "json_pointer": "/employees/1/availability",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-08T00:00:00+09:00"
+              }
+            },
+            {
+              "code": "HISTORY",
+              "json_pointer": "/employees/1/history",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": null
+            },
+            {
+              "code": "SHIFT_CANDIDATE",
+              "json_pointer": "/shift_candidates/0",
+              "related_ids": [
+                "alice_first",
+                "alice"
+              ],
+              "interval": {
+                "start": "2026-10-06T20:00:00+09:00",
+                "end": "2026-10-06T22:00:00+09:00"
+              }
+            },
+            {
+              "code": "SHIFT_CANDIDATE",
+              "json_pointer": "/shift_candidates/1",
+              "related_ids": [
+                "bob_second",
+                "bob"
+              ],
+              "interval": {
+                "start": "2026-10-07T02:00:00+09:00",
+                "end": "2026-10-07T04:00:00+09:00"
+              }
+            },
+            {
+              "code": "CANDIDATE_SET",
+              "json_pointer": "/shift_candidates",
+              "related_ids": [],
+              "interval": null
+            },
+            {
+              "code": "FIXED_PART",
+              "json_pointer": "/fixed_parts/0",
+              "related_ids": [
+                "preserve_first"
+              ],
+              "interval": {
+                "start": "2026-10-06T20:00:00+09:00",
+                "end": "2026-10-06T22:00:00+09:00"
+              }
+            },
+            {
+              "code": "BASELINE_STATES",
+              "json_pointer": "/baseline",
+              "related_ids": [
+                "old_split"
+              ],
+              "interval": null
+            }
+          ],
+          "infeasibility_proven": true,
+          "minimality": "not_proven"
+        },
+        "suggestions": [
+          {
+            "option_id": "restore_one_person",
+            "modified_request": {
+              "schema_version": "0.2",
+              "request_id": "roster_extended",
+              "problem_type": "roster",
+              "planning_window": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-08T00:00:00+09:00",
+                "timezone": "Asia/Tokyo",
+                "slot_minutes": 30
+              },
+              "skills": [],
+              "roles": [
+                {
+                  "id": "kitchen",
+                  "label": "kitchen",
+                  "required_skills": []
+                },
+                {
+                  "id": "hall",
+                  "label": "hall",
+                  "required_skills": []
+                }
+              ],
+              "employees": [
+                {
+                  "id": "alice",
+                  "label": "alice",
+                  "skills": [],
+                  "availability": [
+                    {
+                      "start": "2026-10-06T20:00:00+09:00",
+                      "end": "2026-10-06T22:00:00+09:00"
+                    }
+                  ],
+                  "history": {
+                    "last_shift_end": null,
+                    "consecutive_work_days_before_window": 0,
+                    "last_work_day": null
+                  }
+                },
+                {
+                  "id": "bob",
+                  "label": "bob",
+                  "skills": [],
+                  "availability": [
+                    {
+                      "start": "2026-10-07T02:00:00+09:00",
+                      "end": "2026-10-07T04:00:00+09:00"
+                    }
+                  ],
+                  "history": {
+                    "last_shift_end": null,
+                    "consecutive_work_days_before_window": 0,
+                    "last_work_day": null
+                  }
+                }
+              ],
+              "demand": [
+                {
+                  "id": "need_1_1200_kitchen",
+                  "role_id": "kitchen",
+                  "interval": {
+                    "start": "2026-10-06T20:00:00+09:00",
+                    "end": "2026-10-06T22:00:00+09:00"
+                  },
+                  "required_people": 1
+                },
+                {
+                  "id": "need_2_120_kitchen",
+                  "role_id": "kitchen",
+                  "interval": {
+                    "start": "2026-10-07T02:00:00+09:00",
+                    "end": "2026-10-07T04:00:00+09:00"
+                  },
+                  "required_people": 1
+                }
+              ],
+              "shift_candidates": [
+                {
+                  "id": "alice_first",
+                  "employee_id": "alice",
+                  "segments": [
+                    {
+                      "interval": {
+                        "start": "2026-10-06T20:00:00+09:00",
+                        "end": "2026-10-06T22:00:00+09:00"
+                      },
+                      "breaks": []
+                    }
+                  ]
+                },
+                {
+                  "id": "bob_second",
+                  "employee_id": "bob",
+                  "segments": [
+                    {
+                      "interval": {
+                        "start": "2026-10-07T02:00:00+09:00",
+                        "end": "2026-10-07T04:00:00+09:00"
+                      },
+                      "breaks": []
+                    }
+                  ]
+                }
+              ],
+              "constraints": [],
+              "preferences": [],
+              "objectives": [
+                {
+                  "id": "changes",
+                  "metric": "plan_changes"
+                },
+                {
+                  "id": "fairness",
+                  "metric": "fairness_deviation_minutes"
+                },
+                {
+                  "id": "work",
+                  "metric": "scheduled_minutes"
+                }
+              ],
+              "solver": {
+                "backend": "auto",
+                "time_limit_seconds": 9.999889208003879,
+                "seed": 0
+              },
+              "baseline": {
+                "plan_id": "old_split",
+                "source_request": {
+                  "schema_version": "0.2",
+                  "request_id": "old_split_plan",
+                  "problem_type": "roster",
+                  "planning_window": {
+                    "start": "2026-10-06T00:00:00+09:00",
+                    "end": "2026-10-08T00:00:00+09:00",
+                    "timezone": "Asia/Tokyo",
+                    "slot_minutes": 30
+                  },
+                  "skills": [],
+                  "roles": [
+                    {
+                      "id": "kitchen",
+                      "label": "kitchen",
+                      "required_skills": []
+                    },
+                    {
+                      "id": "hall",
+                      "label": "hall",
+                      "required_skills": []
+                    }
+                  ],
+                  "employees": [
+                    {
+                      "id": "alice",
+                      "label": "alice",
+                      "skills": [],
+                      "availability": [
+                        {
+                          "start": "2026-10-06T20:00:00+09:00",
+                          "end": "2026-10-06T22:00:00+09:00"
+                        },
+                        {
+                          "start": "2026-10-07T02:00:00+09:00",
+                          "end": "2026-10-07T04:00:00+09:00"
+                        }
+                      ],
+                      "history": {
+                        "last_shift_end": null,
+                        "consecutive_work_days_before_window": 0,
+                        "last_work_day": null
+                      }
+                    },
+                    {
+                      "id": "bob",
+                      "label": "bob",
+                      "skills": [],
+                      "availability": [
+                        {
+                          "start": "2026-10-07T02:00:00+09:00",
+                          "end": "2026-10-07T04:00:00+09:00"
+                        }
+                      ],
+                      "history": {
+                        "last_shift_end": null,
+                        "consecutive_work_days_before_window": 0,
+                        "last_work_day": null
+                      }
+                    }
+                  ],
+                  "demand": [
+                    {
+                      "id": "need_1_1200_kitchen",
+                      "role_id": "kitchen",
+                      "interval": {
+                        "start": "2026-10-06T20:00:00+09:00",
+                        "end": "2026-10-06T22:00:00+09:00"
+                      },
+                      "required_people": 1
+                    },
+                    {
+                      "id": "need_2_120_kitchen",
+                      "role_id": "kitchen",
+                      "interval": {
+                        "start": "2026-10-07T02:00:00+09:00",
+                        "end": "2026-10-07T04:00:00+09:00"
+                      },
+                      "required_people": 1
+                    }
+                  ],
+                  "shift_candidates": [
+                    {
+                      "id": "alice_old_split",
+                      "employee_id": "alice",
+                      "segments": [
+                        {
+                          "interval": {
+                            "start": "2026-10-06T20:00:00+09:00",
+                            "end": "2026-10-06T22:00:00+09:00"
+                          },
+                          "breaks": []
+                        },
+                        {
+                          "interval": {
+                            "start": "2026-10-07T02:00:00+09:00",
+                            "end": "2026-10-07T04:00:00+09:00"
+                          },
+                          "breaks": []
+                        }
+                      ]
+                    }
+                  ],
+                  "constraints": [],
+                  "preferences": [],
+                  "objectives": [
+                    {
+                      "id": "work",
+                      "metric": "scheduled_minutes"
+                    }
+                  ],
+                  "solver": {
+                    "backend": "auto",
+                    "time_limit_seconds": 10,
+                    "seed": 0
+                  }
+                },
+                "source_solution": {
+                  "assignments": [
+                    {
+                      "employee_id": "alice",
+                      "role_id": "kitchen",
+                      "interval": {
+                        "start": "2026-10-06T20:00:00+09:00",
+                        "end": "2026-10-06T22:00:00+09:00"
+                      }
+                    },
+                    {
+                      "employee_id": "alice",
+                      "role_id": "kitchen",
+                      "interval": {
+                        "start": "2026-10-07T02:00:00+09:00",
+                        "end": "2026-10-07T04:00:00+09:00"
+                      }
+                    }
+                  ],
+                  "shifts": [
+                    {
+                      "candidate_id": "alice_old_split",
+                      "employee_id": "alice",
+                      "segments": [
+                        {
+                          "interval": {
+                            "start": "2026-10-06T20:00:00+09:00",
+                            "end": "2026-10-06T22:00:00+09:00"
+                          },
+                          "breaks": []
+                        },
+                        {
+                          "interval": {
+                            "start": "2026-10-07T02:00:00+09:00",
+                            "end": "2026-10-07T04:00:00+09:00"
+                          },
+                          "breaks": []
+                        }
+                      ],
+                      "work_day": "2026-10-06"
+                    }
+                  ]
+                }
+              },
+              "fixed_parts": [
+                {
+                  "id": "preserve_first",
+                  "employee_id": "alice",
+                  "interval": {
+                    "start": "2026-10-06T20:00:00+09:00",
+                    "end": "2026-10-06T22:00:00+09:00"
+                  },
+                  "components": [
+                    "work",
+                    "role"
+                  ]
+                }
+              ],
+              "fairness": {
+                "evaluation_period": {
+                  "start": "2026-10-06T00:00:00+09:00",
+                  "end": "2026-10-08T00:00:00+09:00"
+                },
+                "employee_targets": [
+                  {
+                    "employee_id": "alice",
+                    "target_minutes": 120
+                  },
+                  {
+                    "employee_id": "bob",
+                    "target_minutes": 120
+                  }
+                ]
+              }
+            },
+            "response": {
+              "schema_version": "0.2",
+              "request_id": "roster_extended",
+              "status": "OPTIMAL",
+              "solver": {
+                "backend": "cp_sat",
+                "engine_version": "0.1.3",
+                "library_version": "9.15.6755",
+                "selection_reason": "JOINT_ROSTER"
+              },
+              "solution": {
+                "assignments": [
+                  {
+                    "employee_id": "alice",
+                    "role_id": "kitchen",
+                    "interval": {
+                      "start": "2026-10-06T20:00:00+09:00",
+                      "end": "2026-10-06T22:00:00+09:00"
+                    }
+                  },
+                  {
+                    "employee_id": "bob",
+                    "role_id": "kitchen",
+                    "interval": {
+                      "start": "2026-10-07T02:00:00+09:00",
+                      "end": "2026-10-07T04:00:00+09:00"
+                    }
+                  }
+                ],
+                "shifts": [
+                  {
+                    "candidate_id": "alice_first",
+                    "employee_id": "alice",
+                    "work_day": "2026-10-06",
+                    "segments": [
+                      {
+                        "interval": {
+                          "start": "2026-10-06T20:00:00+09:00",
+                          "end": "2026-10-06T22:00:00+09:00"
+                        },
+                        "breaks": []
+                      }
+                    ]
+                  },
+                  {
+                    "candidate_id": "bob_second",
+                    "employee_id": "bob",
+                    "work_day": "2026-10-07",
+                    "segments": [
+                      {
+                        "interval": {
+                          "start": "2026-10-07T02:00:00+09:00",
+                          "end": "2026-10-07T04:00:00+09:00"
+                        },
+                        "breaks": []
+                      }
+                    ]
+                  }
+                ]
+              },
+              "objectives": [
+                {
+                  "id": "changes",
+                  "metric": "plan_changes",
+                  "value": 16,
+                  "proven_optimal": true
+                },
+                {
+                  "id": "fairness",
+                  "metric": "fairness_deviation_minutes",
+                  "value": 0,
+                  "proven_optimal": true
+                },
+                {
+                  "id": "work",
+                  "metric": "scheduled_minutes",
+                  "value": 240,
+                  "proven_optimal": true
+                }
+              ],
+              "diagnostics": [
+                {
+                  "code": "SEARCH_STATS",
+                  "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+                  "json_pointer": "/solver/time_limit_seconds",
+                  "related_ids": [],
+                  "facts": [
+                    {
+                      "name": "time_limit_seconds",
+                      "value": 9.999889208003879
+                    },
+                    {
+                      "name": "search_elapsed_seconds",
+                      "value": 0.003219667007215321
+                    },
+                    {
+                      "name": "normalization_elapsed_seconds",
+                      "value": 0.0018247920088469982
+                    },
+                    {
+                      "name": "backend_loading_elapsed_seconds",
+                      "value": 2.333021257072687e-06
+                    },
+                    {
+                      "name": "preparation_elapsed_seconds",
+                      "value": 0.0004787090001627803
+                    },
+                    {
+                      "name": "verification_elapsed_seconds",
+                      "value": 0.0007059579947963357
+                    }
+                  ]
+                },
+                {
+                  "code": "OBJECTIVE_BOUND",
+                  "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+                  "json_pointer": "/objectives/0",
+                  "related_ids": [
+                    "changes"
+                  ],
+                  "facts": [
+                    {
+                      "name": "objective_index",
+                      "value": 0
+                    },
+                    {
+                      "name": "best_bound",
+                      "value": 16.0
+                    }
+                  ]
+                },
+                {
+                  "code": "OBJECTIVE_BOUND",
+                  "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+                  "json_pointer": "/objectives/1",
+                  "related_ids": [
+                    "fairness"
+                  ],
+                  "facts": [
+                    {
+                      "name": "objective_index",
+                      "value": 1
+                    },
+                    {
+                      "name": "best_bound",
+                      "value": 0.0
+                    }
+                  ]
+                },
+                {
+                  "code": "OBJECTIVE_BOUND",
+                  "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+                  "json_pointer": "/objectives/2",
+                  "related_ids": [
+                    "work"
+                  ],
+                  "facts": [
+                    {
+                      "name": "objective_index",
+                      "value": 2
+                    },
+                    {
+                      "name": "best_bound",
+                      "value": 240.0
+                    }
+                  ]
+                }
+              ],
+              "verification": {
+                "performed": true,
+                "valid": true,
+                "violations": []
+              },
+              "stats": {
+                "elapsed_seconds": 0.02878454199526459
+              },
+              "fairness_summary": {
+                "evaluation_period": {
+                  "start": "2026-10-06T00:00:00+09:00",
+                  "end": "2026-10-08T00:00:00+09:00"
+                },
+                "scale": "absolute_minutes",
+                "normalized": false,
+                "employees": [
+                  {
+                    "employee_id": "alice",
+                    "target_minutes": 120,
+                    "scheduled_minutes": 120,
+                    "deviation_minutes": 0
+                  },
+                  {
+                    "employee_id": "bob",
+                    "target_minutes": 120,
+                    "scheduled_minutes": 120,
+                    "deviation_minutes": 0
+                  }
+                ]
+              },
+              "change_summary": {
+                "plan_id": "old_split",
+                "unit": "slot_components",
+                "work_changes": 8,
+                "role_changes": 8,
+                "total_changes": 16
+              },
+              "diagnosis_result": null
+            }
+          }
+        ],
+        "suggestion_minimality": "not_proven",
+        "time_limit_seconds": 10,
+        "elapsed_seconds": 0.037209250032901764,
+        "diagnostics": [
+          {
+            "code": "OPTION_BUDGET",
+            "message": "許可編集を適用し、診断を無効にして残り予算で検証しました。",
+            "json_pointer": "/solver/time_limit_seconds",
+            "related_ids": [
+              "restore_one_person"
+            ],
+            "facts": [
+              {
+                "name": "original_budget",
+                "value": 30.0
+              },
+              {
+                "name": "applied_budget",
+                "value": 9.999889208003879
+              }
+            ]
+          }
+        ]
+      },
+      "search_stats": {
+        "time_limit_seconds": 30.0,
+        "search_elapsed_seconds": 0.0011942499550059438,
+        "normalization_elapsed_seconds": 0.03274075000081211,
+        "backend_loading_elapsed_seconds": 0.22326254204381257,
+        "preparation_elapsed_seconds": 0.0006873340462334454,
+        "verification_elapsed_seconds": 0.0034419999574311078
+      },
+      "assignments": 0,
+      "shifts": 0,
+      "import_seconds": 0.026261750026606023,
+      "input_seconds": 0.0010508749983273447,
+      "elapsed_seconds": 0.2985638749669306,
+      "request_elapsed_seconds": 0.32587649999186397,
+      "engine_elapsed_seconds": 0.2985577920335345,
+      "metadata_seconds": 0.001675542036537081,
+      "peak_rss_mib": 105.046875,
+      "group": 1,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-extended.json",
+      "input_sha256": "a8d05d7f57b57a59c732f99782225af37d201f7ddb0e63bd985e1df89295a06f",
+      "problem_type": "roster",
+      "employees": 2,
+      "roles": 2,
+      "days": 2.0,
+      "slot_minutes": 30,
+      "slots": 96,
+      "candidates": 2,
+      "objective_order": [
+        "plan_changes",
+        "fairness_deviation_minutes",
+        "scheduled_minutes"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 30.0,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.3",
+        "library_version": "9.15.6755",
+        "selection_reason": "JOINT_ROSTER"
+      },
+      "schema_version": "0.2",
+      "status": "INFEASIBLE",
+      "verification": {
+        "performed": false,
+        "valid": null,
+        "violations": []
+      },
+      "objectives": [],
+      "objective_quality": [],
+      "diagnostics": [
+        {
+          "code": "NO_FEASIBLE_PLAN",
+          "message": "すべての必須条件を満たす配置はありません。",
+          "json_pointer": "",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 30.0
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.0011937080416828394
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.02817399997729808
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.22010691702598706
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.0007090420112945139
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.003447666997089982
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "diagnosis_result": {
+        "status": "COMPLETE",
+        "reason": null,
+        "conflict": {
+          "conditions": [
+            {
+              "code": "PLANNING_GRID",
+              "json_pointer": "/planning_window",
+              "related_ids": [],
+              "interval": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-08T00:00:00+09:00"
+              }
+            },
+            {
+              "code": "EXACT_DEMAND_AND_SINGLE_ASSIGNMENT",
+              "json_pointer": "/problem_type",
+              "related_ids": [],
+              "interval": null
+            },
+            {
+              "code": "DEMAND",
+              "json_pointer": "/demand/0",
+              "related_ids": [
+                "need_1_1200_kitchen",
+                "kitchen"
+              ],
+              "interval": {
+                "start": "2026-10-06T20:00:00+09:00",
+                "end": "2026-10-06T22:00:00+09:00"
+              }
+            },
+            {
+              "code": "DEMAND",
+              "json_pointer": "/demand/1",
+              "related_ids": [
+                "need_2_120_kitchen",
+                "kitchen"
+              ],
+              "interval": {
+                "start": "2026-10-07T02:00:00+09:00",
+                "end": "2026-10-07T04:00:00+09:00"
+              }
+            },
+            {
+              "code": "REQUIRED_SKILLS",
+              "json_pointer": "/roles/0/required_skills",
+              "related_ids": [
+                "kitchen"
+              ],
+              "interval": null
+            },
+            {
+              "code": "REQUIRED_SKILLS",
+              "json_pointer": "/roles/1/required_skills",
+              "related_ids": [
+                "hall"
+              ],
+              "interval": null
+            },
+            {
+              "code": "EMPLOYEE_SKILLS",
+              "json_pointer": "/employees/0/skills",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": null
+            },
+            {
+              "code": "AVAILABILITY",
+              "json_pointer": "/employees/0/availability",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-08T00:00:00+09:00"
+              }
+            },
+            {
+              "code": "HISTORY",
+              "json_pointer": "/employees/0/history",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": null
+            },
+            {
+              "code": "EMPLOYEE_SKILLS",
+              "json_pointer": "/employees/1/skills",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": null
+            },
+            {
+              "code": "AVAILABILITY",
+              "json_pointer": "/employees/1/availability",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-08T00:00:00+09:00"
+              }
+            },
+            {
+              "code": "HISTORY",
+              "json_pointer": "/employees/1/history",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": null
+            },
+            {
+              "code": "SHIFT_CANDIDATE",
+              "json_pointer": "/shift_candidates/0",
+              "related_ids": [
+                "alice_first",
+                "alice"
+              ],
+              "interval": {
+                "start": "2026-10-06T20:00:00+09:00",
+                "end": "2026-10-06T22:00:00+09:00"
+              }
+            },
+            {
+              "code": "SHIFT_CANDIDATE",
+              "json_pointer": "/shift_candidates/1",
+              "related_ids": [
+                "bob_second",
+                "bob"
+              ],
+              "interval": {
+                "start": "2026-10-07T02:00:00+09:00",
+                "end": "2026-10-07T04:00:00+09:00"
+              }
+            },
+            {
+              "code": "CANDIDATE_SET",
+              "json_pointer": "/shift_candidates",
+              "related_ids": [],
+              "interval": null
+            },
+            {
+              "code": "FIXED_PART",
+              "json_pointer": "/fixed_parts/0",
+              "related_ids": [
+                "preserve_first"
+              ],
+              "interval": {
+                "start": "2026-10-06T20:00:00+09:00",
+                "end": "2026-10-06T22:00:00+09:00"
+              }
+            },
+            {
+              "code": "BASELINE_STATES",
+              "json_pointer": "/baseline",
+              "related_ids": [
+                "old_split"
+              ],
+              "interval": null
+            }
+          ],
+          "infeasibility_proven": true,
+          "minimality": "not_proven"
+        },
+        "suggestions": [
+          {
+            "option_id": "restore_one_person",
+            "modified_request": {
+              "schema_version": "0.2",
+              "request_id": "roster_extended",
+              "problem_type": "roster",
+              "planning_window": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-08T00:00:00+09:00",
+                "timezone": "Asia/Tokyo",
+                "slot_minutes": 30
+              },
+              "skills": [],
+              "roles": [
+                {
+                  "id": "kitchen",
+                  "label": "kitchen",
+                  "required_skills": []
+                },
+                {
+                  "id": "hall",
+                  "label": "hall",
+                  "required_skills": []
+                }
+              ],
+              "employees": [
+                {
+                  "id": "alice",
+                  "label": "alice",
+                  "skills": [],
+                  "availability": [
+                    {
+                      "start": "2026-10-06T20:00:00+09:00",
+                      "end": "2026-10-06T22:00:00+09:00"
+                    }
+                  ],
+                  "history": {
+                    "last_shift_end": null,
+                    "consecutive_work_days_before_window": 0,
+                    "last_work_day": null
+                  }
+                },
+                {
+                  "id": "bob",
+                  "label": "bob",
+                  "skills": [],
+                  "availability": [
+                    {
+                      "start": "2026-10-07T02:00:00+09:00",
+                      "end": "2026-10-07T04:00:00+09:00"
+                    }
+                  ],
+                  "history": {
+                    "last_shift_end": null,
+                    "consecutive_work_days_before_window": 0,
+                    "last_work_day": null
+                  }
+                }
+              ],
+              "demand": [
+                {
+                  "id": "need_1_1200_kitchen",
+                  "role_id": "kitchen",
+                  "interval": {
+                    "start": "2026-10-06T20:00:00+09:00",
+                    "end": "2026-10-06T22:00:00+09:00"
+                  },
+                  "required_people": 1
+                },
+                {
+                  "id": "need_2_120_kitchen",
+                  "role_id": "kitchen",
+                  "interval": {
+                    "start": "2026-10-07T02:00:00+09:00",
+                    "end": "2026-10-07T04:00:00+09:00"
+                  },
+                  "required_people": 1
+                }
+              ],
+              "shift_candidates": [
+                {
+                  "id": "alice_first",
+                  "employee_id": "alice",
+                  "segments": [
+                    {
+                      "interval": {
+                        "start": "2026-10-06T20:00:00+09:00",
+                        "end": "2026-10-06T22:00:00+09:00"
+                      },
+                      "breaks": []
+                    }
+                  ]
+                },
+                {
+                  "id": "bob_second",
+                  "employee_id": "bob",
+                  "segments": [
+                    {
+                      "interval": {
+                        "start": "2026-10-07T02:00:00+09:00",
+                        "end": "2026-10-07T04:00:00+09:00"
+                      },
+                      "breaks": []
+                    }
+                  ]
+                }
+              ],
+              "constraints": [],
+              "preferences": [],
+              "objectives": [
+                {
+                  "id": "changes",
+                  "metric": "plan_changes"
+                },
+                {
+                  "id": "fairness",
+                  "metric": "fairness_deviation_minutes"
+                },
+                {
+                  "id": "work",
+                  "metric": "scheduled_minutes"
+                }
+              ],
+              "solver": {
+                "backend": "auto",
+                "time_limit_seconds": 9.999883124954067,
+                "seed": 0
+              },
+              "baseline": {
+                "plan_id": "old_split",
+                "source_request": {
+                  "schema_version": "0.2",
+                  "request_id": "old_split_plan",
+                  "problem_type": "roster",
+                  "planning_window": {
+                    "start": "2026-10-06T00:00:00+09:00",
+                    "end": "2026-10-08T00:00:00+09:00",
+                    "timezone": "Asia/Tokyo",
+                    "slot_minutes": 30
+                  },
+                  "skills": [],
+                  "roles": [
+                    {
+                      "id": "kitchen",
+                      "label": "kitchen",
+                      "required_skills": []
+                    },
+                    {
+                      "id": "hall",
+                      "label": "hall",
+                      "required_skills": []
+                    }
+                  ],
+                  "employees": [
+                    {
+                      "id": "alice",
+                      "label": "alice",
+                      "skills": [],
+                      "availability": [
+                        {
+                          "start": "2026-10-06T20:00:00+09:00",
+                          "end": "2026-10-06T22:00:00+09:00"
+                        },
+                        {
+                          "start": "2026-10-07T02:00:00+09:00",
+                          "end": "2026-10-07T04:00:00+09:00"
+                        }
+                      ],
+                      "history": {
+                        "last_shift_end": null,
+                        "consecutive_work_days_before_window": 0,
+                        "last_work_day": null
+                      }
+                    },
+                    {
+                      "id": "bob",
+                      "label": "bob",
+                      "skills": [],
+                      "availability": [
+                        {
+                          "start": "2026-10-07T02:00:00+09:00",
+                          "end": "2026-10-07T04:00:00+09:00"
+                        }
+                      ],
+                      "history": {
+                        "last_shift_end": null,
+                        "consecutive_work_days_before_window": 0,
+                        "last_work_day": null
+                      }
+                    }
+                  ],
+                  "demand": [
+                    {
+                      "id": "need_1_1200_kitchen",
+                      "role_id": "kitchen",
+                      "interval": {
+                        "start": "2026-10-06T20:00:00+09:00",
+                        "end": "2026-10-06T22:00:00+09:00"
+                      },
+                      "required_people": 1
+                    },
+                    {
+                      "id": "need_2_120_kitchen",
+                      "role_id": "kitchen",
+                      "interval": {
+                        "start": "2026-10-07T02:00:00+09:00",
+                        "end": "2026-10-07T04:00:00+09:00"
+                      },
+                      "required_people": 1
+                    }
+                  ],
+                  "shift_candidates": [
+                    {
+                      "id": "alice_old_split",
+                      "employee_id": "alice",
+                      "segments": [
+                        {
+                          "interval": {
+                            "start": "2026-10-06T20:00:00+09:00",
+                            "end": "2026-10-06T22:00:00+09:00"
+                          },
+                          "breaks": []
+                        },
+                        {
+                          "interval": {
+                            "start": "2026-10-07T02:00:00+09:00",
+                            "end": "2026-10-07T04:00:00+09:00"
+                          },
+                          "breaks": []
+                        }
+                      ]
+                    }
+                  ],
+                  "constraints": [],
+                  "preferences": [],
+                  "objectives": [
+                    {
+                      "id": "work",
+                      "metric": "scheduled_minutes"
+                    }
+                  ],
+                  "solver": {
+                    "backend": "auto",
+                    "time_limit_seconds": 10,
+                    "seed": 0
+                  }
+                },
+                "source_solution": {
+                  "assignments": [
+                    {
+                      "employee_id": "alice",
+                      "role_id": "kitchen",
+                      "interval": {
+                        "start": "2026-10-06T20:00:00+09:00",
+                        "end": "2026-10-06T22:00:00+09:00"
+                      }
+                    },
+                    {
+                      "employee_id": "alice",
+                      "role_id": "kitchen",
+                      "interval": {
+                        "start": "2026-10-07T02:00:00+09:00",
+                        "end": "2026-10-07T04:00:00+09:00"
+                      }
+                    }
+                  ],
+                  "shifts": [
+                    {
+                      "candidate_id": "alice_old_split",
+                      "employee_id": "alice",
+                      "segments": [
+                        {
+                          "interval": {
+                            "start": "2026-10-06T20:00:00+09:00",
+                            "end": "2026-10-06T22:00:00+09:00"
+                          },
+                          "breaks": []
+                        },
+                        {
+                          "interval": {
+                            "start": "2026-10-07T02:00:00+09:00",
+                            "end": "2026-10-07T04:00:00+09:00"
+                          },
+                          "breaks": []
+                        }
+                      ],
+                      "work_day": "2026-10-06"
+                    }
+                  ]
+                }
+              },
+              "fixed_parts": [
+                {
+                  "id": "preserve_first",
+                  "employee_id": "alice",
+                  "interval": {
+                    "start": "2026-10-06T20:00:00+09:00",
+                    "end": "2026-10-06T22:00:00+09:00"
+                  },
+                  "components": [
+                    "work",
+                    "role"
+                  ]
+                }
+              ],
+              "fairness": {
+                "evaluation_period": {
+                  "start": "2026-10-06T00:00:00+09:00",
+                  "end": "2026-10-08T00:00:00+09:00"
+                },
+                "employee_targets": [
+                  {
+                    "employee_id": "alice",
+                    "target_minutes": 120
+                  },
+                  {
+                    "employee_id": "bob",
+                    "target_minutes": 120
+                  }
+                ]
+              }
+            },
+            "response": {
+              "schema_version": "0.2",
+              "request_id": "roster_extended",
+              "status": "OPTIMAL",
+              "solver": {
+                "backend": "cp_sat",
+                "engine_version": "0.1.3",
+                "library_version": "9.15.6755",
+                "selection_reason": "JOINT_ROSTER"
+              },
+              "solution": {
+                "assignments": [
+                  {
+                    "employee_id": "alice",
+                    "role_id": "kitchen",
+                    "interval": {
+                      "start": "2026-10-06T20:00:00+09:00",
+                      "end": "2026-10-06T22:00:00+09:00"
+                    }
+                  },
+                  {
+                    "employee_id": "bob",
+                    "role_id": "kitchen",
+                    "interval": {
+                      "start": "2026-10-07T02:00:00+09:00",
+                      "end": "2026-10-07T04:00:00+09:00"
+                    }
+                  }
+                ],
+                "shifts": [
+                  {
+                    "candidate_id": "alice_first",
+                    "employee_id": "alice",
+                    "work_day": "2026-10-06",
+                    "segments": [
+                      {
+                        "interval": {
+                          "start": "2026-10-06T20:00:00+09:00",
+                          "end": "2026-10-06T22:00:00+09:00"
+                        },
+                        "breaks": []
+                      }
+                    ]
+                  },
+                  {
+                    "candidate_id": "bob_second",
+                    "employee_id": "bob",
+                    "work_day": "2026-10-07",
+                    "segments": [
+                      {
+                        "interval": {
+                          "start": "2026-10-07T02:00:00+09:00",
+                          "end": "2026-10-07T04:00:00+09:00"
+                        },
+                        "breaks": []
+                      }
+                    ]
+                  }
+                ]
+              },
+              "objectives": [
+                {
+                  "id": "changes",
+                  "metric": "plan_changes",
+                  "value": 16,
+                  "proven_optimal": true
+                },
+                {
+                  "id": "fairness",
+                  "metric": "fairness_deviation_minutes",
+                  "value": 0,
+                  "proven_optimal": true
+                },
+                {
+                  "id": "work",
+                  "metric": "scheduled_minutes",
+                  "value": 240,
+                  "proven_optimal": true
+                }
+              ],
+              "diagnostics": [
+                {
+                  "code": "SEARCH_STATS",
+                  "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+                  "json_pointer": "/solver/time_limit_seconds",
+                  "related_ids": [],
+                  "facts": [
+                    {
+                      "name": "time_limit_seconds",
+                      "value": 9.999883124954067
+                    },
+                    {
+                      "name": "search_elapsed_seconds",
+                      "value": 0.006161583005450666
+                    },
+                    {
+                      "name": "normalization_elapsed_seconds",
+                      "value": 0.0018331659957766533
+                    },
+                    {
+                      "name": "backend_loading_elapsed_seconds",
+                      "value": 2.749962732195854e-06
+                    },
+                    {
+                      "name": "preparation_elapsed_seconds",
+                      "value": 0.00048091699136421084
+                    },
+                    {
+                      "name": "verification_elapsed_seconds",
+                      "value": 0.0007230410119518638
+                    }
+                  ]
+                },
+                {
+                  "code": "OBJECTIVE_BOUND",
+                  "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+                  "json_pointer": "/objectives/0",
+                  "related_ids": [
+                    "changes"
+                  ],
+                  "facts": [
+                    {
+                      "name": "objective_index",
+                      "value": 0
+                    },
+                    {
+                      "name": "best_bound",
+                      "value": 16.0
+                    }
+                  ]
+                },
+                {
+                  "code": "OBJECTIVE_BOUND",
+                  "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+                  "json_pointer": "/objectives/1",
+                  "related_ids": [
+                    "fairness"
+                  ],
+                  "facts": [
+                    {
+                      "name": "objective_index",
+                      "value": 1
+                    },
+                    {
+                      "name": "best_bound",
+                      "value": 0.0
+                    }
+                  ]
+                },
+                {
+                  "code": "OBJECTIVE_BOUND",
+                  "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+                  "json_pointer": "/objectives/2",
+                  "related_ids": [
+                    "work"
+                  ],
+                  "facts": [
+                    {
+                      "name": "objective_index",
+                      "value": 2
+                    },
+                    {
+                      "name": "best_bound",
+                      "value": 240.0
+                    }
+                  ]
+                }
+              ],
+              "verification": {
+                "performed": true,
+                "valid": true,
+                "violations": []
+              },
+              "stats": {
+                "elapsed_seconds": 0.03274179098661989
+              },
+              "fairness_summary": {
+                "evaluation_period": {
+                  "start": "2026-10-06T00:00:00+09:00",
+                  "end": "2026-10-08T00:00:00+09:00"
+                },
+                "scale": "absolute_minutes",
+                "normalized": false,
+                "employees": [
+                  {
+                    "employee_id": "alice",
+                    "target_minutes": 120,
+                    "scheduled_minutes": 120,
+                    "deviation_minutes": 0
+                  },
+                  {
+                    "employee_id": "bob",
+                    "target_minutes": 120,
+                    "scheduled_minutes": 120,
+                    "deviation_minutes": 0
+                  }
+                ]
+              },
+              "change_summary": {
+                "plan_id": "old_split",
+                "unit": "slot_components",
+                "work_changes": 8,
+                "role_changes": 8,
+                "total_changes": 16
+              },
+              "diagnosis_result": null
+            }
+          }
+        ],
+        "suggestion_minimality": "not_proven",
+        "time_limit_seconds": 10,
+        "elapsed_seconds": 0.041320874996017665,
+        "diagnostics": [
+          {
+            "code": "OPTION_BUDGET",
+            "message": "許可編集を適用し、診断を無効にして残り予算で検証しました。",
+            "json_pointer": "/solver/time_limit_seconds",
+            "related_ids": [
+              "restore_one_person"
+            ],
+            "facts": [
+              {
+                "name": "original_budget",
+                "value": 30.0
+              },
+              {
+                "name": "applied_budget",
+                "value": 9.999883124954067
+              }
+            ]
+          }
+        ]
+      },
+      "search_stats": {
+        "time_limit_seconds": 30.0,
+        "search_elapsed_seconds": 0.0011937080416828394,
+        "normalization_elapsed_seconds": 0.02817399997729808,
+        "backend_loading_elapsed_seconds": 0.22010691702598706,
+        "preparation_elapsed_seconds": 0.0007090420112945139,
+        "verification_elapsed_seconds": 0.003447666997089982
+      },
+      "assignments": 0,
+      "shifts": 0,
+      "import_seconds": 0.026511666015721858,
+      "input_seconds": 0.00027008395409211516,
+      "elapsed_seconds": 0.2949805000098422,
+      "request_elapsed_seconds": 0.3217622499796562,
+      "engine_elapsed_seconds": 0.2949742919881828,
+      "metadata_seconds": 0.001703375019133091,
+      "peak_rss_mib": 104.4375,
+      "group": 2,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-extended.json",
+      "input_sha256": "a8d05d7f57b57a59c732f99782225af37d201f7ddb0e63bd985e1df89295a06f",
+      "problem_type": "roster",
+      "employees": 2,
+      "roles": 2,
+      "days": 2.0,
+      "slot_minutes": 30,
+      "slots": 96,
+      "candidates": 2,
+      "objective_order": [
+        "plan_changes",
+        "fairness_deviation_minutes",
+        "scheduled_minutes"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 30.0,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.3",
+        "library_version": "9.15.6755",
+        "selection_reason": "JOINT_ROSTER"
+      },
+      "schema_version": "0.2",
+      "status": "INFEASIBLE",
+      "verification": {
+        "performed": false,
+        "valid": null,
+        "violations": []
+      },
+      "objectives": [],
+      "objective_quality": [],
+      "diagnostics": [
+        {
+          "code": "NO_FEASIBLE_PLAN",
+          "message": "すべての必須条件を満たす配置はありません。",
+          "json_pointer": "",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 30.0
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.0011918749660253525
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.02872916602063924
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.21921974996803328
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.0006957920268177986
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.0034716249792836607
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "diagnosis_result": {
+        "status": "COMPLETE",
+        "reason": null,
+        "conflict": {
+          "conditions": [
+            {
+              "code": "PLANNING_GRID",
+              "json_pointer": "/planning_window",
+              "related_ids": [],
+              "interval": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-08T00:00:00+09:00"
+              }
+            },
+            {
+              "code": "EXACT_DEMAND_AND_SINGLE_ASSIGNMENT",
+              "json_pointer": "/problem_type",
+              "related_ids": [],
+              "interval": null
+            },
+            {
+              "code": "DEMAND",
+              "json_pointer": "/demand/0",
+              "related_ids": [
+                "need_1_1200_kitchen",
+                "kitchen"
+              ],
+              "interval": {
+                "start": "2026-10-06T20:00:00+09:00",
+                "end": "2026-10-06T22:00:00+09:00"
+              }
+            },
+            {
+              "code": "DEMAND",
+              "json_pointer": "/demand/1",
+              "related_ids": [
+                "need_2_120_kitchen",
+                "kitchen"
+              ],
+              "interval": {
+                "start": "2026-10-07T02:00:00+09:00",
+                "end": "2026-10-07T04:00:00+09:00"
+              }
+            },
+            {
+              "code": "REQUIRED_SKILLS",
+              "json_pointer": "/roles/0/required_skills",
+              "related_ids": [
+                "kitchen"
+              ],
+              "interval": null
+            },
+            {
+              "code": "REQUIRED_SKILLS",
+              "json_pointer": "/roles/1/required_skills",
+              "related_ids": [
+                "hall"
+              ],
+              "interval": null
+            },
+            {
+              "code": "EMPLOYEE_SKILLS",
+              "json_pointer": "/employees/0/skills",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": null
+            },
+            {
+              "code": "AVAILABILITY",
+              "json_pointer": "/employees/0/availability",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-08T00:00:00+09:00"
+              }
+            },
+            {
+              "code": "HISTORY",
+              "json_pointer": "/employees/0/history",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": null
+            },
+            {
+              "code": "EMPLOYEE_SKILLS",
+              "json_pointer": "/employees/1/skills",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": null
+            },
+            {
+              "code": "AVAILABILITY",
+              "json_pointer": "/employees/1/availability",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-08T00:00:00+09:00"
+              }
+            },
+            {
+              "code": "HISTORY",
+              "json_pointer": "/employees/1/history",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": null
+            },
+            {
+              "code": "SHIFT_CANDIDATE",
+              "json_pointer": "/shift_candidates/0",
+              "related_ids": [
+                "alice_first",
+                "alice"
+              ],
+              "interval": {
+                "start": "2026-10-06T20:00:00+09:00",
+                "end": "2026-10-06T22:00:00+09:00"
+              }
+            },
+            {
+              "code": "SHIFT_CANDIDATE",
+              "json_pointer": "/shift_candidates/1",
+              "related_ids": [
+                "bob_second",
+                "bob"
+              ],
+              "interval": {
+                "start": "2026-10-07T02:00:00+09:00",
+                "end": "2026-10-07T04:00:00+09:00"
+              }
+            },
+            {
+              "code": "CANDIDATE_SET",
+              "json_pointer": "/shift_candidates",
+              "related_ids": [],
+              "interval": null
+            },
+            {
+              "code": "FIXED_PART",
+              "json_pointer": "/fixed_parts/0",
+              "related_ids": [
+                "preserve_first"
+              ],
+              "interval": {
+                "start": "2026-10-06T20:00:00+09:00",
+                "end": "2026-10-06T22:00:00+09:00"
+              }
+            },
+            {
+              "code": "BASELINE_STATES",
+              "json_pointer": "/baseline",
+              "related_ids": [
+                "old_split"
+              ],
+              "interval": null
+            }
+          ],
+          "infeasibility_proven": true,
+          "minimality": "not_proven"
+        },
+        "suggestions": [
+          {
+            "option_id": "restore_one_person",
+            "modified_request": {
+              "schema_version": "0.2",
+              "request_id": "roster_extended",
+              "problem_type": "roster",
+              "planning_window": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-08T00:00:00+09:00",
+                "timezone": "Asia/Tokyo",
+                "slot_minutes": 30
+              },
+              "skills": [],
+              "roles": [
+                {
+                  "id": "kitchen",
+                  "label": "kitchen",
+                  "required_skills": []
+                },
+                {
+                  "id": "hall",
+                  "label": "hall",
+                  "required_skills": []
+                }
+              ],
+              "employees": [
+                {
+                  "id": "alice",
+                  "label": "alice",
+                  "skills": [],
+                  "availability": [
+                    {
+                      "start": "2026-10-06T20:00:00+09:00",
+                      "end": "2026-10-06T22:00:00+09:00"
+                    }
+                  ],
+                  "history": {
+                    "last_shift_end": null,
+                    "consecutive_work_days_before_window": 0,
+                    "last_work_day": null
+                  }
+                },
+                {
+                  "id": "bob",
+                  "label": "bob",
+                  "skills": [],
+                  "availability": [
+                    {
+                      "start": "2026-10-07T02:00:00+09:00",
+                      "end": "2026-10-07T04:00:00+09:00"
+                    }
+                  ],
+                  "history": {
+                    "last_shift_end": null,
+                    "consecutive_work_days_before_window": 0,
+                    "last_work_day": null
+                  }
+                }
+              ],
+              "demand": [
+                {
+                  "id": "need_1_1200_kitchen",
+                  "role_id": "kitchen",
+                  "interval": {
+                    "start": "2026-10-06T20:00:00+09:00",
+                    "end": "2026-10-06T22:00:00+09:00"
+                  },
+                  "required_people": 1
+                },
+                {
+                  "id": "need_2_120_kitchen",
+                  "role_id": "kitchen",
+                  "interval": {
+                    "start": "2026-10-07T02:00:00+09:00",
+                    "end": "2026-10-07T04:00:00+09:00"
+                  },
+                  "required_people": 1
+                }
+              ],
+              "shift_candidates": [
+                {
+                  "id": "alice_first",
+                  "employee_id": "alice",
+                  "segments": [
+                    {
+                      "interval": {
+                        "start": "2026-10-06T20:00:00+09:00",
+                        "end": "2026-10-06T22:00:00+09:00"
+                      },
+                      "breaks": []
+                    }
+                  ]
+                },
+                {
+                  "id": "bob_second",
+                  "employee_id": "bob",
+                  "segments": [
+                    {
+                      "interval": {
+                        "start": "2026-10-07T02:00:00+09:00",
+                        "end": "2026-10-07T04:00:00+09:00"
+                      },
+                      "breaks": []
+                    }
+                  ]
+                }
+              ],
+              "constraints": [],
+              "preferences": [],
+              "objectives": [
+                {
+                  "id": "changes",
+                  "metric": "plan_changes"
+                },
+                {
+                  "id": "fairness",
+                  "metric": "fairness_deviation_minutes"
+                },
+                {
+                  "id": "work",
+                  "metric": "scheduled_minutes"
+                }
+              ],
+              "solver": {
+                "backend": "auto",
+                "time_limit_seconds": 9.999880957999267,
+                "seed": 0
+              },
+              "baseline": {
+                "plan_id": "old_split",
+                "source_request": {
+                  "schema_version": "0.2",
+                  "request_id": "old_split_plan",
+                  "problem_type": "roster",
+                  "planning_window": {
+                    "start": "2026-10-06T00:00:00+09:00",
+                    "end": "2026-10-08T00:00:00+09:00",
+                    "timezone": "Asia/Tokyo",
+                    "slot_minutes": 30
+                  },
+                  "skills": [],
+                  "roles": [
+                    {
+                      "id": "kitchen",
+                      "label": "kitchen",
+                      "required_skills": []
+                    },
+                    {
+                      "id": "hall",
+                      "label": "hall",
+                      "required_skills": []
+                    }
+                  ],
+                  "employees": [
+                    {
+                      "id": "alice",
+                      "label": "alice",
+                      "skills": [],
+                      "availability": [
+                        {
+                          "start": "2026-10-06T20:00:00+09:00",
+                          "end": "2026-10-06T22:00:00+09:00"
+                        },
+                        {
+                          "start": "2026-10-07T02:00:00+09:00",
+                          "end": "2026-10-07T04:00:00+09:00"
+                        }
+                      ],
+                      "history": {
+                        "last_shift_end": null,
+                        "consecutive_work_days_before_window": 0,
+                        "last_work_day": null
+                      }
+                    },
+                    {
+                      "id": "bob",
+                      "label": "bob",
+                      "skills": [],
+                      "availability": [
+                        {
+                          "start": "2026-10-07T02:00:00+09:00",
+                          "end": "2026-10-07T04:00:00+09:00"
+                        }
+                      ],
+                      "history": {
+                        "last_shift_end": null,
+                        "consecutive_work_days_before_window": 0,
+                        "last_work_day": null
+                      }
+                    }
+                  ],
+                  "demand": [
+                    {
+                      "id": "need_1_1200_kitchen",
+                      "role_id": "kitchen",
+                      "interval": {
+                        "start": "2026-10-06T20:00:00+09:00",
+                        "end": "2026-10-06T22:00:00+09:00"
+                      },
+                      "required_people": 1
+                    },
+                    {
+                      "id": "need_2_120_kitchen",
+                      "role_id": "kitchen",
+                      "interval": {
+                        "start": "2026-10-07T02:00:00+09:00",
+                        "end": "2026-10-07T04:00:00+09:00"
+                      },
+                      "required_people": 1
+                    }
+                  ],
+                  "shift_candidates": [
+                    {
+                      "id": "alice_old_split",
+                      "employee_id": "alice",
+                      "segments": [
+                        {
+                          "interval": {
+                            "start": "2026-10-06T20:00:00+09:00",
+                            "end": "2026-10-06T22:00:00+09:00"
+                          },
+                          "breaks": []
+                        },
+                        {
+                          "interval": {
+                            "start": "2026-10-07T02:00:00+09:00",
+                            "end": "2026-10-07T04:00:00+09:00"
+                          },
+                          "breaks": []
+                        }
+                      ]
+                    }
+                  ],
+                  "constraints": [],
+                  "preferences": [],
+                  "objectives": [
+                    {
+                      "id": "work",
+                      "metric": "scheduled_minutes"
+                    }
+                  ],
+                  "solver": {
+                    "backend": "auto",
+                    "time_limit_seconds": 10,
+                    "seed": 0
+                  }
+                },
+                "source_solution": {
+                  "assignments": [
+                    {
+                      "employee_id": "alice",
+                      "role_id": "kitchen",
+                      "interval": {
+                        "start": "2026-10-06T20:00:00+09:00",
+                        "end": "2026-10-06T22:00:00+09:00"
+                      }
+                    },
+                    {
+                      "employee_id": "alice",
+                      "role_id": "kitchen",
+                      "interval": {
+                        "start": "2026-10-07T02:00:00+09:00",
+                        "end": "2026-10-07T04:00:00+09:00"
+                      }
+                    }
+                  ],
+                  "shifts": [
+                    {
+                      "candidate_id": "alice_old_split",
+                      "employee_id": "alice",
+                      "segments": [
+                        {
+                          "interval": {
+                            "start": "2026-10-06T20:00:00+09:00",
+                            "end": "2026-10-06T22:00:00+09:00"
+                          },
+                          "breaks": []
+                        },
+                        {
+                          "interval": {
+                            "start": "2026-10-07T02:00:00+09:00",
+                            "end": "2026-10-07T04:00:00+09:00"
+                          },
+                          "breaks": []
+                        }
+                      ],
+                      "work_day": "2026-10-06"
+                    }
+                  ]
+                }
+              },
+              "fixed_parts": [
+                {
+                  "id": "preserve_first",
+                  "employee_id": "alice",
+                  "interval": {
+                    "start": "2026-10-06T20:00:00+09:00",
+                    "end": "2026-10-06T22:00:00+09:00"
+                  },
+                  "components": [
+                    "work",
+                    "role"
+                  ]
+                }
+              ],
+              "fairness": {
+                "evaluation_period": {
+                  "start": "2026-10-06T00:00:00+09:00",
+                  "end": "2026-10-08T00:00:00+09:00"
+                },
+                "employee_targets": [
+                  {
+                    "employee_id": "alice",
+                    "target_minutes": 120
+                  },
+                  {
+                    "employee_id": "bob",
+                    "target_minutes": 120
+                  }
+                ]
+              }
+            },
+            "response": {
+              "schema_version": "0.2",
+              "request_id": "roster_extended",
+              "status": "OPTIMAL",
+              "solver": {
+                "backend": "cp_sat",
+                "engine_version": "0.1.3",
+                "library_version": "9.15.6755",
+                "selection_reason": "JOINT_ROSTER"
+              },
+              "solution": {
+                "assignments": [
+                  {
+                    "employee_id": "alice",
+                    "role_id": "kitchen",
+                    "interval": {
+                      "start": "2026-10-06T20:00:00+09:00",
+                      "end": "2026-10-06T22:00:00+09:00"
+                    }
+                  },
+                  {
+                    "employee_id": "bob",
+                    "role_id": "kitchen",
+                    "interval": {
+                      "start": "2026-10-07T02:00:00+09:00",
+                      "end": "2026-10-07T04:00:00+09:00"
+                    }
+                  }
+                ],
+                "shifts": [
+                  {
+                    "candidate_id": "alice_first",
+                    "employee_id": "alice",
+                    "work_day": "2026-10-06",
+                    "segments": [
+                      {
+                        "interval": {
+                          "start": "2026-10-06T20:00:00+09:00",
+                          "end": "2026-10-06T22:00:00+09:00"
+                        },
+                        "breaks": []
+                      }
+                    ]
+                  },
+                  {
+                    "candidate_id": "bob_second",
+                    "employee_id": "bob",
+                    "work_day": "2026-10-07",
+                    "segments": [
+                      {
+                        "interval": {
+                          "start": "2026-10-07T02:00:00+09:00",
+                          "end": "2026-10-07T04:00:00+09:00"
+                        },
+                        "breaks": []
+                      }
+                    ]
+                  }
+                ]
+              },
+              "objectives": [
+                {
+                  "id": "changes",
+                  "metric": "plan_changes",
+                  "value": 16,
+                  "proven_optimal": true
+                },
+                {
+                  "id": "fairness",
+                  "metric": "fairness_deviation_minutes",
+                  "value": 0,
+                  "proven_optimal": true
+                },
+                {
+                  "id": "work",
+                  "metric": "scheduled_minutes",
+                  "value": 240,
+                  "proven_optimal": true
+                }
+              ],
+              "diagnostics": [
+                {
+                  "code": "SEARCH_STATS",
+                  "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+                  "json_pointer": "/solver/time_limit_seconds",
+                  "related_ids": [],
+                  "facts": [
+                    {
+                      "name": "time_limit_seconds",
+                      "value": 9.999880957999267
+                    },
+                    {
+                      "name": "search_elapsed_seconds",
+                      "value": 0.004681040998548269
+                    },
+                    {
+                      "name": "normalization_elapsed_seconds",
+                      "value": 0.0018484169850125909
+                    },
+                    {
+                      "name": "backend_loading_elapsed_seconds",
+                      "value": 2.6249908842146397e-06
+                    },
+                    {
+                      "name": "preparation_elapsed_seconds",
+                      "value": 0.0004773329710587859
+                    },
+                    {
+                      "name": "verification_elapsed_seconds",
+                      "value": 0.0006815000087954104
+                    }
+                  ]
+                },
+                {
+                  "code": "OBJECTIVE_BOUND",
+                  "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+                  "json_pointer": "/objectives/0",
+                  "related_ids": [
+                    "changes"
+                  ],
+                  "facts": [
+                    {
+                      "name": "objective_index",
+                      "value": 0
+                    },
+                    {
+                      "name": "best_bound",
+                      "value": 16.0
+                    }
+                  ]
+                },
+                {
+                  "code": "OBJECTIVE_BOUND",
+                  "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+                  "json_pointer": "/objectives/1",
+                  "related_ids": [
+                    "fairness"
+                  ],
+                  "facts": [
+                    {
+                      "name": "objective_index",
+                      "value": 1
+                    },
+                    {
+                      "name": "best_bound",
+                      "value": 0.0
+                    }
+                  ]
+                },
+                {
+                  "code": "OBJECTIVE_BOUND",
+                  "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+                  "json_pointer": "/objectives/2",
+                  "related_ids": [
+                    "work"
+                  ],
+                  "facts": [
+                    {
+                      "name": "objective_index",
+                      "value": 2
+                    },
+                    {
+                      "name": "best_bound",
+                      "value": 240.0
+                    }
+                  ]
+                }
+              ],
+              "verification": {
+                "performed": true,
+                "valid": true,
+                "violations": []
+              },
+              "stats": {
+                "elapsed_seconds": 0.03101091698044911
+              },
+              "fairness_summary": {
+                "evaluation_period": {
+                  "start": "2026-10-06T00:00:00+09:00",
+                  "end": "2026-10-08T00:00:00+09:00"
+                },
+                "scale": "absolute_minutes",
+                "normalized": false,
+                "employees": [
+                  {
+                    "employee_id": "alice",
+                    "target_minutes": 120,
+                    "scheduled_minutes": 120,
+                    "deviation_minutes": 0
+                  },
+                  {
+                    "employee_id": "bob",
+                    "target_minutes": 120,
+                    "scheduled_minutes": 120,
+                    "deviation_minutes": 0
+                  }
+                ]
+              },
+              "change_summary": {
+                "plan_id": "old_split",
+                "unit": "slot_components",
+                "work_changes": 8,
+                "role_changes": 8,
+                "total_changes": 16
+              },
+              "diagnosis_result": null
+            }
+          }
+        ],
+        "suggestion_minimality": "not_proven",
+        "time_limit_seconds": 10,
+        "elapsed_seconds": 0.03948749997653067,
+        "diagnostics": [
+          {
+            "code": "OPTION_BUDGET",
+            "message": "許可編集を適用し、診断を無効にして残り予算で検証しました。",
+            "json_pointer": "/solver/time_limit_seconds",
+            "related_ids": [
+              "restore_one_person"
+            ],
+            "facts": [
+              {
+                "name": "original_budget",
+                "value": 30.0
+              },
+              {
+                "name": "applied_budget",
+                "value": 9.999880957999267
+              }
+            ]
+          }
+        ]
+      },
+      "search_stats": {
+        "time_limit_seconds": 30.0,
+        "search_elapsed_seconds": 0.0011918749660253525,
+        "normalization_elapsed_seconds": 0.02872916602063924,
+        "backend_loading_elapsed_seconds": 0.21921974996803328,
+        "preparation_elapsed_seconds": 0.0006957920268177986,
+        "verification_elapsed_seconds": 0.0034716249792836607
+      },
+      "assignments": 0,
+      "shifts": 0,
+      "import_seconds": 0.02609479200327769,
+      "input_seconds": 0.00025645794812589884,
+      "elapsed_seconds": 0.2928253330173902,
+      "request_elapsed_seconds": 0.3191765829687938,
+      "engine_elapsed_seconds": 0.2928191659739241,
+      "metadata_seconds": 0.001674333994742483,
+      "peak_rss_mib": 104.484375,
+      "group": 3,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    }
+  ],
+  "workers": [
+    {
+      "input_file": "docs/evaluations/inputs/roster-week.json",
+      "group": 1,
+      "elapsed_seconds": 30.62489525001729,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60.0
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-week.json",
+      "group": 2,
+      "elapsed_seconds": 30.56663329101866,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60.0
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-week.json",
+      "group": 3,
+      "elapsed_seconds": 30.575862874975428,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60.0
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-fortnight-large.json",
+      "group": 1,
+      "elapsed_seconds": 31.10862245800672,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60.0
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-fortnight-large.json",
+      "group": 2,
+      "elapsed_seconds": 31.137601332971826,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60.0
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-fortnight-large.json",
+      "group": 3,
+      "elapsed_seconds": 31.159530540986452,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60.0
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-week-15min.json",
+      "group": 1,
+      "elapsed_seconds": 30.7661938330275,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60.0
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-week-15min.json",
+      "group": 2,
+      "elapsed_seconds": 30.675532624998596,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60.0
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-week-15min.json",
+      "group": 3,
+      "elapsed_seconds": 30.688040415989235,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60.0
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-extended.json",
+      "group": 1,
+      "elapsed_seconds": 0.4227206250070594,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60.0
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-extended.json",
+      "group": 2,
+      "elapsed_seconds": 0.4185616659815423,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60.0
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-extended.json",
+      "group": 3,
+      "elapsed_seconds": 0.41516070801299065,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60.0
+    }
+  ],
+  "summaries": [
+    {
+      "input_file": "docs/evaluations/inputs/roster-week.json",
+      "attempts": 3,
+      "statuses": {
+        "FEASIBLE": 3
+      },
+      "verified_solutions": 3,
+      "solution_rate": 1.0,
+      "verified_suggestions": 0,
+      "statistics": {
+        "elapsed_seconds": {
+          "samples": 3,
+          "mean": 30.43553722197733,
+          "median": 30.426482540962752,
+          "p95": 30.46682899998268,
+          "maximum": 30.46682899998268
+        },
+        "request_elapsed_seconds": {
+          "samples": 3,
+          "mean": 30.470044013656054,
+          "median": 30.45398029097123,
+          "p95": 30.512862292001955,
+          "maximum": 30.512862292001955
+        },
+        "peak_rss_mib": {
+          "samples": 3,
+          "mean": 250.05729166666666,
+          "median": 245.171875,
+          "p95": 260.828125,
+          "maximum": 260.828125
+        }
+      },
+      "first_request_elapsed_seconds": {
+        "samples": 3,
+        "mean": 30.470044013656054,
+        "median": 30.45398029097123,
+        "p95": 30.512862292001955,
+        "maximum": 30.512862292001955
+      },
+      "continued_request_elapsed_seconds": {
+        "samples": 0,
+        "mean": null,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "process_elapsed_seconds": {
+        "samples": 3,
+        "mean": 30.58913047200379,
+        "median": 30.575862874975428,
+        "p95": 30.62489525001729,
+        "maximum": 30.62489525001729
+      },
+      "objective_quality": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "observed_values": {
+            "samples": 3,
+            "mean": 270,
+            "median": 270,
+            "p95": 270,
+            "maximum": 270
+          },
+          "proven_count": 0,
+          "relative_gap": {
+            "samples": 3,
+            "mean": 1.0,
+            "median": 1.0,
+            "p95": 1.0,
+            "maximum": 1.0
+          }
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "observed_values": {
+            "samples": 3,
+            "mean": 32890,
+            "median": 33000,
+            "p95": 33000,
+            "maximum": 33000
+          },
+          "proven_count": 0,
+          "relative_gap": {
+            "samples": 0,
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "maximum": null
+          }
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "observed_values": {
+            "samples": 3,
+            "mean": 38,
+            "median": 33,
+            "p95": 66,
+            "maximum": 66
+          },
+          "proven_count": 0,
+          "relative_gap": {
+            "samples": 0,
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "maximum": null
+          }
+        }
+      ]
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-fortnight-large.json",
+      "attempts": 3,
+      "statuses": {
+        "FEASIBLE": 3
+      },
+      "verified_solutions": 3,
+      "solution_rate": 1.0,
+      "verified_suggestions": 0,
+      "statistics": {
+        "elapsed_seconds": {
+          "samples": 3,
+          "mean": 30.927653666682698,
+          "median": 30.92592687503202,
+          "p95": 30.941768917022273,
+          "maximum": 30.941768917022273
+        },
+        "request_elapsed_seconds": {
+          "samples": 3,
+          "mean": 30.959587916673627,
+          "median": 30.955069624993484,
+          "p95": 30.978665792034008,
+          "maximum": 30.978665792034008
+        },
+        "peak_rss_mib": {
+          "samples": 3,
+          "mean": 666.5208333333334,
+          "median": 668.96875,
+          "p95": 672.375,
+          "maximum": 672.375
+        }
+      },
+      "first_request_elapsed_seconds": {
+        "samples": 3,
+        "mean": 30.959587916673627,
+        "median": 30.955069624993484,
+        "p95": 30.978665792034008,
+        "maximum": 30.978665792034008
+      },
+      "continued_request_elapsed_seconds": {
+        "samples": 0,
+        "mean": null,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "process_elapsed_seconds": {
+        "samples": 3,
+        "mean": 31.135251443988334,
+        "median": 31.137601332971826,
+        "p95": 31.159530540986452,
+        "maximum": 31.159530540986452
+      },
+      "objective_quality": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "observed_values": {
+            "samples": 3,
+            "mean": 1080,
+            "median": 1080,
+            "p95": 1080,
+            "maximum": 1080
+          },
+          "proven_count": 0,
+          "relative_gap": {
+            "samples": 3,
+            "mean": 1.0,
+            "median": 1.0,
+            "p95": 1.0,
+            "maximum": 1.0
+          }
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "observed_values": {
+            "samples": 3,
+            "mean": 129250,
+            "median": 129030,
+            "p95": 130350,
+            "maximum": 130350
+          },
+          "proven_count": 0,
+          "relative_gap": {
+            "samples": 0,
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "maximum": null
+          }
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "observed_values": {
+            "samples": 3,
+            "mean": 82.66666666666667,
+            "median": 86,
+            "p95": 91,
+            "maximum": 91
+          },
+          "proven_count": 0,
+          "relative_gap": {
+            "samples": 0,
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "maximum": null
+          }
+        }
+      ]
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-week-15min.json",
+      "attempts": 3,
+      "statuses": {
+        "FEASIBLE": 3
+      },
+      "verified_solutions": 3,
+      "solution_rate": 1.0,
+      "verified_suggestions": 0,
+      "statistics": {
+        "elapsed_seconds": {
+          "samples": 3,
+          "mean": 30.543007763684727,
+          "median": 30.530347958032507,
+          "p95": 30.575428208045196,
+          "maximum": 30.575428208045196
+        },
+        "request_elapsed_seconds": {
+          "samples": 3,
+          "mean": 30.5732864443562,
+          "median": 30.557367750036065,
+          "p95": 30.610867708048318,
+          "maximum": 30.610867708048318
+        },
+        "peak_rss_mib": {
+          "samples": 3,
+          "mean": 385.7135416666667,
+          "median": 386.5625,
+          "p95": 387.125,
+          "maximum": 387.125
+        }
+      },
+      "first_request_elapsed_seconds": {
+        "samples": 3,
+        "mean": 30.5732864443562,
+        "median": 30.557367750036065,
+        "p95": 30.610867708048318,
+        "maximum": 30.610867708048318
+      },
+      "continued_request_elapsed_seconds": {
+        "samples": 0,
+        "mean": null,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "process_elapsed_seconds": {
+        "samples": 3,
+        "mean": 30.709922291338444,
+        "median": 30.688040415989235,
+        "p95": 30.7661938330275,
+        "maximum": 30.7661938330275
+      },
+      "objective_quality": [
+        {
+          "id": "preferences",
+          "metric": "preference_penalty",
+          "observed_values": {
+            "samples": 3,
+            "mean": 270,
+            "median": 270,
+            "p95": 270,
+            "maximum": 270
+          },
+          "proven_count": 0,
+          "relative_gap": {
+            "samples": 3,
+            "mean": 1.0,
+            "median": 1.0,
+            "p95": 1.0,
+            "maximum": 1.0
+          }
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "observed_values": {
+            "samples": 3,
+            "mean": 32890,
+            "median": 33000,
+            "p95": 33000,
+            "maximum": 33000
+          },
+          "proven_count": 0,
+          "relative_gap": {
+            "samples": 0,
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "maximum": null
+          }
+        },
+        {
+          "id": "changes",
+          "metric": "role_switches",
+          "observed_values": {
+            "samples": 3,
+            "mean": 79.66666666666667,
+            "median": 86,
+            "p95": 92,
+            "maximum": 92
+          },
+          "proven_count": 0,
+          "relative_gap": {
+            "samples": 0,
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "maximum": null
+          }
+        }
+      ]
+    },
+    {
+      "input_file": "docs/evaluations/inputs/roster-extended.json",
+      "attempts": 3,
+      "statuses": {
+        "INFEASIBLE": 3
+      },
+      "verified_solutions": 0,
+      "solution_rate": 0.0,
+      "verified_suggestions": 3,
+      "statistics": {
+        "elapsed_seconds": {
+          "samples": 3,
+          "mean": 0.2954565693313877,
+          "median": 0.2949805000098422,
+          "p95": 0.2985638749669306,
+          "maximum": 0.2985638749669306
+        },
+        "request_elapsed_seconds": {
+          "samples": 3,
+          "mean": 0.32227177764677134,
+          "median": 0.3217622499796562,
+          "p95": 0.32587649999186397,
+          "maximum": 0.32587649999186397
+        },
+        "peak_rss_mib": {
+          "samples": 3,
+          "mean": 104.65625,
+          "median": 104.484375,
+          "p95": 105.046875,
+          "maximum": 105.046875
+        }
+      },
+      "first_request_elapsed_seconds": {
+        "samples": 3,
+        "mean": 0.32227177764677134,
+        "median": 0.3217622499796562,
+        "p95": 0.32587649999186397,
+        "maximum": 0.32587649999186397
+      },
+      "continued_request_elapsed_seconds": {
+        "samples": 0,
+        "mean": null,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "process_elapsed_seconds": {
+        "samples": 3,
+        "mean": 0.4188143330005308,
+        "median": 0.4185616659815423,
+        "p95": 0.4227206250070594,
+        "maximum": 0.4227206250070594
+      },
+      "objective_quality": []
+    }
+  ]
+}
