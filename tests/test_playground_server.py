@@ -26,8 +26,10 @@ def http_server():
             thread.join(timeout=5)
 
 
-def call(instance, request=None, *, method="POST", path="/solve", body=None, headers=None):
-    connection = HTTPConnection("127.0.0.1", instance.server_port, timeout=10)
+def call(
+    instance, request=None, *, method="POST", path="/solve", body=None, headers=None, timeout=10
+):
+    connection = HTTPConnection("127.0.0.1", instance.server_port, timeout=timeout)
     if body is None and request is not None:
         body = json.dumps(request, ensure_ascii=False).encode("utf-8")
     connection.request(method, path, body, headers or {"Content-Type": "application/json"})
@@ -59,7 +61,12 @@ def test_http_matches_cli_and_only_serves_allowlist(http_server):
     )
     assert status == 200
     assert json.loads(cli.stdout)["solution"] == result["solution"]
-    for path in ("/samples/lunch.json", "/samples/scenarios.json"):
+    for path in (
+        "/samples/lunch.json",
+        "/samples/scenarios.json",
+        "/samples/roster.json",
+        "/samples/roster-100-30.json",
+    ):
         assert call(http_server, method="GET", path=path)[0] == 200
     for path in ("/../pyproject.toml", "/.git/config", "/samples/", "/solve"):
         assert call(http_server, method="GET", path=path)[0] == 404
@@ -89,9 +96,30 @@ def test_http_matches_cli_and_only_serves_allowlist(http_server):
         (b"{}", {"Content-Length": "-1"}, 400, "INVALID_BODY"),
         (b"{}", {"Content-Length": "99999999999999999999"}, 400, "INVALID_BODY"),
     ],
+    ids=[
+        "syntax",
+        "duplicate-key",
+        "non-finite",
+        "utf8",
+        "body-limit",
+        "media-type",
+        "charset",
+        "origin",
+        "host",
+        "encoding",
+        "negative-length",
+        "large-length",
+    ],
 )
-def test_http_rejects_invalid_transport(http_server, body, headers, status, code):
-    actual, result = call(http_server, body=body, headers=headers)
+@pytest.mark.parametrize("path", ["/solve", "/solve-json"])
+def test_http_rejects_invalid_transport(http_server, body, headers, status, code, path):
+    if code == "BODY_TOO_LARGE" and path == "/solve-json":
+        body = b"{}"
+        headers = {
+            "Content-Type": "application/json",
+            "Content-Length": str(server.MAX_JSON_BODY + 1),
+        }
+    actual, result = call(http_server, body=body, headers=headers, path=path)
     assert (actual, result["error"]["code"]) == (status, code)
     assert "status" not in result
 
@@ -186,8 +214,9 @@ def test_concurrent_solve_is_busy_then_recovers(http_server, monkeypatch):
     thread.start()
     try:
         assert entered.wait(timeout=5)
-        status, result = call(http_server, BASELINE)
-        assert (status, result["error"]["code"]) == (503, "BUSY")
+        for path in ("/solve", "/solve-json"):
+            status, result = call(http_server, BASELINE, path=path)
+            assert (status, result["error"]["code"]) == (503, "BUSY")
     finally:
         release.set()
         thread.join(timeout=5)
@@ -213,3 +242,43 @@ def test_missing_duplicate_headers_and_read_deadline(http_server, monkeypatch):
             while block := client.recv(65536):
                 content += block
             assert json.loads(content.split(b"\r\n\r\n", 1)[1])["error"]["code"] == code
+
+
+@pytest.mark.parametrize("name", ["assignment", "roster", "overnight", "split_roster"])
+def test_json_input_uses_engine_contract(http_server, name):
+    request = json.loads((server.ROOT / "examples" / f"{name}.json").read_text())
+    before = copy.deepcopy(request)
+    status, result = call(http_server, request, path="/solve-json")
+    assert status == 200
+    assert_response(result, "OPTIMAL")
+    assert result["schema_version"] == request["schema_version"]
+    assert result["request_id"] == request["request_id"]
+    assert request == before
+
+
+def test_json_input_reports_engine_validation(http_server):
+    request = json.loads((server.ROOT / "examples" / "invalid-input.json").read_text())
+    status, result = call(http_server, request, path="/solve-json")
+    assert status == 200
+    assert_response(result, "INVALID_INPUT")
+    assert result["diagnostics"][0]["code"] == "UNKNOWN_REFERENCE"
+    assert call(http_server, body=b"null", path="/solve-json")[1]["status"] == "INVALID_INPUT"
+
+
+def test_json_sample_100_people_30_days(http_server):
+    from schedula.model import normalize
+
+    body = (server.SAMPLES / "roster-100-30.json").read_bytes()
+    request = json.loads(body)
+    problem = normalize(request)
+    assert len(request["employees"]) == 100
+    assert problem.grid.slots == 30 * 48
+    assert problem.grid.slot_minutes == 30
+    assert len(problem.candidates) == 3000
+    assert len(body) > server.MAX_BODY
+    status, result = call(http_server, body=body, path="/solve-json", timeout=120)
+    assert status == 200
+    assert result["status"] in {"OPTIMAL", "FEASIBLE"}
+    assert_response(result, result["status"])
+    assert len(result["solution"]["shifts"]) == 1200
+    assert result["objectives"][0]["value"] == 540000

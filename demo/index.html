@@ -15,6 +15,34 @@
   <p class="note">2026-10-06 · 11:00〜14:00 · 30分ごと · 架空データのみ</p>
 </header>
 <main>
+  <details id="json-demo">
+    <summary>JSON で担当配置・勤務計画を計算する</summary>
+    <form id="json-editor">
+      <fieldset id="json-controls" disabled>
+        <legend class="sr-only">JSON の入力と計算</legend>
+        <p>JSON を貼り付けるか、UTF-8 のファイルを読み込んで計算できます。</p>
+        <div class="toolbar">
+          <label for="json-sample">サンプル</label>
+          <select id="json-sample">
+            <option value="roster-100-30">100人・30日・30分刻みの勤務計画</option>
+            <option value="roster">4人・2日の勤務計画</option>
+            <option value="lunch">6人の担当配置</option>
+          </select>
+          <button id="json-load-sample" type="button">サンプルを読み込む</button>
+          <label for="json-file">JSON ファイル</label>
+          <input id="json-file" type="file" accept=".json,application/json">
+        </div>
+        <p class="note">契約0.1・0.2に対応。ファイル・本文は2 MiBまで。勤務計画には OR-Tools が必要です。</p>
+        <label for="json-input">計算する JSON</label>
+        <textarea id="json-input" rows="12" spellcheck="false" required></textarea>
+        <div class="actions"><button class="primary" id="json-calculate" type="submit">JSON で計算</button></div>
+      </fieldset>
+    </form>
+    <section id="json-result" aria-busy="false" aria-label="JSON の計算結果">
+      <p id="json-status" role="status" aria-live="polite">サンプルまたはファイルを読み込んでください。</p>
+      <div id="json-output"></div>
+    </section>
+  </details>
   <form id="editor">
     <fieldset id="controls" disabled>
       <legend class="sr-only">配置の条件と操作</legend>
