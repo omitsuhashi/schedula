@@ -235,6 +235,27 @@ def test_template_time_cannot_end_in_newline():
     assert result["diagnostics"][0]["code"] == "INVALID_TEMPLATE_TIME"
 
 
+@pytest.mark.parametrize(
+    "day,clock,zone",
+    [("0001-01-01", "00:00", "Asia/Tokyo"), ("9999-12-31", "23:30", "America/New_York")],
+)
+def test_template_timezone_overflow_is_invalid_input(day, clock, zone):
+    data = request()
+    data["planning_window"].update(
+        timezone=zone,
+        start="2026-10-05T00:00:00-04:00" if zone == "America/New_York" else stamp(),
+        end="2026-10-06T00:00:00-04:00" if zone == "America/New_York" else stamp(1),
+    )
+    data["employees"][0]["availability"] = []
+    data["shift_candidates"] = []
+    data["shift_templates"] = [template(dates=(day,), starts=(clock,))]
+    result = solve(data)
+    assert_response(result, "INVALID_INPUT")
+    assert result["diagnostics"][0]["code"] == "INVALID_TEMPLATE_TIME"
+    assert result["diagnostics"][0]["json_pointer"] == "/shift_templates/0/start_times"
+    assert result["solver"]["backend"] == "none"
+
+
 @pytest.mark.parametrize("days,expected", [(100, "OPTIMAL"), (101, "INVALID_INPUT")])
 def test_preexpansion_limit_includes_discarded_candidates(days, expected):
     data = request(employees=tuple(f"worker_{i}" for i in range(50)))

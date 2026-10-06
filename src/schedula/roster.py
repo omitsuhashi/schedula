@@ -39,17 +39,21 @@ def validate_history(request, grid):
 def local_start(day, clock, grid, path):
     try:
         naive = datetime.fromisoformat(f"{day}T{clock}")
+        instants = {
+            aware.astimezone(UTC)
+            for fold in (0, 1)
+            if (aware := naive.replace(tzinfo=grid.timezone, fold=fold))
+            .astimezone(UTC)
+            .astimezone(grid.timezone)
+            .replace(tzinfo=None)
+            == naive
+        }
     except ValueError:
         reject("INVALID_TEMPLATE_TIME", "テンプレートの時刻は HH:MM で指定します。", path)
-    instants = {
-        aware.astimezone(UTC)
-        for fold in (0, 1)
-        if (aware := naive.replace(tzinfo=grid.timezone, fold=fold))
-        .astimezone(UTC)
-        .astimezone(grid.timezone)
-        .replace(tzinfo=None)
-        == naive
-    }
+    except OverflowError:
+        reject(
+            "INVALID_TEMPLATE_TIME", "タイムゾーン変換で日時が表現できる範囲を超えています。", path
+        )
     if len(instants) != 1:
         reject(
             "AMBIGUOUS_LOCAL_TIME" if instants else "NONEXISTENT_LOCAL_TIME",

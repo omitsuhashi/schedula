@@ -96,6 +96,28 @@ CP-SAT の基本条件と状態の取り扱いは
 [従業員スケジューリングの公式例](https://developers.google.com/optimization/scheduling/employee_scheduling)と
 [CP-SAT の公式説明](https://developers.google.com/optimization/cp/cp_solver)を確認した。
 
+## レビュー指摘の修正
+
+`31ea68c` に対するレビューを受け、勤務間休息の候補ペアごとの排他制約を削除した。
+候補の勤務開始から勤務終了＋必要休息までを整数の分で表す optional interval とし、
+従業員ごとの `add_no_overlap()` でまとめる。粒度の倍数でない休息値、
+計画前履歴、1人1日最大1勤務の意味は維持する。
+
+1人・2日・各日09:00〜17:00・必要休息17時間、休憩位置が異なる5000候補で、
+実際のモデルを構築して区間制約5000件・非重複制約1件・日別制約2件、計5003件を確認した。
+旧方式の625万件の休息排他制約を生成しない。これはモデル件数の検証であり、
+当該5000候補を求解した時間・メモリの評価ではない。
+
+テンプレートのタイムゾーン変換で発生する `OverflowError` も
+`INVALID_TEMPLATE_TIME` の入力診断へ変換した。
+`0001-01-01 00:00 / Asia/Tokyo` と `9999-12-31 23:30 / America/New_York` を含む入力を
+`solve()` へ渡し、`INVALID_INPUT` と該当テンプレートへの参照を確認した。
+
+同じ環境で `uv run --locked --extra cp-sat pytest -q -ra` を実行し、
+757件と既存 subtest 6件が成功、失敗・スキップ0件、7.78秒だった。
+勤務計画の対象3ファイルは164件成功、2.49秒だった。
+Ruff の lint・format、`bash -n scripts/deploy`、`git diff --check` も成功した。
+
 ## 未検証事項
 
 複数目的の優先順最適化・共有探索予算・後段の時間切れでの解保持は Issue #9 の範囲である。

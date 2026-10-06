@@ -111,6 +111,29 @@ def test_rest_boundary_with_history(minutes, history):
     assert_response(solve(data), "OPTIMAL" if minutes <= 1260 else "INFEASIBLE")
 
 
+def test_rest_model_stays_linear_with_5000_distinct_candidates():
+    data = request(days=2)
+    data["employees"][0]["availability"] = [interval(day, 540, 1020) for day in range(2)]
+    masks = list(itertools.islice((i for i in range(1, 1 << 14) if i.bit_count() <= 10), 2500))
+    data["shift_candidates"] = [
+        candidate(
+            day=day,
+            start=540,
+            end=1020,
+            breaks=[(540 + 30 * (i + 1), 570 + 30 * (i + 1)) for i in range(14) if mask & (1 << i)],
+            identifier=f"shift_{day}_{mask}",
+        )
+        for day in range(2)
+        for mask in masks
+    ]
+    data["constraints"] = [rule("min_rest_minutes", 1020)]
+    model, *_ = cp_sat.prepare(normalize(data), cp_model)
+    # 翌朝まで16時間、必要休息17時間。ペア制約なら625万件になる入力。
+    assert sum(c.has_interval() for c in model.proto.constraints) == 5000
+    assert sum(c.has_no_overlap() for c in model.proto.constraints) == 1
+    assert len(model.proto.constraints) < 10000
+
+
 @pytest.mark.parametrize("limit", [0, 1, 2, 3, 4])
 def test_consecutive_days_inherit_history(limit):
     data = request(days=2)

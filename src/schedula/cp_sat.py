@@ -62,12 +62,15 @@ def prepare_roster(model, problem):
                         start = grid.start + timedelta(minutes=c.start * grid.slot_minutes)
                         if start - last < rest:
                             model.add(shifts[c.id] == 0)
-                for index, c in enumerate(candidates):
-                    for other in candidates[index + 1 :]:
-                        if timedelta(minutes=(other.start - c.end) * grid.slot_minutes) >= rest:
-                            break
-                        if c.day != other.day:
-                            model.add(shifts[c.id] + shifts[other.id] <= 1)
+                model.add_no_overlap(
+                    model.new_optional_fixed_size_interval_var(
+                        c.start * grid.slot_minutes,
+                        (c.end - c.start) * grid.slot_minutes + int(constraint["limit_minutes"]),
+                        shifts[c.id],
+                        f"rest_{constraint['id']}_{c.id}",
+                    )
+                    for c in candidates
+                )
             elif kind == "max_consecutive_days":
                 previous = int(histories[employee]["consecutive_work_days_before_window"])
                 limit = int(constraint["limit_days"])
