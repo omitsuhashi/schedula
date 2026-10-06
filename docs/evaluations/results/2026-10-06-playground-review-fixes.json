@@ -1,0 +1,197 @@
+{
+  "reviewed_commit": "d6ceff2499bf38d6efaeaf46290228a0386a3eb5",
+  "source_sha256": {
+    "demo/app.js": "8a287fce10780cd5ccf3a828447607532d6ac779d7a50e2eb5564fe705f20c3f",
+    "tests/playground-browser.cjs": "9f546f5334609a78d059bca944b0451ebc01eb36885eacfaa64c253b27842e70"
+  },
+  "environment": {
+    "os": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+    "python": "3.14.8",
+    "playwright": "1.62.1"
+  },
+  "command": "node tests/playground-browser.cjs",
+  "review_checks": [
+    {
+      "case": "unavailable-times",
+      "result": "passed",
+      "intervals_preserved": [
+        "11:00-13:00",
+        "11:30-12:30"
+      ],
+      "restore_to_sample": true
+    },
+    {
+      "case": "initial-http-validation",
+      "result": "passed",
+      "initial_response_sample": "HTTP 500",
+      "invalid_input_requests": 0,
+      "custom_name_and_cross_field_errors_cleared": true
+    },
+    {
+      "case": "initial-unknown-baseline",
+      "result": "passed",
+      "initial_response_sample": "UNKNOWN",
+      "unverified_baseline_rejected": true
+    },
+    {
+      "case": "initial-http-guide",
+      "result": "passed",
+      "initial_response_sample": "HTTP 500",
+      "guide_changes_blocked_until_verified_baseline": true
+    }
+  ],
+  "before_fix": {
+    "result": "failed",
+    "expected_end": "2026-10-06T13:00:00+09:00",
+    "actual_end": "2026-10-06T14:00:00+09:00"
+  },
+  "browser": {
+    "scenarios": [
+      {
+        "scenario": "normal",
+        "step": "initial",
+        "status": "OPTIMAL",
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        }
+      },
+      {
+        "scenario": "normal",
+        "step": "changed",
+        "status": "OPTIMAL",
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        }
+      },
+      {
+        "scenario": "normal",
+        "step": "restored",
+        "status": "OPTIMAL",
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        }
+      },
+      {
+        "scenario": "absence",
+        "step": "initial",
+        "status": "OPTIMAL",
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        }
+      },
+      {
+        "scenario": "absence",
+        "step": "changed",
+        "status": "INFEASIBLE",
+        "verification": {
+          "performed": false,
+          "valid": null,
+          "violations": []
+        }
+      },
+      {
+        "scenario": "absence",
+        "step": "repaired",
+        "status": "OPTIMAL",
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        }
+      },
+      {
+        "scenario": "absence",
+        "step": "restored",
+        "status": "OPTIMAL",
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        }
+      },
+      {
+        "scenario": "peak",
+        "step": "initial",
+        "status": "OPTIMAL",
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        }
+      },
+      {
+        "scenario": "peak",
+        "step": "changed",
+        "status": "OPTIMAL",
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        }
+      },
+      {
+        "scenario": "peak",
+        "step": "restored",
+        "status": "OPTIMAL",
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        }
+      }
+    ],
+    "response_samples": [
+      "initial-http-validation",
+      "initial-unknown-baseline",
+      "initial-http-guide",
+      "FEASIBLE",
+      "INFEASIBLE",
+      "UNKNOWN",
+      "INVALID_INPUT",
+      "BACKEND_UNAVAILABLE",
+      "INTERNAL_ERROR",
+      "http-error",
+      "communication",
+      "request-id",
+      "verification",
+      "malformed",
+      "計算中・二重送信抑止・編集で失効した遅延応答",
+      "待機期限（テスト時のみ100msに短縮）・期限後応答の拒否・復帰"
+    ],
+    "interactions": [
+      "勤務不可→需要ガイド→解除でサンプル時刻・編集済み時刻を保持、復元でサンプル時刻へ戻る",
+      "キーボード編集・再計算・復元、自由編集の保持、シナリオ切替の取消、重複名のID比較",
+      "空欄・小数・範囲外の入力不備、ラベルの文字表示",
+      {
+        "viewport": 1440,
+        "geometry": {
+          "width": 1440,
+          "document": 1440,
+          "columns": 2
+        },
+        "keyboard_focus": true
+      },
+      {
+        "viewport": 390,
+        "geometry": {
+          "width": 390,
+          "document": 390,
+          "columns": 1
+        },
+        "keyboard_focus": true
+      },
+      "強制配色でも状態・役割名を文字で確認",
+      "技能チェックをキーボードで編集して解なしを実計算、勤務可能時間の逆転を拒否"
+    ],
+    "browser": "154.0.8037.98",
+    "page_errors": []
+  }
+}

@@ -29,6 +29,86 @@ async function verified(page, expected) {
   return pair;
 }
 
+async function reviewRegressions(page, url) {
+  const yuiStart = page.locator('[data-pointer="/employees/4/availability/0/start"]');
+  const yuiEnd = page.locator('[data-pointer="/employees/4/availability/0/end"]');
+  const yuiUnavailable = page.locator('[data-pointer="/employees/4/availability"]');
+  for (const [start, end] of [["11:00", "13:00"], ["11:30", "12:30"]]) {
+    await page.locator("#restore").click();
+    await verified(page, {status: "OPTIMAL", assigned_slots: 22});
+    const interval = {start: `2026-10-06T${start}:00+09:00`, end: `2026-10-06T${end}:00+09:00`};
+    await yuiStart.selectOption(interval.start);
+    await yuiEnd.selectOption(interval.end);
+    await yuiUnavailable.check();
+    assert.deepEqual(await page.evaluate(() => readRequest().employees[4].availability), []);
+    await page.getByRole("button", {name: "この変更を入力", exact: true}).click();
+    await yuiUnavailable.uncheck();
+    assert.equal(await yuiStart.inputValue(), interval.start);
+    assert.equal(await yuiEnd.inputValue(), interval.end);
+    assert.deepEqual(await page.evaluate(() => readRequest().employees[4].availability), [interval]);
+    await page.locator("#restore").click();
+    await verified(page, {status: "OPTIMAL", assigned_slots: 22});
+    assert.equal(await yuiEnd.inputValue(), "2026-10-06T13:00:00+09:00");
+  }
+  report.interactions.push("勤務不可→需要ガイド→解除でサンプル時刻・編集済み時刻を保持、復元でサンプル時刻へ戻る");
+
+  for (const kind of ["initial-http-validation", "initial-unknown-baseline", "initial-http-guide"]) {
+    let requests = 0;
+    await page.route("**/solve", async route => {
+      requests++;
+      if (requests !== 1) { await route.continue(); return; }
+      if (kind === "initial-unknown-baseline") {
+        const result = await (await route.fetch()).json();
+        Object.assign(result, {status: "UNKNOWN", solution: null, objectives: [], verification: {performed: false, valid: null, violations: []}});
+        await route.fulfill({json: result});
+      } else await route.fulfill({status: 500, json: {error: {code: "SERVER_ERROR", message: "初回失敗の応答サンプル", json_pointer: null}}});
+    });
+    await page.goto(url);
+    await status(page, kind === "initial-unknown-baseline" ? "UNKNOWN" : "結果を取得できませんでした");
+    assert.equal(await page.evaluate(() => baseline), null);
+    assert.ok(!(await page.locator("#comparison").innerText()).includes("計算結果を待っています"));
+    const apply = page.getByRole("button", {name: "この変更を入力", exact: true});
+    assert.equal(await apply.isDisabled(), true);
+    if (kind === "initial-http-validation") {
+      const name = page.locator('[data-pointer="/employees/0/label"]');
+      await name.fill("あ".repeat(21));
+      await page.locator("#calculate").click();
+      await status(page, "入力不備");
+      assert.equal(requests, 1);
+      await name.fill("あおい");
+      assert.equal(await name.evaluate(input => input.validationMessage), "");
+      const start = page.locator('[data-pointer="/employees/0/availability/0/start"]');
+      const end = page.locator('[data-pointer="/employees/0/availability/0/end"]');
+      await start.selectOption("2026-10-06T14:00:00+09:00");
+      await page.locator("#calculate").click();
+      await status(page, "入力不備");
+      await start.selectOption("2026-10-06T11:00:00+09:00");
+      assert.equal(await end.evaluate(input => input.validationMessage), "");
+      assert.equal(requests, 1);
+    }
+    if (kind === "initial-http-guide") {
+      const before = await page.evaluate(() => readRequest());
+      await apply.evaluate(button => button.dispatchEvent(new MouseEvent("click", {bubbles: true})));
+      assert.deepEqual(await page.evaluate(() => readRequest()), before);
+      assert.equal(requests, 1);
+    }
+    await page.locator("#calculate").click();
+    const initial = await verified(page, {status: "OPTIMAL", assigned_slots: 22});
+    assert.equal(requests, 2);
+    assert.deepEqual(await page.evaluate(() => baseline), initial);
+    assert.equal(await apply.isDisabled(), false);
+    await apply.click();
+    await page.locator("#calculate").click();
+    await verified(page, {status: "OPTIMAL", assigned_slots: 23});
+    assert.equal(requests, 3);
+    assert.deepEqual(await page.evaluate(() => baseline), initial);
+    assert.ok((await page.locator("#comparison").innerText()).includes("担当差分："));
+    report.response_samples.push(kind);
+    await page.unroute("**/solve");
+  }
+  await page.goto(url);
+}
+
 async function main() {
   mkdirSync("test-results", {recursive: true});
   let url = process.env.PLAYGROUND_URL;
@@ -54,6 +134,8 @@ async function main() {
   await page.goto(url);
   let initial = await verified(page, {status: "OPTIMAL", assigned_slots: 22});
   await page.screenshot({path: "test-results/playground-desktop.png", fullPage: true});
+  await reviewRegressions(page, url);
+  initial = await verified(page, {status: "OPTIMAL", assigned_slots: 22});
 
   for (const scenario of scenarios) {
     if (await page.locator("#scenario").inputValue() !== scenario.id) {

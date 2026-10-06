@@ -45,7 +45,7 @@ function field(tag, label, pointer, attributes = {}) {
 function fields() { return [...$("editor").querySelectorAll("[data-pointer]")]; }
 function at(pointer) { return fields().find(item => item.dataset.pointer === pointer); }
 
-function renderForm(request) {
+function renderForm(request, preserveTimes = false) {
   const rows = request.employees.map((employee, index) => {
     const prefix = `/employees/${index}`;
     const name = field("input", `${employee.id}の名前`, `${prefix}/label`, {type: "text", required: ""});
@@ -58,7 +58,10 @@ function renderForm(request) {
     const times = ["start", "end"].map(key => {
       const input = field("select", `${employee.id}の勤務可能時間${key === "start" ? "開始" : "終了"}`, `${prefix}/availability/0/${key}`);
       input.append(...boundaries.map(value => node("option", time(value), {value})));
-      input.value = employee.availability[0]?.[key] || sample.planning_window[key];
+      // 勤務不可の送信値には含まれない選択時刻を、ガイドでの再描画後も保持する。
+      input.value = employee.availability[0]?.[key] ||
+        (preserveTimes && at(`${prefix}/availability/0/${key}`)?.value) ||
+        sample.employees[index].availability[0]?.[key] || sample.planning_window[key];
       input.disabled = employee.availability.length === 0;
       return input;
     });
@@ -186,7 +189,7 @@ function inputChanges(before, after) {
 
 function renderComparison() {
   const area = $("comparison");
-  if (!baseline) { area.replaceChildren(node("p", "元の条件の計算結果を待っています。")); return; }
+  if (!baseline) { area.replaceChildren(node("p", "比較元の検証済み配置はまだありません。元の条件で再計算するか、サンプルへ復元してください。")); return; }
   const input = current?.input || readRequest();
   area.replaceChildren(node("p", `元の条件：${baseline.response.status} · ${baseline.input.request_id}`),
     details("元の条件の確定入力と実結果", baseline));
@@ -227,15 +230,16 @@ function renderGuide() {
   if (!guided) { area.replaceChildren(node("strong", "自由編集"), node("p", "条件を編集し、再計算できます。元の条件と結果は比較欄に残ります。")); return; }
   const step = scenarios[scenarioIndex].steps[stepIndex];
   const apply = node("button", step.restore ? "サンプルへ復元" : "この変更を入力", {type: "button"});
-  apply.disabled = pendingStep;
+  apply.disabled = pendingStep || !validPair(baseline);
   apply.addEventListener("click", () => {
+    if (!validPair(baseline)) return;
     if (step.restore) { resetScenario(scenarioIndex); return; }
     const request = readRequest(true);
     if (!request) { renderResult("入力不備があります。欄を修正してください。"); return; }
     for (const [collection, changes] of Object.entries(step.changes)) {
       for (const [id, values] of Object.entries(changes)) Object.assign(request[collection].find(item => item.id === id), clone(values));
     }
-    renderForm(request);
+    renderForm(request, true);
     edited();
     pendingStep = true;
     renderGuide();
@@ -244,6 +248,7 @@ function renderGuide() {
   const free = node("button", "自由に編集する", {type: "button"});
   free.addEventListener("click", () => { guided = false; pendingStep = false; renderGuide(); $("calculate").focus(); });
   area.replaceChildren(node("strong", `試してみる：${scenarios[scenarioIndex].label}`), node("p", step.instruction),
+    ...(!baseline ? [node("p", "変更ガイドは元の条件の検証済み配置を確認してから進めます。失敗・未確定の場合は「再計算」で再試行してください。")] : []),
     ...(pendingStep ? [node("p", "変更を入力しました。「再計算」で結果と比較を確認してください。")] : []),
     node("div", "", {class: "actions"}, [apply, free]));
 }
@@ -262,6 +267,7 @@ function edited() {
   changed = true;
   if (current) previous = current;
   current = null;
+  readRequest();
   renderResult("条件を変更しました。再計算が必要です。");
 }
 
@@ -308,8 +314,9 @@ async function calculate() {
     if (token !== generation) return;
     acceptResponse(result, input);
     current = {input: clone(input), response: clone(result)};
-    if (!baseline && inputChanges(sample, input).length === 0) baseline = clone(current);
-    if (pendingStep) { stepIndex++; pendingStep = false; renderGuide(); }
+    if (!baseline && validPair(current) && inputChanges(sample, input).length === 0) baseline = clone(current);
+    if (pendingStep) { stepIndex++; pendingStep = false; }
+    renderGuide();
     renderResult();
   } catch (error) {
     if (token !== generation) return;
