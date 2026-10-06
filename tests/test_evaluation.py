@@ -156,3 +156,68 @@ def test_objective_bound_scope_zero_denominator_and_nearest_rank():
         "maximum": 20,
     }
     assert functions["distribution"]([])["p95"] is None
+
+
+def test_time_limit_override_is_forwarded_without_changing_input(tmp_path):
+    source = ROOT / "examples/assignment.json"
+    original = json.loads(source.read_text())
+    report = run_evaluation(tmp_path, source, "--time-limit-seconds", 30, "--source-ref", "HEAD")
+    row = report["measurements"][0]
+    assert row["status"] == "OPTIMAL"
+    assert report["conditions"]["time_limit_seconds_override"] == 30
+    assert row["input_solver_request"] == original["solver"]
+    assert row["solver_request"]["time_limit_seconds"] == 30
+    assert row["search_stats"]["time_limit_seconds"] == 30
+    assert row["input_sha256"] == hashlib.sha256(source.read_bytes()).hexdigest()
+    for invalid in ["nan", "0", "301"]:
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "scripts/evaluate.py"),
+                str(source),
+                "--time-limit-seconds",
+                invalid,
+            ],
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 2
+        assert "探索予算" in result.stderr
+
+
+def test_external_source_directory_is_used_and_identified(tmp_path):
+    import shutil
+
+    variant = tmp_path / "variant"
+    shutil.copytree(ROOT / "src", variant / "src")
+    for name in ["uv.lock", "pyproject.toml"]:
+        shutil.copyfile(ROOT / name, variant / name)
+    with (variant / "src/schedula/__init__.py").open("a") as file:
+        file.write('\nraise RuntimeError("external tree test")\n')
+    report = run_evaluation(
+        tmp_path,
+        ROOT / "examples/assignment.json",
+        "--source-ref",
+        "HEAD",
+        "--source-directory",
+        variant,
+    )
+    assert report["source"]["snapshot"] == "external_tree_copy"
+    assert report["source"]["dirty"] is True
+    assert report["source"]["source_directory"] == str(variant)
+    assert report["measurements"][0]["status"] == "WORKER_ERROR"
+    assert "external tree test" in report["measurements"][0]["error"]
+
+
+def test_evaluation_keeps_original_infeasibility_and_verified_suggestions(tmp_path):
+    report = run_evaluation(tmp_path, ROOT / "docs/evaluations/inputs/roster-extended.json")
+    row = report["measurements"][0]
+    assert row["schema_version"] == "0.2" and row["status"] == "INFEASIBLE"
+    suggestion = row["diagnosis_result"]["suggestions"][0]
+    assert suggestion["option_id"] == "restore_one_person"
+    assert suggestion["response"]["verification"]["valid"] is True
+    assert [item["value"] for item in suggestion["response"]["objectives"]] == [16, 0, 240]
+    assert suggestion["response"]["fairness_summary"]
+    assert suggestion["response"]["change_summary"]
+    assert report["summaries"][0]["solution_rate"] == 0
+    assert report["summaries"][0]["verified_suggestions"] == 1

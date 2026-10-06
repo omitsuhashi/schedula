@@ -112,6 +112,8 @@ def test_wheel_installs_and_runs_library_and_cli_in_clean_environment(tmp_path, 
     with zipfile.ZipFile(wheel) as archive:
         assert "schedula/schemas/0.1/request.schema.json" in archive.namelist()
         assert "schedula/schemas/0.1/response.schema.json" in archive.namelist()
+        assert "schedula/schemas/0.2/request.schema.json" in archive.namelist()
+        assert "schedula/schemas/0.2/response.schema.json" in archive.namelist()
         assert not any("reference/" in name or "tests/" in name for name in archive.namelist())
     requirements = tmp_path / "runtime-requirements.txt"
     export = subprocess.run(
@@ -139,12 +141,19 @@ assert str(root) not in schedula.__file__
 from schedula.contract import get_schema, schema_errors
 assert get_schema("request")["$id"] == "urn:schedula:request:0.1"
 assert get_schema("response")["$id"] == "urn:schedula:response:0.1"
+assert get_schema("request", "0.2")["$id"] == "urn:schedula:request:0.2"
+assert get_schema("response", "0.2")["$id"] == "urn:schedula:response:0.2"
 for filename, status, values in [
     ('assignment.json', 'OPTIMAL', [0]),
     ('linked_assignment.json', 'OPTIMAL', [0]),
     ('roster.json', 'OPTIMAL', [60, 2640, 0]),
     ('infeasible.json', 'INFEASIBLE', []),
     ('invalid-input.json', 'INVALID_INPUT', []),
+    ('overnight.json', 'OPTIMAL', [420]),
+    ('split_roster.json', 'OPTIMAL', [420]),
+    ('fairness.json', 'OPTIMAL', [0, 720]),
+    ('replan.json', 'OPTIMAL', [16, 0, 240]),
+    ('diagnosis.json', 'INFEASIBLE', []),
 ]:
     path = root / 'examples' / filename
     request = json.loads(path.read_text(encoding='utf-8'))

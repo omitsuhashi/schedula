@@ -1,5 +1,11 @@
 # 入出力契約
 
+本書は継続利用できる契約0.1の仕様である。夜勤・分割勤務・公平性・再計画・
+追加診断は [契約0.2](io-contract-next.md) を参照する。
+`solve` は入力の `schema_version` を選び、`get_schema(kind, "0.2")` または
+CLI の `schema request --schema-version 0.2` で新しい Schema を取得できる。
+既定の Schema 取得は0.1を維持する。
+
 ## 基準と変更の扱い
 
 初期設計の基準は SkillShift Starter の `schema_version: "0.1"`。

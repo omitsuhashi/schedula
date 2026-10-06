@@ -1,5 +1,7 @@
 import copy
 import itertools
+import json
+from pathlib import Path
 
 import pytest
 from ortools.sat.python import cp_model
@@ -14,6 +16,34 @@ from tests.test_cp_sat import exhaustive_linked_value, small_request, stamp
 from tests.test_roster import exhaustive_value
 
 METRICS = ("preference_penalty", "scheduled_minutes", "role_switches")
+
+
+@pytest.mark.parametrize(
+    "statuses,proofs",
+    [
+        (("FEASIBLE",), (False,) * 5),
+        (("OPTIMAL", "UNKNOWN"), (True, False, False, False, False)),
+        (("OPTIMAL", "OPTIMAL", "OPTIMAL", "FEASIBLE"), (True, True, True, False, False)),
+    ],
+)
+def test_extended_five_objectives_keep_one_verified_plan_and_proof_prefix(
+    monkeypatch, statuses, proofs
+):
+    data = json.loads((Path(__file__).resolve().parents[1] / "examples/replan.json").read_text())
+    data["objectives"] += [
+        {"id": metric, "metric": metric} for metric in ("preference_penalty", "role_switches")
+    ]
+    calls, snapshots = control_search(monkeypatch, statuses)
+    result = solve(data)
+    assert_response(result, "FEASIBLE")
+    assert len(calls) == len(statuses)
+    assert result["solution"] in snapshots
+    assert tuple(o["proven_optimal"] for o in result["objectives"]) == proofs
+    values = tuple(o["value"] for o in result["objectives"])
+    assert values == (16, 0, 240, 0, 0)
+    assert verify_solution(normalize(data), result["solution"]) == ([], values)
+    assert result["change_summary"]["total_changes"] == 16
+    assert sum(e["deviation_minutes"] for e in result["fairness_summary"]["employees"]) == 0
 
 
 def tradeoff_request(order=METRICS):

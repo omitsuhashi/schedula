@@ -13,6 +13,7 @@ def verify_shifts(request, grid, shifts, fail):
     coverage, breaks = defaultdict(set), defaultdict(set)
     selected = defaultdict(list)
     scheduled = Counter()
+    extended = request["schema_version"] == "0.2"
     for index, shift in enumerate(shifts):
         path = f"/shifts/{index}"
         identifier, employee = shift["candidate_id"], shift["employee_id"]
@@ -21,10 +22,20 @@ def verify_shifts(request, grid, shifts, fail):
             continue
         candidate = candidates[identifier]
         try:
-            interval = grid.interval(shift["interval"], path + "/interval")
-            rest = sorted(
-                grid.interval(b, f"{path}/breaks/{j}") for j, b in enumerate(shift["breaks"])
+            segments = tuple(
+                (
+                    *grid.interval(s["interval"], f"{path}/segments/{i}/interval"),
+                    tuple(
+                        sorted(
+                            grid.interval(b, f"{path}/segments/{i}/breaks/{j}")
+                            for j, b in enumerate(s["breaks"])
+                        )
+                    ),
+                )
+                for i, s in enumerate(shift["segments"] if extended else [shift])
             )
+            interval = segments[0][0], segments[-1][1]
+            rest = tuple(b for _, _, rests in segments for b in rests)
         except InvalidInput as error:
             for d in error.diagnostics:
                 fail(d["code"], d["message"], d["json_pointer"])
@@ -32,7 +43,13 @@ def verify_shifts(request, grid, shifts, fail):
         if (
             employee != candidate.employee_id
             or interval != (candidate.start, candidate.end)
-            or tuple(rest) != candidate.breaks
+            or rest != candidate.breaks
+            or (
+                extended
+                and (
+                    segments != candidate.segments or shift["work_day"] != candidate.day.isoformat()
+                )
+            )
         ):
             fail(
                 "CANDIDATE_MISMATCH",
@@ -53,11 +70,21 @@ def verify_shifts(request, grid, shifts, fail):
         dates.add(key)
         start, end = interval
         blocked = {slot for a, b in rest for slot in range(a, b)}
-        work = set(range(start, end)) - blocked
+        work = {slot for a, b, _ in segments for slot in range(a, b)} - blocked
         coverage[employee].update(work)
         breaks[employee].update(blocked)
         scheduled[employee] += len(work) * grid.slot_minutes
         selected[employee].append((start, end, candidate.day.toordinal()))
+    if extended:
+        for employee, intervals in selected.items():
+            ordered = sorted(intervals)
+            if any(a[1] > b[0] for a, b in zip(ordered, ordered[1:], strict=False)):
+                fail(
+                    "OVERLAPPING_SHIFTS",
+                    "開始日が異なる勤務の外側区間が重複しています。",
+                    "/shifts",
+                    [employee],
+                )
     first_day = grid.start.astimezone(grid.timezone).date().toordinal()
     end_day = grid.end.astimezone(grid.timezone).date().toordinal()
     histories = {e["id"]: e["history"] for e in request["employees"]}
@@ -109,6 +136,19 @@ def verify_shifts(request, grid, shifts, fail):
                             actual_value=count,
                             limit=constraint["limit_days"],
                         )
+            elif kind == "min_split_gap_minutes":
+                for identifier in seen:
+                    candidate = candidates[identifier]
+                    if candidate.employee_id == employee and any(
+                        (b[0] - a[1]) * grid.slot_minutes < constraint["limit_minutes"]
+                        for a, b in zip(candidate.segments, candidate.segments[1:], strict=False)
+                    ):
+                        fail(
+                            "MIN_SPLIT_GAP_VIOLATION",
+                            "分割勤務の区間間隔が不足しています。",
+                            path,
+                            [*related, identifier],
+                        )
     return coverage, breaks, scheduled
 
 
@@ -118,7 +158,7 @@ def verify_solution(problem, solution):
         check_json(solution)
     except InvalidInput as error:
         return error.diagnostics, ()
-    violations = schema_errors("solution", solution)
+    violations = schema_errors("solution", solution, problem.request["schema_version"])
     if violations:
         return violations, ()
 
@@ -269,4 +309,10 @@ def verify_solution(problem, solution):
         "role_switches": sum(switches.values()),
         "scheduled_minutes": sum(scheduled.values()),
     }
+    if request["schema_version"] == "0.2":
+        from .extensions import evaluate
+
+        extension_violations, extension_metrics, _ = evaluate(problem, solution)
+        violations.extend(extension_violations)
+        metrics.update(extension_metrics)
     return violations[:1000], tuple(metrics[o["metric"]] for o in request["objectives"])

@@ -106,27 +106,35 @@ def _date(value):
     return bool(re.fullmatch(r"\d{4}-\d{2}-\d{2}", value)) and bool(date.fromisoformat(value))
 
 
-def get_schema(kind):
+def get_schema(kind, schema_version="0.1"):
     if kind not in {"request", "response"}:
         raise ValueError("request または response を指定します。")
+    if schema_version not in {"0.1", "0.2"}:
+        raise ValueError("schema_version は 0.1 または 0.2 を指定します。")
     return json.loads(
-        files("schedula").joinpath(f"schemas/0.1/{kind}.schema.json").read_text(encoding="utf-8")
+        files("schedula")
+        .joinpath(f"schemas/{schema_version}/{kind}.schema.json")
+        .read_text(encoding="utf-8")
     )
 
 
 @lru_cache
-def _validator(kind):
-    schema = get_schema("response" if kind == "solution" else kind)
+def _validator(kind, schema_version):
+    schema = get_schema("response" if kind == "solution" else kind, schema_version)
     if kind == "solution":
         schema = {"$ref": "#/$defs/solution", "$defs": schema["$defs"]}
     Draft202012Validator.check_schema(schema)
     return Draft202012Validator(schema, format_checker=_FORMATS)
 
 
-def schema_errors(kind, value):
+def schema_errors(kind, value, schema_version=None):
+    if schema_version is None:
+        schema_version = (
+            "0.2" if isinstance(value, dict) and value.get("schema_version") == "0.2" else "0.1"
+        )
     return [
         diagnostic("SCHEMA_VIOLATION", error.message, pointer(error.absolute_path))
-        for error in islice(_validator(kind).iter_errors(value), 100)
+        for error in islice(_validator(kind, schema_version).iter_errors(value), 100)
     ]
 
 

@@ -50,7 +50,7 @@ def objective_quality(response):
     return quality
 
 
-def measure(path, backend):
+def measure(path, backend, time_limit_seconds=None):
     start = time.perf_counter()
     from schedula import solve
     from schedula.contract import InvalidInput, load_json
@@ -59,8 +59,13 @@ def measure(path, backend):
     imported = time.perf_counter()
     raw = path.read_bytes()
     request = load_json(raw.decode("utf-8"))
-    if backend and isinstance(request, dict) and isinstance(request.get("solver"), dict):
-        request["solver"]["backend"] = backend
+    input_solver = None
+    if isinstance(request, dict) and isinstance(request.get("solver"), dict):
+        input_solver = request["solver"].copy()
+        if backend:
+            request["solver"]["backend"] = backend
+        if time_limit_seconds is not None:
+            request["solver"]["time_limit_seconds"] = time_limit_seconds
     loaded = time.perf_counter()
     response = solve(request)
     finished = time.perf_counter()
@@ -91,12 +96,17 @@ def measure(path, backend):
         "candidates": len(problem.candidates) if problem else None,
         "objective_order": [o["metric"] for o in metadata["objectives"]] if problem else None,
         "solver_request": metadata.get("solver"),
+        "input_solver_request": input_solver,
         "solver_response": response["solver"],
+        "schema_version": response["schema_version"],
         "status": response["status"],
         "verification": response["verification"],
         "objectives": response["objectives"],
         "objective_quality": objective_quality(response),
         "diagnostics": response["diagnostics"],
+        "fairness_summary": response.get("fairness_summary"),
+        "change_summary": response.get("change_summary"),
+        "diagnosis_result": response.get("diagnosis_result"),
         "search_stats": search_stats,
         "assignments": len(response["solution"]["assignments"]) if response["solution"] else 0,
         "shifts": len(response["solution"]["shifts"]) if response["solution"] else 0,
@@ -139,6 +149,13 @@ def summarize(measurements, workers):
                 "statuses": dict(sorted(Counter(item["status"] for item in rows).items())),
                 "verified_solutions": len(verified),
                 "solution_rate": len(verified) / len(rows),
+                "verified_suggestions": sum(
+                    suggestion["response"]["status"] in {"OPTIMAL", "FEASIBLE"}
+                    and suggestion["response"]["verification"]["performed"]
+                    and suggestion["response"]["verification"]["valid"]
+                    for item in rows
+                    for suggestion in (item.get("diagnosis_result") or {}).get("suggestions", [])
+                ),
                 "statistics": {
                     key: distribution([item[key] for item in rows if item.get(key) is not None])
                     for key in ("elapsed_seconds", "request_elapsed_seconds", "peak_rss_mib")
@@ -200,6 +217,8 @@ def run_worker(job, args, environment):
     ]
     if args.backend:
         command += ["--backend", args.backend]
+    if args.time_limit_seconds is not None:
+        command += ["--time-limit-seconds", str(args.time_limit_seconds)]
     start = time.perf_counter()
     failure = None
     try:
@@ -257,11 +276,17 @@ def main():
     parser.add_argument("inputs", type=Path, nargs="+")
     parser.add_argument("--output", type=Path)
     parser.add_argument("--backend", choices=["auto", "min_cost_flow", "cp_sat"])
+    parser.add_argument(
+        "--time-limit-seconds", type=float, help="入力の探索予算を上書きする（最大300秒）"
+    )
     parser.add_argument("--repeat", type=int, default=1)
     parser.add_argument("--mode", choices=["cold", "warm"], default="cold")
     parser.add_argument("--processes", type=int, default=1)
     parser.add_argument("--timeout-seconds", type=float, default=60)
     parser.add_argument("--source-ref", help="指定 commit の src と uv.lock を固定して測定する")
+    parser.add_argument(
+        "--source-directory", type=Path, help="基準commitから変更した外部ソースをコピーする"
+    )
     parser.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args()
     if (
@@ -271,9 +296,18 @@ def main():
         or args.timeout_seconds <= 0
     ):
         parser.error("反復数・プロセス数・計測用の実行上限は正の値にします。")
+    if args.time_limit_seconds is not None and (
+        not math.isfinite(args.time_limit_seconds) or not 0 < args.time_limit_seconds <= 300
+    ):
+        parser.error("探索予算は0より大きく300秒以下の有限値にします。")
     if args.worker:
         for _ in range(args.repeat):
-            print(json.dumps(measure(args.inputs[0], args.backend), allow_nan=False), flush=True)
+            print(
+                json.dumps(
+                    measure(args.inputs[0], args.backend, args.time_limit_seconds), allow_nan=False
+                ),
+                flush=True,
+            )
         return
     if args.output is None:
         parser.error("--output に測定結果の保存先を指定します。")
@@ -283,18 +317,19 @@ def main():
     ).strip()
     with TemporaryDirectory(prefix="schedula-evaluation-") as directory:
         snapshot = Path(directory)
-        if args.source_ref:
+        if args.source_ref and args.source_directory is None:
             archive = subprocess.check_output(
                 ["git", "archive", commit, "src", "uv.lock", "pyproject.toml"], cwd=root
             )
             with tarfile.open(fileobj=io.BytesIO(archive)) as bundle:
                 bundle.extractall(snapshot, filter="data")
         else:
+            source_root = args.source_directory or root
             shutil.copytree(
-                root / "src", snapshot / "src", ignore=shutil.ignore_patterns("__pycache__")
+                source_root / "src", snapshot / "src", ignore=shutil.ignore_patterns("__pycache__")
             )
-            shutil.copyfile(root / "uv.lock", snapshot / "uv.lock")
-            shutil.copyfile(root / "pyproject.toml", snapshot / "pyproject.toml")
+            shutil.copyfile(source_root / "uv.lock", snapshot / "uv.lock")
+            shutil.copyfile(source_root / "pyproject.toml", snapshot / "pyproject.toml")
         digest = hashlib.sha256()
         for path in sorted((snapshot / "src").rglob("*")):
             if path.is_file():
@@ -303,12 +338,19 @@ def main():
                 )
         source = {
             "commit": commit,
-            "dirty": False
+            "dirty": True
+            if args.source_directory
+            else False
             if args.source_ref
             else bool(
                 subprocess.check_output(["git", "status", "--porcelain"], cwd=root, text=True)
             ),
-            "snapshot": "git_archive" if args.source_ref else "working_tree_copy",
+            "snapshot": "external_tree_copy"
+            if args.source_directory
+            else "git_archive"
+            if args.source_ref
+            else "working_tree_copy",
+            "source_directory": str(args.source_directory) if args.source_directory else None,
             "source_tree_sha256": digest.hexdigest(),
             "runner_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
             "uv_lock_sha256": hashlib.sha256((snapshot / "uv.lock").read_bytes()).hexdigest(),
@@ -345,6 +387,7 @@ def main():
             "processes": args.processes,
             "worker_processes_started": len(workers),
             "worker_timeout_seconds": args.timeout_seconds,
+            "time_limit_seconds_override": args.time_limit_seconds,
             "quantile_method": "nearest_rank",
             "cold_definition": "新規 Python プロセス。OS のファイルキャッシュは消去しない。",
         },

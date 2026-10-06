@@ -1,0 +1,320 @@
+{
+  "schema_version": "0.2",
+  "request_id": "replan_example",
+  "problem_type": "roster",
+  "planning_window": {
+    "start": "2026-10-06T00:00:00+09:00",
+    "end": "2026-10-08T00:00:00+09:00",
+    "timezone": "Asia/Tokyo",
+    "slot_minutes": 30
+  },
+  "skills": [],
+  "roles": [
+    {
+      "id": "kitchen",
+      "label": "kitchen",
+      "required_skills": []
+    },
+    {
+      "id": "hall",
+      "label": "hall",
+      "required_skills": []
+    }
+  ],
+  "employees": [
+    {
+      "id": "alice",
+      "label": "alice",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-06T20:00:00+09:00",
+          "end": "2026-10-06T22:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "bob",
+      "label": "bob",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-07T02:00:00+09:00",
+          "end": "2026-10-07T04:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    }
+  ],
+  "demand": [
+    {
+      "id": "need_1_1200_kitchen",
+      "role_id": "kitchen",
+      "interval": {
+        "start": "2026-10-06T20:00:00+09:00",
+        "end": "2026-10-06T22:00:00+09:00"
+      },
+      "required_people": 1
+    },
+    {
+      "id": "need_2_120_kitchen",
+      "role_id": "kitchen",
+      "interval": {
+        "start": "2026-10-07T02:00:00+09:00",
+        "end": "2026-10-07T04:00:00+09:00"
+      },
+      "required_people": 1
+    }
+  ],
+  "shift_candidates": [
+    {
+      "id": "alice_first",
+      "employee_id": "alice",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-06T20:00:00+09:00",
+            "end": "2026-10-06T22:00:00+09:00"
+          },
+          "breaks": []
+        }
+      ]
+    },
+    {
+      "id": "bob_second",
+      "employee_id": "bob",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-07T02:00:00+09:00",
+            "end": "2026-10-07T04:00:00+09:00"
+          },
+          "breaks": []
+        }
+      ]
+    }
+  ],
+  "constraints": [],
+  "preferences": [],
+  "objectives": [
+    {
+      "id": "changes",
+      "metric": "plan_changes"
+    },
+    {
+      "id": "fairness",
+      "metric": "fairness_deviation_minutes"
+    },
+    {
+      "id": "work",
+      "metric": "scheduled_minutes"
+    }
+  ],
+  "solver": {
+    "backend": "auto",
+    "time_limit_seconds": 10,
+    "seed": 0
+  },
+  "baseline": {
+    "plan_id": "old_split",
+    "source_request": {
+      "schema_version": "0.2",
+      "request_id": "old_split_plan",
+      "problem_type": "roster",
+      "planning_window": {
+        "start": "2026-10-06T00:00:00+09:00",
+        "end": "2026-10-08T00:00:00+09:00",
+        "timezone": "Asia/Tokyo",
+        "slot_minutes": 30
+      },
+      "skills": [],
+      "roles": [
+        {
+          "id": "kitchen",
+          "label": "kitchen",
+          "required_skills": []
+        },
+        {
+          "id": "hall",
+          "label": "hall",
+          "required_skills": []
+        }
+      ],
+      "employees": [
+        {
+          "id": "alice",
+          "label": "alice",
+          "skills": [],
+          "availability": [
+            {
+              "start": "2026-10-06T20:00:00+09:00",
+              "end": "2026-10-06T22:00:00+09:00"
+            },
+            {
+              "start": "2026-10-07T02:00:00+09:00",
+              "end": "2026-10-07T04:00:00+09:00"
+            }
+          ],
+          "history": {
+            "last_shift_end": null,
+            "consecutive_work_days_before_window": 0,
+            "last_work_day": null
+          }
+        },
+        {
+          "id": "bob",
+          "label": "bob",
+          "skills": [],
+          "availability": [
+            {
+              "start": "2026-10-07T02:00:00+09:00",
+              "end": "2026-10-07T04:00:00+09:00"
+            }
+          ],
+          "history": {
+            "last_shift_end": null,
+            "consecutive_work_days_before_window": 0,
+            "last_work_day": null
+          }
+        }
+      ],
+      "demand": [
+        {
+          "id": "need_1_1200_kitchen",
+          "role_id": "kitchen",
+          "interval": {
+            "start": "2026-10-06T20:00:00+09:00",
+            "end": "2026-10-06T22:00:00+09:00"
+          },
+          "required_people": 1
+        },
+        {
+          "id": "need_2_120_kitchen",
+          "role_id": "kitchen",
+          "interval": {
+            "start": "2026-10-07T02:00:00+09:00",
+            "end": "2026-10-07T04:00:00+09:00"
+          },
+          "required_people": 1
+        }
+      ],
+      "shift_candidates": [
+        {
+          "id": "alice_old_split",
+          "employee_id": "alice",
+          "segments": [
+            {
+              "interval": {
+                "start": "2026-10-06T20:00:00+09:00",
+                "end": "2026-10-06T22:00:00+09:00"
+              },
+              "breaks": []
+            },
+            {
+              "interval": {
+                "start": "2026-10-07T02:00:00+09:00",
+                "end": "2026-10-07T04:00:00+09:00"
+              },
+              "breaks": []
+            }
+          ]
+        }
+      ],
+      "constraints": [],
+      "preferences": [],
+      "objectives": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes"
+        }
+      ],
+      "solver": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      }
+    },
+    "source_solution": {
+      "assignments": [
+        {
+          "employee_id": "alice",
+          "role_id": "kitchen",
+          "interval": {
+            "start": "2026-10-06T20:00:00+09:00",
+            "end": "2026-10-06T22:00:00+09:00"
+          }
+        },
+        {
+          "employee_id": "alice",
+          "role_id": "kitchen",
+          "interval": {
+            "start": "2026-10-07T02:00:00+09:00",
+            "end": "2026-10-07T04:00:00+09:00"
+          }
+        }
+      ],
+      "shifts": [
+        {
+          "candidate_id": "alice_old_split",
+          "employee_id": "alice",
+          "segments": [
+            {
+              "interval": {
+                "start": "2026-10-06T20:00:00+09:00",
+                "end": "2026-10-06T22:00:00+09:00"
+              },
+              "breaks": []
+            },
+            {
+              "interval": {
+                "start": "2026-10-07T02:00:00+09:00",
+                "end": "2026-10-07T04:00:00+09:00"
+              },
+              "breaks": []
+            }
+          ],
+          "work_day": "2026-10-06"
+        }
+      ]
+    }
+  },
+  "fixed_parts": [
+    {
+      "id": "preserve_first",
+      "employee_id": "alice",
+      "interval": {
+        "start": "2026-10-06T20:00:00+09:00",
+        "end": "2026-10-06T22:00:00+09:00"
+      },
+      "components": [
+        "work",
+        "role"
+      ]
+    }
+  ],
+  "fairness": {
+    "evaluation_period": {
+      "start": "2026-10-06T00:00:00+09:00",
+      "end": "2026-10-08T00:00:00+09:00"
+    },
+    "employee_targets": [
+      {
+        "employee_id": "alice",
+        "target_minutes": 120
+      },
+      {
+        "employee_id": "bob",
+        "target_minutes": 120
+      }
+    ]
+  }
+}
