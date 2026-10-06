@@ -30,6 +30,8 @@ LLM 用の RequestDraft は実行契約と別に定義する。
 勤務計画・テンプレート・計画前履歴は Issue #8 で実装した。
 目的順序・共有探索予算・途中終了時の解保持は Issue #9 で実装した。利用例と対応範囲は
 [担当配置の利用手順](assignment.md)・[勤務計画の利用手順](roster.md)を参照する。
+Issue #10 で [README](../README.md) の入力作成・状態別の扱い、CI の継続検証、
+wheel の隔離導入と [架空入力の実行評価](evaluations/runtime.md)を整備した。
 `src/schedula/` を `setuptools.build_meta` でパッケージ化し、版別 JSON を package data に含める。
 参照コードのライセンス未選定を踏まえ、保存済み原本を直接編集・コピーせず、
 本書の業務仕様から schedula 用の Schema・例・コード・テストを作成する。

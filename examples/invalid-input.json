@@ -1,0 +1,47 @@
+{
+  "schema_version": "0.1",
+  "request_id": "invalid_reference",
+  "problem_type": "assignment",
+  "planning_window": {
+    "start": "2026-10-05T11:00:00+09:00",
+    "end": "2026-10-05T12:00:00+09:00",
+    "timezone": "Asia/Tokyo",
+    "slot_minutes": 30
+  },
+  "skills": [],
+  "roles": [
+    {
+      "id": "hall",
+      "label": "ホール",
+      "required_skills": []
+    }
+  ],
+  "employees": [
+    {
+      "id": "alice",
+      "label": "Aさん",
+      "skills": [],
+      "availability": []
+    }
+  ],
+  "demand": [
+    {
+      "id": "lunch",
+      "role_id": "unregistered_role",
+      "interval": {
+        "start": "2026-10-05T11:00:00+09:00",
+        "end": "2026-10-05T12:00:00+09:00"
+      },
+      "required_people": 1
+    }
+  ],
+  "shift_candidates": [],
+  "constraints": [],
+  "preferences": [],
+  "objectives": [],
+  "solver": {
+    "backend": "auto",
+    "time_limit_seconds": 5,
+    "seed": 0
+  }
+}
