@@ -28,7 +28,7 @@ LLM 用の RequestDraft は実行契約と別に定義する。
 
 これらのファイルと入口は Issue #6、担当時間・担当切替と CP-SAT は Issue #7、
 勤務計画・テンプレート・計画前履歴は Issue #8 で実装した。
-現在の目的は最大1件とし、複数目的は未対応として明示的に拒否する。利用例と対応範囲は
+目的順序・共有探索予算・途中終了時の解保持は Issue #9 で実装した。利用例と対応範囲は
 [担当配置の利用手順](assignment.md)・[勤務計画の利用手順](roster.md)を参照する。
 `src/schedula/` を `setuptools.build_meta` でパッケージ化し、版別 JSON を package data に含める。
 参照コードのライセンス未選定を踏まえ、保存済み原本を直接編集・コピーせず、
@@ -242,6 +242,21 @@ ID は種類ごとの集合内で一意とし、参照先が存在すること�
 | `diagnostics` | `code`、`message`、`json_pointer`、`related_ids`、`facts` |
 | `verification` | `performed`、`valid`、`violations`。未検証なら `valid: null` |
 | `stats.elapsed_seconds` | エンジン呼び出しにかかった時間 |
+
+目的値は未探索の目的も含め、返す一つの解から独立に再計算する。
+`proven_optimal: true` は配列先頭から連続した範囲だけに付ける。
+全目的を証明できれば `OPTIMAL`、未証明の目的が残る検証済み解は `FEASIBLE` とする。
+目的なしの入力は一回の必須条件の探索とし、バックエンドの終了状態に従う。
+上位目的が `FEASIBLE` なら後段を探索せず、後段の `UNKNOWN` や段階間の予算切れでは
+直前の解と証明範囲を保持する。解が一つもなければ `UNKNOWN` / `solution: null`。
+解が存在するのに後段で `INFEASIBLE` になる矛盾、モデル不正、内部例外は
+`INTERNAL_ERROR` として正式な解を返さない。
+
+既存の Schema の構造を維持し、探索が終了した結果の `SEARCH_STATS` 診断の `facts` に
+`time_limit_seconds`（共有予算）と `search_elapsed_seconds`（探索開始から終了まで）を記録する。
+後者は段階間の値取得・固定・目的更新も含む。`stats.elapsed_seconds` は入力検証・依存読み込み・
+候補展開・モデル構築・結果検証・Response 検証を含む呼び出し全体の時間とする。
+入力拒否・依存不足・内部例外で探索結果を取得できない場合、`SEARCH_STATS` は記録しない。
 
 `facts` は `name` / `value` を持つ配列。診断の根拠を機械で読める形で保持する。
 最小費用流では単独役割の有資格者不足と、複数役割で同じ人を取り合う不足を区別する。

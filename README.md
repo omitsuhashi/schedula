@@ -20,14 +20,15 @@
 | [設計判断](docs/adr/0001-json-first-engine.md) | JSON を中心にしたエンジンと、[勤務計画の同時最適化](docs/adr/0002-joint-roster-optimization.md) |
 | [出典と採用判断](docs/sources.md) | 元チャット、ZIP、採用箇所、参照資料の来歴 |
 
-schedula 0.1.2 は独立した `assignment` を最小費用流で、
+schedula 0.1.3 は独立した `assignment` を最小費用流で、
 担当時間上限・担当切替を含む `assignment` を CP-SAT で解き、
 結果の構造・担当資格・勤務可能時間・厳密な需要・二重配置と評価値を独立検証します。
 `roster` は勤務候補の選択と担当配置を同じ CP-SAT モデルで決め、休憩・待機・勤務量・
 勤務間の休息・連勤・計画前履歴を扱います。明示候補とテンプレートを合成できます。
 ライブラリは `from schedula import solve`、CLI は `python -m schedula solve` です。
-`auto` は条件から一つの方式を選択します。目的は最大1件です。複数目的は
-`INVALID_INPUT`、CP-SAT の依存不足は `BACKEND_UNAVAILABLE` です。
+`auto` は条件から一つの方式を選択します。複数目的は配列順に最適化し、
+時間切れでは得られた検証済み解と目的ごとの証明範囲を返します。
+CP-SAT の依存不足は `BACKEND_UNAVAILABLE` です。
 
 ```sh
 uv sync --locked
@@ -39,13 +40,15 @@ uv run --locked --extra cp-sat python -m schedula solve examples/linked_assignme
 uv run --locked --extra cp-sat python -m schedula solve examples/roster.json
 ```
 
-担当配置の例は選好ペナルティ0、勤務計画の例は60の検証済み `OPTIMAL` を返します。
+担当配置の例は選好ペナルティ0、勤務計画の例は選好ペナルティ60・勤務量2640分・
+担当切替0回の検証済み `OPTIMAL` を返します。
 [担当配置の利用手順](docs/assignment.md)に、標準入力、ライブラリ、対応範囲、
 診断・終了コード、探索予算と上限を記載しています。
 [勤務計画の利用手順](docs/roster.md)に、候補・履歴・勤務ルールの入力条件を記載しています。
 [独立配置の検証記録](docs/evaluations/assignment.md)と
 [時間横断配置の検証記録](docs/evaluations/linked-assignment.md)、
-[勤務計画の検証記録](docs/evaluations/roster.md)に、各実装の実測と未検証事項を残します。
+[勤務計画の検証記録](docs/evaluations/roster.md)、
+[目的順序・終了状態の検証記録](docs/evaluations/objectives.md)に、各実装の実測と未検証事項を残します。
 
 添付 `skillshift-starter-0.1.zip` は設計の参照元です。
 保存済み原本は `docs/reference/skillshift-starter-0.1/` に保持し、変更していません。

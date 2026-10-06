@@ -46,6 +46,18 @@ def validate_response(result, request=None):
                     "OBJECTIVE_MISMATCH", "結果の目的が Request と一致しません。", "/objectives"
                 )
             )
+    if result["status"] in {"OPTIMAL", "FEASIBLE"}:
+        proofs = [item["proven_optimal"] for item in result["objectives"]]
+        if proofs != sorted(proofs, reverse=True) or (
+            result["status"] == "FEASIBLE" and proofs and all(proofs)
+        ):
+            errors.append(
+                diagnostic(
+                    "OPTIMALITY_MISMATCH",
+                    "最適性の証明範囲が目的順序または結果状態と一致しません。",
+                    "/objectives",
+                )
+            )
     if errors:
         raise InvalidInput(errors)
 
@@ -83,17 +95,31 @@ def solve(request: dict) -> dict:
             raise RuntimeError("Unexpected flow outcome")
         result = response(request_id, outcome.status, outcome.diagnostics, backend)
         if outcome.status in {"OPTIMAL", "FEASIBLE"}:
-            violations, value = verify_solution(problem, outcome.solution)
-            if not violations and value != outcome.cost:
-                violations = [
-                    diagnostic(
-                        "OBJECTIVE_VALUE_MISMATCH",
-                        "再計算した評価値がソルバーの値と一致しません。",
-                        "/objectives",
-                        recomputed_value=value,
-                        solver_value=outcome.cost,
-                    )
-                ]
+            violations, values = verify_solution(problem, outcome.solution)
+            if not violations and values != outcome.values:
+                if len(values) != len(outcome.values):
+                    violations = [
+                        diagnostic(
+                            "OBJECTIVE_VALUE_MISMATCH",
+                            "ソルバーの目的値の件数が Request と一致しません。",
+                            "/objectives",
+                        )
+                    ]
+                else:
+                    violations = [
+                        diagnostic(
+                            "OBJECTIVE_VALUE_MISMATCH",
+                            "再計算した評価値がソルバーの値と一致しません。",
+                            f"/objectives/{index}",
+                            [request["objectives"][index]["id"]],
+                            recomputed_value=value,
+                            solver_value=solver_value,
+                        )
+                        for index, (value, solver_value) in enumerate(
+                            zip(values, outcome.values, strict=True)
+                        )
+                        if value != solver_value
+                    ]
             verification = {"performed": True, "valid": not violations, "violations": violations}
             if violations:
                 result = response(request_id, "INTERNAL_ERROR", violations, backend, verification)
@@ -105,16 +131,27 @@ def solve(request: dict) -> dict:
                         "id": objective["id"],
                         "metric": objective["metric"],
                         "value": value,
-                        "proven_optimal": outcome.status == "OPTIMAL",
+                        "proven_optimal": proven,
                     }
-                    for objective in request["objectives"]
+                    for objective, value, proven in zip(
+                        request["objectives"], values, outcome.proven_optimal, strict=True
+                    )
                 ]
         elif outcome.status not in {"INFEASIBLE", "UNKNOWN"} or outcome.solution is not None:
             raise RuntimeError("Unexpected solver outcome")
+        result["diagnostics"].append(
+            diagnostic(
+                "SEARCH_STATS",
+                "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+                "/solver/time_limit_seconds",
+                time_limit_seconds=request["solver"]["time_limit_seconds"],
+                search_elapsed_seconds=outcome.search_elapsed_seconds,
+            )
+        )
         result["solver"]["selection_reason"] = selection_reason
         result["solver"]["library_version"] = library_version
-        result["stats"]["elapsed_seconds"] = time.perf_counter() - start
         validate_response(result, request)
+        result["stats"]["elapsed_seconds"] = time.perf_counter() - start
         return result
     except cp_sat.BackendUnavailable:
         result = response(
@@ -147,6 +184,6 @@ def solve(request: dict) -> dict:
         )
     result["solver"]["selection_reason"] = selection_reason
     result["solver"]["library_version"] = library_version
-    result["stats"]["elapsed_seconds"] = time.perf_counter() - start
     validate_response(result)
+    result["stats"]["elapsed_seconds"] = time.perf_counter() - start
     return result

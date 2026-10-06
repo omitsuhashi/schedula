@@ -74,7 +74,7 @@ def test_verifier_does_not_trust_solver_tables(assignment_request):
     problem.qualified.clear()
     problem.demand.clear()
     problem.costs[("carol", "washing")] = 999
-    assert verify_solution(problem, solution) == ([], 0)
+    assert verify_solution(problem, solution) == ([], (0,))
     solution["assignments"][0]["employee_id"] = "carol"
     violations, _ = verify_solution(problem, solution)
     assert "SKILL_VIOLATION" in {item["code"] for item in violations}
@@ -91,8 +91,8 @@ def test_objective_recomputed_and_mismatch_blocks_solution(assignment_request, m
     assignment_request["preferences"][0]["employee_ids"] = ["carol"]
     assignment_request["preferences"][0]["penalty_per_minute"] = 2
     solution = solve(assignment_request)["solution"]
-    assert verify_solution(normalize(assignment_request), solution) == ([], 240)
-    monkeypatch.setattr(flow, "run", lambda _: flow.FlowResult("OPTIMAL", solution, 0))
+    assert verify_solution(normalize(assignment_request), solution) == ([], (240,))
+    monkeypatch.setattr(flow, "run", lambda _: flow.FlowResult("OPTIMAL", solution, (0,), (True,)))
     result = solve(assignment_request)
     assert_response(result, "INTERNAL_ERROR")
     assert result["diagnostics"][0]["code"] == "OBJECTIVE_VALUE_MISMATCH"
@@ -166,7 +166,7 @@ def test_response_objectives_match_request_order_and_ids(assignment_request):
 
 
 def test_search_timeout_is_unknown_with_no_partial_solution(assignment_request, monkeypatch):
-    clock = iter([0, 20])
+    clock = iter([0, 20, 20])
     monkeypatch.setattr(flow.time, "monotonic", lambda: next(clock))
     result = solve(assignment_request)
     assert_response(result, "UNKNOWN")
@@ -224,10 +224,10 @@ def test_split_same_assignment_is_detected_and_blocked(
     if reverse_order:
         solution["assignments"].reverse()
     violations, penalty = verify_solution(normalize(assignment_request), solution)
-    assert penalty == 0
+    assert penalty == (0,)
     assert {item["code"] for item in violations} == {"UNMERGED_ASSIGNMENTS"}
     assert violations[0]["related_ids"] == ["alice", "kitchen"]
-    monkeypatch.setattr(flow, "run", lambda _: flow.FlowResult("OPTIMAL", solution, 0))
+    monkeypatch.setattr(flow, "run", lambda _: flow.FlowResult("OPTIMAL", solution, (0,), (True,)))
     result = solve(assignment_request)
     assert_response(result, "INTERNAL_ERROR")
     assert result["verification"]["performed"] is True
@@ -267,4 +267,4 @@ def test_distinct_adjacent_assignments_or_gaps_need_no_merging(assignment_reques
         ],
         "shifts": [],
     }
-    assert verify_solution(normalize(request), solution) == ([], 0)
+    assert verify_solution(normalize(request), solution) == ([], ())

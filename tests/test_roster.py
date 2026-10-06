@@ -38,17 +38,18 @@ def test_reference_roster_with_one_objective(backend):
     assert len(normalize(data).candidates) == 32
     assert len(result["solution"]["shifts"]) == 8
     assert result["objectives"][0]["value"] == 60
-    assert verify_solution(normalize(data), result["solution"]) == ([], 60)
+    assert verify_solution(normalize(data), result["solution"]) == ([], (60,))
     assert data == original
 
 
-def test_original_multiple_objectives_still_rejected():
+def test_original_multiple_objectives():
     data = json.loads(
         (ROOT / "docs/reference/skillshift-starter-0.1/examples/roster.json").read_text()
     )
     result = solve(data)
-    assert_response(result, "INVALID_INPUT")
-    assert result["diagnostics"][0]["code"] == "UNSUPPORTED_OBJECTIVES"
+    assert_response(result, "OPTIMAL")
+    assert [o["value"] for o in result["objectives"]] == [60, 2640, 0]
+    assert verify_solution(normalize(data), result["solution"]) == ([], (60, 2640, 0))
 
 
 def test_scheduled_minutes_exclude_breaks_include_waiting():
@@ -351,13 +352,12 @@ def exhaustive_value(data):
                     if c["type"] == "max_role_switches" and switches.get(e, 0) > c["limit_count"]:
                         valid = False
             if valid:
-                metric = data["objectives"][0]["metric"] if data["objectives"] else None
-                value = {
+                metrics = {
                     "scheduled_minutes": sum(scheduled.values()),
                     "role_switches": sum(switches.values()),
                     "preference_penalty": penalty,
-                    None: 0,
-                }[metric]
+                }
+                value = tuple(metrics[o["metric"]] for o in data["objectives"])
                 best = value if best is None else min(best, value)
     return best
 
@@ -393,9 +393,11 @@ def test_optimum_matches_independent_enumeration(seed):
             "last_shift_end": stamp(-1, 690),
             "consecutive_work_days_before_window": 1,
         }
-    metric = rng.choice(["scheduled_minutes", "preference_penalty", "role_switches", None])
-    data["objectives"] = [{"id": "goal", "metric": metric}] if metric else []
-    if metric == "preference_penalty":
+    metrics = rng.sample(
+        ["scheduled_minutes", "preference_penalty", "role_switches"], rng.randrange(4)
+    )
+    data["objectives"] = [{"id": metric, "metric": metric} for metric in metrics]
+    if "preference_penalty" in metrics:
         data["preferences"] = [
             {
                 "id": "avoid",
@@ -408,8 +410,8 @@ def test_optimum_matches_independent_enumeration(seed):
     expected = exhaustive_value(data)
     result = solve(data)
     assert_response(result, "INFEASIBLE" if expected is None else "OPTIMAL")
-    if expected is not None and metric:
-        assert result["objectives"][0]["value"] == expected
+    if expected is not None:
+        assert tuple(o["value"] for o in result["objectives"]) == expected
 
 
 def test_roster_cli_json_only():

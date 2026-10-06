@@ -31,7 +31,8 @@ Python 3.14.8 を固定し、jsonschema・OR-Tools と開発依存の Ruff・pyt
 実測は [時間横断配置の検証記録](evaluations/linked-assignment.md)に記録する。
 勤務計画・候補展開・計画前履歴は Issue #8 で導入した。
 利用手順は [勤務計画](roster.md)、実測は [勤務計画の検証記録](evaluations/roster.md)を参照する。
-複数目的は後続の課題で扱う。
+目的順序・共有探索予算・途中終了時の解保持は Issue #9 で導入した。
+実測は [目的順序・終了状態の検証記録](evaluations/objectives.md)を参照する。
 
 ## 参照資料の検証状態
 
