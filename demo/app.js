@@ -256,9 +256,7 @@ function renderGuide() {
 function setBusy(value) {
   busy = value;
   $("controls").disabled = value;
-  $("json-controls").disabled = value;
   $("result").setAttribute("aria-busy", String(value));
-  $("json-result").setAttribute("aria-busy", String(value));
 }
 
 function edited() {
@@ -273,8 +271,8 @@ function edited() {
   renderResult("条件を変更しました。再計算が必要です。");
 }
 
-function acceptResponse(response, request, requestBoundaries = boundaries) {
-  if (!response || response.schema_version !== request.schema_version || response.request_id !== request.request_id || !stateText[response.status] ||
+function acceptResponse(response, request) {
+  if (!response || response.schema_version !== "0.1" || response.request_id !== request.request_id || !stateText[response.status] ||
       !Array.isArray(response.diagnostics) || !Array.isArray(response.objectives) || !response.verification || !response.solver || !response.stats) throw new Error("応答の形式または実行識別子が一致しません。");
   const success = ["OPTIMAL", "FEASIBLE"].includes(response.status);
   if (success ? !validPair({input: request, response}) || !Array.isArray(response.solution.assignments) : response.solution !== null || response.objectives.length !== 0) throw new Error("応答の状態と解・独立検証が一致しません。");
@@ -282,8 +280,8 @@ function acceptResponse(response, request, requestBoundaries = boundaries) {
       !response.objectives.every(item => item && typeof item.proven_optimal === "boolean" && Number.isFinite(item.value))) throw new Error("応答の診断または評価値が不正です。");
   if (success && response.objectives.length !== request.objectives.length) throw new Error("応答の目的が入力と一致しません。");
   if (success && !response.solution.assignments.every(item => item && request.employees.some(employee => employee.id === item.employee_id) &&
-      request.roles.some(role => role.id === item.role_id) && requestBoundaries.some(value => Date.parse(value) === Date.parse(item.interval?.start)) &&
-      requestBoundaries.some(value => Date.parse(value) === Date.parse(item.interval?.end)) && Date.parse(item.interval.start) < Date.parse(item.interval.end))) throw new Error("担当配置の参照または日時が不正です。");
+      request.roles.some(role => role.id === item.role_id) && boundaries.some(value => Date.parse(value) === Date.parse(item.interval?.start)) &&
+      boundaries.some(value => Date.parse(value) === Date.parse(item.interval?.end)) && Date.parse(item.interval.start) < Date.parse(item.interval.end))) throw new Error("担当配置の参照または日時が不正です。");
 }
 
 async function calculate() {
@@ -362,170 +360,6 @@ $("scenario").addEventListener("change", () => {
   const index = scenarios.findIndex(item => item.id === $("scenario").value);
   if (changed && !window.confirm("変更した条件と比較結果を置き換えます。シナリオを切り替えますか？")) { $("scenario").value = scenarios[scenarioIndex].id; return; }
   resetScenario(index);
-});
-
-let jsonPair = null;
-const jsonBodyLimit = 2 * 1024 * 1024;
-
-function jsonEdited(message = "JSON を変更しました。再計算が必要です。") {
-  generation++;
-  active?.abort();
-  active = null;
-  setBusy(false);
-  jsonPair = null;
-  $("json-output").replaceChildren();
-  $("json-status").textContent = message;
-}
-
-async function loadJSON(read) {
-  if (busy) return;
-  jsonEdited("JSON を読み込んでいます。");
-  const token = generation;
-  setBusy(true);
-  try {
-    const text = await read();
-    if (token !== generation) return;
-    if (new TextEncoder().encode(text).length > jsonBodyLimit) throw new Error("JSON は2 MiB以下にしてください。");
-    $("json-input").value = text;
-    $("json-status").textContent = "JSON を読み込みました。「JSON で計算」で実行できます。";
-  } catch (error) {
-    if (token === generation) $("json-status").textContent = `JSON を読み込めませんでした。${error.message}`;
-  } finally {
-    if (token === generation) setBusy(false);
-  }
-}
-
-function jsonSlots(request) {
-  const window = request.planning_window;
-  const step = window.slot_minutes * 60000;
-  const first = Date.parse(window.start), end = Date.parse(window.end);
-  if (!Number.isFinite(step) || step <= 0 || !(first < end) || (end - first) / step > 3000) throw new Error("応答の計画期間が不正です。");
-  const date = new Intl.DateTimeFormat("en-CA", {timeZone: window.timezone, year: "numeric", month: "2-digit", day: "2-digit"});
-  const clock = new Intl.DateTimeFormat("ja-JP", {timeZone: window.timezone, hour: "2-digit", minute: "2-digit", hourCycle: "h23"});
-  return Array.from({length: (end - first) / step}, (_, index) => {
-    const start = first + index * step;
-    return {start, end: start + step, date: date.format(start), label: `${clock.format(start)}〜${clock.format(start + step)}`};
-  });
-}
-
-function renderJSONDay(pair, daySlots, area, showAll = false) {
-  const roles = new Map(pair.input.roles.map(role => [role.id, role.label || role.id]));
-  const assignments = new Map(), work = new Map();
-  const covers = (interval, slot) => Date.parse(interval.start) <= slot.start && Date.parse(interval.end) >= slot.end;
-  for (const assignment of pair.response.solution.assignments) daySlots.forEach((slot, index) => {
-    if (covers(assignment.interval, slot)) assignments.set(`${assignment.employee_id}/${index}`, assignment.role_id);
-  });
-  for (const shift of pair.response.solution.shifts || []) {
-    for (const segment of shift.segments || [{interval: shift.interval, breaks: shift.breaks}]) daySlots.forEach((slot, index) => {
-      if (covers(segment.interval, slot)) work.set(`${shift.employee_id}/${index}`, segment.breaks.some(interval => covers(interval, slot)) ? "休憩" : "待機");
-    });
-  }
-  let visible = daySlots.map((slot, index) => ({slot, index}));
-  if (!showAll) {
-    const active = visible.filter(({slot, index}) => pair.input.demand.some(item => item.required_people > 0 && covers(item.interval, slot)) ||
-      pair.input.employees.some(employee => work.has(`${employee.id}/${index}`)));
-    if (active.length) visible = active;
-  }
-  const rows = pair.input.employees.map(employee => node("tr", "", {}, [
-    node("th", employee.label || employee.id, {scope: "row"}), ...visible.map(({slot, index}) => {
-      const key = `${employee.id}/${index}`, role = assignments.get(key);
-      const empty = pair.input.problem_type === "roster" ? work.get(key) || "勤務なし" :
-        employee.availability.some(interval => covers(interval, slot)) ? "担当なし" : "勤務可能時間外";
-      return node("td", roles.get(role) || empty, {class: ["kitchen", "hall", "washing"].includes(role) ? role : ""});
-    }),
-  ]));
-  const coverage = pair.input.roles.map(role => node("tr", "", {}, [
-    node("th", role.label || role.id, {scope: "row"}), ...visible.map(({slot, index}) => {
-      const count = pair.input.employees.filter(employee => assignments.get(`${employee.id}/${index}`) === role.id).length;
-      const required = pair.input.demand.find(item => item.role_id === role.id && covers(item.interval, slot))?.required_people || 0;
-      return node("td", `${count} / ${required}`);
-    }),
-  ]));
-  area.replaceChildren(scroll("JSON の担当配置表", table(`${daySlots[0].date} · 独立検証：成功`, ["従業員", ...visible.map(({slot}) => slot.label)], rows)),
-    scroll("JSON の需要充足表", table("配置人数 / 必要人数", ["役割", ...visible.map(({slot}) => slot.label)], coverage)));
-}
-
-function renderJSONResult() {
-  const pair = jsonPair, result = pair.response;
-  const area = $("json-output");
-  area.replaceChildren();
-  if (validPair(pair)) {
-    const grid = jsonSlots(pair.input);
-    area.append(node("p", `${pair.input.employees.length}人 · ${new Set(grid.map(slot => slot.date)).size}日 · ${pair.input.planning_window.slot_minutes}分刻み · ${grid.length}時間枠 · 独立検証：成功 · 総処理時間 ${result.stats.elapsed_seconds.toFixed(2)}秒`));
-    const select = node("select", "", {id: "json-day"});
-    select.append(...[...new Set(grid.map(slot => slot.date))].map(date => node("option", date, {value: date})));
-    const tables = node("div");
-    const all = node("input", "", {id: "json-all-slots", type: "checkbox"});
-    const render = () => renderJSONDay(pair, grid.filter(slot => slot.date === select.value), tables, all.checked);
-    select.addEventListener("change", render);
-    all.addEventListener("change", render);
-    area.append(node("div", "", {class: "toolbar"}, [node("label", "表示する日付", {for: "json-day"}), select,
-      node("label", "", {}, [all, document.createTextNode(" 全時間枠を表示")])]),
-      node("p", "通常は需要・勤務がある時間枠を表示します。", {class: "note"}), tables);
-    render();
-  }
-  area.append(...result.diagnostics.map(item => node("p", `${item.code}：${item.message} (${item.json_pointer ?? ""})`)),
-    details("診断・目的・確定入力と実結果", pair));
-}
-
-async function calculateJSON() {
-  if (busy) return;
-  const text = $("json-input").value;
-  jsonEdited("計算中です。JSON の条件で計算しています。");
-  const token = generation, controller = new AbortController();
-  active = controller;
-  setBusy(true);
-  let timer;
-  try {
-    if (new TextEncoder().encode(text).length > jsonBodyLimit) throw new Error("JSON は2 MiB以下にしてください。");
-    const result = await Promise.race([
-      (async () => {
-        // 原文を送信し、サーバーの厳密な読み取りで重複キーも検出する。
-        const response = await fetch("/solve-json", {method: "POST", headers: {"Content-Type": "application/json"}, body: text, signal: controller.signal});
-        const value = await response.json();
-        if (!response.ok) throw new Error(`${value.error?.code || "HTTP_ERROR"}：${value.error?.message || "結果を取得できませんでした。"} (${value.error?.json_pointer ?? ""})`);
-        return value;
-      })(),
-      new Promise((_, reject) => { timer = setTimeout(() => reject(new Error("11分の待機期限を超えました。サーバーの計算停止を保証するものではありません。")), 660000); }),
-    ]);
-    if (token !== generation) return;
-    const input = JSON.parse(text);
-    const expected = {...input, schema_version: input?.schema_version === "0.2" ? "0.2" : "0.1", request_id: typeof input?.request_id === "string" ? input.request_id : null};
-    const requestBoundaries = ["OPTIMAL", "FEASIBLE"].includes(result.status) ?
-      [input.planning_window.start, ...jsonSlots(input).map(slot => new Date(slot.end).toISOString())] : [];
-    acceptResponse(result, expected, requestBoundaries);
-    jsonPair = {input, response: result};
-    renderJSONResult();
-    $("json-status").textContent = `${stateText[result.status]} · ${result.status}`;
-  } catch (error) {
-    if (token !== generation) return;
-    controller.abort();
-    jsonPair = null;
-    $("json-output").replaceChildren();
-    $("json-status").textContent = `計算できませんでした。${error.message}`;
-  } finally {
-    clearTimeout(timer);
-    if (active === controller) { active = null; setBusy(false); }
-  }
-}
-
-$("json-input").addEventListener("input", () => jsonEdited());
-$("json-editor").addEventListener("submit", event => { event.preventDefault(); calculateJSON(); });
-$("json-load-sample").addEventListener("click", () => {
-  const name = $("json-sample").value;
-  loadJSON(async () => {
-    const response = await fetch(`/samples/${name}.json`);
-    if (!response.ok) throw new Error("サンプルを取得できませんでした。");
-    return response.text();
-  });
-});
-$("json-file").addEventListener("change", () => {
-  const file = $("json-file").files[0];
-  if (file) loadJSON(async () => {
-    if (file.size > jsonBodyLimit) throw new Error("ファイルは2 MiB以下にしてください。");
-    return new TextDecoder("utf-8", {fatal: true}).decode(await file.arrayBuffer());
-  });
-  $("json-file").value = "";
 });
 
 async function start() {

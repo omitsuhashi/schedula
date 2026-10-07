@@ -109,65 +109,6 @@ async function reviewRegressions(page, url) {
   await page.goto(url);
 }
 
-async function jsonInputChecks(page) {
-  const waitJSON = text => page.waitForFunction(value =>
-    document.getElementById("json-status").textContent.includes(value) && !busy,
-  text, {timeout: 120000});
-  await page.locator("#json-demo summary").first().click();
-  await page.locator("#json-load-sample").click();
-  await waitJSON("読み込みました");
-  const sample = JSON.parse(await page.locator("#json-input").inputValue());
-  assert.equal(sample.employees.length, 100);
-  assert.equal(sample.planning_window.slot_minutes, 30);
-  const oldBaseline = await page.evaluate(() => baseline);
-  await page.locator("#json-calculate").click();
-  await page.waitForFunction(() => jsonPair !== null && !busy, null, {timeout: 120000});
-  const large = await page.evaluate(() => jsonPair);
-  assert.ok(["OPTIMAL", "FEASIBLE"].includes(large.response.status));
-  assert.deepEqual(large.input, sample);
-  assert.equal(large.response.verification.valid, true);
-  assert.ok(large.response.solution.shifts.length >= 1200);
-  assert.equal(await page.locator("#json-day option").count(), 30);
-  assert.equal(await page.locator("#json-output table").first().locator("tbody tr").count(), 100);
-  assert.equal(await page.locator("#json-output table").first().locator("thead th").count(), 17);
-  assert.ok((await page.locator("#json-output").innerText()).includes("休憩"));
-  assert.ok((await page.locator("#json-output").innerText()).includes("勤務なし"));
-  await page.locator("#json-day").selectOption("2026-10-30");
-  assert.ok((await page.locator("#json-output caption").first().innerText()).includes("2026-10-30"));
-  await page.locator("#json-all-slots").check();
-  assert.equal(await page.locator("#json-output table").first().locator("thead th").count(), 49);
-  await page.locator("#json-all-slots").uncheck();
-  assert.deepEqual(await page.evaluate(() => baseline), oldBaseline);
-  await page.setViewportSize({width: 1440, height: 1000});
-  await page.locator("#json-result").scrollIntoViewIfNeeded();
-  await page.screenshot({path: "test-results/playground-json-100.png"});
-  await page.setViewportSize({width: 390, height: 844});
-  assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
-  await page.screenshot({path: "test-results/playground-json-mobile.png"});
-  report.interactions.push({json_sample: "100人・30日・30分", status: large.response.status, verification: large.response.verification, stats: large.response.stats});
-
-  for (const name of ["roster", "overnight", "split_roster", "infeasible", "invalid-input"]) {
-    const input = readFileSync(`examples/${name}.json`);
-    await page.locator("#json-file").setInputFiles({name: `${name}.json`, mimeType: "application/json", buffer: input});
-    await waitJSON("読み込みました");
-    assert.equal(await page.locator("#json-output table").count(), 0);
-    await page.locator("#json-calculate").click();
-    await waitJSON(name === "infeasible" ? "INFEASIBLE" : name === "invalid-input" ? "INVALID_INPUT" : "OPTIMAL");
-    assert.deepEqual(await page.evaluate(() => jsonPair.input), JSON.parse(input));
-    assert.equal(await page.locator("#json-output table").count(), ["infeasible", "invalid-input"].includes(name) ? 0 : 2);
-  }
-  for (const [text, expected] of [["{", "INVALID_JSON"], ['{"a":1,"a":2}', "DUPLICATE_JSON_KEY"], ["null", "INVALID_INPUT"]]) {
-    await page.locator("#json-input").fill(text);
-    assert.equal(await page.locator("#json-output table").count(), 0);
-    await page.locator("#json-calculate").click();
-    await waitJSON(expected);
-  }
-  await page.locator("#json-file").setInputFiles({name: "bad.json", mimeType: "application/json", buffer: Buffer.from([255])});
-  await waitJSON("読み込めませんでした");
-  assert.equal(await page.locator("#json-output table").count(), 0);
-  report.interactions.push("JSON のファイル入力・夜勤・分割勤務・解なし・入力不備・重複キー・不正UTF-8・日付切替・編集で結果を失効");
-}
-
 async function main() {
   mkdirSync("test-results", {recursive: true});
   let url = process.env.PLAYGROUND_URL;
@@ -185,7 +126,7 @@ async function main() {
   }
   browser = await chromium.launch({headless: true, ...(process.env.PLAYWRIGHT_CHANNEL ? {channel: process.env.PLAYWRIGHT_CHANNEL} : {})});
   report.browser = browser.version();
-  const page = await browser.newPage({viewport: {width: 1440, height: 1000}, timezoneId: "UTC"});
+  const page = await browser.newPage({viewport: {width: 1440, height: 1000}});
   const errors = [];
   page.on("pageerror", error => errors.push(error.message));
   let acceptDialog = true;
@@ -385,11 +326,10 @@ async function main() {
   await page.locator("#restore").click();
   await verified(page, {status: "OPTIMAL", assigned_slots: 22});
   report.response_samples.push("待機期限（テスト時のみ100msに短縮）・期限後応答の拒否・復帰");
-  await jsonInputChecks(page);
   assert.deepEqual(errors, []);
   report.page_errors = errors;
   writeFileSync("test-results/playground-browser.json", JSON.stringify(report, null, 2) + "\n");
-  console.log("3シナリオ・JSON入力・100人30日の勤務計画・キーボード・狭い画面・応答失効：成功");
+  console.log("3シナリオ・入力不備・比較・復元・キーボード・狭い画面・応答失効：成功");
 }
 
 main().catch(error => { console.error(error); process.exitCode = 1; }).finally(async () => {

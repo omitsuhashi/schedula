@@ -1,4 +1,4 @@
-"""担当配置・勤務計画を試す loopback 専用の実行入口。"""
+"""架空の担当配置を試す loopback 専用の実行入口。"""
 
 import argparse
 import json
@@ -20,14 +20,8 @@ FILES = {
     "/style.css": (ROOT / "demo" / "style.css", "text/css; charset=utf-8"),
     "/samples/lunch.json": (SAMPLES / "lunch.json", "application/json; charset=utf-8"),
     "/samples/scenarios.json": (SAMPLES / "scenarios.json", "application/json; charset=utf-8"),
-    "/samples/roster.json": (ROOT / "examples" / "roster.json", "application/json; charset=utf-8"),
-    "/samples/roster-100-30.json": (
-        SAMPLES / "roster-100-30.json",
-        "application/json; charset=utf-8",
-    ),
 }
 MAX_BODY = 64 * 1024
-MAX_JSON_BODY = 2 * 1024 * 1024
 READ_TIMEOUT = 5
 
 
@@ -190,8 +184,8 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if not self.allowed_origin():
             return
-        if self.path not in {"/solve", "/solve-json"}:
-            self.error(404, "NOT_FOUND", "計算入口は /solve または /solve-json です。")
+        if self.path != "/solve":
+            self.error(404, "NOT_FOUND", "計算入口は /solve です。")
             return
         if self.headers.get_all("Transfer-Encoding"):
             self.error(400, "INVALID_BODY", "転送エンコーディングは受理できません。")
@@ -201,9 +195,8 @@ class Handler(BaseHTTPRequestHandler):
             self.error(400, "INVALID_BODY", "Content-Length を一つ指定してください。")
             return
         length = int(lengths[0])
-        limit = MAX_JSON_BODY if self.path == "/solve-json" else MAX_BODY
-        if length > limit:
-            self.error(413, "BODY_TOO_LARGE", f"本文は{limit // 1024} KiB以下にしてください。")
+        if length > MAX_BODY:
+            self.error(413, "BODY_TOO_LARGE", "本文は64 KiB以下にしてください。")
             return
         if (
             len(self.headers.get_all("Content-Type", [])) != 1
@@ -220,8 +213,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.error(400, "INVALID_BODY", "本文を最後まで読み取れませんでした。")
                 return
             request = load_json(body.decode("utf-8"))
-            if self.path == "/solve":
-                validate_demo(request)
+            validate_demo(request)
         except UnicodeError, RecursionError:
             self.error(400, "INVALID_JSON", "UTF-8 JSON を読み取れません。")
             return
@@ -240,7 +232,7 @@ class Handler(BaseHTTPRequestHandler):
                 error.pointer,
             )
             return
-        # ponytail: ローカル試用では同時1件。公開・並列実行時はプロセス分離を設計する。
+        # ponytail: 固定6人のローカル試用では同時1件。公開・並列実行時はプロセス分離を設計する。
         if not self.server.solve_lock.acquire(blocking=False):
             self.error(503, "BUSY", "別の計算を実行中です。少し待って再計算してください。")
             return
