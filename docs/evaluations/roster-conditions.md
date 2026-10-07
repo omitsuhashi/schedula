@@ -54,7 +54,7 @@ lock file、環境・依存版、候補数、状態、不足、目的値・下�
 
 ## 初回の取り扱い
 
-[初回生データ](results/2026-10-07-roster-conditions-initial.json)では全3入力が不足0・選好0の `FEASIBLE` だった。
+[初回生データ](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-07-roster-conditions-initial.json)では全3入力が不足0・選好0の `FEASIBLE` だった。
 ただし測定途中でパッケージ0.1.3から0.1.4へ同期したため、snapshotの版と実行環境の版が一致しない。
 この初回を正式な比較の根拠に採用せず、固定した0.1.4で全試行を取り直す。
 初回の成功・時間・RSS・証明範囲も削除せず、この制限を付けて保持する。
@@ -73,7 +73,7 @@ OR-Toolsなしの別環境でも完全・不足・不正Request・編集違反�
 
 ## 規模の反復測定
 
-[正式な生データ](results/2026-10-07-roster-conditions-scale.json)はソース `3d6dbe0` の
+[正式な生データ](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-07-roster-conditions-scale.json)はソース `3d6dbe0` の
 Git archiveから実行した。snapshot・実行環境ともパッケージ0.1.4で、lockも一致する。
 その後の `53115de` は基準スナップショットの未登録従業員を拒否する参照検証とテストの追加で、
 規模入力は基準を持たず、その差分を実行しない。元サンプルと結合例は後者のソースを使う。
@@ -104,13 +104,13 @@ Git archiveから実行した。snapshot・実行環境ともパッケージ0.1.
 
 ## 元サンプルとの比較と結合例
 
-[元サンプルの生データ](results/2026-10-07-roster-conditions-original.json)は3000候補・探索30秒で
+[元サンプルの生データ](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-07-roster-conditions-original.json)は3000候補・探索30秒で
 不足0の独立検証済み `FEASIBLE`、勤務量540000分・最適性未証明だった。
 冷起動総時間32.201秒、ピークRSS1002.5 MiB、入力検証0.051秒、候補展開0.050秒、
 モデル準備0.581秒、探索30.060秒、独立検証0.400秒。
 新条件の3000例とは条件・目的・予算が違うため、純粋な速度改善率として比較しない。
 
-[結合例の生データ](results/2026-10-07-roster-conditions-combined.json)は8入力×2冷起動の16試行。
+[結合例の生データ](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-07-roster-conditions-combined.json)は8入力×2冷起動の16試行。
 全試行が期待した状態になり、有効な14解は独立検証に成功した。
 残り2試行は固定と新しい勤務不可が衝突する `INFEASIBLE` で、有効解へ数えない。
 worker障害は0。各試行の冷起動総時間は0.328秒以下、ピークRSSは105.9 MiB以下だった。

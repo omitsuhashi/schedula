@@ -92,8 +92,8 @@ Python・JSON・依存・ネイティブの OR-Tools を含む。エンジンだ
 `dirty` は Git の追跡済み変更と非無視の未追跡ファイルの有無であり、未コミット内容そのものの識別ではない。
 以下の既存の測定 JSON は追加前の記録として保持し、当時記録していない source 情報は後付けしない。
 `--backend` は入力の backend だけを変更し、有効な指定を `solver_request` に保存する。
-結果は [auto の再測定](results/2026-10-06-auto.json) と
-[共通問題の CP-SAT](results/2026-10-06-cp-sat.json)に保存した。
+結果は [auto の再測定](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-auto.json) と
+[共通問題の CP-SAT](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-cp-sat.json)に保存した。
 
 ## 観測結果
 
@@ -113,7 +113,7 @@ Python・JSON・依存・ネイティブの OR-Tools を含む。エンジンだ
 探索予算が外部応答期限ではないことも確認できた。
 両方式の共通問題では検証成功・最適値0が一致した。同率解の担当そのものの一致は要求していない。
 
-[初回測定](results/2026-10-06-initial.json)も保存した。
+[初回測定](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-initial.json)も保存した。
 wheel の隔離導入テストと並行していた初回の時間横断配置例は総時間36.748秒・探索約0.002秒だった。
 他の検証を終えて順に再測定した同じ入力は0.255秒で、探索以外に大きな遅延があった。
 依存読み込み・構築などの個別時間や遅延の原因は切り分けていない。

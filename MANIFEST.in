@@ -1,0 +1,12 @@
+include README.md LICENSE THIRD_PARTY_NOTICES.md AGENTS.md GLOSSARY.md
+include pyproject.toml uv.lock .python-version .pre-commit-config.yaml .gitignore
+recursive-include src *.py *.json py.typed
+recursive-include tests *.py *.cjs
+recursive-include examples *.json *.py
+recursive-include demo *.py *.html *.css *.js
+recursive-include scripts *.py
+include scripts/deploy
+recursive-include docs *.md *.html *.json
+prune docs/reference
+prune docs/evaluations/results
+global-exclude __pycache__ *.py[cod] .DS_Store

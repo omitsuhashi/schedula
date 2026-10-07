@@ -116,9 +116,9 @@ uv run --locked --extra cp-sat python scripts/evaluate.py docs/evaluations/input
 ## 基準ソースの観測結果
 
 2026-10-06、上記環境で測定した。元の基準ソースを変更せず、
-[冷起動24試行](results/2026-10-06-baseline-cold.json)、
-[初回と継続6試行](results/2026-10-06-baseline-warm.json)、
-[2プロセス8試行](results/2026-10-06-baseline-parallel.json)を保存した。
+[冷起動24試行](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-baseline-cold.json)、
+[初回と継続6試行](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-baseline-warm.json)、
+[2プロセス8試行](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-baseline-parallel.json)を保存した。
 3ファイルの source tree SHA-256 は `18406fc579c9635f38117ca84080ff7ff4ae5e2fdd1a4666e0cfd60395adc591`。
 平均・中央値・p95・観測最大値・個別試行はJSONに残す。以下は `request_elapsed_seconds` の中央値と観測最大値である。
 
@@ -147,12 +147,12 @@ uv run --locked --extra cp-sat python scripts/evaluate.py docs/evaluations/input
 
 単独3回、継続2回、並行4回の今回の範囲で、過去のsolve 36.748秒は再現しなかった。
 元の測定はwheel導入との同時実行だったが、同じ競合を再現したものではない。
-原因を特定したとは扱わず、[過去の初回結果](results/2026-10-06-initial.json)を保持する。
+原因を特定したとは扱わず、[過去の初回結果](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-initial.json)を保持する。
 今回の2プロセス比較では時間横断配置例の最大request時間は0.306秒だった。
 
 ## 時間内訳と解品質を追加した観測
 
-[時間内訳を持つ12試行](results/2026-10-06-profile.json)は、基準commitを親に持つ作業中ソースのコピーを固定して測った。
+[時間内訳を持つ12試行](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-profile.json)は、基準commitを親に持つ作業中ソースのコピーを固定して測った。
 source tree SHA-256 は `d67766df51cf491e390a789345b05ab6759f0b941915bd586e6638d5cc3b3723`、
 `source.dirty: true`。基準の測定へこの変更を後付けせず、別ファイルに保持する。
 次表の内訳は各3回の算術平均、requestは観測最大値、メモリは観測最大値である。
@@ -172,12 +172,12 @@ source tree SHA-256 は `d67766df51cf491e390a789345b05ab6759f0b941915bd586e6638d
 
 ## 障害・計測期限の保存
 
-[外部期限の2試行](results/2026-10-06-harness-timeout.json)は正常な現行勤務計画を
+[外部期限の2試行](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-harness-timeout.json)は正常な現行勤務計画を
 `--repeat 2 --timeout-seconds 0.000001` で測り、`WORKER_TIMEOUT` 2件を母数に保存した。
 solve時間とRSSを取得できず分布のsamplesは0だが、worker実時間のsamplesは2。
 エンジンの `UNKNOWN` と計測workerの終了は別の状態である。
 
-[入力ファイル不足の2予定試行](results/2026-10-06-harness-failure.json)は、意図的に存在しない
+[入力ファイル不足の2予定試行](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-harness-failure.json)は、意図的に存在しない
 `docs/evaluations/inputs/missing-evaluation-input.json` を `--repeat 2 --mode warm` で指定した。
 最初の `WORKER_ERROR` と、続行できない `WORKER_NOT_RUN` を各1件として保存し、解獲得率の母数を2とした。
 ファイルが存在しないためinput hashはnullで、理由はstderrに保持する。このファイルは作成しない。

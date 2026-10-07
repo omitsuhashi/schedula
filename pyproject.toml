@@ -42,6 +42,10 @@ select = ["E", "F", "I", "UP", "B"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "repository: Git checkoutまたはデプロイ入口を必要とする検証",
+    "distribution: 配布archiveと隔離導入の検証",
+]
 
 [dependency-groups]
 dev = [

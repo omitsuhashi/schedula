@@ -231,7 +231,7 @@ Host / Origin 不正は403、実行入口自体の予期しない障害は500と
 欠勤直後の1条件が `INFEASIBLE` / `solution: null` となった。
 成立例では `verify_solution` を再実行し、需要合計22 / 23 / 20 / 24人枠と照合した。
 初回テストは診断の `facts` を辞書と仮定したため1失敗・2成功となり、既存契約どおり配列に修正後は3成功。
-エンジンの変更はない。[実行記録](evaluations/results/2026-10-06-playground.json)に全10条件の結果と入力ハッシュを保存した。
+エンジンの変更はない。[実行記録](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-playground.json)に全10条件の結果と入力ハッシュを保存した。
 全回帰テストは966成功・6 subtests成功、107.04秒、失敗・エラー・スキップ0件。
 Ruff lint・format、`bash -n scripts/deploy`、`git diff --check` も成功した。
 静的画面案は内蔵ブラウザーの内容と DOM で確認し、1440px幅で2列、390px幅で1列・ページ横はみ出しなしを確認した。

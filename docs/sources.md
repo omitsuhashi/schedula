@@ -61,21 +61,21 @@ SMILO、OptiMUS、Neural LNS などの研究も探索先の候補とする。
 ## 保存した参照スナップショット
 
 `docs/reference/skillshift-starter-0.1/` 以下の8ファイルは ZIP 内と同じバイト列を保存した。
-各ファイルの元パス、サイズ、SHA-256 は [manifest.json](reference/skillshift-starter-0.1/manifest.json) に記録する。
+各ファイルの元パス、サイズ、SHA-256 は [manifest.json](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/reference/skillshift-starter-0.1/manifest.json) に記録する。
 元の識別子・日付・結果数値を保持しており、翻訳・名称変更した schedula の契約ではない。
 
 | 保存先 | 用途 |
 | --- | --- |
-| [request.schema.json](reference/skillshift-starter-0.1/skillshift/schemas/request.schema.json) | 初期 Request の構造 |
-| [response.schema.json](reference/skillshift-starter-0.1/skillshift/schemas/response.schema.json) | 初期 Response の構造 |
-| [assignment.json](reference/skillshift-starter-0.1/examples/assignment.json) | 飲食店の独立した担当配置 |
-| [assignment.result.json](reference/skillshift-starter-0.1/examples/assignment.result.json) | ZIP 同梱の結果。今回の実行結果ではない |
-| [infeasible.json](reference/skillshift-starter-0.1/examples/infeasible.json) | 人数不足 |
-| [linked_assignment.json](reference/skillshift-starter-0.1/examples/linked_assignment.json) | 担当切替の時間横断制約 |
-| [roster.json](reference/skillshift-starter-0.1/examples/roster.json) | 2日間の勤務候補生成と担当配置 |
-| [TEST_REPORT.original.md](reference/skillshift-starter-0.1/TEST_REPORT.original.md) | ZIP 作成時の検証と未検証事項の原本 |
+| [request.schema.json](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/reference/skillshift-starter-0.1/skillshift/schemas/request.schema.json) | 初期 Request の構造 |
+| [response.schema.json](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/reference/skillshift-starter-0.1/skillshift/schemas/response.schema.json) | 初期 Response の構造 |
+| [assignment.json](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/reference/skillshift-starter-0.1/examples/assignment.json) | 飲食店の独立した担当配置 |
+| [assignment.result.json](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/reference/skillshift-starter-0.1/examples/assignment.result.json) | ZIP 同梱の結果。今回の実行結果ではない |
+| [infeasible.json](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/reference/skillshift-starter-0.1/examples/infeasible.json) | 人数不足 |
+| [linked_assignment.json](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/reference/skillshift-starter-0.1/examples/linked_assignment.json) | 担当切替の時間横断制約 |
+| [roster.json](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/reference/skillshift-starter-0.1/examples/roster.json) | 2日間の勤務候補生成と担当配置 |
+| [TEST_REPORT.original.md](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/reference/skillshift-starter-0.1/TEST_REPORT.original.md) | ZIP 作成時の検証と未検証事項の原本 |
 
-[TEST_REPORT.md](reference/skillshift-starter-0.1/TEST_REPORT.md) は、原本の結果と当時の
+[TEST_REPORT.md](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/reference/skillshift-starter-0.1/TEST_REPORT.md) は、原本の結果と当時の
 実行記録を引き継ぎ、公開前のセットアップ手順を uv に更新した文書である。
 原本は `TEST_REPORT.original.md` に同じバイト列で保存し、manifest の保存先だけを変更した。
 原本の pip 手順は当時の記録であり、現在の手順は [Python セットアップ](python-setup.md)を正とする。

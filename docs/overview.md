@@ -22,8 +22,8 @@ Aさんは調理、Bさんはホールの技能を持ち、Cさんは特別な�
 | 同じ人を同じ時間に二つの役割へ配置しない | 二重配置を防ぐ必須条件 |
 | Aさん・Bさんの皿洗いをなるべく避ける | 禁止ではなく、評価に反映する選好 |
 
-[参照入力](reference/skillshift-starter-0.1/examples/assignment.json)と
-[ZIP 同梱の結果](reference/skillshift-starter-0.1/examples/assignment.result.json)では、
+[参照入力](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/reference/skillshift-starter-0.1/examples/assignment.json)と
+[ZIP 同梱の結果](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/reference/skillshift-starter-0.1/examples/assignment.result.json)では、
 Aさんが調理、Bさんがホール、Cさんが皿洗いを担当し、選好のペナルティは0になる。
 これは参照資料の結果であり、schedula の実行結果ではない。
 技能者の皿洗いが必要な場合は、必須条件を守ったうえで選好違反を数値として返す。

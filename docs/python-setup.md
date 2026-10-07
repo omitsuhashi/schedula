@@ -48,6 +48,9 @@ WindowsのPowerShellでは `$env:PYTHONTZPATH = ""` としてから起動する�
 存在しないゾーン名は `INVALID_INPUT` / `INVALID_TIMEZONE`、時刻データの欠落・破損・
 読み取り障害は `INTERNAL_ERROR` / `TIMEZONE_DATA_UNAVAILABLE` となる。
 CIの `timezone-distribution` でLinux/Windowsのbaseとextraを別環境で確認する。
+2026-10-07、[CI実行](https://github.com/omitsuhashi/schedula/actions/runs/37582595920)で
+4環境それぞれ87件、skip 0が成功した。OSのTZDBを使わないwheelの求解・独立検証・
+Schema取得と、不正入力・データ障害の区別を含む。Windowsの全中核テストの結果ではない。
 
 ## 初回セットアップ
 
