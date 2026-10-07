@@ -215,6 +215,13 @@ def test_editable_limits_and_ids_independent_of_order(http_server):
 def test_engine_states_and_entrance_failure_are_distinct(http_server, monkeypatch):
     from shift_schedula.engine import response
 
+    send_json = server.Handler.send_json
+
+    def after_unlock(handler, status, value):
+        assert not handler.server.solve_lock.locked()
+        send_json(handler, status, value)
+
+    monkeypatch.setattr(server.Handler, "send_json", after_unlock)
     for state in ("INVALID_INPUT", "BACKEND_UNAVAILABLE", "INTERNAL_ERROR", "UNKNOWN"):
         result = response(BASELINE["request_id"], state)
         monkeypatch.setattr(server, "solve", lambda _, result=result: result)
