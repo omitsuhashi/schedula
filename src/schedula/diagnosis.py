@@ -62,7 +62,12 @@ def conditions(request):
 
     window = {k: request["planning_window"][k] for k in ("start", "end")}
     add("PLANNING_GRID", "/planning_window", interval=window)
-    add("EXACT_DEMAND_AND_SINGLE_ASSIGNMENT", "/problem_type")
+    add(
+        "DEMAND_LIMIT_AND_SINGLE_ASSIGNMENT"
+        if request["schema_version"] == "0.3"
+        else "EXACT_DEMAND_AND_SINGLE_ASSIGNMENT",
+        "/problem_type",
+    )
     for i, demand in enumerate(request["demand"]):
         add("DEMAND", f"/demand/{i}", [demand["id"], demand["role_id"]], demand["interval"])
     for i, role in enumerate(request["roles"]):
@@ -113,7 +118,9 @@ def diagnose(request, status, solve):
     if status != "INFEASIBLE":
         result.update(
             status="NOT_APPLICABLE",
-            reason="ORIGINAL_UNKNOWN" if status == "UNKNOWN" else "ORIGINAL_FEASIBLE",
+            reason={"UNKNOWN": "ORIGINAL_UNKNOWN", "PARTIAL": "ORIGINAL_PARTIAL"}.get(
+                status, "ORIGINAL_FEASIBLE"
+            ),
         )
         result["elapsed_seconds"] = time.monotonic() - start
         return result
@@ -228,15 +235,22 @@ def validate_result(request, response):
             fail()
         return errors
     if result is None:
-        if response["status"] in {"OPTIMAL", "FEASIBLE", "INFEASIBLE", "UNKNOWN"}:
+        if response["status"] in {"OPTIMAL", "FEASIBLE", "PARTIAL", "INFEASIBLE", "UNKNOWN"}:
             fail()
         return errors
     if result["time_limit_seconds"] != config["time_limit_seconds"]:
         fail()
     if response["status"] != "INFEASIBLE":
-        if result["status"] == "ERROR" and result["conflict"] is None and not result["suggestions"]:
+        if (
+            response["status"] != "PARTIAL"
+            and result["status"] == "ERROR"
+            and result["conflict"] is None
+            and not result["suggestions"]
+        ):
             return errors
-        reason = "ORIGINAL_UNKNOWN" if response["status"] == "UNKNOWN" else "ORIGINAL_FEASIBLE"
+        reason = {"UNKNOWN": "ORIGINAL_UNKNOWN", "PARTIAL": "ORIGINAL_PARTIAL"}.get(
+            response["status"], "ORIGINAL_FEASIBLE"
+        )
         if (
             result["status"] != "NOT_APPLICABLE"
             or result["reason"] != reason

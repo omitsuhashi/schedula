@@ -2,8 +2,14 @@ import time
 from importlib.metadata import version
 
 from . import cp_sat, flow
-from .contract import InvalidInput, check_json, diagnostic, schema_errors
-from .model import normalize
+from .contract import (
+    InvalidInput,
+    check_json,
+    diagnostic,
+    schema_errors,
+    schema_version_of,
+)
+from .model import minute_datetime, normalize
 from .verify import verify_solution
 
 
@@ -39,7 +45,28 @@ def validate_response(result, request=None):
     errors = schema_errors("response", result)
     if errors:
         raise InvalidInput(errors)
-    if request is not None and result["status"] in {"OPTIMAL", "FEASIBLE"}:
+    if request is not None and result["schema_version"] != request["schema_version"]:
+        raise InvalidInput(
+            [
+                diagnostic(
+                    "SCHEMA_VERSION_MISMATCH",
+                    "応答の契約版が入力と一致しません。",
+                    "/schema_version",
+                )
+            ]
+        )
+    if request is not None and result["status"] == "PARTIAL":
+        # #36で元入力・配置との不足照合を導入するまで、集計の自己申告を採用しない。
+        raise InvalidInput(
+            [
+                diagnostic(
+                    "PARTIAL_VERIFICATION_UNAVAILABLE",
+                    "未完成の計画と元入力の独立検証は未導入です。",
+                    "/shortage_summary",
+                )
+            ]
+        )
+    if request is not None and result["status"] in {"OPTIMAL", "FEASIBLE", "PARTIAL"}:
         expected = [(item["id"], item["metric"]) for item in request["objectives"]]
         actual = [(item["id"], item["metric"]) for item in result["objectives"]]
         if expected != actual:
@@ -48,7 +75,7 @@ def validate_response(result, request=None):
                     "OBJECTIVE_MISMATCH", "結果の目的が Request と一致しません。", "/objectives"
                 )
             )
-        if request["schema_version"] == "0.2":
+        if request["schema_version"] in {"0.2", "0.3"}:
             from .extensions import evaluate
 
             problem = normalize(request)
@@ -68,10 +95,12 @@ def validate_response(result, request=None):
                             "SUMMARY_MISMATCH", "結果の集計が返却解と一致しません。", "/" + name
                         )
                     )
-    if result["status"] in {"OPTIMAL", "FEASIBLE"}:
+    if result["status"] in {"OPTIMAL", "FEASIBLE", "PARTIAL"}:
         proofs = [item["proven_optimal"] for item in result["objectives"]]
         if proofs != sorted(proofs, reverse=True) or (
-            result["status"] == "FEASIBLE" and proofs and all(proofs)
+            result["status"] == "FEASIBLE"
+            and (proofs or result["schema_version"] == "0.3")
+            and all(proofs)
         ):
             errors.append(
                 diagnostic(
@@ -80,7 +109,37 @@ def validate_response(result, request=None):
                     "/objectives",
                 )
             )
-    if request is not None and request["schema_version"] == "0.2":
+    if result["schema_version"] == "0.3" and result["shortage_summary"] is not None:
+        summary = result["shortage_summary"]
+        total = 0
+        for index, item in enumerate(summary["shortages"]):
+            path = f"/shortage_summary/shortages/{index}"
+            duration = minute_datetime(
+                item["interval"]["end"], path + "/interval/end"
+            ) - minute_datetime(item["interval"]["start"], path + "/interval/start")
+            seconds = duration.total_seconds()
+            if (
+                seconds <= 0
+                or seconds % 60
+                or item["required_people"] - item["assigned_people"] != item["missing_people"]
+            ):
+                errors.append(
+                    diagnostic(
+                        "SHORTAGE_MISMATCH",
+                        "不足人数または区間が不足集計の契約と一致しません。",
+                        f"/shortage_summary/shortages/{index}",
+                    )
+                )
+            total += seconds // 60 * item["missing_people"]
+        if total != summary["total_person_minutes"]:
+            errors.append(
+                diagnostic(
+                    "SHORTAGE_MISMATCH",
+                    "不足合計人分が不足一覧と一致しません。",
+                    "/shortage_summary/total_person_minutes",
+                )
+            )
+    if request is not None and request["schema_version"] in {"0.2", "0.3"}:
         from .diagnosis import validate_result
 
         errors.extend(validate_result(request, result))
@@ -111,18 +170,36 @@ def solve(request: dict) -> dict:
     selection_reason = "NOT_SELECTED"
     library_version = None
     verification = None
-    schema_version = (
-        "0.2" if isinstance(request, dict) and request.get("schema_version") == "0.2" else "0.1"
-    )
+    schema_version = schema_version_of(request)
 
     def extend(result):
         result["schema_version"] = schema_version
-        if schema_version == "0.2":
+        if schema_version in {"0.2", "0.3"}:
             result.update(fairness_summary=None, change_summary=None, diagnosis_result=None)
+        if schema_version == "0.3":
+            result["shortage_summary"] = None
         return result
 
     try:
         problem = normalize(request)
+        if schema_version == "0.3":
+            # #37で不足最小化を導入するまで、旧ソルバーの結果を0.3として公開しない。
+            result = extend(
+                response(
+                    request_id,
+                    "BACKEND_UNAVAILABLE",
+                    [
+                        diagnostic(
+                            "PARTIAL_PLANNING_UNAVAILABLE",
+                            "契約0.3の不足を伴う計画の探索は未導入です。",
+                            "/schema_version",
+                        )
+                    ],
+                )
+            )
+            result["stats"]["elapsed_seconds"] = time.perf_counter() - start
+            validate_response(result, request)
+            return result
         normalized_at = time.perf_counter()
         backend, selection_reason = choose_backend(request)
         if backend == "cp_sat":
@@ -169,7 +246,7 @@ def solve(request: dict) -> dict:
                 )
             else:
                 result["solution"] = outcome.solution
-                if schema_version == "0.2":
+                if schema_version in {"0.2", "0.3"}:
                     from .extensions import evaluate
 
                     _, _, summaries = evaluate(problem, outcome.solution)

@@ -271,7 +271,7 @@ def normalize(request):
 
         validate_history(request, grid)
         problem.candidates = expand_candidates(request, grid)
-    if request["schema_version"] == "0.2":
+    if request["schema_version"] in {"0.2", "0.3"}:
         from .diagnosis import validate_options
         from .extensions import validate
 

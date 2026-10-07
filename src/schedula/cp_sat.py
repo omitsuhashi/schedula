@@ -45,7 +45,7 @@ def prepare_roster(model, problem):
             coverage[candidate.employee_id, slot].append(variable)
     for variables in by_day.values():
         model.add(sum(variables) <= 1)
-    if problem.request["schema_version"] == "0.2":
+    if problem.request["schema_version"] in {"0.2", "0.3"}:
         for candidates in by_employee.values():
             model.add_no_overlap(
                 model.new_optional_fixed_size_interval_var(
@@ -179,7 +179,7 @@ def prepare(problem, cp_model):
         "role_switches": sum(variable for values in switches.values() for variable in values),
         "scheduled_minutes": sum(scheduled.values()),
     }
-    if problem.request["schema_version"] == "0.2":
+    if problem.request["schema_version"] in {"0.2", "0.3"}:
         from .extensions import prepare as prepare_extensions
 
         expressions.update(prepare_extensions(model, problem, assignments, shifts, scheduled))

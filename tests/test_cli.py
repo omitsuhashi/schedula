@@ -114,6 +114,8 @@ def test_wheel_installs_and_runs_library_and_cli_in_clean_environment(tmp_path, 
         assert "schedula/schemas/0.1/response.schema.json" in archive.namelist()
         assert "schedula/schemas/0.2/request.schema.json" in archive.namelist()
         assert "schedula/schemas/0.2/response.schema.json" in archive.namelist()
+        assert "schedula/schemas/0.3/request.schema.json" in archive.namelist()
+        assert "schedula/schemas/0.3/response.schema.json" in archive.namelist()
         assert not any("reference/" in name or "tests/" in name for name in archive.namelist())
     requirements = tmp_path / "runtime-requirements.txt"
     export = subprocess.run(
@@ -143,6 +145,8 @@ assert get_schema("request")["$id"] == "urn:schedula:request:0.1"
 assert get_schema("response")["$id"] == "urn:schedula:response:0.1"
 assert get_schema("request", "0.2")["$id"] == "urn:schedula:request:0.2"
 assert get_schema("response", "0.2")["$id"] == "urn:schedula:response:0.2"
+assert get_schema("request", "0.3")["$id"] == "urn:schedula:request:0.3"
+assert get_schema("response", "0.3")["$id"] == "urn:schedula:response:0.3"
 for filename, status, values in [
     ('assignment.json', 'OPTIMAL', [0]),
     ('linked_assignment.json', 'OPTIMAL', [0]),
