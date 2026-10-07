@@ -5,6 +5,7 @@ from .types import (
     Diagnostic,
     ExtendedSolution,
     Request04,
+    Request05,
     SchemaVersion,
     Solution,
 )
@@ -36,4 +37,6 @@ def get_schema(
     kind: Literal["request", "response", "solution", "verification"],
     schema_version: SchemaVersion = "0.1",
 ) -> dict[str, JSONValue]: ...
-def make_baseline(request: Request04, solution: ExtendedSolution, plan_id: str) -> Baseline: ...
+def make_baseline(
+    request: Request04 | Request05, solution: ExtendedSolution, plan_id: str
+) -> Baseline: ...

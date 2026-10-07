@@ -470,7 +470,7 @@ def test_verification_has_no_solver_call_or_proofs(version, monkeypatch, assignm
     data["employees"][0]["skills"] = []
     assert verify(data, result["solution"])["status"] == "INVALID_PLAN"
     checked = verify(data, {"assignments": [], "shifts": []})
-    assert checked["status"] == ("PARTIAL" if version in {"0.3", "0.4"} else "INVALID_PLAN")
+    assert checked["status"] == ("PARTIAL" if version in {"0.3", "0.4", "0.5"} else "INVALID_PLAN")
 
 
 @pytest.mark.parametrize(

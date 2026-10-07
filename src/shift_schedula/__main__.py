@@ -56,6 +56,8 @@ def main():
                     if isinstance(request, dict) and isinstance(request.get("request_id"), str)
                     else None,
                 )
+                if result["schema_version"] == "0.5":
+                    result["priority_summary"] = None
             else:
                 result = response(None, "INVALID_INPUT", diagnostics)
         if args.command != "verify":

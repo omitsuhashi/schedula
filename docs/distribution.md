@@ -49,7 +49,7 @@ OR-ToolsはApache-2.0で、任意の `cp-sat` extraとして導入する。
 アクセスできる利用者はcloneし、READMEの手順で `uv sync --locked --extra cp-sat` を実行する。
 配布のPython要件は `>=3.14`。実測した対応は通常のCPython 3.14、CIのLinuxとmacOS ARM64。
 2026-10-07時点の最新安定版も3.14.8であり、新しい安定版・free-threaded・他実装は未検証。
-Windows x86_64は2026-10-07のCIでbase/extraのwheel導入・求解・独立検証・Schema取得・入力検証を確認した。
+Windows x86_64は2026-10-07のCIでbase/extraのwheel導入・求解・独立検証・Schema取得・入力検証・spawnによる総期限/取消と独立した並行実行を確認した。
 Windowsでの全中核テストとブラウザー検証は未実施。CP-SATは対象環境のOR-Tools wheelが必要となる。
 最小費用流と保存済み勤務計画の独立検証にはOR-Toolsが不要。
 `tzdata` はbaseの直接依存として同梱表示を保持し、OSの時刻データがない環境でも使う。
@@ -58,10 +58,10 @@ OSのTZDB優先・tzdata fallbackと再現方法は[Pythonセットアップ](py
 ```sh
 uv build --wheel
 uv export --locked --extra cp-sat --no-dev --no-emit-project --output-file runtime-requirements.txt
-sha256sum dist/shift_schedula-0.1.4-py3-none-any.whl
+sha256sum dist/shift_schedula-0.1.5-py3-none-any.whl
 uv init --python 3.14 my-scheduler
 cd my-scheduler
-uv add --constraints ../runtime-requirements.txt '../dist/shift_schedula-0.1.4-py3-none-any.whl[cp-sat]'
+uv add --constraints ../runtime-requirements.txt '../dist/shift_schedula-0.1.5-py3-none-any.whl[cp-sat]'
 uv run python -c 'from shift_schedula import solve, verify, make_baseline, get_schema; print(get_schema("request", "0.4")["$id"])'
 ```
 
@@ -69,13 +69,13 @@ uv run python -c 'from shift_schedula import solve, verify, make_baseline, get_s
 利用側はそのwheel・SHA-256・採用したエンジン版・入出力契約版・自分のlock fileを保存する。
 uv自体の導入は[Pythonセットアップ](python-setup.md)を参照する。
 wheelの取得元を差し替えた場合はパスも明示して変更する。
-`schema_version` とエンジンの配布版は別で、0.1.4のwheelは契約0.1〜0.4を同梱する。
+`schema_version` とエンジンの配布版は別で、0.1.5のwheelは契約0.1〜0.5を同梱する。
 新しい業務ルールは新契約版へ追加し、旧版の意味を黙って変更しない。
 候補件数上限の撤廃は受理範囲の拡大であり、保存済みSchemaは再取得する。
 
 ## sdistだけから利用・検証する
 
-`uv build --sdist` で `dist/shift_schedula-0.1.4.tar.gz` を作る。
+`uv build --sdist` で `dist/shift_schedula-0.1.5.tar.gz` を作る。
 利用者は空のディレクトリに展開し、その中の `pyproject.toml` がある場所で次を実行する。
 
 ```sh
@@ -110,7 +110,7 @@ CIの配布検証では、sdistを展開して作ったwheelを別環境に依�
 
 ```sh
 uv remove schedula
-uv add '../dist/shift_schedula-0.1.4-py3-none-any.whl[cp-sat]'
+uv add '../dist/shift_schedula-0.1.5-py3-none-any.whl[cp-sat]'
 uv run python -c 'from shift_schedula import solve, verify, make_baseline, get_schema; print(get_schema("request", "0.4")["$id"])'
 ```
 
@@ -143,7 +143,7 @@ Private vulnerability reportingの設定APIは今回404だったため、有効�
 
 - 公開対象のコード・文書・Git履歴から、許諾未確認の参照資料と機密情報を除外する。
 - LICENSE・README・メタデータ・依存表示が一致し、対象環境の依存wheelの同梱表示を保持する。
-- 必須CI、契約0.4、wheel隔離導入、OR-Toolsなしの検証、利用例を確認する。
+- 必須CI、契約0.5、wheel隔離導入、OR-Toolsなしの検証、利用例を確認する。
 - 外部利用者向け非公開セキュリティ窓口、対応環境、版管理、サポート範囲を確定する。
 - 配布元・SHA-256・正式タグの権限を確認し、公開結果を別途記録する。
 

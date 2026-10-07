@@ -68,7 +68,7 @@ def test_sdist_builds_and_runs_without_original_checkout(tmp_path):
     run("uv", "build", "--wheel", "--out-dir", str(tmp_path / "wheel"), cwd=source)
     (wheel,) = (tmp_path / "wheel").glob("*.whl")
     with zipfile.ZipFile(wheel) as archive:
-        for version in ("0.1", "0.2", "0.3", "0.4"):
+        for version in ("0.1", "0.2", "0.3", "0.4", "0.5"):
             for kind in ("request", "response"):
                 assert f"shift_schedula/schemas/{version}/{kind}.schema.json" in archive.namelist()
         assert any(n.endswith("/licenses/LICENSE") for n in archive.namelist())

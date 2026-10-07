@@ -2,7 +2,7 @@
 
 from typing import Literal, NotRequired, TypedDict
 
-type SchemaVersion = Literal["0.1", "0.2", "0.3", "0.4"]
+type SchemaVersion = Literal["0.1", "0.2", "0.3", "0.4", "0.5"]
 type JSONValue = None | bool | int | float | str | list[JSONValue] | dict[str, JSONValue]
 type FailureStatus = Literal[
     "INFEASIBLE", "UNKNOWN", "INVALID_INPUT", "BACKEND_UNAVAILABLE", "INTERNAL_ERROR"
@@ -65,6 +65,10 @@ class Demand(TypedDict):
     role_id: str
     interval: Interval
     required_people: int
+
+
+class PriorityDemand(Demand):
+    priority: NotRequired[int]
 
 
 class Segment(TypedDict):
@@ -245,12 +249,12 @@ class RequestFields(TypedDict):
     planning_window: PlanningWindow
     skills: list[Skill]
     roles: list[Role]
-    demand: list[Demand]
     solver: SolverOptions
 
 
 class Request01(RequestFields):
     schema_version: Literal["0.1"]
+    demand: list[Demand]
     employees: list[Employee01]
     shift_candidates: list[ShiftCandidate01]
     shift_templates: NotRequired[list[ShiftTemplate01]]
@@ -272,24 +276,35 @@ class ExtendedRequestFields(RequestFields):
 
 class Request02(ExtendedRequestFields):
     schema_version: Literal["0.2"]
+    demand: list[Demand]
     constraints: list[Constraint]
     preferences: list[AvoidRole]
 
 
 class Request03(ExtendedRequestFields):
     schema_version: Literal["0.3"]
+    demand: list[Demand]
     constraints: list[Constraint]
     preferences: list[AvoidRole]
 
 
 class Request04(ExtendedRequestFields):
     schema_version: Literal["0.4"]
+    demand: list[Demand]
     constraints: list[Constraint04]
     preferences: list[AvoidRole | WorkPreference]
     replan_mode: NotRequired[Literal["preserve_assigned", "rebuild"]]
 
 
-type Request = Request01 | Request02 | Request03 | Request04
+class Request05(ExtendedRequestFields):
+    schema_version: Literal["0.5"]
+    demand: list[PriorityDemand]
+    constraints: list[Constraint04]
+    preferences: list[AvoidRole | WorkPreference]
+    replan_mode: NotRequired[Literal["preserve_assigned", "rebuild"]]
+
+
+type Request = Request01 | Request02 | Request03 | Request04 | Request05
 
 
 class Assignment(TypedDict):
@@ -397,6 +412,16 @@ class ShortageSummary(TypedDict):
     shortages: list[Shortage]
 
 
+class PriorityShortage(TypedDict):
+    priority: int
+    total_person_minutes: int
+    proven_minimal: bool
+
+
+class PrioritySummary(TypedDict):
+    groups: list[PriorityShortage]
+
+
 class ConflictCondition(TypedDict):
     code: str
     json_pointer: str
@@ -494,6 +519,20 @@ class Response04Failure(PartialResponseFields):
     solution: None
 
 
+class Response05Success(PartialResponseFields):
+    schema_version: Literal["0.5"]
+    status: Literal["OPTIMAL", "FEASIBLE", "PARTIAL"]
+    solution: ExtendedSolution
+    priority_summary: PrioritySummary
+
+
+class Response05Failure(PartialResponseFields):
+    schema_version: Literal["0.5"]
+    status: FailureStatus
+    solution: None
+    priority_summary: None
+
+
 type Response = (
     Response01Success
     | Response01Failure
@@ -503,10 +542,13 @@ type Response = (
     | Response03Failure
     | Response04Success
     | Response04Failure
+    | Response05Success
+    | Response05Failure
 )
 
 
 class Verification(TypedDict):
+    priority_summary: NotRequired[PrioritySummary | None]
     schema_version: SchemaVersion
     request_id: str | None
     status: Literal["VALID", "PARTIAL", "INVALID_INPUT", "INVALID_PLAN", "INTERNAL_ERROR"]

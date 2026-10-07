@@ -67,7 +67,7 @@ def conditions(request):
     add("PLANNING_GRID", "/planning_window", interval=window)
     add(
         "DEMAND_LIMIT_AND_SINGLE_ASSIGNMENT"
-        if request["schema_version"] in {"0.3", "0.4"}
+        if request["schema_version"] in {"0.3", "0.4", "0.5"}
         else "EXACT_DEMAND_AND_SINGLE_ASSIGNMENT",
         "/problem_type",
     )

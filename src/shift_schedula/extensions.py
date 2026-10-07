@@ -73,13 +73,16 @@ def validate(problem):
             reject("MISSING_BASELINE", "変更目的と固定部分には基準計画を指定します。", "/baseline")
         return
     source = baseline["source_request"]
-    if request["schema_version"] != "0.4" and source.get("schema_version") == "0.4":
+    if (
+        source.get("schema_version") in {"0.4", "0.5"}
+        and request["schema_version"] < source["schema_version"]
+    ):
         reject(
             "UNSUPPORTED_BASELINE_VERSION",
-            "旧版の基準に契約0.4は指定できません。",
+            "旧版の基準に新しい契約版は指定できません。",
             "/baseline/source_request/schema_version",
         )
-    if request["schema_version"] == "0.2" and source.get("schema_version") in ("0.3", "0.4"):
+    if request["schema_version"] == "0.2" and source.get("schema_version") in ("0.3", "0.4", "0.5"):
         reject(
             "UNSUPPORTED_BASELINE_VERSION",
             "契約0.2の基準計画は0.1または0.2で指定します。",
@@ -96,7 +99,7 @@ def validate(problem):
         violations, _ = verify_solution(
             old,
             baseline["source_solution"],
-            require_complete=request["schema_version"] != "0.4",
+            require_complete=request["schema_version"] not in {"0.4", "0.5"},
         )
     except InvalidInput as error:
         raise InvalidInput(
@@ -211,13 +214,13 @@ def check_fixed_states(requirements, work, roles):
 
 
 def make_baseline(request: dict, solution: dict, plan_id: str) -> dict:
-    """契約0.4の解を再検証し、ネストを増やさず次の基準計画へ保存する。"""
+    """契約0.4以降の解を再検証し、ネストを増やさず次の基準計画へ保存する。"""
     from .model import normalize
     from .verify import verify_plan
 
     problem = normalize(request)
-    if request["schema_version"] != "0.4" or request["problem_type"] != "roster":
-        reject("UNSUPPORTED_CONDITION", "make_baseline は契約0.4の roster を受け取ります。")
+    if request["schema_version"] not in {"0.4", "0.5"} or request["problem_type"] != "roster":
+        reject("UNSUPPORTED_CONDITION", "make_baseline は契約0.4・0.5の roster を受け取ります。")
     violations, _, _ = verify_plan(problem, solution)
     if violations:
         raise InvalidInput(violations)

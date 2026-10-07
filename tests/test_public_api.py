@@ -49,15 +49,15 @@ def test_public_validation_reuses_entry_checks_without_solving(assignment_reques
 
 def test_public_types_match_version_fields_and_literals():
     for version, request_type in zip(
-        ("0.1", "0.2", "0.3", "0.4"),
-        (types.Request01, types.Request02, types.Request03, types.Request04),
+        ("0.1", "0.2", "0.3", "0.4", "0.5"),
+        (types.Request01, types.Request02, types.Request03, types.Request04, types.Request05),
         strict=True,
     ):
         schema = get_schema("request", version)
         assert set(schema["required"]) == request_type.__required_keys__
         assert set(schema["properties"]) == set(get_type_hints(request_type))
         assert get_args(get_type_hints(request_type)["schema_version"]) == (version,)
-    assert set(get_args(types.SchemaVersion.__value__)) == {"0.1", "0.2", "0.3", "0.4"}
+    assert set(get_args(types.SchemaVersion.__value__)) == {"0.1", "0.2", "0.3", "0.4", "0.5"}
     assert "PARTIAL" not in get_args(get_type_hints(types.Response01Success)["status"])
     assert "PARTIAL" in get_args(get_type_hints(types.Response04Success)["status"])
 

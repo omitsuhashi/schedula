@@ -168,6 +168,8 @@ function renderShortages(pair) {
   const result = node("div", "", {}, [
     node("p", `不足合計：${summary.total_person_minutes}人分 · ${summary.proven_minimal ? "不足最小性：証明済み（追加従業員数を示す値ではありません）" : "不足最小性：未証明。埋められないことが確定したわけではありません。"}`),
   ]);
+  if (pair.response.priority_summary) result.append(...pair.response.priority_summary.groups.map(group =>
+    node("p", `priority ${group.priority}：不足${group.total_person_minutes}人分 · 上位段階を固定した最小性：${group.proven_minimal ? "証明済み" : "未証明"}`)));
   if (!summary.shortages.length) return result;
   const pageSize = 100;
   const select = node("select", "", {"aria-label": "不足一覧のページ"},
@@ -326,8 +328,8 @@ function acceptResponse(response, request, requestBoundaries = boundaries) {
   if (success && !response.solution.assignments.every(item => item && request.employees.some(employee => employee.id === item.employee_id) &&
       request.roles.some(role => role.id === item.role_id) && requestBoundaries.some(value => Date.parse(value) === Date.parse(item.interval?.start)) &&
       requestBoundaries.some(value => Date.parse(value) === Date.parse(item.interval?.end)) && Date.parse(item.interval.start) < Date.parse(item.interval.end))) throw new Error("担当配置の参照または日時が不正です。");
-  if (["0.3", "0.4"].includes(request.schema_version)) {
-    if (!success) { if (response.shortage_summary !== null) throw new Error("計画がない応答に不足集計があります。"); return; }
+  if (["0.3", "0.4", "0.5"].includes(request.schema_version)) {
+    if (!success) { if (request.schema_version === "0.5" && response.priority_summary !== null) throw new Error("計画がない応答にpriority集計があります。"); if (response.shortage_summary !== null) throw new Error("計画がない応答に不足集計があります。"); return; }
     const summary = response.shortage_summary;
     if (!summary || typeof summary.proven_minimal !== "boolean" || !Number.isSafeInteger(summary.total_person_minutes) || !Array.isArray(summary.shortages)) throw new Error("不足集計が不正です。");
     const grid = requestBoundaries.map(Date.parse), positions = new Map(grid.map((value, i) => [value, i]));
@@ -360,6 +362,19 @@ function acceptResponse(response, request, requestBoundaries = boundaries) {
     }
     const actual = summary.shortages.map(item => ({demand_id: item.demand_id, role_id: item.role_id, start: Date.parse(item.interval?.start), end: Date.parse(item.interval?.end), required_people: item.required_people, assigned_people: item.assigned_people, missing_people: item.missing_people}));
     const proofs = response.objectives.map(item => item.proven_optimal);
+    if (request.schema_version === "0.5") {
+      const groups = response.priority_summary?.groups;
+      const grouped = new Map(request.demand.map(d => [d.priority ?? 0, 0]));
+      const priorities = new Map(request.demand.map(d => [d.id, d.priority ?? 0]));
+      for (const item of expected) {
+        const priority = priorities.get(item.demand_id);
+        grouped.set(priority, grouped.get(priority) + (item.end - item.start) / 60000 * item.missing_people);
+      }
+      const ordered = [...grouped].sort(([a], [b]) => b - a);
+      if (!Array.isArray(groups) || groups.length !== ordered.length || groups.some((g, i) =>
+        g.priority !== ordered[i][0] || g.total_person_minutes !== ordered[i][1] || typeof g.proven_minimal !== "boolean")) throw new Error("priority別不足が元需要に一致しません。");
+      proofs.unshift(summary.proven_minimal, ...groups.map(g => g.proven_minimal));
+    }
     if (counts.size || total !== summary.total_person_minutes || JSON.stringify(expected) !== JSON.stringify(actual) ||
         (total > 0) !== (response.status === "PARTIAL") || (!total && !summary.proven_minimal) ||
         (!summary.proven_minimal && proofs.some(Boolean)) || proofs.some((proof, i) => proof && proofs.slice(0, i).includes(false)) ||
@@ -572,7 +587,7 @@ async function calculateJSON() {
     ]);
     if (token !== generation) return;
     const input = JSON.parse(text);
-    const expected = {...input, schema_version: ["0.2", "0.3", "0.4"].includes(input?.schema_version) ? input.schema_version : "0.1", request_id: typeof input?.request_id === "string" ? input.request_id : null};
+    const expected = {...input, schema_version: ["0.2", "0.3", "0.4", "0.5"].includes(input?.schema_version) ? input.schema_version : "0.1", request_id: typeof input?.request_id === "string" ? input.request_id : null};
     const requestBoundaries = ["OPTIMAL", "FEASIBLE", "PARTIAL"].includes(result.status) ?
       [input.planning_window.start, ...jsonSlots(input).map(slot => new Date(slot.end).toISOString())] : [];
     acceptResponse(result, expected, requestBoundaries);

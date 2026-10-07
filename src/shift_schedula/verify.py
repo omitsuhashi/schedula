@@ -15,6 +15,25 @@ from .contract import (
 logger = logging.getLogger(__name__)
 
 
+def priority_summary(request, shortage):
+    """元需要と独立検証の不足一覧から再計算する。探索の証明は付与しない。"""
+    from .model import priority_levels
+
+    levels = {d["id"]: d.get("priority", 0) for d in request["demand"]}
+    totals = Counter()
+    for item in shortage["shortages"]:
+        minutes = (
+            parse_datetime(item["interval"]["end"]) - parse_datetime(item["interval"]["start"])
+        ).total_seconds() // 60
+        totals[levels[item["demand_id"]]] += int(minutes) * item["missing_people"]
+    return {
+        "groups": [
+            {"priority": level, "total_person_minutes": totals[level], "proven_minimal": False}
+            for level in priority_levels(request)
+        ]
+    }
+
+
 def verify(request: dict, solution: dict) -> dict:
     """JSON 型の編集解を検証する。探索と最適性の認定は行わない。"""
     from .extensions import evaluate
@@ -36,6 +55,8 @@ def verify(request: dict, solution: dict) -> dict:
         "diagnostics": [],
         "stats": {"elapsed_seconds": 0.0},
     }
+    if result["schema_version"] == "0.5":
+        result["priority_summary"] = None
     try:
         problem = normalize(request)
         violations, values, shortage = verify_plan(problem, solution)
@@ -60,6 +81,8 @@ def verify(request: dict, solution: dict) -> dict:
             ]
             _, _, summaries = evaluate(problem, solution)
             result.update(summaries)
+            if request["schema_version"] == "0.5":
+                result["priority_summary"] = priority_summary(request, shortage)
     except InvalidInput as error:
         result["diagnostics"] = error.diagnostics
     except TimezoneDataError:
@@ -83,6 +106,8 @@ def verify(request: dict, solution: dict) -> dict:
             diagnostics=[diagnostic("INTERNAL_ERROR", "独立検証の処理に失敗しました。")],
         )
     result["stats"]["elapsed_seconds"] = time.perf_counter() - started
+    if result["schema_version"] == "0.5" and result["status"] not in {"VALID", "PARTIAL"}:
+        result["priority_summary"] = None
     errors = schema_errors("verification", result)
     if errors:
         raise InvalidInput(errors)
@@ -98,7 +123,7 @@ def verify_shifts(request, grid, shifts, fail):
     coverage, breaks = defaultdict(set), defaultdict(set)
     selected = defaultdict(list)
     scheduled = Counter()
-    extended = request["schema_version"] in {"0.2", "0.3", "0.4"}
+    extended = request["schema_version"] in {"0.2", "0.3", "0.4", "0.5"}
     for index, shift in enumerate(shifts):
         path = f"/shifts/{index}"
         identifier, employee = shift["candidate_id"], shift["employee_id"]
@@ -427,7 +452,7 @@ def verify_plan(problem, solution, *, require_complete=False):
         required, assigned = expected[slot, role_id], actual[slot, role_id]
         if assigned > required or (
             assigned < required
-            and (request["schema_version"] not in {"0.3", "0.4"} or require_complete)
+            and (request["schema_version"] not in {"0.3", "0.4", "0.5"} or require_complete)
         ):
             code = "DEMAND_SHORTAGE" if assigned < required else "DEMAND_EXCESS"
             fail(
@@ -474,7 +499,7 @@ def verify_plan(problem, solution, *, require_complete=False):
         "role_switches": sum(switches.values()),
         "scheduled_minutes": sum(scheduled.values()),
     }
-    if request["schema_version"] in {"0.2", "0.3", "0.4"}:
+    if request["schema_version"] in {"0.2", "0.3", "0.4", "0.5"}:
         from .extensions import evaluate
 
         extension_violations, extension_metrics, _ = evaluate(problem, solution)
