@@ -309,6 +309,7 @@ Git には採用判断で使う入力・条件・集計・失敗を含む生デ�
 | [設計方針](docs/design-policy.md) | アルゴリズム選択、制約・選好、検証、LLM の境界 |
 | [入出力契約0.1](docs/io-contract.md)・[契約0.2](docs/io-contract-next.md) | JSON の意味、日時、履歴、目的順序、結果状態と移行 |
 | [再計画・勤務量・希望日時の契約0.4](docs/io-contract-replanning.md) | 新条件、基準スナップショット、公開検証API/CLIと移行 |
+| [継続計画・診断・費用・夜勤休日評価の設計案](docs/planning-extensions.md) | Issue #67〜#70の仕様案、数値例、検証計画、実装の依存関係。未実装 |
 | [不足を伴う計画の契約0.3](docs/io-contract-partial.md) | 元需要を保持した不足集計・独立検証・両ソルバー・CLI・デモと証明範囲 |
 | [開発・検証方針](docs/development-policy.md) | 開発順序、完了条件、公開条件、未決定事項 |
 | [参照実装の評価](docs/evaluations/engine-introduction.md) | CP-SAT を含む実測、導入時の修正、コードの採用可否と公開入口 |
