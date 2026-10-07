@@ -1,5 +1,6 @@
 import hashlib
 import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -91,6 +92,90 @@ def test_repeated_cold_parallel_and_warm_first_call_are_distinguished(tmp_path):
     assert [item["iteration"] for item in warm["measurements"]] == [1, 2, 3]
     assert warm["summaries"][0]["first_request_elapsed_seconds"]["samples"] == 1
     assert warm["summaries"][0]["continued_request_elapsed_seconds"]["samples"] == 2
+
+
+def test_archived_legacy_package_runs_in_its_own_environment(tmp_path):
+    legacy = tmp_path / "legacy"
+    shutil.copytree(
+        ROOT / "src/shift_schedula",
+        legacy / "src/schedula",
+        ignore=shutil.ignore_patterns("__pycache__"),
+    )
+    for name in (
+        "pyproject.toml",
+        "uv.lock",
+        "README.md",
+        "LICENSE",
+        "THIRD_PARTY_NOTICES.md",
+        ".gitignore",
+    ):
+        text = (ROOT / name).read_text(encoding="utf-8")
+        (legacy / name).write_text(
+            text.replace("shift-schedula", "schedula").replace("shift_schedula =", "schedula ="),
+            encoding="utf-8",
+        )
+    for name in ("contract.py", "engine.py"):
+        path = legacy / "src/schedula" / name
+        path.write_text(
+            path.read_text()
+            .replace('files("shift_schedula")', 'files("schedula")')
+            .replace('version("shift-schedula")', 'version("schedula")')
+        )
+    (legacy / "scripts").mkdir()
+    shutil.copyfile(ROOT / "scripts/evaluate.py", legacy / "scripts/evaluate.py")
+    (legacy / "examples").mkdir()
+    shutil.copyfile(ROOT / "examples/assignment.json", legacy / "examples/assignment.json")
+    for command in (
+        ["git", "init"],
+        ["git", "add", "."],
+        [
+            "git",
+            "-c",
+            "user.name=Evaluation Test",
+            "-c",
+            "user.email=evaluation@example.invalid",
+            "commit",
+            "-m",
+            "legacy package",
+        ],
+        ["uv", "sync", "--locked", "--no-dev", "--python", sys.executable],
+    ):
+        result = subprocess.run(command, cwd=legacy, capture_output=True, text=True)
+        assert result.returncode == 0, result.stdout + result.stderr
+    output = tmp_path / "legacy-results.json"
+    result = subprocess.run(
+        [
+            "uv",
+            "run",
+            "--no-sync",
+            "python",
+            "scripts/evaluate.py",
+            "examples/assignment.json",
+            "--source-ref",
+            "HEAD",
+            "--repeat",
+            "2",
+            "--mode",
+            "warm",
+            "--output",
+            str(output),
+        ],
+        cwd=legacy,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    report = json.loads(output.read_text())
+    assert "shift-schedula" not in report["environment"]["packages"]
+    assert report["source"]["snapshot"] == "git_archive"
+    assert report["source"]["dirty"] is False
+    for row in report["measurements"]:
+        assert row["status"] == "OPTIMAL" and row["verification"]["valid"] is True
+        assert (
+            row["solver_response"]["engine_version"]
+            == report["environment"]["packages"]["schedula"]
+        )
+    assert report["summaries"][0]["solution_rate"] == 1
 
 
 def test_invalid_input_failures_and_external_timeout_remain_in_denominator(tmp_path):
@@ -198,8 +283,6 @@ def test_time_limit_override_is_forwarded_without_changing_input(tmp_path):
 
 
 def test_external_source_directory_is_used_and_identified(tmp_path):
-    import shutil
-
     variant = tmp_path / "variant"
     shutil.copytree(ROOT / "src", variant / "src")
     for name in ["uv.lock", "pyproject.toml"]:

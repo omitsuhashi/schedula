@@ -18,6 +18,7 @@ import tomllib
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime
+from importlib import import_module
 from importlib.metadata import distributions, version
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -52,9 +53,11 @@ def objective_quality(response):
 
 def measure(path, backend, time_limit_seconds=None):
     start = time.perf_counter()
-    from shift_schedula import solve
-    from shift_schedula.contract import InvalidInput, load_json
-    from shift_schedula.model import normalize
+    package = os.environ.get("SCHEDULA_EVALUATION_PACKAGE", "shift_schedula")
+    solve = import_module(package).solve
+    contract = import_module(f"{package}.contract")
+    InvalidInput, load_json = contract.InvalidInput, contract.load_json
+    normalize = import_module(f"{package}.model").normalize
 
     imported = time.perf_counter()
     raw = path.read_bytes()
@@ -342,6 +345,9 @@ def main():
                 digest.update(
                     str(path.relative_to(snapshot)).encode() + b"\0" + path.read_bytes() + b"\0"
                 )
+        project = tomllib.loads((snapshot / "pyproject.toml").read_text(encoding="utf-8"))[
+            "project"
+        ]
         source = {
             "commit": commit,
             "dirty": True
@@ -360,12 +366,10 @@ def main():
             "source_tree_sha256": digest.hexdigest(),
             "runner_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
             "uv_lock_sha256": hashlib.sha256((snapshot / "uv.lock").read_bytes()).hexdigest(),
-            "package_version": tomllib.loads((snapshot / "pyproject.toml").read_text())["project"][
-                "version"
-            ],
+            "package_version": project["version"],
         }
         if args.source_ref and (
-            source["package_version"] != version("shift-schedula")
+            source["package_version"] != version(project["name"])
             or source["uv_lock_sha256"]
             != hashlib.sha256((root / "uv.lock").read_bytes()).hexdigest()
         ):
@@ -373,7 +377,11 @@ def main():
                 "指定 source の package 版または uv.lock が実行環境と一致しません。"
                 "先に同じ依存を同期します。"
             )
-        environment = {**os.environ, "PYTHONPATH": str(snapshot / "src")}
+        environment = {
+            **os.environ,
+            "PYTHONPATH": str(snapshot / "src"),
+            "SCHEDULA_EVALUATION_PACKAGE": project["name"].replace("-", "_"),
+        }
         jobs = [
             (path, group + 1, 1 if args.mode == "cold" else args.repeat)
             for path in args.inputs
