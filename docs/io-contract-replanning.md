@@ -123,6 +123,7 @@ HTTP公開・認証・画面・保存・CSV・顧客管理は利用アプリの�
 
 `source_fixed_states` は配列。各要素は `employee_id`、計画内の `interval` と
 `work: off | work | break` / `role: 役割ID | null` の少なくとも一方を持つ。
+従業員IDは `source_request` の登録者を参照する。
 同じ状態が続く枠は区間へまとめる。件数制限はない。
 基準の検証時に `source_solution` の勤務・担当状態と照合し、不一致なら拒否する。
 新規の基準ではこれらの項目は省略可能。自作の投影で業務条件を落とさず、この公開変換を使う。

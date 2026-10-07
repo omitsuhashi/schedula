@@ -1,0 +1,336 @@
+{
+  "measured_at": "2026-10-07T04:48:42.951268+00:00",
+  "command": [
+    "scripts/evaluate.py",
+    "examples/playground/roster-100-30.json",
+    "--repeat",
+    "1",
+    "--processes",
+    "1",
+    "--timeout-seconds",
+    "90",
+    "--source-ref",
+    "53115de16c115786ca7291d77cb75005aee0a2de",
+    "--output",
+    "docs/evaluations/results/2026-10-07-roster-conditions-original.json"
+  ],
+  "source": {
+    "commit": "53115de16c115786ca7291d77cb75005aee0a2de",
+    "dirty": false,
+    "snapshot": "git_archive",
+    "source_directory": null,
+    "source_tree_sha256": "3c63acc50a34404ddc07c84c554f95c39641b2cc394d06bb4e62b15a945e1824",
+    "runner_sha256": "f2971023248e95d2243a38bcad877d139425176fc1ca596e9a557840addbf9eb",
+    "uv_lock_sha256": "8cb0633e132a17e537cad27299e8448c7d0edb171d5558678f312ab70ddb9837",
+    "package_version": "0.1.4"
+  },
+  "conditions": {
+    "mode": "cold",
+    "repeat": 1,
+    "processes": 1,
+    "worker_processes_started": 1,
+    "worker_timeout_seconds": 90.0,
+    "time_limit_seconds_override": null,
+    "quantile_method": "nearest_rank",
+    "cold_definition": "新規 Python プロセス。OS のファイルキャッシュは消去しない。"
+  },
+  "environment": {
+    "platform": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "cpu_count": 8,
+    "python": "3.14.8 (main, Oct  3 2026, 00:54:40) [Clang 22.1.3 ]",
+    "uv": "uv 0.12.23 (46b84fd0b 2026-10-03 aarch64-apple-darwin)",
+    "packages": {
+      "PyYAML": "6.0.3",
+      "Pygments": "2.21.0",
+      "absl-py": "2.5.0",
+      "attrs": "26.1.0",
+      "cfgv": "3.5.0",
+      "distlib": "0.4.3",
+      "filelock": "4.0.10",
+      "identify": "2.6.20",
+      "immutabledict": "4.3.1",
+      "iniconfig": "2.3.0",
+      "jsonschema": "4.26.0",
+      "jsonschema-specifications": "2025.9.1",
+      "nodeenv": "1.11.0",
+      "numpy": "2.5.3",
+      "ortools": "9.15.6755",
+      "packaging": "26.3",
+      "pandas": "3.0.6",
+      "platformdirs": "4.12.3",
+      "pluggy": "1.6.0",
+      "pre_commit": "4.6.2",
+      "protobuf": "6.33.6",
+      "pytest": "9.1.1",
+      "python-dateutil": "2.9.0.post0",
+      "python-discovery": "1.6.1",
+      "referencing": "0.37.0",
+      "rpds-py": "2026.6.3",
+      "ruff": "0.16.10",
+      "schedula": "0.1.4",
+      "six": "1.17.0",
+      "typing_extensions": "4.16.0",
+      "virtualenv": "21.14.5"
+    }
+  },
+  "measurements": [
+    {
+      "input_file": "examples/playground/roster-100-30.json",
+      "input_sha256": "356ec69ef487a1893f8e8915da793353ea9cfbd50bf3ab2b40529c0f13cf8eca",
+      "problem_type": "roster",
+      "employees": 100,
+      "roles": 2,
+      "days": 30.0,
+      "slot_minutes": 30,
+      "slots": 1440,
+      "candidates": 3000,
+      "objective_order": [
+        "scheduled_minutes"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 30,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 30,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.4",
+        "library_version": "9.15.6755",
+        "selection_reason": "JOINT_ROSTER"
+      },
+      "schema_version": "0.3",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "FEASIBLE",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 540000,
+          "proven_optimal": false
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 540000,
+          "proven_optimal": false,
+          "best_bound": 0.0,
+          "absolute_gap": 540000.0,
+          "relative_gap": 1.0,
+          "bound_scope": "fixed_optimal_prefix"
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "OPTIMALITY_UNPROVEN",
+          "message": "上位目的の最適性が未証明のため、後続の目的は探索しません。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 30
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 30.06036366702756
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.1011230000294745
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.2593109160079621
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.581241333973594
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.40004154201596975
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 0.04983704199548811
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.05127908301074058
+            }
+          ]
+        },
+        {
+          "code": "SHORTAGE_BOUND",
+          "message": "不足合計人分の探索下限です。",
+          "json_pointer": "/shortage_summary",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "work"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "shortage_summary": {
+        "total_person_minutes": 0,
+        "shortages": [],
+        "proven_minimal": true
+      },
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 30,
+        "search_elapsed_seconds": 30.06036366702756,
+        "normalization_elapsed_seconds": 0.1011230000294745,
+        "backend_loading_elapsed_seconds": 0.2593109160079621,
+        "preparation_elapsed_seconds": 0.581241333973594,
+        "verification_elapsed_seconds": 0.40004154201596975,
+        "candidate_expansion_elapsed_seconds": 0.04983704199548811,
+        "input_validation_elapsed_seconds": 0.05127908301074058
+      },
+      "assignments": 2400,
+      "shifts": 1200,
+      "import_seconds": 0.04843937500845641,
+      "input_seconds": 0.002726125007029623,
+      "elapsed_seconds": 32.149905499944,
+      "request_elapsed_seconds": 32.201070999959484,
+      "engine_elapsed_seconds": 32.148419708013535,
+      "metadata_seconds": 0.07259987504221499,
+      "peak_rss_mib": 1002.484375,
+      "group": 1,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    }
+  ],
+  "workers": [
+    {
+      "input_file": "examples/playground/roster-100-30.json",
+      "group": 1,
+      "elapsed_seconds": 32.379252833954524,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 90.0
+    }
+  ],
+  "summaries": [
+    {
+      "input_file": "examples/playground/roster-100-30.json",
+      "attempts": 1,
+      "statuses": {
+        "FEASIBLE": 1
+      },
+      "verified_solutions": 1,
+      "complete_solutions": 1,
+      "solution_rate": 1.0,
+      "verified_suggestions": 0,
+      "statistics": {
+        "elapsed_seconds": {
+          "samples": 1,
+          "mean": 32.149905499944,
+          "median": 32.149905499944,
+          "p95": 32.149905499944,
+          "maximum": 32.149905499944
+        },
+        "request_elapsed_seconds": {
+          "samples": 1,
+          "mean": 32.201070999959484,
+          "median": 32.201070999959484,
+          "p95": 32.201070999959484,
+          "maximum": 32.201070999959484
+        },
+        "peak_rss_mib": {
+          "samples": 1,
+          "mean": 1002.484375,
+          "median": 1002.484375,
+          "p95": 1002.484375,
+          "maximum": 1002.484375
+        }
+      },
+      "first_request_elapsed_seconds": {
+        "samples": 1,
+        "mean": 32.201070999959484,
+        "median": 32.201070999959484,
+        "p95": 32.201070999959484,
+        "maximum": 32.201070999959484
+      },
+      "continued_request_elapsed_seconds": {
+        "samples": 0,
+        "mean": null,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "process_elapsed_seconds": {
+        "samples": 1,
+        "mean": 32.379252833954524,
+        "median": 32.379252833954524,
+        "p95": 32.379252833954524,
+        "maximum": 32.379252833954524
+      },
+      "objective_quality": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "observed_values": {
+            "samples": 1,
+            "mean": 540000,
+            "median": 540000,
+            "p95": 540000,
+            "maximum": 540000
+          },
+          "proven_count": 0,
+          "relative_gap": {
+            "samples": 1,
+            "mean": 1.0,
+            "median": 1.0,
+            "p95": 1.0,
+            "maximum": 1.0
+          }
+        }
+      ]
+    }
+  ]
+}
