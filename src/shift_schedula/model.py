@@ -1,10 +1,42 @@
 import errno
+import posixpath
 import time
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from .contract import parse_datetime, reject, validate_request
+
+
+class TimezoneDataError(RuntimeError):
+    """OSとtzdataから利用できる時刻データを取得できない環境障害。"""
+
+
+def load_timezone(key):
+    if (
+        "\x00" in key
+        or "\\" in key
+        or ":" in key
+        or any(part in {".", ".."} for part in key.split("/"))
+        or posixpath.isabs(key)
+        or posixpath.normpath(key) != key
+    ):
+        reject("INVALID_TIMEZONE", "IANA タイムゾーンを指定します。", "/planning_window/timezone")
+    try:
+        return ZoneInfo(key)
+    except ZoneInfoNotFoundError:
+        try:
+            # キャッシュ済みゾーンでデータ欠落を見逃さない。
+            ZoneInfo.no_cache("UTC")
+        except (ZoneInfoNotFoundError, ValueError, OSError, ImportError) as unavailable:
+            raise TimezoneDataError("OSのTZDBまたはtzdataを確認してください。") from unavailable
+        reject("INVALID_TIMEZONE", "IANA タイムゾーンを指定します。", "/planning_window/timezone")
+    except ValueError as error:
+        raise TimezoneDataError("時刻データが破損しています。") from error
+    except OSError as error:
+        if error.errno == errno.ENAMETOOLONG:
+            reject("INVALID_TIMEZONE", "timezone 名が長すぎます。", "/planning_window/timezone")
+        raise TimezoneDataError("時刻データを読み取れません。") from error
 
 
 def minute_datetime(value, pointer):
@@ -58,6 +90,7 @@ class ShiftCandidate:
     end: int
     breaks: tuple[tuple[int, int], ...]
     segments: tuple = ()
+    absolute_segments: tuple = ()
 
     @property
     def work_slots(self):
@@ -70,6 +103,15 @@ class ShiftCandidate:
         )
 
     def output(self, grid):
+        if self.absolute_segments:
+            from .continuity import output_segments
+
+            return {
+                "candidate_id": self.id,
+                "employee_id": self.employee_id,
+                "work_day": self.day.isoformat(),
+                "segments": output_segments(self.absolute_segments, grid),
+            }
         if self.segments:
             return {
                 "candidate_id": self.id,
@@ -101,7 +143,13 @@ class Problem:
     costs: dict[tuple[str, str], int]
     candidates: list[ShiftCandidate] = field(default_factory=list)
     baseline: dict | None = None
+    continuity: list = field(default_factory=list)
     normalization_stats: dict = field(default_factory=dict)
+    priorities: dict = field(default_factory=dict)
+
+
+def priority_levels(request):
+    return tuple(sorted({d.get("priority", 0) for d in request["demand"]}, reverse=True))
 
 
 def unique(items, field, path):
@@ -131,6 +179,9 @@ def normalize(request):
     expansion_seconds = 0.0
     validate_request(request)
     roster = request["problem_type"] == "roster"
+    continuous = "continuity" in request
+    if continuous and not roster:
+        reject("UNSUPPORTED_CONDITION", "continuity は roster 専用です。", "/continuity")
     if not roster:
         for name in ("shift_candidates", "shift_templates"):
             if request.get(name):
@@ -180,23 +231,20 @@ def normalize(request):
         ):
             reject("INVALID_MINUTES_BOUNDS", "勤務量の下限が上限を超えています。", path)
     if request["solver"]["backend"] == "min_cost_flow" and (
-        roster or request["constraints"] or "role_switches" in metrics or request.get("diagnosis")
+        roster
+        or request["constraints"]
+        or "role_switches" in metrics
+        or request.get("diagnosis")
+        or any(d.get("priority", 0) for d in request["demand"])
     ):
         reject(
             "UNSUPPORTED_BACKEND",
-            "min_cost_flow は roster・明示制約・role_switches 目的を扱えません。",
+            "min_cost_flow は roster・明示制約・role_switches 目的・非既定priorityを扱えません。",
             "/solver/backend",
         )
 
     window = request["planning_window"]
-    try:
-        zone = ZoneInfo(window["timezone"])
-    except ZoneInfoNotFoundError, ValueError:
-        reject("INVALID_TIMEZONE", "IANA タイムゾーンを指定します。", "/planning_window/timezone")
-    except OSError as error:
-        if error.errno == errno.ENAMETOOLONG:
-            reject("INVALID_TIMEZONE", "timezone 名が長すぎます。", "/planning_window/timezone")
-        raise
+    zone = load_timezone(window["timezone"])
     start = minute_datetime(window["start"], "/planning_window/start")
     end = minute_datetime(window["end"], "/planning_window/end")
     step = timedelta(minutes=int(window["slot_minutes"]))
@@ -215,9 +263,34 @@ def normalize(request):
             slots=slots,
         )
     grid = TimeGrid(start, end, zone, int(window["slot_minutes"]), slots)
+    if continuous:
+        from .continuity import availability, context_bounds, facts, interval
+
+        context_bounds(request, grid)
+        continuity_facts = facts(request, grid)
+        absolute_available = availability(request, grid)
     for index, constraint in enumerate(request["constraints"]):
         if constraint["type"] == "scheduled_minutes_bounds":
-            grid.interval(constraint["interval"], f"/constraints/{index}/interval")
+            if continuous:
+                if (
+                    minute_datetime(
+                        constraint["interval"]["start"], f"/constraints/{index}/interval/start"
+                    )
+                    < context_bounds(request, grid)[0]
+                ):
+                    reject(
+                        "INCOMPLETE_HISTORY",
+                        "文脈開始より前の勤務量は集計できません。",
+                        f"/constraints/{index}/interval",
+                    )
+                interval(
+                    constraint["interval"],
+                    grid,
+                    context_bounds(request, grid),
+                    f"/constraints/{index}/interval",
+                )
+            else:
+                grid.interval(constraint["interval"], f"/constraints/{index}/interval")
     if roster and any(
         value.astimezone(zone).time() != datetime.min.time() for value in (start, end)
     ):
@@ -240,11 +313,19 @@ def normalize(request):
         for skill_index, skill in enumerate(employee["skills"]):
             reference(skill["skill_id"], ids["skills"], f"{path}/skills/{skill_index}/skill_id")
             levels[skill["skill_id"]] = skill["level"]
-        intervals = [
-            grid.interval(value, f"{path}/availability/{i}")
-            for i, value in enumerate(employee["availability"])
-        ]
-        nonoverlapping(intervals, path + "/availability")
+        intervals = (
+            [
+                (max(0, (a - start) // step), min(slots, (b - start) // step))
+                for a, b in absolute_available[employee["id"]]
+            ]
+            if continuous
+            else [
+                grid.interval(value, f"{path}/availability/{i}")
+                for i, value in enumerate(employee["availability"])
+            ]
+        )
+        if not continuous:
+            nonoverlapping(intervals, path + "/availability")
         available[employee["id"]] = {slot for a, b in intervals for slot in range(a, b)}
         qualified[employee["id"]] = {
             role["id"]
@@ -255,6 +336,7 @@ def normalize(request):
             )
         }
     demand = [{} for _ in range(slots)]
+    priorities = {}
     for index, item in enumerate(request["demand"]):
         path = f"/demand/{index}"
         reference(item["role_id"], ids["roles"], path + "/role_id")
@@ -268,6 +350,8 @@ def normalize(request):
                     [item["id"], item["role_id"]],
                 )
             demand[slot][item["role_id"]] = int(item["required_people"])
+            if request["schema_version"] in {"0.5", "0.6"}:
+                priorities[slot, item["role_id"]] = int(item.get("priority", 0))
     costs = {}
     for index, item in enumerate(request["preferences"]):
         path = f"/preferences/{index}"
@@ -283,14 +367,18 @@ def normalize(request):
                 key = identifier, item["role_id"]
                 costs[key] = costs.get(key, 0) + int(item["penalty_per_minute"]) * grid.slot_minutes
     problem = Problem(request, grid, available, qualified, demand, costs)
+    problem.priorities = priorities
     if roster:
         from .roster import expand_candidates, validate_history
 
-        validate_history(request, grid)
+        if continuous:
+            problem.continuity = continuity_facts
+        else:
+            validate_history(request, grid)
         expansion_start = time.perf_counter()
         problem.candidates = expand_candidates(request, grid)
         expansion_seconds = time.perf_counter() - expansion_start
-    if request["schema_version"] in {"0.2", "0.3", "0.4"}:
+    if request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6"}:
         from .diagnosis import validate_options
         from .extensions import validate
 

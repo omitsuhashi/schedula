@@ -6,11 +6,11 @@ from pathlib import Path
 
 import pytest
 
-from schedula import diagnosis, solve
-from schedula.contract import InvalidInput, get_schema
-from schedula.engine import validate_response
-from schedula.model import normalize
-from schedula.verify import verify_solution
+from shift_schedula import diagnosis, solve
+from shift_schedula.contract import InvalidInput, get_schema
+from shift_schedula.engine import validate_response
+from shift_schedula.model import normalize
+from shift_schedula.verify import verify_solution
 from tests.roster_support import demand, rule
 from tests.support import assert_response
 from tests.test_extended_roster import extended_request
@@ -189,13 +189,13 @@ def test_cli_diagnosis_and_schema_version(tmp_path):
     path = tmp_path / "diagnosis.json"
     path.write_text(json.dumps(impossible()))
     process = subprocess.run(
-        [sys.executable, "-m", "schedula", "solve", str(path)], capture_output=True, text=True
+        [sys.executable, "-m", "shift_schedula", "solve", str(path)], capture_output=True, text=True
     )
     assert process.returncode == 2 and not process.stderr
     assert_response(json.loads(process.stdout), "INFEASIBLE")
     for kind in ["request", "response"]:
         process = subprocess.run(
-            [sys.executable, "-m", "schedula", "schema", kind, "--schema-version", "0.2"],
+            [sys.executable, "-m", "shift_schedula", "schema", kind, "--schema-version", "0.2"],
             capture_output=True,
             text=True,
         )
@@ -236,7 +236,7 @@ def test_summaries_and_values_are_checked_against_returned_solution():
 
 
 def test_child_validation_expiring_budget_does_not_publish_suggestion(monkeypatch):
-    from schedula import engine
+    from shift_schedula import engine
 
     data = impossible()
     clock = [0]
@@ -249,7 +249,7 @@ def test_child_validation_expiring_budget_does_not_publish_suggestion(monkeypatc
 
 
 def test_outer_diagnosis_validation_is_in_elapsed_and_timeout(monkeypatch):
-    from schedula import engine
+    from shift_schedula import engine
 
     clock = [0]
     validate = engine.validate_response

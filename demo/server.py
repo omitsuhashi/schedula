@@ -7,8 +7,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from threading import Lock
 
-from schedula import solve
-from schedula.contract import InvalidInput, load_json
+from shift_schedula import solve
+from shift_schedula.contract import InvalidInput, load_json
 
 ROOT = Path(__file__).resolve().parents[1]
 SAMPLES = ROOT / "examples" / "playground"
@@ -253,12 +253,13 @@ class Handler(BaseHTTPRequestHandler):
             self.error(503, "BUSY", "別の計算を実行中です。少し待って再計算してください。")
             return
         try:
-            result = solve(request)
+            try:
+                result = solve(request)
+            finally:
+                self.server.solve_lock.release()
             self.send_json(200, result)
         except Exception:
             self.error(500, "SERVER_ERROR", "実行入口で計算に失敗しました。再計算してください。")
-        finally:
-            self.server.solve_lock.release()
 
     def unsupported(self):
         if self.allowed_origin():

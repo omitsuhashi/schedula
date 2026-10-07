@@ -9,10 +9,10 @@ from pathlib import Path
 
 import pytest
 
-from schedula import cp_sat, get_schema, make_baseline, solve, verify
-from schedula.contract import SCHEMA_VERSIONS, InvalidInput, schema_errors
-from schedula.engine import validate_response
-from schedula.model import normalize
+from shift_schedula import cp_sat, get_schema, make_baseline, solve, verify
+from shift_schedula.contract import SCHEMA_VERSIONS, InvalidInput, schema_errors
+from shift_schedula.engine import validate_response
+from shift_schedula.model import normalize
 from tests.roster_support import demand, interval, request, stamp, template
 from tests.support import assert_response
 from tests.test_extensions import extended, selected
@@ -470,7 +470,9 @@ def test_verification_has_no_solver_call_or_proofs(version, monkeypatch, assignm
     data["employees"][0]["skills"] = []
     assert verify(data, result["solution"])["status"] == "INVALID_PLAN"
     checked = verify(data, {"assignments": [], "shifts": []})
-    assert checked["status"] == ("PARTIAL" if version in {"0.3", "0.4"} else "INVALID_PLAN")
+    assert checked["status"] == (
+        "PARTIAL" if version in {"0.3", "0.4", "0.5", "0.6"} else "INVALID_PLAN"
+    )
 
 
 @pytest.mark.parametrize(
@@ -529,7 +531,7 @@ def test_verification_invalid_input_and_internal_failure_are_not_valid(monkeypat
     assert verify(current(), cyclic)["status"] == "INVALID_PLAN"
     import importlib
 
-    module = importlib.import_module("schedula.verify")
+    module = importlib.import_module("shift_schedula.verify")
 
     def fail(*args, **kwargs):
         raise RuntimeError("failure")
@@ -549,21 +551,21 @@ def test_public_schema_and_cli_verify(tmp_path):
     sol.write_text(json.dumps(solution))
     for kind in ("request", "response", "solution", "verification"):
         proc = subprocess.run(
-            [sys.executable, "-m", "schedula", "schema", kind, "--schema-version", "0.4"],
+            [sys.executable, "-m", "shift_schedula", "schema", kind, "--schema-version", "0.4"],
             capture_output=True,
             text=True,
         )
         assert proc.returncode == 0
         assert json.loads(proc.stdout) == get_schema(kind, "0.4")
     proc = subprocess.run(
-        [sys.executable, "-m", "schedula", "verify", str(req), str(sol)],
+        [sys.executable, "-m", "shift_schedula", "verify", str(req), str(sol)],
         capture_output=True,
         text=True,
     )
     assert proc.returncode == 0 and json.loads(proc.stdout)["status"] == "VALID"
     sol.write_text(json.dumps({"assignments": [], "shifts": []}))
     proc = subprocess.run(
-        [sys.executable, "-m", "schedula", "verify", str(req), str(sol)],
+        [sys.executable, "-m", "shift_schedula", "verify", str(req), str(sol)],
         capture_output=True,
         text=True,
     )
@@ -681,7 +683,7 @@ def test_cli_malformed_solution_keeps_request_version_and_identity(tmp_path):
     req.write_text(json.dumps(data))
     sol.write_text("{")
     result = subprocess.run(
-        [sys.executable, "-m", "schedula", "verify", str(req), str(sol)],
+        [sys.executable, "-m", "shift_schedula", "verify", str(req), str(sol)],
         capture_output=True,
         text=True,
     )

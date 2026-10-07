@@ -12,10 +12,10 @@ JSON の意味と版の変更方針は [入出力契約](io-contract.md)、環�
 
 ```sh
 uv sync --locked
-uv run --locked python -m schedula solve examples/assignment.json
-uv run --locked python -m schedula solve - < examples/assignment.json
-uv run --locked python -m schedula schema request
-uv run --locked python -m schedula schema response
+uv run --locked python -m shift_schedula solve examples/assignment.json
+uv run --locked python -m shift_schedula solve - < examples/assignment.json
+uv run --locked python -m shift_schedula schema request
+uv run --locked python -m shift_schedula schema response
 ```
 
 例は `OPTIMAL`、`preference_penalty: 0`、`verification.valid: true` を返す。
@@ -28,7 +28,7 @@ JSON 内の日本語は Unicode エスケープで出力する。
 ```python
 import json
 from pathlib import Path
-from schedula import solve
+from shift_schedula import solve
 
 request = json.loads(Path("examples/assignment.json").read_text(encoding="utf-8"))
 response = solve(request)
@@ -43,7 +43,7 @@ CP-SAT を使う例は `cp-sat` extra を指定する。
 
 ```sh
 uv sync --locked --extra cp-sat
-uv run --locked --extra cp-sat python -m schedula solve examples/linked_assignment.json
+uv run --locked --extra cp-sat python -m shift_schedula solve examples/linked_assignment.json
 ```
 
 この例は各従業員の担当時間120分以下・担当切替0回を守り、
@@ -94,7 +94,7 @@ CP-SAT を選んで OR-Tools またはその import に必要な依存がなけ�
 
 Response の `solver.library_version` は読み込んだ OR-Tools の実際の版である。
 標準ライブラリで実装した最小費用流と、依存を読み込めない CP-SAT は `null`。
-`solver.engine_version` は schedula のパッケージ版、`schema_version` は従来の0.1を維持する。
+`solver.engine_version` は `shift-schedula` の配布版、`schema_version` は従来の0.1を維持する。
 同率解の配置や時間切れ結果の全環境での再現性は seed だけでは保証しない。
 
 IANA タイムゾーン名は128文字以内。名前が長すぎる入力は `INVALID_INPUT` とし、
@@ -173,7 +173,7 @@ CP-SATは不足合計人分の最小化を全指定目的に優先する。時�
 資格・勤務可能時間・二重配置・過剰配置・担当時間上限・担当切替上限は緩和しない。
 
 ```sh
-uv run --locked python -m schedula solve examples/partial_assignment.json > result.json
+uv run --locked python -m shift_schedula solve examples/partial_assignment.json > result.json
 ```
 
 不足合計60人分、最小性証明済み。独立検証成功と需要充足は別であり、

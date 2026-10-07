@@ -9,7 +9,7 @@ from threading import Event, Thread
 import pytest
 
 from demo import server
-from schedula import solve
+from shift_schedula import solve
 from tests.support import assert_response
 from tests.test_playground_scenarios import BASELINE, SCENARIOS, scenario_requests
 
@@ -61,7 +61,7 @@ def test_http_scenarios_match_library(http_server, scenario):
 def test_http_matches_cli_and_only_serves_allowlist(http_server):
     status, result = call(http_server, BASELINE)
     cli = subprocess.run(
-        [sys.executable, "-m", "schedula", "solve", str(server.SAMPLES / "lunch.json")],
+        [sys.executable, "-m", "shift_schedula", "solve", str(server.SAMPLES / "lunch.json")],
         check=True,
         capture_output=True,
         text=True,
@@ -86,7 +86,7 @@ def test_partial_http_cli_and_library_agree(http_server):
     _, request = list(scenario_requests(SCENARIOS[1]))[1]
     status, result = call(http_server, request)
     cli = subprocess.run(
-        [sys.executable, "-m", "schedula", "solve", "-"],
+        [sys.executable, "-m", "shift_schedula", "solve", "-"],
         input=json.dumps(request),
         capture_output=True,
         text=True,
@@ -213,8 +213,15 @@ def test_editable_limits_and_ids_independent_of_order(http_server):
 
 
 def test_engine_states_and_entrance_failure_are_distinct(http_server, monkeypatch):
-    from schedula.engine import response
+    from shift_schedula.engine import response
 
+    send_json = server.Handler.send_json
+
+    def after_unlock(handler, status, value):
+        assert not handler.server.solve_lock.locked()
+        send_json(handler, status, value)
+
+    monkeypatch.setattr(server.Handler, "send_json", after_unlock)
     for state in ("INVALID_INPUT", "BACKEND_UNAVAILABLE", "INTERNAL_ERROR", "UNKNOWN"):
         result = response(BASELINE["request_id"], state)
         monkeypatch.setattr(server, "solve", lambda _, result=result: result)
@@ -297,10 +304,10 @@ def test_json_input_reports_engine_validation(http_server):
 
 @pytest.mark.parametrize("standby", [False, True], ids=["solver", "feasible-standby"])
 def test_json_sample_100_people_30_days(http_server, monkeypatch, standby):
-    from schedula.engine import response
-    from schedula.flow import make_solution
-    from schedula.model import normalize
-    from schedula.verify import verify_solution
+    from shift_schedula.engine import response
+    from shift_schedula.flow import make_solution
+    from shift_schedula.model import normalize
+    from shift_schedula.verify import verify_solution
 
     body = (server.SAMPLES / "roster-100-30.json").read_bytes()
     request = json.loads(body)

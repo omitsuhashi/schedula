@@ -25,11 +25,11 @@ status: accepted
 | 対象 | 提案 |
 | --- | --- |
 | 契約版 | Request / Response の `schema_version: "0.2"` |
-| Schema | `src/schedula/schemas/0.2/request.schema.json` / `response.schema.json` |
+| Schema | `src/shift_schedula/schemas/0.2/request.schema.json` / `response.schema.json` |
 | `$id` | `urn:schedula:request:0.2` / `urn:schedula:response:0.2` |
 | dialect | JSON Schema draft 2020-12。未知項目を拒否する |
 | API | `solve(request)` は Request の版を選ぶ。入力を自動変換しない |
-| CLI | `python -m schedula solve <入力>` は入力の版を選ぶ。`schema request --schema-version 0.2` / `schema response --schema-version 0.2` で版を明示する |
+| CLI | `python -m shift_schedula solve <入力>` は入力の版を選ぶ。`schema request --schema-version 0.2` / `schema response --schema-version 0.2` で版を明示する |
 | 既定の Schema 取得 | 既存の `schema request` / `schema response` は0.1を返す |
 | 0.1の継続 | マイルストーン #2 の実装・検証期間は0.1の受理構造・意味・出力を保持し、回帰テストを実行する。終了後も削除予定日は設けず、終了する場合は別の変更として告知する |
 | 段階導入 | 0.2未導入なら版を示して `INVALID_INPUT`。導入後も未対応条件・目的・診断変更対象を `INVALID_INPUT` とし、条件を落とさない |

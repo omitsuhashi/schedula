@@ -1,12 +1,13 @@
 [project]
-name = "schedula"
-version = "0.1.4"
+name = "shift-schedula"
+version = "0.1.5"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
-requires-python = ">=3.14,<3.15"
+requires-python = ">=3.14"
 dependencies = [
     "jsonschema>=4.26.0",
+    "tzdata>=2026.5",
 ]
 
 [project.urls]
@@ -30,7 +31,7 @@ where = ["src"]
 namespaces = false
 
 [tool.setuptools.package-data]
-schedula = ["schemas/*/*.json"]
+shift_schedula = ["schemas/*/*.json", "py.typed", "*.pyi"]
 
 [tool.ruff]
 target-version = "py314"
@@ -41,9 +42,14 @@ select = ["E", "F", "I", "UP", "B"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "repository: Git checkoutまたはデプロイ入口を必要とする検証",
+    "distribution: 配布archiveと隔離導入の検証",
+]
 
 [dependency-groups]
 dev = [
+    "mypy>=2.4.0",
     "pre-commit>=4.6.2",
     "pytest>=9.1.1",
     "ruff>=0.16.10",

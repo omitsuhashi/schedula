@@ -5,8 +5,8 @@
 契約0.1の受理構造と意味は変更しない。
 
 ```sh
-uv run --locked --extra cp-sat python -m schedula solve examples/fairness.json
-uv run --locked --extra cp-sat python -m schedula solve examples/replan.json
+uv run --locked --extra cp-sat python -m shift_schedula solve examples/fairness.json
+uv run --locked --extra cp-sat python -m shift_schedula solve examples/replan.json
 ```
 
 `fairness.json` は1役割の12時間分の需要を、Alice4時間・Bob8時間へ配置する例である。

@@ -39,7 +39,7 @@ Python 3.14.8 を固定し、jsonschema・OR-Tools と開発依存の Ruff・pyt
 
 ## 参照資料の検証状態
 
-ZIP の [TEST_REPORT.md](reference/skillshift-starter-0.1/TEST_REPORT.md)は、
+ZIP の [TEST_REPORT.md](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/reference/skillshift-starter-0.1/TEST_REPORT.md)は、
 Linux / Python 3.13.5、jsonschema 4.26.0、pytest 9.0.2、OR-Tools 未導入の環境で
 `196 passed / 28 skipped` と報告している。
 成功件数には150件の小規模担当配置を全探索と比較したテストを含む。

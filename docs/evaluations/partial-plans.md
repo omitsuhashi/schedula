@@ -35,7 +35,7 @@ node tests/playground-browser.cjs
 uv run --locked --extra cp-sat python scripts/evaluate.py examples/assignment.json examples/roster.json examples/playground/lunch.json examples/partial_assignment.json examples/partial_roster.json examples/playground/roster-100-30.json --repeat 1 --timeout-seconds 90 --output test-results/partial-plans.json
 ```
 
-[測定の生データ](results/2026-10-07-partial-plans.json)には入力SHA-256、共有予算、環境・依存版、
+[測定の生データ](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-07-partial-plans.json)には入力SHA-256、共有予算、環境・依存版、
 基準commit `ff16c6a094642f4419cc37dbe04a3371aad799ae` からの未コミットソースのハッシュ、
 uv.lockのハッシュ、状態・不足・目的・下限・検証・時間・ピークRSS・ワーカーの失敗有無を保存した。
 新規Pythonプロセス各1回、同時実行数1。OSキャッシュは消去していない。
@@ -80,7 +80,7 @@ OR-Toolsなしの隔離環境では0.3の最小費用流で不足60人分を返�
 
 ## 実ブラウザーと合成応答
 
-[ブラウザーの生記録](results/2026-10-07-partial-browser.json)の `scenarios` は実HTTP・実ソルバーの結果である。
+[ブラウザーの生記録](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-07-partial-browser.json)の `scenarios` は実HTTP・実ソルバーの結果である。
 通常22人枠→需要変更23人枠→復元、欠勤20人枠・不足60人分→必要人数の明示編集→復元、
 ピーク需要24人枠→復元、自由編集、キーボード操作、勤務不可時刻の保持、重複名のID比較を確認した。
 全員勤務不可では配置0・不足660人分を実計算し、未完成の計画として表示する。

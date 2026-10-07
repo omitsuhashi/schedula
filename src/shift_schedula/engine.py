@@ -1,3 +1,4 @@
+import logging
 import time
 from importlib.metadata import version
 
@@ -9,8 +10,10 @@ from .contract import (
     schema_errors,
     schema_version_of,
 )
-from .model import minute_datetime, normalize
-from .verify import verify_plan, verify_solution
+from .model import TimezoneDataError, minute_datetime, normalize
+from .verify import priority_summary, verify_plan, verify_solution
+
+logger = logging.getLogger(__name__)
 
 
 def response(
@@ -28,7 +31,7 @@ def response(
         "status": status,
         "solver": {
             "backend": backend,
-            "engine_version": version("schedula"),
+            "engine_version": version("shift-schedula"),
             "library_version": library_version,
             "selection_reason": selection_reason,
         },
@@ -64,13 +67,13 @@ def validate_response(result, request=None):
                     "OBJECTIVE_MISMATCH", "結果の目的が Request と一致しません。", "/objectives"
                 )
             )
-        if request["schema_version"] in {"0.2", "0.3", "0.4"}:
+        if request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6"}:
             from .extensions import evaluate
 
             problem = normalize(request)
             violations, values, shortage = verify_plan(problem, result["solution"])
             errors.extend(violations)
-            if request["schema_version"] in {"0.3", "0.4"} and shortage != {
+            if request["schema_version"] in {"0.3", "0.4", "0.5", "0.6"} and shortage != {
                 k: v for k, v in result["shortage_summary"].items() if k != "proven_minimal"
             }:
                 errors.append(
@@ -80,6 +83,22 @@ def validate_response(result, request=None):
                         "/shortage_summary",
                     )
                 )
+            if request["schema_version"] in {"0.5", "0.6"}:
+                expected_priority = priority_summary(request, shortage)
+                actual_priority = {
+                    "groups": [
+                        {**group, "proven_minimal": False}
+                        for group in result["priority_summary"]["groups"]
+                    ]
+                }
+                if actual_priority != expected_priority:
+                    errors.append(
+                        diagnostic(
+                            "PRIORITY_SHORTAGE_MISMATCH",
+                            "priority別不足が元需要と返却解に一致しません。",
+                            "/priority_summary",
+                        )
+                    )
             if values != tuple(item["value"] for item in result["objectives"]):
                 errors.append(
                     diagnostic(
@@ -96,9 +115,29 @@ def validate_response(result, request=None):
                     )
     if result["status"] in {"OPTIMAL", "FEASIBLE", "PARTIAL"}:
         proofs = [item["proven_optimal"] for item in result["objectives"]]
+        if result["schema_version"] in {"0.5", "0.6"}:
+            groups = result["priority_summary"]["groups"]
+            levels = [g["priority"] for g in groups]
+            if (
+                levels != sorted(set(levels), reverse=True)
+                or sum(g["total_person_minutes"] for g in groups)
+                != result["shortage_summary"]["total_person_minutes"]
+            ):
+                errors.append(
+                    diagnostic(
+                        "PRIORITY_SHORTAGE_MISMATCH",
+                        "priority別不足の順序または合計が不正です。",
+                        "/priority_summary",
+                    )
+                )
+            proofs = [
+                result["shortage_summary"]["proven_minimal"],
+                *(g["proven_minimal"] for g in groups),
+                *proofs,
+            ]
         if proofs != sorted(proofs, reverse=True) or (
             result["status"] == "FEASIBLE"
-            and (proofs or result["schema_version"] in {"0.3", "0.4"})
+            and (proofs or result["schema_version"] in {"0.3", "0.4", "0.5", "0.6"})
             and all(proofs)
         ):
             errors.append(
@@ -108,7 +147,10 @@ def validate_response(result, request=None):
                     "/objectives",
                 )
             )
-    if result["schema_version"] in {"0.3", "0.4"} and result["shortage_summary"] is not None:
+    if (
+        result["schema_version"] in {"0.3", "0.4", "0.5", "0.6"}
+        and result["shortage_summary"] is not None
+    ):
         summary = result["shortage_summary"]
         total = 0
         for index, item in enumerate(summary["shortages"]):
@@ -138,7 +180,7 @@ def validate_response(result, request=None):
                     "/shortage_summary/total_person_minutes",
                 )
             )
-    if request is not None and request["schema_version"] in {"0.2", "0.3", "0.4"}:
+    if request is not None and request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6"}:
         from .diagnosis import validate_result
 
         errors.extend(validate_result(request, result))
@@ -146,9 +188,45 @@ def validate_response(result, request=None):
         raise InvalidInput(errors)
 
 
+def validate(request: object) -> dict:
+    """探索せず、構造・参照・時刻・候補・基準計画の意味を検証する。"""
+    start = time.perf_counter()
+    result = {
+        "schema_version": schema_version_of(request),
+        "request_id": request.get("request_id")
+        if isinstance(request, dict) and isinstance(request.get("request_id"), str)
+        else None,
+        "status": "VALID",
+        "diagnostics": [],
+        "stats": {"elapsed_seconds": 0.0},
+    }
+    try:
+        normalize(request)
+    except InvalidInput as error:
+        result.update(status="INVALID_INPUT", diagnostics=error.diagnostics)
+    except TimezoneDataError:
+        logger.debug("入力検証で時刻データを読み取れませんでした。", exc_info=True)
+        result.update(
+            status="INTERNAL_ERROR",
+            diagnostics=[
+                diagnostic("TIMEZONE_DATA_UNAVAILABLE", "OSのTZDBまたはtzdataの導入を確認します。")
+            ],
+        )
+    except Exception:
+        logger.debug("入力検証で内部例外が発生しました。", exc_info=True)
+        result.update(
+            status="INTERNAL_ERROR",
+            diagnostics=[diagnostic("INTERNAL_ERROR", "入力検証の処理に失敗しました。")],
+        )
+    result["stats"]["elapsed_seconds"] = time.perf_counter() - start
+    return result
+
+
 def choose_backend(request):
     if request["solver"]["backend"] != "auto":
         return request["solver"]["backend"], "EXPLICIT_BACKEND"
+    if any(d.get("priority", 0) for d in request["demand"]):
+        return "cp_sat", "DEMAND_PRIORITY"
     if request["problem_type"] == "roster":
         return "cp_sat", "JOINT_ROSTER"
     if request.get("diagnosis"):
@@ -160,7 +238,7 @@ def choose_backend(request):
     return "min_cost_flow", "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
 
 
-def solve(request: dict) -> dict:
+def solve(request: dict, *, num_workers: int = 2) -> dict:
     start = time.perf_counter()
     request_id = request.get("request_id") if isinstance(request, dict) else None
     if not isinstance(request_id, str):
@@ -173,20 +251,33 @@ def solve(request: dict) -> dict:
 
     def extend(result):
         result["schema_version"] = schema_version
-        if schema_version in {"0.2", "0.3", "0.4"}:
+        if schema_version in {"0.2", "0.3", "0.4", "0.5", "0.6"}:
             result.update(fairness_summary=None, change_summary=None, diagnosis_result=None)
-        if schema_version in {"0.3", "0.4"}:
+        if schema_version in {"0.3", "0.4", "0.5", "0.6"}:
             result["shortage_summary"] = None
+        if schema_version in {"0.5", "0.6"}:
+            result["priority_summary"] = None
+        if schema_version == "0.6":
+            result["continuity_summary"] = None
         return result
 
     try:
+        if type(num_workers) is not int or not 1 <= num_workers <= 2**31 - 1:
+            raise InvalidInput(
+                [
+                    diagnostic(
+                        "INVALID_EXECUTION_OPTION",
+                        "num_workers は1〜2147483647の整数で指定します。boolは受理しません。",
+                    )
+                ]
+            )
         problem = normalize(request)
         normalized_at = time.perf_counter()
         backend, selection_reason = choose_backend(request)
         if backend == "cp_sat":
             module, library_version = cp_sat.load_backend()
             loaded_at = time.perf_counter()
-            outcome = cp_sat.run(problem, module)
+            outcome = cp_sat.run(problem, module, num_workers)
         else:
             loaded_at = time.perf_counter()
             outcome = flow.run(problem)
@@ -194,13 +285,13 @@ def solve(request: dict) -> dict:
         if (
             backend == "min_cost_flow"
             and outcome.status == "FEASIBLE"
-            and schema_version not in {"0.3", "0.4"}
+            and schema_version not in {"0.3", "0.4", "0.5", "0.6"}
         ):
             raise RuntimeError("Unexpected flow outcome")
         result = extend(response(request_id, outcome.status, outcome.diagnostics, backend))
         if outcome.status in {"OPTIMAL", "FEASIBLE"}:
             shortage = None
-            if schema_version in {"0.3", "0.4"}:
+            if schema_version in {"0.3", "0.4", "0.5", "0.6"}:
                 violations, values, shortage = verify_plan(problem, outcome.solution)
                 if (
                     shortage is not None
@@ -215,6 +306,30 @@ def solve(request: dict) -> dict:
                     )
             else:
                 violations, values = verify_solution(problem, outcome.solution)
+            priorities = None
+            if schema_version in {"0.5", "0.6"}:
+                priorities = priority_summary(request, shortage)
+                if backend == "cp_sat" and cp_sat.priority_stages(request):
+                    if (
+                        tuple(g["total_person_minutes"] for g in priorities["groups"])
+                        != outcome.priority_values
+                    ):
+                        violations.append(
+                            diagnostic(
+                                "PRIORITY_SHORTAGE_MISMATCH",
+                                "ソルバーのpriority別不足が返却解と一致しません。",
+                                "/priority_summary",
+                            )
+                        )
+                    for group, proof in zip(
+                        priorities["groups"], outcome.priority_proven_minimal, strict=True
+                    ):
+                        group["proven_minimal"] = proof
+                else:
+                    for group in priorities["groups"]:
+                        group["proven_minimal"] = (
+                            outcome.shortage_proven_minimal or shortage["total_person_minutes"] == 0
+                        )
             if not violations and values != outcome.values:
                 if len(values) != len(outcome.values):
                     violations = [
@@ -246,7 +361,9 @@ def solve(request: dict) -> dict:
                 )
             else:
                 result["solution"] = outcome.solution
-                if schema_version in {"0.3", "0.4"}:
+                if priorities is not None:
+                    result["priority_summary"] = priorities
+                if schema_version in {"0.3", "0.4", "0.5", "0.6"}:
                     minimal = (
                         shortage["total_person_minutes"] == 0 or outcome.shortage_proven_minimal
                     )
@@ -255,10 +372,16 @@ def solve(request: dict) -> dict:
                         "PARTIAL"
                         if shortage["total_person_minutes"]
                         else "OPTIMAL"
-                        if all(outcome.proven_optimal)
+                        if (
+                            all(outcome.proven_optimal)
+                            and (
+                                priorities is None
+                                or all(g["proven_minimal"] for g in priorities["groups"])
+                            )
+                        )
                         else "FEASIBLE"
                     )
-                if schema_version in {"0.2", "0.3", "0.4"}:
+                if schema_version in {"0.2", "0.3", "0.4", "0.5", "0.6"}:
                     from .extensions import evaluate
 
                     _, _, summaries = evaluate(problem, outcome.solution)
@@ -285,6 +408,8 @@ def solve(request: dict) -> dict:
                 "/solver/time_limit_seconds",
                 time_limit_seconds=request["solver"]["time_limit_seconds"],
                 search_elapsed_seconds=outcome.search_elapsed_seconds,
+                num_workers=num_workers if backend == "cp_sat" else None,
+                workers_applied=backend == "cp_sat",
                 normalization_elapsed_seconds=normalized_at - start,
                 backend_loading_elapsed_seconds=loaded_at - normalized_at,
                 preparation_elapsed_seconds=outcome.preparation_elapsed_seconds,
@@ -293,7 +418,20 @@ def solve(request: dict) -> dict:
             )
         )
         if backend == "cp_sat" and result["solution"] is not None:
-            if schema_version in {"0.3", "0.4"} and outcome.shortage_bound is not None:
+            for index, bound in enumerate(outcome.priority_bounds):
+                if bound is not None:
+                    result["diagnostics"].append(
+                        diagnostic(
+                            "PRIORITY_SHORTAGE_BOUND",
+                            "上位段階を固定したpriority群の不足下限です。",
+                            f"/priority_summary/groups/{index}",
+                            best_bound=bound,
+                        )
+                    )
+            if (
+                schema_version in {"0.3", "0.4", "0.5", "0.6"}
+                and outcome.shortage_bound is not None
+            ):
                 result["diagnostics"].append(
                     diagnostic(
                         "SHORTAGE_BOUND",
@@ -328,7 +466,9 @@ def solve(request: dict) -> dict:
 
             diagnosis_start = time.perf_counter()
             try:
-                result["diagnosis_result"] = diagnose(request, result["status"], solve)
+                result["diagnosis_result"] = diagnose(
+                    request, result["status"], lambda value: solve(value, num_workers=num_workers)
+                )
                 validate_response(result, request)
                 detail = result["diagnosis_result"]
                 detail["elapsed_seconds"] = time.perf_counter() - diagnosis_start
@@ -339,6 +479,7 @@ def solve(request: dict) -> dict:
                     detail["status"] = "TIME_LIMIT"
                 validated = True
             except Exception:
+                logger.debug("追加診断の結果検証で内部例外が発生しました。", exc_info=True)
                 result["diagnosis_result"] = {
                     "status": "ERROR",
                     "reason": None,
@@ -355,6 +496,14 @@ def solve(request: dict) -> dict:
             validate_response(result, request)
         result["stats"]["elapsed_seconds"] = time.perf_counter() - start
         return result
+    except TimezoneDataError:
+        logger.debug("求解で時刻データを読み取れませんでした。", exc_info=True)
+        result = response(
+            request_id,
+            "INTERNAL_ERROR",
+            [diagnostic("TIMEZONE_DATA_UNAVAILABLE", "OSのTZDBまたはtzdataの導入を確認します。")],
+            backend,
+        )
     except cp_sat.BackendUnavailable:
         result = response(
             request_id,
@@ -372,11 +521,13 @@ def solve(request: dict) -> dict:
         if backend == "none":
             result = response(request_id, "INVALID_INPUT", error.diagnostics)
         else:
+            logger.debug("求解結果の検証に失敗しました。", exc_info=True)
             verification = {"performed": True, "valid": False, "violations": error.diagnostics}
             result = response(
                 request_id, "INTERNAL_ERROR", error.diagnostics, backend, verification
             )
     except Exception:
+        logger.debug("求解で内部例外が発生しました。", exc_info=True)
         # 内部例外や壊れた出力は正式な解として公開しない。
         result = response(
             request_id,

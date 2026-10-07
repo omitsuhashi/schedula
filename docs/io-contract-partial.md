@@ -5,7 +5,7 @@
 契約0.3は `assignment` と `roster` に未完成の計画を追加する。
 [契約0.2](io-contract-next.md)の入力、夜勤・分割勤務、履歴、目標勤務量、基準計画、固定部分を継承する。
 変更は明示した `schema_version: "0.3"` に限り、0.1・0.2のSchema・需要の意味・結果状態は変えない。
-JSON Schemaの正本は `src/schedula/schemas/0.3/` に置く。
+JSON Schemaの正本は `src/shift_schedula/schemas/0.3/` に置く。
 
 契約検証に加え、元入力から不足を再計算する独立検証、最小費用流・CP-SATの不足最小化、
 CLI・ローカルデモを実装している。[不足付き担当配置](../examples/partial_assignment.json)と
@@ -13,8 +13,8 @@ CLI・ローカルデモを実装している。[不足付き担当配置](../ex
 実測・合成応答テスト・未確認事項は[検証記録](evaluations/partial-plans.md)で区別する。
 
 ```sh
-uv run --locked python -m schedula schema request --schema-version 0.3
-uv run --locked python -m schedula schema response --schema-version 0.3
+uv run --locked python -m shift_schedula schema request --schema-version 0.3
+uv run --locked python -m shift_schedula schema response --schema-version 0.3
 ```
 
 ## 入力と目的順序

@@ -136,7 +136,7 @@ API 公開、変更最小化のフォーム、認証は対象外とする。JSON
 入力編集時は比較元・結果の有無にかかわらず共通の検証を行い、修正済みのカスタムエラーを解除する。
 
 1. ブラウザーは標準の入力検証と欄間チェックで修正位置を示す。サーバー検証の代わりにはしない。
-2. ローカル入口は JSON の厳密な読み取りに `schedula.contract.load_json` を使い、重複キー・非有限数を拒否する。
+2. ローカル入口は JSON の厳密な読み取りに `shift_schedula.contract.load_json` を使い、重複キー・非有限数を拒否する。
    固定値、全 ID 集合と件数、18需要、名称長、技能・時間・人数の範囲をサーバーでも検証する。
    契約上は正しくてもデモ範囲外の入力は `DEMO_INPUT_OUT_OF_RANGE` と対象 `json_pointer` で拒否する。
 3. 範囲内の Request はそのまま `solve` に渡し、既存の Schema・参照・時間・担当資格の意味検証、独立結果検証を使う。
@@ -231,7 +231,7 @@ Host / Origin 不正は403、実行入口自体の予期しない障害は500と
 欠勤直後の1条件が `INFEASIBLE` / `solution: null` となった。
 成立例では `verify_solution` を再実行し、需要合計22 / 23 / 20 / 24人枠と照合した。
 初回テストは診断の `facts` を辞書と仮定したため1失敗・2成功となり、既存契約どおり配列に修正後は3成功。
-エンジンの変更はない。[実行記録](evaluations/results/2026-10-06-playground.json)に全10条件の結果と入力ハッシュを保存した。
+エンジンの変更はない。[実行記録](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-playground.json)に全10条件の結果と入力ハッシュを保存した。
 全回帰テストは966成功・6 subtests成功、107.04秒、失敗・エラー・スキップ0件。
 Ruff lint・format、`bash -n scripts/deploy`、`git diff --check` も成功した。
 静的画面案は内蔵ブラウザーの内容と DOM で確認し、1440px幅で2列、390px幅で1列・ページ横はみ出しなしを確認した。
@@ -239,7 +239,7 @@ Ruff lint・format、`bash -n scripts/deploy`、`git diff --check` も成功し�
 
 ```sh
 uv run --locked --extra cp-sat pytest -q tests/test_playground_scenarios.py
-uv run --locked python -m schedula solve examples/playground/lunch.json
+uv run --locked python -m shift_schedula solve examples/playground/lunch.json
 ```
 
 | Issue | 引き継ぐ内容・残る検証 |

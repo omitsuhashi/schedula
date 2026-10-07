@@ -6,10 +6,10 @@ from pathlib import Path
 import pytest
 from ortools.sat.python import cp_model
 
-from schedula import cp_sat, engine, solve
-from schedula.contract import InvalidInput
-from schedula.model import normalize
-from schedula.verify import verify_solution
+from shift_schedula import cp_sat, engine, solve
+from shift_schedula.contract import InvalidInput
+from shift_schedula.model import normalize
+from shift_schedula.verify import verify_solution
 from tests.roster_support import candidate, demand, request
 from tests.support import assert_response
 from tests.test_cp_sat import exhaustive_linked_value, small_request, stamp
@@ -348,6 +348,8 @@ def test_shared_budget_excludes_preparation_and_records_total_elapsed(monkeypatc
     assert {f["name"]: f["value"] for f in stats["facts"]} == {
         "time_limit_seconds": 10,
         "search_elapsed_seconds": 6,
+        "num_workers": 2,
+        "workers_applied": True,
         "normalization_elapsed_seconds": 0,
         "input_validation_elapsed_seconds": 0,
         "candidate_expansion_elapsed_seconds": 0,

@@ -11,9 +11,9 @@ from pathlib import Path
 import pytest
 from ortools.sat.python import cp_model
 
-from schedula import cp_sat, flow, solve
-from schedula.model import normalize
-from schedula.verify import verify_solution
+from shift_schedula import cp_sat, flow, solve
+from shift_schedula.model import normalize
+from shift_schedula.verify import verify_solution
 from tests.roster_support import candidate, demand, interval, request, rule, stamp
 from tests.support import assert_response
 
@@ -21,11 +21,8 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 @pytest.mark.parametrize("backend", ["auto", "cp_sat"])
-def test_reference_roster_with_one_objective(backend):
-    # 原本を変更せず、業務入力だけを読み取り今回の対応目的を指定する。
-    data = json.loads(
-        (ROOT / "docs/reference/skillshift-starter-0.1/examples/roster.json").read_text()
-    )
+def test_example_roster_with_one_objective(backend):
+    data = json.loads((ROOT / "examples/roster.json").read_text())
     data["objectives"] = data["objectives"][:1]
     data["solver"]["backend"] = backend
     original = copy.deepcopy(data)
@@ -42,10 +39,8 @@ def test_reference_roster_with_one_objective(backend):
     assert data == original
 
 
-def test_original_multiple_objectives():
-    data = json.loads(
-        (ROOT / "docs/reference/skillshift-starter-0.1/examples/roster.json").read_text()
-    )
+def test_example_multiple_objectives():
+    data = json.loads((ROOT / "examples/roster.json").read_text())
     result = solve(data)
     assert_response(result, "OPTIMAL")
     assert [o["value"] for o in result["objectives"]] == [60, 2640, 0]
@@ -419,7 +414,7 @@ def test_optimum_matches_independent_enumeration(seed):
 
 def test_roster_cli_json_only():
     result = subprocess.run(
-        [sys.executable, "-m", "schedula", "solve", str(ROOT / "examples/roster.json")],
+        [sys.executable, "-m", "shift_schedula", "solve", str(ROOT / "examples/roster.json")],
         capture_output=True,
         text=True,
     )

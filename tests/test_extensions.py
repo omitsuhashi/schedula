@@ -5,10 +5,10 @@ from pathlib import Path
 
 import pytest
 
-from schedula import solve
-from schedula.extensions import evaluate
-from schedula.model import normalize
-from schedula.verify import verify_solution
+from shift_schedula import solve
+from shift_schedula.extensions import evaluate
+from shift_schedula.model import normalize
+from shift_schedula.verify import verify_solution
 from tests.roster_support import candidate, demand, interval, request, rule
 
 ROOT = Path(__file__).resolve().parents[1]

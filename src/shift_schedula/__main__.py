@@ -9,7 +9,7 @@ from .engine import response, validate_response
 
 
 def main():
-    parser = argparse.ArgumentParser(prog="python -m schedula")
+    parser = argparse.ArgumentParser(prog="python -m shift_schedula")
     commands = parser.add_subparsers(dest="command", required=True)
     solve_parser = commands.add_parser("solve")
     solve_parser.add_argument("input_file")
@@ -56,6 +56,10 @@ def main():
                     if isinstance(request, dict) and isinstance(request.get("request_id"), str)
                     else None,
                 )
+                if result["schema_version"] in {"0.5", "0.6"}:
+                    result["priority_summary"] = None
+                if result["schema_version"] == "0.6":
+                    result["continuity_summary"] = None
             else:
                 result = response(None, "INVALID_INPUT", diagnostics)
         if args.command != "verify":
