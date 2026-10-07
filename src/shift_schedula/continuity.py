@@ -81,11 +81,18 @@ def availability(request, grid):
     result = {}
     for i, employee in enumerate(request["employees"]):
         p = f"/employees/{i}/availability"
-        result[employee["id"]] = [
+        intervals = [
             interval(value, grid, bounds, f"{p}/{j}")
             for j, value in enumerate(employee["availability"])
         ]
-        nonoverlapping(result[employee["id"]], p)
+        nonoverlapping(intervals, p)
+        merged = []
+        for start, end in sorted(intervals):
+            if merged and merged[-1][1] == start:
+                merged[-1] = (merged[-1][0], end)
+            else:
+                merged.append((start, end))
+        result[employee["id"]] = merged
     return result
 
 

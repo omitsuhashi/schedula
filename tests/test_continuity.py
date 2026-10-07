@@ -196,6 +196,62 @@ def test_valid_rules_conflicting_with_facts_are_infeasible():
     assert any(c["code"] == "ACTUAL_SHIFT_BACKGROUND" for c in conditions)
 
 
+@pytest.mark.parametrize("source", ["candidate", "template", "committed"])
+@pytest.mark.parametrize("boundary", ["adjacent", "gap", "overlap"])
+def test_availability_union_for_candidates_templates_and_commitments(source, boundary):
+    data = example()
+    data["constraints"] = []
+    duty = segment(stamp("11-01", "09:00"), stamp("11-01", "17:00"))
+    data["demand"] = [
+        {
+            "id": "day",
+            "role_id": "kitchen",
+            "interval": duty["interval"],
+            "required_people": 1,
+        }
+    ]
+    row(data)["committed_shifts"] = []
+    if source == "candidate":
+        data["shift_candidates"] = [{"id": "day", "employee_id": "alice", "segments": [duty]}]
+    elif source == "template":
+        data["shift_templates"] = [
+            {
+                "id": "day",
+                "employee_ids": ["alice"],
+                "dates": ["2026-11-01"],
+                "start_times": ["09:00"],
+                "segment_options": [[{"offset_minutes": 0, "duration_minutes": 480, "breaks": []}]],
+            }
+        ]
+    else:
+        row(data)["committed_shifts"] = [{"id": "day", "segments": [duty]}]
+    data["employees"][0]["availability"] = [duty["interval"]]
+    original = solution(data)
+    second_start = {"adjacent": "12:00", "gap": "12:30", "overlap": "11:30"}[boundary]
+    data["employees"][0]["availability"] = [
+        {"start": stamp("11-01", "15:00"), "end": stamp("11-01", "17:00")},
+        {"start": stamp("11-01", "09:00"), "end": stamp("11-01", "12:00")},
+        {"start": stamp("11-01", second_start), "end": stamp("11-01", "15:00")},
+    ]
+    saved = copy.deepcopy(data)
+    result = solve(data)
+    assert data == saved
+    if boundary == "adjacent":
+        assert validate(data)["status"] == "VALID"
+        assert_response(result, "OPTIMAL")
+        assert result["solution"] == original
+        assert verify(data, original)["status"] == "VALID"
+    elif boundary == "gap":
+        expected = {"candidate": "INVALID_INPUT", "template": "PARTIAL", "committed": "INFEASIBLE"}
+        assert_response(result, expected[source])
+        assert verify(data, original)["status"] == (
+            "INVALID_INPUT" if source == "candidate" else "INVALID_PLAN"
+        )
+    else:
+        assert_response(result, "INVALID_INPUT")
+        assert validate(data)["diagnostics"][0]["code"] == "OVERLAPPING_INTERVALS"
+
+
 def test_past_rules_are_not_retroactive_and_anchor_connects_to_new_work():
     data = example("week")
     data["constraints"] = [
