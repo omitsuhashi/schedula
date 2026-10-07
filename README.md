@@ -39,7 +39,8 @@ uv run --locked --extra cp-sat python -m schedula schema response
 
 ## ブラウザーで担当配置を試す
 
-clone 済みのリポジトリ直下で起動します。デモだけなら OR-Tools や Node.js は不要です。
+clone 済みのリポジトリ直下で起動します。担当配置のフォームだけなら OR-Tools や Node.js は不要です。
+JSON から勤務計画も計算するときは、同期・起動に `--extra cp-sat` を追加します。
 
 ```sh
 uv python install
@@ -59,6 +60,22 @@ uv run --locked python demo/server.py
 8765が使用中なら `--port 8766` を追加し、表示されるURLを開いてください。
 編集上限・全状態は[配置プレイグラウンドの仕様](docs/playground.md)、
 再実行コマンドと検証結果は[デモの検証記録](docs/evaluations/playground.md)を参照してください。
+
+画面上部の「JSON で担当配置・勤務計画を計算する」を開くと、JSON の貼り付け・
+UTF-8 ファイルの読み込み（2 MiBまで）から、契約0.1・0.2の入力を実行できます。
+「100人・30日・30分刻みの勤務計画」を選び、「サンプルを読み込む」→「JSON で計算」を押します。
+結果の日付を選ぶと、100人分の担当・休憩・待機・勤務なしと役割別の需要充足を確認できます。
+
+```sh
+uv sync --locked --extra cp-sat
+uv run --locked --extra cp-sat python demo/server.py
+```
+
+サンプルは[roster-100-30.json](examples/playground/roster-100-30.json)です。
+2026-10-01〜10-30の架空条件で、調理・ホール各50人から毎日各20人の勤務を選びます。
+勤務候補は9:00〜17:00・30分休憩の3000件、勤務量上限9000分・勤務間の休息660分・連勤上限5日です。
+昼の休憩中は役割ごとの需要を10人、それ以外は20人と明示しています。
+探索予算30秒と総処理時間は別で、`FEASIBLE` は独立検証済み・最適性未証明として表示します。
 
 ## 入力を作る
 
@@ -197,7 +214,7 @@ uv run --locked --extra cp-sat python -m schedula solve examples/invalid-input.j
 
 夜勤・分割勤務、候補外の時刻、契約時間に対する公平性、変更最小化、給与計算・法令判定、
 詳細な矛盾原因・自動緩和は未対応です。外部 API・LLM・PyPI 公開・production デプロイは対象外です。
-ブラウザーの利用入口は、上記のローカル担当配置デモに限定します。
+ブラウザーの利用入口は、上記のローカル担当配置・JSON デモに限定します。
 参照 ZIP のコードはライセンス未選定のため取り込まず、採用した業務仕様から独自実装しています。
 公開条件は [開発・検証方針](docs/development-policy.md)に記載しています。
 
