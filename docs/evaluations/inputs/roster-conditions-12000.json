@@ -1,0 +1,4928 @@
+{
+  "schema_version": "0.4",
+  "request_id": "roster_conditions_12000",
+  "problem_type": "roster",
+  "planning_window": {
+    "start": "2026-10-01T00:00:00+09:00",
+    "end": "2026-10-31T00:00:00+09:00",
+    "timezone": "Asia/Tokyo",
+    "slot_minutes": 30
+  },
+  "skills": [
+    {
+      "id": "kitchen",
+      "label": "調理技能"
+    },
+    {
+      "id": "hall",
+      "label": "接客技能"
+    }
+  ],
+  "roles": [
+    {
+      "id": "kitchen",
+      "label": "調理",
+      "required_skills": [
+        {
+          "skill_id": "kitchen",
+          "min_level": 1
+        }
+      ]
+    },
+    {
+      "id": "hall",
+      "label": "ホール",
+      "required_skills": [
+        {
+          "skill_id": "hall",
+          "min_level": 1
+        }
+      ]
+    }
+  ],
+  "employees": [
+    {
+      "id": "employee_001",
+      "label": "従業員001",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_002",
+      "label": "従業員002",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_003",
+      "label": "従業員003",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_004",
+      "label": "従業員004",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_005",
+      "label": "従業員005",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_006",
+      "label": "従業員006",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_007",
+      "label": "従業員007",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_008",
+      "label": "従業員008",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_009",
+      "label": "従業員009",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_010",
+      "label": "従業員010",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_011",
+      "label": "従業員011",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_012",
+      "label": "従業員012",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_013",
+      "label": "従業員013",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_014",
+      "label": "従業員014",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_015",
+      "label": "従業員015",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_016",
+      "label": "従業員016",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_017",
+      "label": "従業員017",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_018",
+      "label": "従業員018",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_019",
+      "label": "従業員019",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_020",
+      "label": "従業員020",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_021",
+      "label": "従業員021",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_022",
+      "label": "従業員022",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_023",
+      "label": "従業員023",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_024",
+      "label": "従業員024",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_025",
+      "label": "従業員025",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_026",
+      "label": "従業員026",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_027",
+      "label": "従業員027",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_028",
+      "label": "従業員028",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_029",
+      "label": "従業員029",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_030",
+      "label": "従業員030",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_031",
+      "label": "従業員031",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_032",
+      "label": "従業員032",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_033",
+      "label": "従業員033",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_034",
+      "label": "従業員034",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_035",
+      "label": "従業員035",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_036",
+      "label": "従業員036",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_037",
+      "label": "従業員037",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_038",
+      "label": "従業員038",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_039",
+      "label": "従業員039",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_040",
+      "label": "従業員040",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_041",
+      "label": "従業員041",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_042",
+      "label": "従業員042",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_043",
+      "label": "従業員043",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_044",
+      "label": "従業員044",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_045",
+      "label": "従業員045",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_046",
+      "label": "従業員046",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_047",
+      "label": "従業員047",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_048",
+      "label": "従業員048",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_049",
+      "label": "従業員049",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_050",
+      "label": "従業員050",
+      "skills": [
+        {
+          "skill_id": "kitchen",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_051",
+      "label": "従業員051",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_052",
+      "label": "従業員052",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_053",
+      "label": "従業員053",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_054",
+      "label": "従業員054",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_055",
+      "label": "従業員055",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_056",
+      "label": "従業員056",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_057",
+      "label": "従業員057",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_058",
+      "label": "従業員058",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_059",
+      "label": "従業員059",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_060",
+      "label": "従業員060",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_061",
+      "label": "従業員061",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_062",
+      "label": "従業員062",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_063",
+      "label": "従業員063",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_064",
+      "label": "従業員064",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_065",
+      "label": "従業員065",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_066",
+      "label": "従業員066",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_067",
+      "label": "従業員067",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_068",
+      "label": "従業員068",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_069",
+      "label": "従業員069",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_070",
+      "label": "従業員070",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_071",
+      "label": "従業員071",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_072",
+      "label": "従業員072",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_073",
+      "label": "従業員073",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_074",
+      "label": "従業員074",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_075",
+      "label": "従業員075",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_076",
+      "label": "従業員076",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_077",
+      "label": "従業員077",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_078",
+      "label": "従業員078",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_079",
+      "label": "従業員079",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_080",
+      "label": "従業員080",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_081",
+      "label": "従業員081",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_082",
+      "label": "従業員082",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_083",
+      "label": "従業員083",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_084",
+      "label": "従業員084",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_085",
+      "label": "従業員085",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_086",
+      "label": "従業員086",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_087",
+      "label": "従業員087",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_088",
+      "label": "従業員088",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_089",
+      "label": "従業員089",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_090",
+      "label": "従業員090",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_091",
+      "label": "従業員091",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_092",
+      "label": "従業員092",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_093",
+      "label": "従業員093",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_094",
+      "label": "従業員094",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_095",
+      "label": "従業員095",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_096",
+      "label": "従業員096",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_097",
+      "label": "従業員097",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_098",
+      "label": "従業員098",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_099",
+      "label": "従業員099",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "employee_100",
+      "label": "従業員100",
+      "skills": [
+        {
+          "skill_id": "hall",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-01T00:00:00+09:00",
+          "end": "2026-10-31T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    }
+  ],
+  "demand": [
+    {
+      "id": "kitchen_2026-10-01_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-01T09:00:00+09:00",
+        "end": "2026-10-01T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-01_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-01T12:00:00+09:00",
+        "end": "2026-10-01T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-01_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-01T13:00:00+09:00",
+        "end": "2026-10-01T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-01_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-01T09:00:00+09:00",
+        "end": "2026-10-01T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-01_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-01T12:00:00+09:00",
+        "end": "2026-10-01T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-01_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-01T13:00:00+09:00",
+        "end": "2026-10-01T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-02_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-02T09:00:00+09:00",
+        "end": "2026-10-02T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-02_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-02T12:00:00+09:00",
+        "end": "2026-10-02T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-02_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-02T13:00:00+09:00",
+        "end": "2026-10-02T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-02_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-02T09:00:00+09:00",
+        "end": "2026-10-02T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-02_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-02T12:00:00+09:00",
+        "end": "2026-10-02T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-02_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-02T13:00:00+09:00",
+        "end": "2026-10-02T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-03_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-03T09:00:00+09:00",
+        "end": "2026-10-03T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-03_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-03T12:00:00+09:00",
+        "end": "2026-10-03T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-03_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-03T13:00:00+09:00",
+        "end": "2026-10-03T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-03_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-03T09:00:00+09:00",
+        "end": "2026-10-03T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-03_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-03T12:00:00+09:00",
+        "end": "2026-10-03T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-03_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-03T13:00:00+09:00",
+        "end": "2026-10-03T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-04_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-04T09:00:00+09:00",
+        "end": "2026-10-04T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-04_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-04T12:00:00+09:00",
+        "end": "2026-10-04T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-04_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-04T13:00:00+09:00",
+        "end": "2026-10-04T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-04_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-04T09:00:00+09:00",
+        "end": "2026-10-04T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-04_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-04T12:00:00+09:00",
+        "end": "2026-10-04T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-04_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-04T13:00:00+09:00",
+        "end": "2026-10-04T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-05_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-05T09:00:00+09:00",
+        "end": "2026-10-05T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-05_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-05T12:00:00+09:00",
+        "end": "2026-10-05T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-05_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-05T13:00:00+09:00",
+        "end": "2026-10-05T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-05_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-05T09:00:00+09:00",
+        "end": "2026-10-05T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-05_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-05T12:00:00+09:00",
+        "end": "2026-10-05T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-05_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-05T13:00:00+09:00",
+        "end": "2026-10-05T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-06_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-06T09:00:00+09:00",
+        "end": "2026-10-06T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-06_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-06T12:00:00+09:00",
+        "end": "2026-10-06T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-06_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-06T13:00:00+09:00",
+        "end": "2026-10-06T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-06_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-06T09:00:00+09:00",
+        "end": "2026-10-06T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-06_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-06T12:00:00+09:00",
+        "end": "2026-10-06T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-06_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-06T13:00:00+09:00",
+        "end": "2026-10-06T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-07_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-07T09:00:00+09:00",
+        "end": "2026-10-07T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-07_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-07T12:00:00+09:00",
+        "end": "2026-10-07T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-07_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-07T13:00:00+09:00",
+        "end": "2026-10-07T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-07_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-07T09:00:00+09:00",
+        "end": "2026-10-07T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-07_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-07T12:00:00+09:00",
+        "end": "2026-10-07T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-07_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-07T13:00:00+09:00",
+        "end": "2026-10-07T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-08_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-08T09:00:00+09:00",
+        "end": "2026-10-08T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-08_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-08T12:00:00+09:00",
+        "end": "2026-10-08T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-08_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-08T13:00:00+09:00",
+        "end": "2026-10-08T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-08_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-08T09:00:00+09:00",
+        "end": "2026-10-08T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-08_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-08T12:00:00+09:00",
+        "end": "2026-10-08T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-08_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-08T13:00:00+09:00",
+        "end": "2026-10-08T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-09_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-09T09:00:00+09:00",
+        "end": "2026-10-09T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-09_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-09T12:00:00+09:00",
+        "end": "2026-10-09T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-09_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-09T13:00:00+09:00",
+        "end": "2026-10-09T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-09_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-09T09:00:00+09:00",
+        "end": "2026-10-09T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-09_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-09T12:00:00+09:00",
+        "end": "2026-10-09T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-09_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-09T13:00:00+09:00",
+        "end": "2026-10-09T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-10_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-10T09:00:00+09:00",
+        "end": "2026-10-10T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-10_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-10T12:00:00+09:00",
+        "end": "2026-10-10T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-10_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-10T13:00:00+09:00",
+        "end": "2026-10-10T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-10_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-10T09:00:00+09:00",
+        "end": "2026-10-10T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-10_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-10T12:00:00+09:00",
+        "end": "2026-10-10T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-10_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-10T13:00:00+09:00",
+        "end": "2026-10-10T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-11_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-11T09:00:00+09:00",
+        "end": "2026-10-11T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-11_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-11T12:00:00+09:00",
+        "end": "2026-10-11T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-11_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-11T13:00:00+09:00",
+        "end": "2026-10-11T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-11_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-11T09:00:00+09:00",
+        "end": "2026-10-11T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-11_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-11T12:00:00+09:00",
+        "end": "2026-10-11T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-11_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-11T13:00:00+09:00",
+        "end": "2026-10-11T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-12_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-12T09:00:00+09:00",
+        "end": "2026-10-12T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-12_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-12T12:00:00+09:00",
+        "end": "2026-10-12T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-12_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-12T13:00:00+09:00",
+        "end": "2026-10-12T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-12_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-12T09:00:00+09:00",
+        "end": "2026-10-12T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-12_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-12T12:00:00+09:00",
+        "end": "2026-10-12T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-12_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-12T13:00:00+09:00",
+        "end": "2026-10-12T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-13_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-13T09:00:00+09:00",
+        "end": "2026-10-13T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-13_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-13T12:00:00+09:00",
+        "end": "2026-10-13T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-13_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-13T13:00:00+09:00",
+        "end": "2026-10-13T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-13_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-13T09:00:00+09:00",
+        "end": "2026-10-13T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-13_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-13T12:00:00+09:00",
+        "end": "2026-10-13T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-13_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-13T13:00:00+09:00",
+        "end": "2026-10-13T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-14_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-14T09:00:00+09:00",
+        "end": "2026-10-14T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-14_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-14T12:00:00+09:00",
+        "end": "2026-10-14T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-14_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-14T13:00:00+09:00",
+        "end": "2026-10-14T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-14_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-14T09:00:00+09:00",
+        "end": "2026-10-14T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-14_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-14T12:00:00+09:00",
+        "end": "2026-10-14T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-14_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-14T13:00:00+09:00",
+        "end": "2026-10-14T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-15_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-15T09:00:00+09:00",
+        "end": "2026-10-15T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-15_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-15T12:00:00+09:00",
+        "end": "2026-10-15T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-15_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-15T13:00:00+09:00",
+        "end": "2026-10-15T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-15_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-15T09:00:00+09:00",
+        "end": "2026-10-15T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-15_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-15T12:00:00+09:00",
+        "end": "2026-10-15T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-15_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-15T13:00:00+09:00",
+        "end": "2026-10-15T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-16_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-16T09:00:00+09:00",
+        "end": "2026-10-16T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-16_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-16T12:00:00+09:00",
+        "end": "2026-10-16T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-16_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-16T13:00:00+09:00",
+        "end": "2026-10-16T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-16_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-16T09:00:00+09:00",
+        "end": "2026-10-16T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-16_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-16T12:00:00+09:00",
+        "end": "2026-10-16T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-16_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-16T13:00:00+09:00",
+        "end": "2026-10-16T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-17_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-17T09:00:00+09:00",
+        "end": "2026-10-17T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-17_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-17T12:00:00+09:00",
+        "end": "2026-10-17T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-17_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-17T13:00:00+09:00",
+        "end": "2026-10-17T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-17_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-17T09:00:00+09:00",
+        "end": "2026-10-17T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-17_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-17T12:00:00+09:00",
+        "end": "2026-10-17T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-17_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-17T13:00:00+09:00",
+        "end": "2026-10-17T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-18_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-18T09:00:00+09:00",
+        "end": "2026-10-18T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-18_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-18T12:00:00+09:00",
+        "end": "2026-10-18T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-18_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-18T13:00:00+09:00",
+        "end": "2026-10-18T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-18_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-18T09:00:00+09:00",
+        "end": "2026-10-18T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-18_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-18T12:00:00+09:00",
+        "end": "2026-10-18T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-18_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-18T13:00:00+09:00",
+        "end": "2026-10-18T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-19_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-19T09:00:00+09:00",
+        "end": "2026-10-19T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-19_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-19T12:00:00+09:00",
+        "end": "2026-10-19T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-19_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-19T13:00:00+09:00",
+        "end": "2026-10-19T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-19_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-19T09:00:00+09:00",
+        "end": "2026-10-19T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-19_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-19T12:00:00+09:00",
+        "end": "2026-10-19T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-19_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-19T13:00:00+09:00",
+        "end": "2026-10-19T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-20_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-20T09:00:00+09:00",
+        "end": "2026-10-20T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-20_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-20T12:00:00+09:00",
+        "end": "2026-10-20T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-20_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-20T13:00:00+09:00",
+        "end": "2026-10-20T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-20_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-20T09:00:00+09:00",
+        "end": "2026-10-20T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-20_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-20T12:00:00+09:00",
+        "end": "2026-10-20T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-20_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-20T13:00:00+09:00",
+        "end": "2026-10-20T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-21_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-21T09:00:00+09:00",
+        "end": "2026-10-21T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-21_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-21T12:00:00+09:00",
+        "end": "2026-10-21T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-21_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-21T13:00:00+09:00",
+        "end": "2026-10-21T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-21_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-21T09:00:00+09:00",
+        "end": "2026-10-21T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-21_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-21T12:00:00+09:00",
+        "end": "2026-10-21T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-21_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-21T13:00:00+09:00",
+        "end": "2026-10-21T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-22_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-22T09:00:00+09:00",
+        "end": "2026-10-22T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-22_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-22T12:00:00+09:00",
+        "end": "2026-10-22T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-22_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-22T13:00:00+09:00",
+        "end": "2026-10-22T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-22_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-22T09:00:00+09:00",
+        "end": "2026-10-22T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-22_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-22T12:00:00+09:00",
+        "end": "2026-10-22T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-22_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-22T13:00:00+09:00",
+        "end": "2026-10-22T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-23_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-23T09:00:00+09:00",
+        "end": "2026-10-23T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-23_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-23T12:00:00+09:00",
+        "end": "2026-10-23T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-23_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-23T13:00:00+09:00",
+        "end": "2026-10-23T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-23_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-23T09:00:00+09:00",
+        "end": "2026-10-23T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-23_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-23T12:00:00+09:00",
+        "end": "2026-10-23T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-23_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-23T13:00:00+09:00",
+        "end": "2026-10-23T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-24_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-24T09:00:00+09:00",
+        "end": "2026-10-24T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-24_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-24T12:00:00+09:00",
+        "end": "2026-10-24T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-24_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-24T13:00:00+09:00",
+        "end": "2026-10-24T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-24_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-24T09:00:00+09:00",
+        "end": "2026-10-24T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-24_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-24T12:00:00+09:00",
+        "end": "2026-10-24T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-24_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-24T13:00:00+09:00",
+        "end": "2026-10-24T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-25_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-25T09:00:00+09:00",
+        "end": "2026-10-25T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-25_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-25T12:00:00+09:00",
+        "end": "2026-10-25T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-25_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-25T13:00:00+09:00",
+        "end": "2026-10-25T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-25_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-25T09:00:00+09:00",
+        "end": "2026-10-25T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-25_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-25T12:00:00+09:00",
+        "end": "2026-10-25T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-25_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-25T13:00:00+09:00",
+        "end": "2026-10-25T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-26_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-26T09:00:00+09:00",
+        "end": "2026-10-26T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-26_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-26T12:00:00+09:00",
+        "end": "2026-10-26T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-26_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-26T13:00:00+09:00",
+        "end": "2026-10-26T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-26_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-26T09:00:00+09:00",
+        "end": "2026-10-26T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-26_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-26T12:00:00+09:00",
+        "end": "2026-10-26T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-26_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-26T13:00:00+09:00",
+        "end": "2026-10-26T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-27_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-27T09:00:00+09:00",
+        "end": "2026-10-27T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-27_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-27T12:00:00+09:00",
+        "end": "2026-10-27T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-27_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-27T13:00:00+09:00",
+        "end": "2026-10-27T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-27_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-27T09:00:00+09:00",
+        "end": "2026-10-27T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-27_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-27T12:00:00+09:00",
+        "end": "2026-10-27T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-27_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-27T13:00:00+09:00",
+        "end": "2026-10-27T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-28_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-28T09:00:00+09:00",
+        "end": "2026-10-28T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-28_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-28T12:00:00+09:00",
+        "end": "2026-10-28T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-28_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-28T13:00:00+09:00",
+        "end": "2026-10-28T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-28_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-28T09:00:00+09:00",
+        "end": "2026-10-28T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-28_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-28T12:00:00+09:00",
+        "end": "2026-10-28T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-28_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-28T13:00:00+09:00",
+        "end": "2026-10-28T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-29_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-29T09:00:00+09:00",
+        "end": "2026-10-29T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-29_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-29T12:00:00+09:00",
+        "end": "2026-10-29T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-29_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-29T13:00:00+09:00",
+        "end": "2026-10-29T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-29_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-29T09:00:00+09:00",
+        "end": "2026-10-29T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-29_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-29T12:00:00+09:00",
+        "end": "2026-10-29T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-29_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-29T13:00:00+09:00",
+        "end": "2026-10-29T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-30_0",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-30T09:00:00+09:00",
+        "end": "2026-10-30T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-30_1",
+      "role_id": "kitchen",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-30T12:00:00+09:00",
+        "end": "2026-10-30T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "kitchen_2026-10-30_2",
+      "role_id": "kitchen",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-30T13:00:00+09:00",
+        "end": "2026-10-30T17:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-30_0",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-30T09:00:00+09:00",
+        "end": "2026-10-30T12:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-30_1",
+      "role_id": "hall",
+      "required_people": 10,
+      "interval": {
+        "start": "2026-10-30T12:00:00+09:00",
+        "end": "2026-10-30T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "hall_2026-10-30_2",
+      "role_id": "hall",
+      "required_people": 20,
+      "interval": {
+        "start": "2026-10-30T13:00:00+09:00",
+        "end": "2026-10-30T17:00:00+09:00"
+      }
+    }
+  ],
+  "shift_candidates": [],
+  "shift_templates": [
+    {
+      "id": "day_shift_0",
+      "employee_ids": [
+        "employee_001",
+        "employee_003",
+        "employee_005",
+        "employee_007",
+        "employee_009",
+        "employee_011",
+        "employee_013",
+        "employee_015",
+        "employee_017",
+        "employee_019",
+        "employee_021",
+        "employee_023",
+        "employee_025",
+        "employee_027",
+        "employee_029",
+        "employee_031",
+        "employee_033",
+        "employee_035",
+        "employee_037",
+        "employee_039",
+        "employee_041",
+        "employee_043",
+        "employee_045",
+        "employee_047",
+        "employee_049",
+        "employee_051",
+        "employee_053",
+        "employee_055",
+        "employee_057",
+        "employee_059",
+        "employee_061",
+        "employee_063",
+        "employee_065",
+        "employee_067",
+        "employee_069",
+        "employee_071",
+        "employee_073",
+        "employee_075",
+        "employee_077",
+        "employee_079",
+        "employee_081",
+        "employee_083",
+        "employee_085",
+        "employee_087",
+        "employee_089",
+        "employee_091",
+        "employee_093",
+        "employee_095",
+        "employee_097",
+        "employee_099"
+      ],
+      "dates": [
+        "2026-10-01",
+        "2026-10-02",
+        "2026-10-03",
+        "2026-10-04",
+        "2026-10-05",
+        "2026-10-06",
+        "2026-10-07",
+        "2026-10-08",
+        "2026-10-09",
+        "2026-10-10",
+        "2026-10-11",
+        "2026-10-12",
+        "2026-10-13",
+        "2026-10-14",
+        "2026-10-15",
+        "2026-10-16",
+        "2026-10-17",
+        "2026-10-18",
+        "2026-10-19",
+        "2026-10-20",
+        "2026-10-21",
+        "2026-10-22",
+        "2026-10-23",
+        "2026-10-24",
+        "2026-10-25",
+        "2026-10-26",
+        "2026-10-27",
+        "2026-10-28",
+        "2026-10-29",
+        "2026-10-30"
+      ],
+      "start_times": [
+        "09:00",
+        "09:30"
+      ],
+      "segment_options": [
+        [
+          {
+            "offset_minutes": 0,
+            "duration_minutes": 480,
+            "breaks": [
+              {
+                "offset_minutes": 180,
+                "duration_minutes": 30
+              }
+            ]
+          }
+        ],
+        [
+          {
+            "offset_minutes": 0,
+            "duration_minutes": 480,
+            "breaks": [
+              {
+                "offset_minutes": 210,
+                "duration_minutes": 30
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "id": "day_shift_1",
+      "employee_ids": [
+        "employee_002",
+        "employee_004",
+        "employee_006",
+        "employee_008",
+        "employee_010",
+        "employee_012",
+        "employee_014",
+        "employee_016",
+        "employee_018",
+        "employee_020",
+        "employee_022",
+        "employee_024",
+        "employee_026",
+        "employee_028",
+        "employee_030",
+        "employee_032",
+        "employee_034",
+        "employee_036",
+        "employee_038",
+        "employee_040",
+        "employee_042",
+        "employee_044",
+        "employee_046",
+        "employee_048",
+        "employee_050",
+        "employee_052",
+        "employee_054",
+        "employee_056",
+        "employee_058",
+        "employee_060",
+        "employee_062",
+        "employee_064",
+        "employee_066",
+        "employee_068",
+        "employee_070",
+        "employee_072",
+        "employee_074",
+        "employee_076",
+        "employee_078",
+        "employee_080",
+        "employee_082",
+        "employee_084",
+        "employee_086",
+        "employee_088",
+        "employee_090",
+        "employee_092",
+        "employee_094",
+        "employee_096",
+        "employee_098",
+        "employee_100"
+      ],
+      "dates": [
+        "2026-10-01",
+        "2026-10-02",
+        "2026-10-03",
+        "2026-10-04",
+        "2026-10-05",
+        "2026-10-06",
+        "2026-10-07",
+        "2026-10-08",
+        "2026-10-09",
+        "2026-10-10",
+        "2026-10-11",
+        "2026-10-12",
+        "2026-10-13",
+        "2026-10-14",
+        "2026-10-15",
+        "2026-10-16",
+        "2026-10-17",
+        "2026-10-18",
+        "2026-10-19",
+        "2026-10-20",
+        "2026-10-21",
+        "2026-10-22",
+        "2026-10-23",
+        "2026-10-24",
+        "2026-10-25",
+        "2026-10-26",
+        "2026-10-27",
+        "2026-10-28",
+        "2026-10-29",
+        "2026-10-30"
+      ],
+      "start_times": [
+        "09:00",
+        "09:30"
+      ],
+      "segment_options": [
+        [
+          {
+            "offset_minutes": 0,
+            "duration_minutes": 480,
+            "breaks": [
+              {
+                "offset_minutes": 210,
+                "duration_minutes": 30
+              }
+            ]
+          }
+        ],
+        [
+          {
+            "offset_minutes": 0,
+            "duration_minutes": 480,
+            "breaks": [
+              {
+                "offset_minutes": 180,
+                "duration_minutes": 30
+              }
+            ]
+          }
+        ]
+      ]
+    }
+  ],
+  "constraints": [
+    {
+      "id": "monthly_cap",
+      "type": "max_scheduled_minutes",
+      "employee_ids": [
+        "employee_001",
+        "employee_002",
+        "employee_003",
+        "employee_004",
+        "employee_005",
+        "employee_006",
+        "employee_007",
+        "employee_008",
+        "employee_009",
+        "employee_010",
+        "employee_011",
+        "employee_012",
+        "employee_013",
+        "employee_014",
+        "employee_015",
+        "employee_016",
+        "employee_017",
+        "employee_018",
+        "employee_019",
+        "employee_020",
+        "employee_021",
+        "employee_022",
+        "employee_023",
+        "employee_024",
+        "employee_025",
+        "employee_026",
+        "employee_027",
+        "employee_028",
+        "employee_029",
+        "employee_030",
+        "employee_031",
+        "employee_032",
+        "employee_033",
+        "employee_034",
+        "employee_035",
+        "employee_036",
+        "employee_037",
+        "employee_038",
+        "employee_039",
+        "employee_040",
+        "employee_041",
+        "employee_042",
+        "employee_043",
+        "employee_044",
+        "employee_045",
+        "employee_046",
+        "employee_047",
+        "employee_048",
+        "employee_049",
+        "employee_050",
+        "employee_051",
+        "employee_052",
+        "employee_053",
+        "employee_054",
+        "employee_055",
+        "employee_056",
+        "employee_057",
+        "employee_058",
+        "employee_059",
+        "employee_060",
+        "employee_061",
+        "employee_062",
+        "employee_063",
+        "employee_064",
+        "employee_065",
+        "employee_066",
+        "employee_067",
+        "employee_068",
+        "employee_069",
+        "employee_070",
+        "employee_071",
+        "employee_072",
+        "employee_073",
+        "employee_074",
+        "employee_075",
+        "employee_076",
+        "employee_077",
+        "employee_078",
+        "employee_079",
+        "employee_080",
+        "employee_081",
+        "employee_082",
+        "employee_083",
+        "employee_084",
+        "employee_085",
+        "employee_086",
+        "employee_087",
+        "employee_088",
+        "employee_089",
+        "employee_090",
+        "employee_091",
+        "employee_092",
+        "employee_093",
+        "employee_094",
+        "employee_095",
+        "employee_096",
+        "employee_097",
+        "employee_098",
+        "employee_099",
+        "employee_100"
+      ],
+      "limit_minutes": 9000
+    },
+    {
+      "id": "rest",
+      "type": "min_rest_minutes",
+      "employee_ids": [
+        "employee_001",
+        "employee_002",
+        "employee_003",
+        "employee_004",
+        "employee_005",
+        "employee_006",
+        "employee_007",
+        "employee_008",
+        "employee_009",
+        "employee_010",
+        "employee_011",
+        "employee_012",
+        "employee_013",
+        "employee_014",
+        "employee_015",
+        "employee_016",
+        "employee_017",
+        "employee_018",
+        "employee_019",
+        "employee_020",
+        "employee_021",
+        "employee_022",
+        "employee_023",
+        "employee_024",
+        "employee_025",
+        "employee_026",
+        "employee_027",
+        "employee_028",
+        "employee_029",
+        "employee_030",
+        "employee_031",
+        "employee_032",
+        "employee_033",
+        "employee_034",
+        "employee_035",
+        "employee_036",
+        "employee_037",
+        "employee_038",
+        "employee_039",
+        "employee_040",
+        "employee_041",
+        "employee_042",
+        "employee_043",
+        "employee_044",
+        "employee_045",
+        "employee_046",
+        "employee_047",
+        "employee_048",
+        "employee_049",
+        "employee_050",
+        "employee_051",
+        "employee_052",
+        "employee_053",
+        "employee_054",
+        "employee_055",
+        "employee_056",
+        "employee_057",
+        "employee_058",
+        "employee_059",
+        "employee_060",
+        "employee_061",
+        "employee_062",
+        "employee_063",
+        "employee_064",
+        "employee_065",
+        "employee_066",
+        "employee_067",
+        "employee_068",
+        "employee_069",
+        "employee_070",
+        "employee_071",
+        "employee_072",
+        "employee_073",
+        "employee_074",
+        "employee_075",
+        "employee_076",
+        "employee_077",
+        "employee_078",
+        "employee_079",
+        "employee_080",
+        "employee_081",
+        "employee_082",
+        "employee_083",
+        "employee_084",
+        "employee_085",
+        "employee_086",
+        "employee_087",
+        "employee_088",
+        "employee_089",
+        "employee_090",
+        "employee_091",
+        "employee_092",
+        "employee_093",
+        "employee_094",
+        "employee_095",
+        "employee_096",
+        "employee_097",
+        "employee_098",
+        "employee_099",
+        "employee_100"
+      ],
+      "limit_minutes": 660
+    },
+    {
+      "id": "consecutive",
+      "type": "max_consecutive_days",
+      "employee_ids": [
+        "employee_001",
+        "employee_002",
+        "employee_003",
+        "employee_004",
+        "employee_005",
+        "employee_006",
+        "employee_007",
+        "employee_008",
+        "employee_009",
+        "employee_010",
+        "employee_011",
+        "employee_012",
+        "employee_013",
+        "employee_014",
+        "employee_015",
+        "employee_016",
+        "employee_017",
+        "employee_018",
+        "employee_019",
+        "employee_020",
+        "employee_021",
+        "employee_022",
+        "employee_023",
+        "employee_024",
+        "employee_025",
+        "employee_026",
+        "employee_027",
+        "employee_028",
+        "employee_029",
+        "employee_030",
+        "employee_031",
+        "employee_032",
+        "employee_033",
+        "employee_034",
+        "employee_035",
+        "employee_036",
+        "employee_037",
+        "employee_038",
+        "employee_039",
+        "employee_040",
+        "employee_041",
+        "employee_042",
+        "employee_043",
+        "employee_044",
+        "employee_045",
+        "employee_046",
+        "employee_047",
+        "employee_048",
+        "employee_049",
+        "employee_050",
+        "employee_051",
+        "employee_052",
+        "employee_053",
+        "employee_054",
+        "employee_055",
+        "employee_056",
+        "employee_057",
+        "employee_058",
+        "employee_059",
+        "employee_060",
+        "employee_061",
+        "employee_062",
+        "employee_063",
+        "employee_064",
+        "employee_065",
+        "employee_066",
+        "employee_067",
+        "employee_068",
+        "employee_069",
+        "employee_070",
+        "employee_071",
+        "employee_072",
+        "employee_073",
+        "employee_074",
+        "employee_075",
+        "employee_076",
+        "employee_077",
+        "employee_078",
+        "employee_079",
+        "employee_080",
+        "employee_081",
+        "employee_082",
+        "employee_083",
+        "employee_084",
+        "employee_085",
+        "employee_086",
+        "employee_087",
+        "employee_088",
+        "employee_089",
+        "employee_090",
+        "employee_091",
+        "employee_092",
+        "employee_093",
+        "employee_094",
+        "employee_095",
+        "employee_096",
+        "employee_097",
+        "employee_098",
+        "employee_099",
+        "employee_100"
+      ],
+      "limit_days": 5
+    },
+    {
+      "id": "week_1",
+      "type": "scheduled_minutes_bounds",
+      "employee_ids": [
+        "employee_001",
+        "employee_002",
+        "employee_003",
+        "employee_004",
+        "employee_005",
+        "employee_006",
+        "employee_007",
+        "employee_008",
+        "employee_009",
+        "employee_010",
+        "employee_011",
+        "employee_012",
+        "employee_013",
+        "employee_014",
+        "employee_015",
+        "employee_016",
+        "employee_017",
+        "employee_018",
+        "employee_019",
+        "employee_020",
+        "employee_021",
+        "employee_022",
+        "employee_023",
+        "employee_024",
+        "employee_025",
+        "employee_026",
+        "employee_027",
+        "employee_028",
+        "employee_029",
+        "employee_030",
+        "employee_031",
+        "employee_032",
+        "employee_033",
+        "employee_034",
+        "employee_035",
+        "employee_036",
+        "employee_037",
+        "employee_038",
+        "employee_039",
+        "employee_040",
+        "employee_041",
+        "employee_042",
+        "employee_043",
+        "employee_044",
+        "employee_045",
+        "employee_046",
+        "employee_047",
+        "employee_048",
+        "employee_049",
+        "employee_050",
+        "employee_051",
+        "employee_052",
+        "employee_053",
+        "employee_054",
+        "employee_055",
+        "employee_056",
+        "employee_057",
+        "employee_058",
+        "employee_059",
+        "employee_060",
+        "employee_061",
+        "employee_062",
+        "employee_063",
+        "employee_064",
+        "employee_065",
+        "employee_066",
+        "employee_067",
+        "employee_068",
+        "employee_069",
+        "employee_070",
+        "employee_071",
+        "employee_072",
+        "employee_073",
+        "employee_074",
+        "employee_075",
+        "employee_076",
+        "employee_077",
+        "employee_078",
+        "employee_079",
+        "employee_080",
+        "employee_081",
+        "employee_082",
+        "employee_083",
+        "employee_084",
+        "employee_085",
+        "employee_086",
+        "employee_087",
+        "employee_088",
+        "employee_089",
+        "employee_090",
+        "employee_091",
+        "employee_092",
+        "employee_093",
+        "employee_094",
+        "employee_095",
+        "employee_096",
+        "employee_097",
+        "employee_098",
+        "employee_099",
+        "employee_100"
+      ],
+      "interval": {
+        "start": "2026-10-01T00:00:00+09:00",
+        "end": "2026-10-08T00:00:00+09:00"
+      },
+      "min_minutes": 900,
+      "max_minutes": 2250
+    },
+    {
+      "id": "week_2",
+      "type": "scheduled_minutes_bounds",
+      "employee_ids": [
+        "employee_001",
+        "employee_002",
+        "employee_003",
+        "employee_004",
+        "employee_005",
+        "employee_006",
+        "employee_007",
+        "employee_008",
+        "employee_009",
+        "employee_010",
+        "employee_011",
+        "employee_012",
+        "employee_013",
+        "employee_014",
+        "employee_015",
+        "employee_016",
+        "employee_017",
+        "employee_018",
+        "employee_019",
+        "employee_020",
+        "employee_021",
+        "employee_022",
+        "employee_023",
+        "employee_024",
+        "employee_025",
+        "employee_026",
+        "employee_027",
+        "employee_028",
+        "employee_029",
+        "employee_030",
+        "employee_031",
+        "employee_032",
+        "employee_033",
+        "employee_034",
+        "employee_035",
+        "employee_036",
+        "employee_037",
+        "employee_038",
+        "employee_039",
+        "employee_040",
+        "employee_041",
+        "employee_042",
+        "employee_043",
+        "employee_044",
+        "employee_045",
+        "employee_046",
+        "employee_047",
+        "employee_048",
+        "employee_049",
+        "employee_050",
+        "employee_051",
+        "employee_052",
+        "employee_053",
+        "employee_054",
+        "employee_055",
+        "employee_056",
+        "employee_057",
+        "employee_058",
+        "employee_059",
+        "employee_060",
+        "employee_061",
+        "employee_062",
+        "employee_063",
+        "employee_064",
+        "employee_065",
+        "employee_066",
+        "employee_067",
+        "employee_068",
+        "employee_069",
+        "employee_070",
+        "employee_071",
+        "employee_072",
+        "employee_073",
+        "employee_074",
+        "employee_075",
+        "employee_076",
+        "employee_077",
+        "employee_078",
+        "employee_079",
+        "employee_080",
+        "employee_081",
+        "employee_082",
+        "employee_083",
+        "employee_084",
+        "employee_085",
+        "employee_086",
+        "employee_087",
+        "employee_088",
+        "employee_089",
+        "employee_090",
+        "employee_091",
+        "employee_092",
+        "employee_093",
+        "employee_094",
+        "employee_095",
+        "employee_096",
+        "employee_097",
+        "employee_098",
+        "employee_099",
+        "employee_100"
+      ],
+      "interval": {
+        "start": "2026-10-08T00:00:00+09:00",
+        "end": "2026-10-15T00:00:00+09:00"
+      },
+      "min_minutes": 900,
+      "max_minutes": 2250
+    },
+    {
+      "id": "week_3",
+      "type": "scheduled_minutes_bounds",
+      "employee_ids": [
+        "employee_001",
+        "employee_002",
+        "employee_003",
+        "employee_004",
+        "employee_005",
+        "employee_006",
+        "employee_007",
+        "employee_008",
+        "employee_009",
+        "employee_010",
+        "employee_011",
+        "employee_012",
+        "employee_013",
+        "employee_014",
+        "employee_015",
+        "employee_016",
+        "employee_017",
+        "employee_018",
+        "employee_019",
+        "employee_020",
+        "employee_021",
+        "employee_022",
+        "employee_023",
+        "employee_024",
+        "employee_025",
+        "employee_026",
+        "employee_027",
+        "employee_028",
+        "employee_029",
+        "employee_030",
+        "employee_031",
+        "employee_032",
+        "employee_033",
+        "employee_034",
+        "employee_035",
+        "employee_036",
+        "employee_037",
+        "employee_038",
+        "employee_039",
+        "employee_040",
+        "employee_041",
+        "employee_042",
+        "employee_043",
+        "employee_044",
+        "employee_045",
+        "employee_046",
+        "employee_047",
+        "employee_048",
+        "employee_049",
+        "employee_050",
+        "employee_051",
+        "employee_052",
+        "employee_053",
+        "employee_054",
+        "employee_055",
+        "employee_056",
+        "employee_057",
+        "employee_058",
+        "employee_059",
+        "employee_060",
+        "employee_061",
+        "employee_062",
+        "employee_063",
+        "employee_064",
+        "employee_065",
+        "employee_066",
+        "employee_067",
+        "employee_068",
+        "employee_069",
+        "employee_070",
+        "employee_071",
+        "employee_072",
+        "employee_073",
+        "employee_074",
+        "employee_075",
+        "employee_076",
+        "employee_077",
+        "employee_078",
+        "employee_079",
+        "employee_080",
+        "employee_081",
+        "employee_082",
+        "employee_083",
+        "employee_084",
+        "employee_085",
+        "employee_086",
+        "employee_087",
+        "employee_088",
+        "employee_089",
+        "employee_090",
+        "employee_091",
+        "employee_092",
+        "employee_093",
+        "employee_094",
+        "employee_095",
+        "employee_096",
+        "employee_097",
+        "employee_098",
+        "employee_099",
+        "employee_100"
+      ],
+      "interval": {
+        "start": "2026-10-15T00:00:00+09:00",
+        "end": "2026-10-22T00:00:00+09:00"
+      },
+      "min_minutes": 900,
+      "max_minutes": 2250
+    },
+    {
+      "id": "week_4",
+      "type": "scheduled_minutes_bounds",
+      "employee_ids": [
+        "employee_001",
+        "employee_002",
+        "employee_003",
+        "employee_004",
+        "employee_005",
+        "employee_006",
+        "employee_007",
+        "employee_008",
+        "employee_009",
+        "employee_010",
+        "employee_011",
+        "employee_012",
+        "employee_013",
+        "employee_014",
+        "employee_015",
+        "employee_016",
+        "employee_017",
+        "employee_018",
+        "employee_019",
+        "employee_020",
+        "employee_021",
+        "employee_022",
+        "employee_023",
+        "employee_024",
+        "employee_025",
+        "employee_026",
+        "employee_027",
+        "employee_028",
+        "employee_029",
+        "employee_030",
+        "employee_031",
+        "employee_032",
+        "employee_033",
+        "employee_034",
+        "employee_035",
+        "employee_036",
+        "employee_037",
+        "employee_038",
+        "employee_039",
+        "employee_040",
+        "employee_041",
+        "employee_042",
+        "employee_043",
+        "employee_044",
+        "employee_045",
+        "employee_046",
+        "employee_047",
+        "employee_048",
+        "employee_049",
+        "employee_050",
+        "employee_051",
+        "employee_052",
+        "employee_053",
+        "employee_054",
+        "employee_055",
+        "employee_056",
+        "employee_057",
+        "employee_058",
+        "employee_059",
+        "employee_060",
+        "employee_061",
+        "employee_062",
+        "employee_063",
+        "employee_064",
+        "employee_065",
+        "employee_066",
+        "employee_067",
+        "employee_068",
+        "employee_069",
+        "employee_070",
+        "employee_071",
+        "employee_072",
+        "employee_073",
+        "employee_074",
+        "employee_075",
+        "employee_076",
+        "employee_077",
+        "employee_078",
+        "employee_079",
+        "employee_080",
+        "employee_081",
+        "employee_082",
+        "employee_083",
+        "employee_084",
+        "employee_085",
+        "employee_086",
+        "employee_087",
+        "employee_088",
+        "employee_089",
+        "employee_090",
+        "employee_091",
+        "employee_092",
+        "employee_093",
+        "employee_094",
+        "employee_095",
+        "employee_096",
+        "employee_097",
+        "employee_098",
+        "employee_099",
+        "employee_100"
+      ],
+      "interval": {
+        "start": "2026-10-22T00:00:00+09:00",
+        "end": "2026-10-29T00:00:00+09:00"
+      },
+      "min_minutes": 900,
+      "max_minutes": 2250
+    },
+    {
+      "id": "week_5",
+      "type": "scheduled_minutes_bounds",
+      "employee_ids": [
+        "employee_001",
+        "employee_002",
+        "employee_003",
+        "employee_004",
+        "employee_005",
+        "employee_006",
+        "employee_007",
+        "employee_008",
+        "employee_009",
+        "employee_010",
+        "employee_011",
+        "employee_012",
+        "employee_013",
+        "employee_014",
+        "employee_015",
+        "employee_016",
+        "employee_017",
+        "employee_018",
+        "employee_019",
+        "employee_020",
+        "employee_021",
+        "employee_022",
+        "employee_023",
+        "employee_024",
+        "employee_025",
+        "employee_026",
+        "employee_027",
+        "employee_028",
+        "employee_029",
+        "employee_030",
+        "employee_031",
+        "employee_032",
+        "employee_033",
+        "employee_034",
+        "employee_035",
+        "employee_036",
+        "employee_037",
+        "employee_038",
+        "employee_039",
+        "employee_040",
+        "employee_041",
+        "employee_042",
+        "employee_043",
+        "employee_044",
+        "employee_045",
+        "employee_046",
+        "employee_047",
+        "employee_048",
+        "employee_049",
+        "employee_050",
+        "employee_051",
+        "employee_052",
+        "employee_053",
+        "employee_054",
+        "employee_055",
+        "employee_056",
+        "employee_057",
+        "employee_058",
+        "employee_059",
+        "employee_060",
+        "employee_061",
+        "employee_062",
+        "employee_063",
+        "employee_064",
+        "employee_065",
+        "employee_066",
+        "employee_067",
+        "employee_068",
+        "employee_069",
+        "employee_070",
+        "employee_071",
+        "employee_072",
+        "employee_073",
+        "employee_074",
+        "employee_075",
+        "employee_076",
+        "employee_077",
+        "employee_078",
+        "employee_079",
+        "employee_080",
+        "employee_081",
+        "employee_082",
+        "employee_083",
+        "employee_084",
+        "employee_085",
+        "employee_086",
+        "employee_087",
+        "employee_088",
+        "employee_089",
+        "employee_090",
+        "employee_091",
+        "employee_092",
+        "employee_093",
+        "employee_094",
+        "employee_095",
+        "employee_096",
+        "employee_097",
+        "employee_098",
+        "employee_099",
+        "employee_100"
+      ],
+      "interval": {
+        "start": "2026-10-29T00:00:00+09:00",
+        "end": "2026-10-31T00:00:00+09:00"
+      },
+      "min_minutes": 0,
+      "max_minutes": 2250
+    }
+  ],
+  "preferences": [
+    {
+      "id": "prefer_first",
+      "type": "prefer_work",
+      "employee_ids": [
+        "employee_002"
+      ],
+      "interval": {
+        "start": "2026-10-02T09:00:00+09:00",
+        "end": "2026-10-02T12:00:00+09:00"
+      },
+      "penalty_per_minute": 1
+    },
+    {
+      "id": "avoid_first",
+      "type": "avoid_work",
+      "employee_ids": [
+        "employee_001"
+      ],
+      "interval": {
+        "start": "2026-10-01T09:00:00+09:00",
+        "end": "2026-10-01T17:00:00+09:00"
+      },
+      "penalty_per_minute": 1
+    }
+  ],
+  "objectives": [
+    {
+      "id": "wishes",
+      "metric": "preference_penalty"
+    },
+    {
+      "id": "work",
+      "metric": "scheduled_minutes"
+    }
+  ],
+  "solver": {
+    "backend": "auto",
+    "time_limit_seconds": 60,
+    "seed": 0
+  }
+}

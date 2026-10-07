@@ -99,6 +99,8 @@ def measure(path, backend, time_limit_seconds=None):
         "input_solver_request": input_solver,
         "solver_response": response["solver"],
         "schema_version": response["schema_version"],
+        "replan_mode": metadata.get("replan_mode"),
+        "baseline_plan_id": (metadata.get("baseline") or {}).get("plan_id"),
         "status": response["status"],
         "verification": response["verification"],
         "objectives": response["objectives"],
@@ -149,6 +151,9 @@ def summarize(measurements, workers):
                 "attempts": len(rows),
                 "statuses": dict(sorted(Counter(item["status"] for item in rows).items())),
                 "verified_solutions": len(verified),
+                "complete_solutions": sum(
+                    item["status"] in {"OPTIMAL", "FEASIBLE"} for item in verified
+                ),
                 "solution_rate": len(verified) / len(rows),
                 "verified_suggestions": sum(
                     suggestion["response"]["status"] in {"OPTIMAL", "FEASIBLE"}

@@ -326,7 +326,7 @@ function acceptResponse(response, request, requestBoundaries = boundaries) {
   if (success && !response.solution.assignments.every(item => item && request.employees.some(employee => employee.id === item.employee_id) &&
       request.roles.some(role => role.id === item.role_id) && requestBoundaries.some(value => Date.parse(value) === Date.parse(item.interval?.start)) &&
       requestBoundaries.some(value => Date.parse(value) === Date.parse(item.interval?.end)) && Date.parse(item.interval.start) < Date.parse(item.interval.end))) throw new Error("担当配置の参照または日時が不正です。");
-  if (request.schema_version === "0.3") {
+  if (["0.3", "0.4"].includes(request.schema_version)) {
     if (!success) { if (response.shortage_summary !== null) throw new Error("計画がない応答に不足集計があります。"); return; }
     const summary = response.shortage_summary;
     if (!summary || typeof summary.proven_minimal !== "boolean" || !Number.isSafeInteger(summary.total_person_minutes) || !Array.isArray(summary.shortages)) throw new Error("不足集計が不正です。");
@@ -572,7 +572,7 @@ async function calculateJSON() {
     ]);
     if (token !== generation) return;
     const input = JSON.parse(text);
-    const expected = {...input, schema_version: ["0.2", "0.3"].includes(input?.schema_version) ? input.schema_version : "0.1", request_id: typeof input?.request_id === "string" ? input.request_id : null};
+    const expected = {...input, schema_version: ["0.2", "0.3", "0.4"].includes(input?.schema_version) ? input.schema_version : "0.1", request_id: typeof input?.request_id === "string" ? input.request_id : null};
     const requestBoundaries = ["OPTIMAL", "FEASIBLE", "PARTIAL"].includes(result.status) ?
       [input.planning_window.start, ...jsonSlots(input).map(slot => new Date(slot.end).toISOString())] : [];
     acceptResponse(result, expected, requestBoundaries);

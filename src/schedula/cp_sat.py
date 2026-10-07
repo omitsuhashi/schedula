@@ -48,7 +48,7 @@ def prepare_roster(model, problem):
             coverage[candidate.employee_id, slot].append(variable)
     for variables in by_day.values():
         model.add(sum(variables) <= 1)
-    if problem.request["schema_version"] in {"0.2", "0.3"}:
+    if problem.request["schema_version"] in {"0.2", "0.3", "0.4"}:
         for candidates in by_employee.values():
             model.add_no_overlap(
                 model.new_optional_fixed_size_interval_var(
@@ -68,6 +68,16 @@ def prepare_roster(model, problem):
         for employee in constraint["employee_ids"]:
             if kind == "max_scheduled_minutes":
                 model.add(scheduled.get(employee, 0) <= int(constraint["limit_minutes"]))
+            elif kind == "scheduled_minutes_bounds":
+                start, end = grid.interval(constraint["interval"], "/constraints")
+                minutes = sum(
+                    len(c.work_slots & set(range(start, end))) * grid.slot_minutes * shifts[c.id]
+                    for c in by_employee[employee]
+                )
+                if "min_minutes" in constraint:
+                    model.add(minutes >= int(constraint["min_minutes"]))
+                if "max_minutes" in constraint:
+                    model.add(minutes <= int(constraint["max_minutes"]))
             elif kind == "min_rest_minutes":
                 rest = timedelta(minutes=int(constraint["limit_minutes"]))
                 candidates = by_employee[employee]
@@ -132,7 +142,7 @@ def prepare(problem, cp_model):
                     by_employee[employee].append(variable)
                     by_slot[employee, slot].append((role, variable))
                     by_role[slot, role].append(variable)
-            if problem.request["schema_version"] == "0.3":
+            if problem.request["schema_version"] in {"0.3", "0.4"}:
                 shortage = model.new_int_var(0, count, f"shortage_{slot}_{role}")
                 model.add(sum(by_role[slot, role]) + shortage == count)
                 shortages.append(shortage)
@@ -188,12 +198,27 @@ def prepare(problem, cp_model):
         "role_switches": sum(variable for values in switches.values() for variable in values),
         "scheduled_minutes": sum(scheduled.values()),
     }
-    if problem.request["schema_version"] in {"0.2", "0.3"}:
+    for index, preference in enumerate(problem.request["preferences"]):
+        if preference["type"] == "avoid_role":
+            continue
+        start, end = problem.grid.interval(preference["interval"], f"/preferences/{index}/interval")
+        slots = set(range(start, end))
+        minutes = sum(
+            len(c.work_slots & slots) * problem.grid.slot_minutes * shifts[c.id]
+            for c in problem.candidates
+            if c.employee_id in preference["employee_ids"]
+        )
+        if preference["type"] == "prefer_work":
+            minutes = (end - start) * problem.grid.slot_minutes * len(
+                preference["employee_ids"]
+            ) - minutes
+        expressions["preference_penalty"] += minutes * int(preference["penalty_per_minute"])
+    if problem.request["schema_version"] in {"0.2", "0.3", "0.4"}:
         from .extensions import prepare as prepare_extensions
 
         expressions.update(prepare_extensions(model, problem, assignments, shifts, scheduled))
     objectives = tuple(expressions[o["metric"]] for o in problem.request["objectives"])
-    if problem.request["schema_version"] == "0.3":
+    if problem.request["schema_version"] in {"0.3", "0.4"}:
         objectives = (sum(shortages) * problem.grid.slot_minutes, *objectives)
     if objectives:
         model.minimize(objectives[0])
@@ -216,7 +241,7 @@ def run(problem, cp_model):
     deadline = start + budget
     best = None
     bounds = [None] * len(objectives)
-    partial = problem.request["schema_version"] == "0.3"
+    partial = problem.request["schema_version"] in {"0.3", "0.4"}
     for index, objective in enumerate(objectives or (None,)):
         path = (
             "/shortage_summary"
@@ -303,7 +328,7 @@ def run(problem, cp_model):
     best.search_elapsed_seconds = time.monotonic() - start
     best.preparation_elapsed_seconds = preparation_elapsed
     best.objective_bounds = tuple(bounds)
-    if problem.request["schema_version"] == "0.3":
+    if problem.request["schema_version"] in {"0.3", "0.4"}:
         if best.solution is not None:
             best.shortage_person_minutes = best.values[0]
             best.shortage_proven_minimal = best.values[0] == 0 or best.proven_optimal[0]

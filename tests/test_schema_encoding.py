@@ -6,7 +6,7 @@ from schedula import contract
 
 
 @pytest.mark.parametrize("kind", ["request", "response"])
-@pytest.mark.parametrize("schema_version", ["0.1", "0.2", "0.3"])
+@pytest.mark.parametrize("schema_version", ["0.1", "0.2", "0.3", "0.4"])
 def test_schema_reading_with_cp932_default(kind, schema_version, monkeypatch):
     schema_bytes = (
         contract.files("schedula")
@@ -21,5 +21,5 @@ def test_schema_reading_with_cp932_default(kind, schema_version, monkeypatch):
     schema = contract.get_schema(kind, schema_version)
     assert schema["$id"] == f"urn:schedula:{kind}:{schema_version}"
     if kind == "request":
-        expected = "需要は元の必要人数" if schema_version == "0.3" else "需要は厳密な人数"
+        expected = "需要は元の必要人数" if schema_version in {"0.3", "0.4"} else "需要は厳密な人数"
         assert expected in schema["description"]

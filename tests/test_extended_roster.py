@@ -305,8 +305,8 @@ def test_extended_templates_filter_but_explicit_candidates_reject():
     assert_response(solve(data), "INVALID_INPUT")
 
 
-@pytest.mark.parametrize("days,status", [(100, "OPTIMAL"), (101, "INVALID_INPUT")])
-def test_extended_template_limit_counts_discarded_shapes(days, status):
+@pytest.mark.parametrize("days", [100, 101])
+def test_extended_template_accepts_discarded_shapes_without_count_limit(days):
     employees = tuple(f"worker_{i}" for i in range(50))
     data = extended_request(employees=employees)
     data["shift_candidates"] = []
@@ -319,7 +319,7 @@ def test_extended_template_limit_counts_discarded_shapes(days, status):
             [[{"offset_minutes": 0, "duration_minutes": 90, "breaks": []}]],
         )
     ]
-    assert_response(solve(data), status)
+    assert_response(solve(data), "OPTIMAL")
 
 
 @pytest.mark.parametrize("mutation", ["first_offset", "adjacent", "too_many", "break_outside"])

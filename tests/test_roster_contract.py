@@ -256,8 +256,8 @@ def test_template_timezone_overflow_is_invalid_input(day, clock, zone):
     assert result["solver"]["backend"] == "none"
 
 
-@pytest.mark.parametrize("days,expected", [(100, "OPTIMAL"), (101, "INVALID_INPUT")])
-def test_preexpansion_limit_includes_discarded_candidates(days, expected):
+@pytest.mark.parametrize("days", [100, 101])
+def test_preexpansion_accepts_discarded_candidates_without_count_limit(days):
     data = request(employees=tuple(f"worker_{i}" for i in range(50)))
     data["shift_candidates"] = []
     dates = tuple(
@@ -265,11 +265,8 @@ def test_preexpansion_limit_includes_discarded_candidates(days, expected):
     )
     data["shift_templates"] = [template(tuple(e["id"] for e in data["employees"]), dates)]
     result = solve(data)
-    assert_response(result, expected)
-    if expected == "INVALID_INPUT":
-        assert result["diagnostics"][0]["code"] == "INPUT_LIMIT"
-    else:
-        assert len(normalize(data).candidates) == 50
+    assert_response(result, "OPTIMAL")
+    assert len(normalize(data).candidates) == 50
 
 
 @pytest.mark.parametrize(

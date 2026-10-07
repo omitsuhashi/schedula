@@ -511,7 +511,10 @@ def test_wheel_without_ortools_reports_unavailable_and_preserves_flow(tmp_path):
 import importlib.util, json, pathlib, subprocess, sys
 assert importlib.util.find_spec('ortools') is None
 import schedula
-from schedula.contract import schema_errors
+from schedula import get_schema, verify, make_baseline
+from jsonschema import Draft202012Validator
+def schema_errors(kind, value):
+    return list(Draft202012Validator(get_schema(kind, value['schema_version'])).iter_errors(value))
 root = pathlib.Path(sys.argv[1])
 assert str(root) not in schedula.__file__
 request = json.loads((root / 'examples/assignment.json').read_text(encoding='utf-8'))
@@ -538,6 +541,40 @@ cli = subprocess.run(
 )
 assert cli.returncode == 2 and cli.stderr == ''
 assert json.loads(cli.stdout)['status'] == 'BACKEND_UNAVAILABLE'
+saved = json.loads((root / 'examples/roster_conditions.solution.json').read_text())
+request = json.loads((root / 'examples/roster_conditions.json').read_text())
+assert verify(request, saved)['status'] == 'VALID'
+checked = verify(request, saved)
+assert checked['objectives'][0]['value'] == 0 and not checked['objectives'][0]['proven_optimal']
+assert not checked['shortage_summary']['proven_minimal']
+for kind in ('request','response','solution','verification'):
+    Draft202012Validator.check_schema(get_schema(kind, '0.4'))
+partial_solution = {**saved, 'assignments': []}
+assert verify(request, partial_solution)['status'] == 'PARTIAL'
+invalid_solution = json.loads(json.dumps(saved))
+invalid_solution['assignments'][0]['employee_id'] = 'missing'
+assert verify(request, invalid_solution)['status'] == 'INVALID_PLAN'
+invalid_request = {**request, 'constraints': [{'id':'invalid','type':'scheduled_minutes_bounds',
+    'employee_ids':['alice'],'interval':request['constraints'][0]['interval'],
+    'min_minutes':91,'max_minutes':90}]}
+assert verify(invalid_request, saved)['status'] == 'INVALID_INPUT'
+for index in range(3):
+    snapshot = make_baseline(request, saved, f'saved_{index}')
+    assert 'baseline' not in snapshot['source_request']
+    request = {**request, 'baseline': json.loads(json.dumps(snapshot)),
+               'replan_mode':'preserve_assigned'}
+    assert verify(request, saved)['status'] == 'VALID'
+assert schedula.solve(request)['status'] == 'BACKEND_UNAVAILABLE'
+for filename in ('overnight.json', 'split_roster.json'):
+    request = json.loads((root / 'examples' / filename).read_text())
+    candidate = request['shift_candidates'][0]
+    solution = {'shifts':[{'candidate_id':candidate['id'],'employee_id':candidate['employee_id'],
+        'work_day':candidate['segments'][0]['interval']['start'][:10],
+        'segments':candidate['segments']}],
+        'assignments':[{'employee_id':candidate['employee_id'],'role_id':d['role_id'],
+            'interval':d['interval']} for d in request['demand']]}
+    assert verify(request, solution)['status'] == 'VALID'
+assert 'ortools' not in sys.modules
 print('isolated wheel: flow OPTIMAL; CP-SAT BACKEND_UNAVAILABLE; incompatible flow INVALID_INPUT')
 """
     result = subprocess.run(

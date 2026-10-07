@@ -2,7 +2,7 @@
   "type": "object",
   "properties": {
     "schema_version": {
-      "const": "0.2"
+      "const": "0.4"
     },
     "request_id": {
       "type": [
@@ -14,6 +14,7 @@
       "enum": [
         "OPTIMAL",
         "FEASIBLE",
+        "PARTIAL",
         "INFEASIBLE",
         "UNKNOWN",
         "INVALID_INPUT",
@@ -417,6 +418,16 @@
           "additionalProperties": false
         }
       ]
+    },
+    "shortage_summary": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/shortage_summary"
+        }
+      ]
     }
   },
   "required": [
@@ -431,7 +442,8 @@
     "stats",
     "fairness_summary",
     "change_summary",
-    "diagnosis_result"
+    "diagnosis_result",
+    "shortage_summary"
   ],
   "additionalProperties": false,
   "$defs": {
@@ -601,6 +613,68 @@
         "facts"
       ],
       "additionalProperties": false
+    },
+    "shortage_summary": {
+      "type": "object",
+      "properties": {
+        "total_person_minutes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "proven_minimal": {
+          "type": "boolean"
+        },
+        "shortages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "demand_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+              },
+              "role_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+              },
+              "interval": {
+                "$ref": "#/$defs/interval"
+              },
+              "required_people": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 250
+              },
+              "assigned_people": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 249
+              },
+              "missing_people": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 250
+              }
+            },
+            "required": [
+              "demand_id",
+              "role_id",
+              "interval",
+              "required_people",
+              "assigned_people",
+              "missing_people"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 150000
+        }
+      },
+      "required": [
+        "total_person_minutes",
+        "proven_minimal",
+        "shortages"
+      ],
+      "additionalProperties": false
     }
   },
   "allOf": [
@@ -610,7 +684,8 @@
           "status": {
             "enum": [
               "OPTIMAL",
-              "FEASIBLE"
+              "FEASIBLE",
+              "PARTIAL"
             ]
           }
         }
@@ -642,6 +717,9 @@
                 ]
               }
             }
+          },
+          "shortage_summary": {
+            "$ref": "#/$defs/shortage_summary"
           }
         }
       },
@@ -667,6 +745,9 @@
             "type": "null"
           },
           "change_summary": {
+            "type": "null"
+          },
+          "shortage_summary": {
             "type": "null"
           }
         }
@@ -774,9 +855,104 @@
           }
         }
       }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "OPTIMAL",
+              "FEASIBLE"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "shortage_summary": {
+            "properties": {
+              "total_person_minutes": {
+                "const": 0
+              },
+              "shortages": {
+                "maxItems": 0
+              },
+              "proven_minimal": {
+                "const": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "PARTIAL"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "shortage_summary": {
+            "properties": {
+              "total_person_minutes": {
+                "minimum": 1
+              },
+              "shortages": {
+                "minItems": 1
+              }
+            }
+          },
+          "diagnosis_result": {
+            "properties": {
+              "status": {
+                "const": "NOT_APPLICABLE"
+              },
+              "reason": {
+                "const": "ORIGINAL_PARTIAL"
+              },
+              "conflict": {
+                "type": "null"
+              },
+              "suggestions": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "shortage_summary": {
+            "type": "object",
+            "properties": {
+              "proven_minimal": {
+                "const": false
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "objectives": {
+            "items": {
+              "properties": {
+                "proven_optimal": {
+                  "const": false
+                }
+              }
+            }
+          }
+        }
+      }
     }
   ],
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:schedula:response:0.2",
-  "title": "schedula Response 0.2"
+  "$id": "urn:schedula:response:0.4",
+  "title": "schedula Response 0.4"
 }

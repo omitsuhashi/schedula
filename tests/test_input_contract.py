@@ -21,7 +21,7 @@ def replace(request, path, value):
     ("path", "value"),
     [
         (["unexpected"], 1),
-        (["schema_version"], "0.4"),
+        (["schema_version"], "0.5"),
         (["planning_window", "unexpected"], True),
         (["planning_window", "timezone"], "unknown/zone"),
         (["planning_window", "timezone"], "/etc/passwd"),

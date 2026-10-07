@@ -288,8 +288,7 @@
         ],
         "additionalProperties": false
       },
-      "minItems": 0,
-      "maxItems": 5000
+      "minItems": 0
     },
     "shift_templates": {
       "type": "array",

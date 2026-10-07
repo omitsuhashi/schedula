@@ -18,7 +18,7 @@ def validate_options(request):
             path = f"/diagnosis/allowed_changes/{index}/edits/{j}"
             target = edit["json_pointer"]
             match = re.fullmatch(
-                r"/(demand|constraints)/(0|[1-9][0-9]*)/(required_people|limit_minutes|limit_days|limit_count)",
+                r"/(demand|constraints)/(0|[1-9][0-9]*)/(required_people|limit_minutes|limit_days|limit_count|min_minutes|max_minutes)",
                 target,
             )
             if match is None or target in seen:
@@ -64,7 +64,7 @@ def conditions(request):
     add("PLANNING_GRID", "/planning_window", interval=window)
     add(
         "DEMAND_LIMIT_AND_SINGLE_ASSIGNMENT"
-        if request["schema_version"] == "0.3"
+        if request["schema_version"] in {"0.3", "0.4"}
         else "EXACT_DEMAND_AND_SINGLE_ASSIGNMENT",
         "/problem_type",
     )
@@ -96,6 +96,8 @@ def conditions(request):
             add(code, f"/{name}/{i}", [item["id"]], item.get("interval"))
     if request.get("baseline"):
         add("BASELINE_STATES", "/baseline", [request["baseline"]["plan_id"]])
+    if request.get("replan_mode") == "preserve_assigned":
+        add("PRESERVE_ASSIGNED", "/replan_mode", [request["baseline"]["plan_id"]])
     return result
 
 
