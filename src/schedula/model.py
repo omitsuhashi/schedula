@@ -1,4 +1,5 @@
 import errno
+import time
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
@@ -100,6 +101,7 @@ class Problem:
     costs: dict[tuple[str, str], int]
     candidates: list[ShiftCandidate] = field(default_factory=list)
     baseline: dict | None = None
+    normalization_stats: dict = field(default_factory=dict)
 
 
 def unique(items, field, path):
@@ -125,6 +127,8 @@ def nonoverlapping(intervals, path):
 
 
 def normalize(request):
+    started = time.perf_counter()
+    expansion_seconds = 0.0
     validate_request(request)
     roster = request["problem_type"] == "roster"
     if not roster:
@@ -171,6 +175,10 @@ def normalize(request):
             reject("UNSUPPORTED_CONDITION", "assignment では未対応の制約です。", path + "/type")
         for employee_index, identifier in enumerate(constraint["employee_ids"]):
             reference(identifier, ids["employees"], f"{path}/employee_ids/{employee_index}")
+        if constraint["type"] == "scheduled_minutes_bounds" and (
+            constraint.get("min_minutes", 0) > constraint.get("max_minutes", 10000000)
+        ):
+            reject("INVALID_MINUTES_BOUNDS", "勤務量の下限が上限を超えています。", path)
     if request["solver"]["backend"] == "min_cost_flow" and (
         roster or request["constraints"] or "role_switches" in metrics or request.get("diagnosis")
     ):
@@ -207,6 +215,9 @@ def normalize(request):
             slots=slots,
         )
     grid = TimeGrid(start, end, zone, int(window["slot_minutes"]), slots)
+    for index, constraint in enumerate(request["constraints"]):
+        if constraint["type"] == "scheduled_minutes_bounds":
+            grid.interval(constraint["interval"], f"/constraints/{index}/interval")
     if roster and any(
         value.astimezone(zone).time() != datetime.min.time() for value in (start, end)
     ):
@@ -260,25 +271,38 @@ def normalize(request):
     costs = {}
     for index, item in enumerate(request["preferences"]):
         path = f"/preferences/{index}"
-        reference(item["role_id"], ids["roles"], path + "/role_id")
+        if item["type"] == "avoid_role":
+            reference(item["role_id"], ids["roles"], path + "/role_id")
+        else:
+            if not roster:
+                reject("UNSUPPORTED_CONDITION", "勤務日時の選好は roster で指定します。", path)
+            grid.interval(item["interval"], path + "/interval")
         for employee_index, identifier in enumerate(item["employee_ids"]):
             reference(identifier, ids["employees"], f"{path}/employee_ids/{employee_index}")
-            key = identifier, item["role_id"]
-            costs[key] = costs.get(key, 0) + int(item["penalty_per_minute"]) * grid.slot_minutes
+            if item["type"] == "avoid_role":
+                key = identifier, item["role_id"]
+                costs[key] = costs.get(key, 0) + int(item["penalty_per_minute"]) * grid.slot_minutes
     problem = Problem(request, grid, available, qualified, demand, costs)
     if roster:
         from .roster import expand_candidates, validate_history
 
         validate_history(request, grid)
+        expansion_start = time.perf_counter()
         problem.candidates = expand_candidates(request, grid)
-    if request["schema_version"] in {"0.2", "0.3"}:
+        expansion_seconds = time.perf_counter() - expansion_start
+    if request["schema_version"] in {"0.2", "0.3", "0.4"}:
         from .diagnosis import validate_options
         from .extensions import validate
 
         validate(problem)
         validate_options(request)
         bounds = [
-            slots * len(ids["employees"]) * max(costs.values(), default=0),
+            slots * len(ids["employees"]) * max(costs.values(), default=0)
+            + sum(
+                slots * grid.slot_minutes * len(p["employee_ids"]) * p["penalty_per_minute"]
+                for p in request["preferences"]
+                if p["type"] != "avoid_role"
+            ),
             sum(len(c.work_slots) * grid.slot_minutes for c in problem.candidates),
             slots * len(ids["employees"]),
             sum(
@@ -289,4 +313,8 @@ def normalize(request):
         ]
         if max(bounds) > 2**60 - 1:
             reject("INTEGER_EXPRESSION_LIMIT", "整数式の保守的な上界を超えています。")
+    problem.normalization_stats = {
+        "candidate_expansion_elapsed_seconds": expansion_seconds,
+        "input_validation_elapsed_seconds": time.perf_counter() - started - expansion_seconds,
+    }
     return problem

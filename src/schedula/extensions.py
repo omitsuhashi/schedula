@@ -3,7 +3,7 @@
 from collections import Counter, defaultdict
 from copy import deepcopy
 
-from .contract import InvalidInput, diagnostic, reject
+from .contract import InvalidInput, diagnostic, reject, schema_errors
 
 
 def states(grid, solution):
@@ -34,11 +34,18 @@ def validate(problem):
     request, grid = problem.request, problem.grid
     fairness, baseline = request.get("fairness"), request.get("baseline")
     fixed = request.get("fixed_parts", [])
+    mode = request.get("replan_mode")
     metrics = {objective["metric"] for objective in request["objectives"]}
     if request["problem_type"] != "roster" and (
-        fairness or baseline or fixed or metrics & {"fairness_deviation_minutes", "plan_changes"}
+        fairness
+        or baseline
+        or fixed
+        or mode
+        or metrics & {"fairness_deviation_minutes", "plan_changes"}
     ):
         reject("UNSUPPORTED_CONDITION", "勤務量・再計画の拡張は roster で指定します。")
+    if mode == "rebuild" and (fixed or "plan_changes" in metrics):
+        reject("REBUILD_CONFLICT", "rebuild は固定部分・変更最小化を持ちません。", "/replan_mode")
     employees = {employee["id"] for employee in request["employees"]}
     if bool(fairness) != ("fairness_deviation_minutes" in metrics):
         reject(
@@ -62,11 +69,17 @@ def validate(problem):
                 target["employee_id"], employees, f"/fairness/employee_targets/{index}/employee_id"
             )
     if not baseline:
-        if "plan_changes" in metrics or fixed:
+        if "plan_changes" in metrics or fixed or mode == "preserve_assigned":
             reject("MISSING_BASELINE", "変更目的と固定部分には基準計画を指定します。", "/baseline")
         return
     source = baseline["source_request"]
-    if request["schema_version"] == "0.2" and source.get("schema_version") == "0.3":
+    if request["schema_version"] != "0.4" and source.get("schema_version") == "0.4":
+        reject(
+            "UNSUPPORTED_BASELINE_VERSION",
+            "旧版の基準に契約0.4は指定できません。",
+            "/baseline/source_request/schema_version",
+        )
+    if request["schema_version"] == "0.2" and source.get("schema_version") in ("0.3", "0.4"):
         reject(
             "UNSUPPORTED_BASELINE_VERSION",
             "契約0.2の基準計画は0.1または0.2で指定します。",
@@ -80,7 +93,11 @@ def validate(problem):
         )
     try:
         old = normalize(source)
-        violations, _ = verify_solution(old, baseline["source_solution"], require_complete=True)
+        violations, _ = verify_solution(
+            old,
+            baseline["source_solution"],
+            require_complete=request["schema_version"] != "0.4",
+        )
     except InvalidInput as error:
         raise InvalidInput(
             [
@@ -123,7 +140,117 @@ def validate(problem):
         reference(part["employee_id"], old_employees, f"/fixed_parts/{index}/employee_id")
         grid.interval(part["interval"], f"/fixed_parts/{index}/interval")
     work, roles = states(grid, baseline["source_solution"])
+    if (
+        baseline.get("snapshot_origin")
+        and baseline["snapshot_origin"]["request_id"] != source["request_id"]
+    ):
+        reject(
+            "SNAPSHOT_ORIGIN_MISMATCH",
+            "スナップショットと元入力のIDが一致しません。",
+            "/baseline/snapshot_origin/request_id",
+        )
+    requirements = []
+    for index, part in enumerate(baseline.get("source_fixed_states", [])):
+        path = f"/baseline/source_fixed_states/{index}"
+        start, end = grid.interval(part["interval"], path + "/interval")
+        for component in ("work", "role"):
+            if component in part:
+                requirements.extend(
+                    (
+                        (part["employee_id"], slot),
+                        component,
+                        part[component],
+                        path,
+                        [part["employee_id"]],
+                    )
+                    for slot in range(start, end)
+                )
+    violations = check_fixed_states(requirements, work, roles)
+    if violations:
+        raise InvalidInput(violations)
     problem.baseline = {**baseline, "work": work, "roles": roles, "employee_ids": old_employees}
+
+
+def fixed_requirements(problem):
+    """担当済み枠の自動固定と明示固定を、比較元の絶対状態へ解決する。"""
+    baseline = problem.baseline
+    if baseline is None:
+        return
+    if problem.request.get("replan_mode") == "preserve_assigned":
+        for key, role in sorted(baseline["roles"].items()):
+            yield key, "work", "work", "/replan_mode", [key[0]]
+            yield key, "role", role, "/replan_mode", [key[0], role]
+    for index, part in enumerate(problem.request.get("fixed_parts", [])):
+        path = f"/fixed_parts/{index}"
+        start, end = problem.grid.interval(part["interval"], path + "/interval")
+        for component in part["components"]:
+            values = baseline["work"] if component == "work" else baseline["roles"]
+            default = "off" if component == "work" else None
+            for slot in range(start, end):
+                key = part["employee_id"], slot
+                yield key, component, values.get(key, default), path, [part["id"], key[0]]
+
+
+def check_fixed_states(requirements, work, roles):
+    violations = []
+    for key, component, expected, path, related in requirements:
+        current = work.get(key, "off") if component == "work" else roles.get(key)
+        if current != expected and len(violations) < 1000:
+            violations.append(
+                diagnostic(
+                    "FIXED_PART_VIOLATION",
+                    "基準計画の固定部分が変更されています。",
+                    path,
+                    related,
+                    component=component,
+                    slot=key[1],
+                )
+            )
+    return violations
+
+
+def make_baseline(request: dict, solution: dict, plan_id: str) -> dict:
+    """契約0.4の解を再検証し、ネストを増やさず次の基準計画へ保存する。"""
+    from .model import normalize
+    from .verify import verify_plan
+
+    problem = normalize(request)
+    if request["schema_version"] != "0.4" or request["problem_type"] != "roster":
+        reject("UNSUPPORTED_CONDITION", "make_baseline は契約0.4の roster を受け取ります。")
+    violations, _, _ = verify_plan(problem, solution)
+    if violations:
+        raise InvalidInput(violations)
+    source = deepcopy(request)
+    for field in ("baseline", "fixed_parts", "replan_mode", "diagnosis"):
+        source.pop(field, None)
+    source["objectives"] = [o for o in source["objectives"] if o["metric"] != "plan_changes"]
+    resolved = defaultdict(dict)
+    for key, component, value, _, _ in fixed_requirements(problem):
+        resolved[key][component] = value
+    runs = []
+    for (employee, slot), components in sorted(resolved.items()):
+        if runs and runs[-1][0] == employee and runs[-1][2] == slot and runs[-1][3] == components:
+            runs[-1][2] += 1
+        else:
+            runs.append([employee, slot, slot + 1, components])
+    result = {
+        "plan_id": plan_id,
+        "source_request": source,
+        "source_solution": deepcopy(solution),
+        "source_fixed_states": [
+            {"employee_id": employee, "interval": problem.grid.output_interval(start, end), **parts}
+            for employee, start, end, parts in runs
+        ],
+        "snapshot_origin": {
+            "request_id": request["request_id"],
+            "baseline_plan_id": (request.get("baseline") or {}).get("plan_id"),
+            "replan_mode": request.get("replan_mode"),
+        },
+    }
+    errors = schema_errors("request", {**source, "baseline": result})
+    if errors:
+        raise InvalidInput(errors)
+    return result
 
 
 def prepare(model, problem, assignments, shifts, scheduled_by_employee):
@@ -142,6 +269,12 @@ def prepare(model, problem, assignments, shifts, scheduled_by_employee):
         expressions["fairness_deviation_minutes"] = sum(deviations)
     baseline = problem.baseline
     if baseline is None:
+        return expressions
+    if (
+        not request.get("fixed_parts")
+        and request.get("replan_mode") != "preserve_assigned"
+        and not any(o["metric"] == "plan_changes" for o in request["objectives"])
+    ):
         return expressions
     work, breaks, roles = defaultdict(list), defaultdict(list), defaultdict(list)
     for candidate in problem.candidates:
@@ -169,14 +302,9 @@ def prepare(model, problem, assignments, shifts, scheduled_by_employee):
         for key in sorted(roles.keys() | baseline["roles"].keys())
     ]
     expressions["plan_changes"] = sum(changed_work) + sum(changed_roles)
-    for index, part in enumerate(request.get("fixed_parts", [])):
-        start, end = grid.interval(part["interval"], f"/fixed_parts/{index}/interval")
-        for slot in range(start, end):
-            key = part["employee_id"], slot
-            if "work" in part["components"]:
-                model.add(work_match(key, baseline["work"].get(key, "off")) == 1)
-            if "role" in part["components"]:
-                model.add(role_match(key, baseline["roles"].get(key)) == 1)
+    for key, component, expected, _, _ in fixed_requirements(problem):
+        match = work_match(key, expected) if component == "work" else role_match(key, expected)
+        model.add(match == 1)
     return expressions
 
 
@@ -224,27 +352,5 @@ def evaluate(problem, solution):
             "role_changes": role_changes,
             "total_changes": work_changes + role_changes,
         }
-        for index, part in enumerate(problem.request.get("fixed_parts", [])):
-            start, end = problem.grid.interval(part["interval"], f"/fixed_parts/{index}/interval")
-            for component in part["components"]:
-                old, current = (
-                    (baseline["work"], work) if component == "work" else (baseline["roles"], roles)
-                )
-                default = "off" if component == "work" else None
-                for slot in range(start, end):
-                    key = part["employee_id"], slot
-                    if (
-                        old.get(key, default) != current.get(key, default)
-                        and len(violations) < 1000
-                    ):
-                        violations.append(
-                            diagnostic(
-                                "FIXED_PART_VIOLATION",
-                                "基準計画の固定部分が変更されています。",
-                                f"/fixed_parts/{index}",
-                                [part["id"], part["employee_id"]],
-                                component=component,
-                                slot=slot,
-                            )
-                        )
+        violations.extend(check_fixed_states(fixed_requirements(problem), work, roles))
     return violations, metrics, summaries

@@ -8,7 +8,7 @@ from itertools import islice
 
 from jsonschema import Draft202012Validator, FormatChecker
 
-SCHEMA_VERSIONS = ("0.1", "0.2", "0.3")
+SCHEMA_VERSIONS = ("0.1", "0.2", "0.3", "0.4")
 
 
 def schema_version_of(value):
@@ -114,10 +114,89 @@ def _date(value):
 
 
 def get_schema(kind, schema_version="0.1"):
-    if kind not in {"request", "response"}:
-        raise ValueError("request または response を指定します。")
+    if kind not in {"request", "response", "solution", "verification"}:
+        raise ValueError("request、response、solution、verification を指定します。")
     if schema_version not in SCHEMA_VERSIONS:
-        raise ValueError("schema_version は 0.1、0.2、0.3 のいずれかを指定します。")
+        raise ValueError("schema_version は 0.1、0.2、0.3、0.4 のいずれかを指定します。")
+    if kind in {"solution", "verification"}:
+        if kind == "solution":
+            schema = get_schema("response", schema_version)
+            return {
+                "$schema": schema["$schema"],
+                "$id": f"urn:schedula:solution:{schema_version}",
+                "$ref": "#/$defs/solution",
+                "$defs": schema["$defs"],
+            }
+        # 旧版にも同じ検証入口を提供し、配布済みの定義を再利用する。
+        schema = get_schema("response", "0.4")
+        properties = {
+            name: schema["properties"][name]
+            for name in (
+                "request_id",
+                "objectives",
+                "diagnostics",
+                "verification",
+                "stats",
+                "fairness_summary",
+                "change_summary",
+                "shortage_summary",
+            )
+        }
+        properties.update(
+            schema_version={"const": schema_version},
+            status={
+                "enum": ["VALID", "PARTIAL", "INVALID_INPUT", "INVALID_PLAN", "INTERNAL_ERROR"]
+            },
+            demand_satisfied={"type": ["boolean", "null"]},
+        )
+        properties["objectives"]["items"]["properties"]["proven_optimal"] = {"const": False}
+        definitions = {k: v for k, v in schema["$defs"].items() if k != "solution"}
+        definitions["shortage_summary"]["properties"]["proven_minimal"] = {"const": False}
+        rules = []
+        for statuses, performed, valid, complete in (
+            (["VALID"], True, True, True),
+            (["PARTIAL"], True, True, False),
+            (["INVALID_INPUT", "INTERNAL_ERROR"], False, None, None),
+            (["INVALID_PLAN"], True, False, None),
+        ):
+            expected = {
+                "verification": {
+                    "properties": {"performed": {"const": performed}, "valid": {"const": valid}}
+                },
+                "demand_satisfied": {"const": complete},
+            }
+            if valid:
+                expected["shortage_summary"] = {
+                    "type": "object",
+                    "properties": {
+                        "total_person_minutes": {"const": 0} if complete else {"minimum": 1}
+                    },
+                }
+            else:
+                expected.update(objectives={"maxItems": 0})
+                expected.update(
+                    {
+                        name: {"type": "null"}
+                        for name in ("shortage_summary", "fairness_summary", "change_summary")
+                    }
+                )
+            rules.append(
+                {
+                    "if": {"properties": {"status": {"enum": statuses}}},
+                    "then": {"properties": expected},
+                }
+            )
+        return {
+            "$schema": schema["$schema"],
+            "$id": f"urn:schedula:verification:{schema_version}",
+            "title": f"schedula Verification {schema_version}",
+            "type": "object",
+            "properties": properties,
+            "required": list(properties),
+            "additionalProperties": False,
+            "$defs": definitions,
+            "allOf": rules,
+        }
     return json.loads(
         files("schedula")
         .joinpath(f"schemas/{schema_version}/{kind}.schema.json")
@@ -127,9 +206,7 @@ def get_schema(kind, schema_version="0.1"):
 
 @lru_cache
 def _validator(kind, schema_version):
-    schema = get_schema("response" if kind == "solution" else kind, schema_version)
-    if kind == "solution":
-        schema = {"$ref": "#/$defs/solution", "$defs": schema["$defs"]}
+    schema = get_schema(kind, schema_version)
     Draft202012Validator.check_schema(schema)
     return Draft202012Validator(schema, format_checker=_FORMATS)
 

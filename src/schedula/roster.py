@@ -6,11 +6,9 @@ from itertools import product
 from .contract import reject
 from .model import ShiftCandidate, minute_datetime, nonoverlapping, reference, unique
 
-MAX_CANDIDATES = 5000
-
 
 def validate_history(request, grid):
-    extended = request["schema_version"] in {"0.2", "0.3"}
+    extended = request["schema_version"] in {"0.2", "0.3", "0.4"}
     first_day = grid.start.astimezone(grid.timezone).date().toordinal()
     for index, employee in enumerate(request["employees"]):
         path = f"/employees/{index}/history"
@@ -74,7 +72,7 @@ def local_start(day, clock, grid, path):
 
 def expand_candidates(request, grid):
     """元入力から有限候補を生成する。ソルバー用のテーブルは参照しない。"""
-    extended = request["schema_version"] in {"0.2", "0.3"}
+    extended = request["schema_version"] in {"0.2", "0.3", "0.4"}
     employees = {e["id"]: e for e in request["employees"]}
     available = {
         e["id"]: {
@@ -88,28 +86,6 @@ def expand_candidates(request, grid):
     identifiers = unique(request["shift_candidates"], "id", "/shift_candidates")
     templates = request.get("shift_templates", [])
     unique(templates, "id", "/shift_templates")
-    # 除外後の件数だけでなく、展開前の組合せ数も制限する。
-    attempts = len(request["shift_candidates"])
-    if attempts > MAX_CANDIDATES:
-        reject("INPUT_LIMIT", "勤務候補の展開数が5000件を超えています。", "/shift_candidates")
-    for index, template in enumerate(templates):
-        attempts += (
-            len(template["employee_ids"])
-            * len(template["dates"])
-            * len(template["start_times"])
-            * (
-                len(template["segment_options"])
-                if extended
-                else len(template["duration_minutes_options"])
-                * max(1, len(template["break_options"]))
-            )
-        )
-        if attempts > MAX_CANDIDATES:
-            reject(
-                "INPUT_LIMIT",
-                "勤務候補の展開数が5000件を超えています。",
-                f"/shift_templates/{index}",
-            )
     result = []
 
     def add(identifier, employee, segments, path, generated=False):

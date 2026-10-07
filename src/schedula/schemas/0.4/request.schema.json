@@ -2,7 +2,7 @@
   "type": "object",
   "properties": {
     "schema_version": {
-      "const": "0.2"
+      "const": "0.4"
     },
     "request_id": {
       "type": "string",
@@ -606,6 +606,60 @@
               "limit_minutes"
             ],
             "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+              },
+              "type": {
+                "const": "scheduled_minutes_bounds"
+              },
+              "employee_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+                },
+                "minItems": 1,
+                "maxItems": 250,
+                "uniqueItems": true
+              },
+              "interval": {
+                "$ref": "#/$defs/interval"
+              },
+              "min_minutes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10000000
+              },
+              "max_minutes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10000000
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "employee_ids",
+              "interval"
+            ],
+            "additionalProperties": false,
+            "anyOf": [
+              {
+                "required": [
+                  "min_minutes"
+                ]
+              },
+              {
+                "required": [
+                  "max_minutes"
+                ]
+              }
+            ]
           }
         ]
       },
@@ -615,43 +669,88 @@
     "preferences": {
       "type": "array",
       "items": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
-          },
-          "type": {
-            "const": "avoid_role"
-          },
-          "employee_ids": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+              },
+              "type": {
+                "const": "avoid_role"
+              },
+              "employee_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+                },
+                "minItems": 1,
+                "maxItems": 250,
+                "uniqueItems": true
+              },
+              "role_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+              },
+              "penalty_per_minute": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10000
+              }
             },
-            "minItems": 1,
-            "maxItems": 250,
-            "uniqueItems": true
+            "required": [
+              "id",
+              "type",
+              "employee_ids",
+              "role_id",
+              "penalty_per_minute"
+            ],
+            "additionalProperties": false
           },
-          "role_id": {
-            "type": "string",
-            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
-          },
-          "penalty_per_minute": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 10000
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+              },
+              "type": {
+                "enum": [
+                  "prefer_work",
+                  "avoid_work"
+                ]
+              },
+              "employee_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+                },
+                "minItems": 1,
+                "maxItems": 250,
+                "uniqueItems": true
+              },
+              "penalty_per_minute": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10000
+              },
+              "interval": {
+                "$ref": "#/$defs/interval"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "employee_ids",
+              "penalty_per_minute",
+              "interval"
+            ],
+            "additionalProperties": false
           }
-        },
-        "required": [
-          "id",
-          "type",
-          "employee_ids",
-          "role_id",
-          "penalty_per_minute"
-        ],
-        "additionalProperties": false
+        ]
       },
       "minItems": 0,
       "maxItems": 1000
@@ -761,6 +860,89 @@
         },
         "source_solution": {
           "type": "object"
+        },
+        "source_fixed_states": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "employee_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+              },
+              "interval": {
+                "$ref": "#/$defs/interval"
+              },
+              "work": {
+                "enum": [
+                  "off",
+                  "work",
+                  "break"
+                ]
+              },
+              "role": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "employee_id",
+              "interval"
+            ],
+            "anyOf": [
+              {
+                "required": [
+                  "work"
+                ]
+              },
+              {
+                "required": [
+                  "role"
+                ]
+              }
+            ],
+            "additionalProperties": false
+          }
+        },
+        "snapshot_origin": {
+          "type": "object",
+          "properties": {
+            "request_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+            },
+            "baseline_plan_id": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "replan_mode": {
+              "enum": [
+                "preserve_assigned",
+                "rebuild",
+                null
+              ]
+            }
+          },
+          "required": [
+            "request_id",
+            "baseline_plan_id",
+            "replan_mode"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -768,7 +950,12 @@
         "source_request",
         "source_solution"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "dependentRequired": {
+        "snapshot_origin": [
+          "source_fixed_states"
+        ]
+      }
     },
     "fixed_parts": {
       "type": "array",
@@ -873,6 +1060,12 @@
         "allowed_changes"
       ],
       "additionalProperties": false
+    },
+    "replan_mode": {
+      "enum": [
+        "preserve_assigned",
+        "rebuild"
+      ]
     }
   },
   "required": [
@@ -911,8 +1104,8 @@
       "additionalProperties": false
     }
   },
-  "description": "配列は明示する。需要は厳密な人数、未指定需要は0。未導入のモード・条件は意味検証で拒否する。",
+  "description": "配列は明示する。需要は元の必要人数を保持し、不足合計人分を最優先で最小化する。需要以外の必須条件は維持する。未指定需要は0。",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:schedula:request:0.2",
-  "title": "schedula Request 0.2"
+  "$id": "urn:schedula:request:0.4",
+  "title": "schedula Request 0.4"
 }

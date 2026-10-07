@@ -1,7 +1,80 @@
+import time
 from collections import Counter, defaultdict
 from datetime import timedelta
 
-from .contract import InvalidInput, check_json, diagnostic, parse_datetime, schema_errors
+from .contract import (
+    InvalidInput,
+    check_json,
+    diagnostic,
+    parse_datetime,
+    schema_errors,
+    schema_version_of,
+)
+
+
+def verify(request: dict, solution: dict) -> dict:
+    """JSON 型の編集解を検証する。探索と最適性の認定は行わない。"""
+    from .extensions import evaluate
+    from .model import normalize
+
+    started = time.perf_counter()
+    result = {
+        "schema_version": schema_version_of(request),
+        "request_id": request.get("request_id")
+        if isinstance(request, dict) and isinstance(request.get("request_id"), str)
+        else None,
+        "status": "INVALID_INPUT",
+        "verification": {"performed": False, "valid": None, "violations": []},
+        "demand_satisfied": None,
+        "objectives": [],
+        "shortage_summary": None,
+        "fairness_summary": None,
+        "change_summary": None,
+        "diagnostics": [],
+        "stats": {"elapsed_seconds": 0.0},
+    }
+    try:
+        problem = normalize(request)
+        violations, values, shortage = verify_plan(problem, solution)
+        result["verification"] = {
+            "performed": True,
+            "valid": not violations,
+            "violations": violations,
+        }
+        if violations:
+            result["status"] = "INVALID_PLAN"
+            result["diagnostics"] = violations
+        else:
+            complete = shortage["total_person_minutes"] == 0
+            result.update(
+                status="VALID" if complete else "PARTIAL",
+                demand_satisfied=complete,
+                shortage_summary={**shortage, "proven_minimal": False},
+            )
+            result["objectives"] = [
+                {**objective, "value": value, "proven_optimal": False}
+                for objective, value in zip(request["objectives"], values, strict=True)
+            ]
+            _, _, summaries = evaluate(problem, solution)
+            result.update(summaries)
+    except InvalidInput as error:
+        result["diagnostics"] = error.diagnostics
+    except Exception:
+        result.update(
+            status="INTERNAL_ERROR",
+            demand_satisfied=None,
+            objectives=[],
+            shortage_summary=None,
+            fairness_summary=None,
+            change_summary=None,
+            verification={"performed": False, "valid": None, "violations": []},
+            diagnostics=[diagnostic("INTERNAL_ERROR", "独立検証の処理に失敗しました。")],
+        )
+    result["stats"]["elapsed_seconds"] = time.perf_counter() - started
+    errors = schema_errors("verification", result)
+    if errors:
+        raise InvalidInput(errors)
+    return result
 
 
 def verify_shifts(request, grid, shifts, fail):
@@ -13,7 +86,7 @@ def verify_shifts(request, grid, shifts, fail):
     coverage, breaks = defaultdict(set), defaultdict(set)
     selected = defaultdict(list)
     scheduled = Counter()
-    extended = request["schema_version"] in {"0.2", "0.3"}
+    extended = request["schema_version"] in {"0.2", "0.3", "0.4"}
     for index, shift in enumerate(shifts):
         path = f"/shifts/{index}"
         identifier, employee = shift["candidate_id"], shift["employee_id"]
@@ -113,6 +186,30 @@ def verify_shifts(request, grid, shifts, fail):
                     actual_value=scheduled[employee],
                     limit=constraint["limit_minutes"],
                 )
+            elif kind == "scheduled_minutes_bounds":
+                start, end = grid.interval(constraint["interval"], path + "/interval")
+                minutes = len(coverage[employee] & set(range(start, end))) * grid.slot_minutes
+                for field, code, invalid in (
+                    (
+                        "min_minutes",
+                        "MIN_SCHEDULED_MINUTES_VIOLATION",
+                        minutes < constraint.get("min_minutes", 0),
+                    ),
+                    (
+                        "max_minutes",
+                        "MAX_SCHEDULED_MINUTES_VIOLATION",
+                        minutes > constraint.get("max_minutes", 10000000),
+                    ),
+                ):
+                    if invalid:
+                        fail(
+                            code,
+                            "評価区間の勤務量が必須の上下限に違反しています。",
+                            path,
+                            related,
+                            actual_value=minutes,
+                            limit=constraint[field],
+                        )
             elif kind == "min_rest_minutes":
                 previous = histories[employee]["last_shift_end"]
                 previous = parse_datetime(previous) if previous is not None else None
@@ -171,6 +268,8 @@ def verify_plan(problem, solution, *, require_complete=False):
         check_json(solution)
     except InvalidInput as error:
         return error.diagnostics, (), None
+    except RecursionError:
+        return [diagnostic("NON_JSON_VALUE", "解の階層が深すぎます。")], (), None
     violations = schema_errors("solution", solution, problem.request["schema_version"])
     if violations:
         return violations, (), None
@@ -253,8 +352,24 @@ def verify_plan(problem, solution, *, require_complete=False):
             actual[slot, role_id] += 1
         minutes = (end - start) * grid.slot_minutes
         for preference in request["preferences"]:
-            if employee_id in preference["employee_ids"] and role_id == preference["role_id"]:
+            if (
+                preference["type"] == "avoid_role"
+                and employee_id in preference["employee_ids"]
+                and role_id == preference["role_id"]
+            ):
                 penalty += minutes * int(preference["penalty_per_minute"])
+    for index, preference in enumerate(request["preferences"]):
+        if preference["type"] == "avoid_role":
+            continue
+        start, end = grid.interval(preference["interval"], f"/preferences/{index}/interval")
+        slots = set(range(start, end))
+        minutes = sum(
+            len(coverage.get(e, set()) & slots) * grid.slot_minutes
+            for e in preference["employee_ids"]
+        )
+        if preference["type"] == "prefer_work":
+            minutes = (end - start) * grid.slot_minutes * len(preference["employee_ids"]) - minutes
+        penalty += minutes * int(preference["penalty_per_minute"])
     for (employee_id, role_id), values in intervals.items():
         ordered = sorted(values)
         for (_, previous_end, previous_index), (start, _, index) in zip(
@@ -299,7 +414,8 @@ def verify_plan(problem, solution, *, require_complete=False):
     for slot, role_id in sorted(expected.keys() | actual.keys()):
         required, assigned = expected[slot, role_id], actual[slot, role_id]
         if assigned > required or (
-            assigned < required and (request["schema_version"] != "0.3" or require_complete)
+            assigned < required
+            and (request["schema_version"] not in {"0.3", "0.4"} or require_complete)
         ):
             code = "DEMAND_SHORTAGE" if assigned < required else "DEMAND_EXCESS"
             fail(
@@ -346,7 +462,7 @@ def verify_plan(problem, solution, *, require_complete=False):
         "role_switches": sum(switches.values()),
         "scheduled_minutes": sum(scheduled.values()),
     }
-    if request["schema_version"] in {"0.2", "0.3"}:
+    if request["schema_version"] in {"0.2", "0.3", "0.4"}:
         from .extensions import evaluate
 
         extension_violations, extension_metrics, _ = evaluate(problem, solution)

@@ -116,6 +116,10 @@ def test_wheel_installs_and_runs_library_and_cli_in_clean_environment(tmp_path, 
         assert "schedula/schemas/0.2/response.schema.json" in archive.namelist()
         assert "schedula/schemas/0.3/request.schema.json" in archive.namelist()
         assert "schedula/schemas/0.3/response.schema.json" in archive.namelist()
+        assert "schedula/schemas/0.4/request.schema.json" in archive.namelist()
+        assert "schedula/schemas/0.4/response.schema.json" in archive.namelist()
+        assert any(name.endswith("/licenses/LICENSE") for name in archive.namelist())
+        assert any(name.endswith("/licenses/THIRD_PARTY_NOTICES.md") for name in archive.namelist())
         assert not any("reference/" in name or "tests/" in name for name in archive.namelist())
     requirements = tmp_path / "runtime-requirements.txt"
     export = subprocess.run(
@@ -140,7 +144,10 @@ import json, pathlib, subprocess, sys
 import schedula
 root = pathlib.Path(sys.argv[1])
 assert str(root) not in schedula.__file__
-from schedula.contract import get_schema, schema_errors
+from schedula import get_schema, verify, make_baseline
+from jsonschema import Draft202012Validator
+def schema_errors(kind, value):
+    return list(Draft202012Validator(get_schema(kind, value['schema_version'])).iter_errors(value))
 assert get_schema("request")["$id"] == "urn:schedula:request:0.1"
 assert get_schema("response")["$id"] == "urn:schedula:response:0.1"
 assert get_schema("request", "0.2")["$id"] == "urn:schedula:request:0.2"
@@ -160,6 +167,9 @@ for filename, status, values in [
     ('diagnosis.json', 'INFEASIBLE', []),
     ('partial_assignment.json', 'PARTIAL', []),
     ('partial_roster.json', 'PARTIAL', [90]),
+    ('roster_conditions.json', 'OPTIMAL', [0, 180]),
+    ('partial_replan_preserve_assigned.json', 'PARTIAL', [90]),
+    ('partial_replan_rebuild.json', 'OPTIMAL', [180]),
 ]:
     path = root / 'examples' / filename
     request = json.loads(path.read_text(encoding='utf-8'))
@@ -180,6 +190,11 @@ for filename, status, values in [
                 assert response['shortage_summary']['total_person_minutes'] > 0
         else:
             assert response['solution'] is None and response['diagnostics']
+        if response['solution'] is not None:
+            checked = verify(request, response['solution'])
+            assert checked['status'] == ('PARTIAL' if status == 'PARTIAL' else 'VALID')
+            assert [o['value'] for o in checked['objectives']] == values
+            assert not any(o['proven_optimal'] for o in checked['objectives'])
 print('clean wheel: library and CLI; assignment, roster, infeasible, invalid input')
 """
     if dependencies == "requirements":

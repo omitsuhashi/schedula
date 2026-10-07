@@ -2,8 +2,12 @@
 
 技能・勤務可能時間・役割別需要・業務ルールから、担当配置（`assignment`）と
 出退勤・休憩を含む勤務計画（`roster`）の検証済み解を求める Python ライブラリと CLI です。
-JSON 契約0.1・0.2・0.3に対応し、独立した配置は最小費用流、
+JSON 契約0.1〜0.4に対応し、独立した配置は最小費用流、
 担当時間・担当切替を含む配置と勤務計画は CP-SAT を使用します。
+
+独自コード・文書・デモは[MIT](LICENSE)で、自力導入・組み込み・商用利用ができます。
+現在のリポジトリは非公開で、PyPI公開は未実施です。参照資料はこの許諾の対象外です。
+無料範囲、固定wheelの導入、依存表示、セキュリティ窓口と公開条件は[配布方針](docs/distribution.md)を参照してください。
 
 ## クリーンな環境から実行する
 
@@ -92,6 +96,27 @@ uv run --locked --extra cp-sat python -m schedula solve examples/partial_roster.
 入力・候補・目的を変更せずに版だけで不足を許容できるのは0.2→0.3です。
 0.1の勤務計画は `history.last_work_day` と `segments` / `segment_options` へ明示的に移行します。
 詳細は[契約0.3](docs/io-contract-partial.md)、実測と再実行は[検証記録](docs/evaluations/partial-plans.md)を参照してください。
+
+## 再計画・期間別勤務量・希望日時と編集後の検証
+
+契約0.4のrosterは、担当済み枠を保持する `preserve_assigned` と固定・変更最小化を外す `rebuild`、
+期間ごとの必須上下限 `scheduled_minutes_bounds`、`prefer_work` / `avoid_work` を扱います。
+同じ需要・業務条件・共通目的で方式ごとに `solve` を呼び、各案の不足・目的値・変更量と証明を比較します。
+
+```sh
+uv run --locked --extra cp-sat python -m schedula solve examples/roster_conditions.json
+uv run --locked --extra cp-sat python -m schedula solve examples/partial_replan_preserve_assigned.json
+uv run --locked --extra cp-sat python -m schedula solve examples/partial_replan_rebuild.json
+uv run --locked python -m schedula verify examples/roster_conditions.json examples/roster_conditions.solution.json
+```
+
+上下限・希望例の目的は `[0, 180]`。再計画例の固定案は不足30人分・`PARTIAL`・終了コード2、
+全体案は不足0・`OPTIMAL`です。公開 `verify(request, solution)` はOR-Toolsなしで保存済み・編集済み解を検証し、
+`VALID` / `PARTIAL` / `INVALID_INPUT` / `INVALID_PLAN` を分けます。検証だけでは最適性を付与しません。
+公開 `make_baseline(request, solution, plan_id)` で固定条件を保持した次の基準へ変換し、
+`get_schema("request" | "response" | "solution" | "verification", "0.4")` でSchemaを取得できます。
+詳細と保存・再計画の使い方は[契約0.4](docs/io-contract-replanning.md)、
+合成入力の実測は[結合・規模評価](docs/evaluations/roster-conditions.md)を参照してください。
 
 ## 入力を作る
 
@@ -194,7 +219,7 @@ PY
 | --- | --- | --- |
 | `OPTIMAL` | 検証成功を確認して解を採用する。指定した条件・候補・粒度・目的の範囲で最適 | 0 |
 | `FEASIBLE` | 検証成功と未証明の目的を確認し、採用または探索予算を増やして再計算する | 0 |
-| `PARTIAL` | 契約0.3の未完成の計画。不足一覧・合計人分・`proven_minimal` を読み、需要充足と検証成功を区別する | 2 |
+| `PARTIAL` | 契約0.3・0.4の未完成の計画。不足一覧・合計人分・`proven_minimal` を読み、需要充足と検証成功を区別する | 2 |
 | `INFEASIBLE` | 必須条件を満たす解がないと証明された。0.3では需要不足を許容しても計画を作れない。診断を確認する | 2 |
 | `UNKNOWN` | 解も不可能性の証明もない。予算や問題規模を見直す | 2 |
 | `INVALID_INPUT` | `code` / `json_pointer` / `related_ids` / `facts` を基に入力を修正する | 2 |
@@ -202,7 +227,7 @@ PY
 | `INTERNAL_ERROR` | 解を採用せず、入力・エンジン版・診断を保存して調査する | 2 |
 
 解を返すのは独立検証に成功した `OPTIMAL` / `FEASIBLE` / `PARTIAL` だけです。
-0.1・0.2は完全充足を求め、0.3だけが元需要を保持した不足付き計画を許容します。
+0.1・0.2は完全充足を求め、0.3・0.4だけが元需要を保持した不足付き計画を許容します。
 それ以外は `solution: null` / `objectives: []`。終了コード2だけでは状態を区別できません。
 `message` は補助説明で、プログラムでは `status` と診断の `code` で分岐します。
 次の2例は意図的に終了コード2となります。
@@ -224,7 +249,7 @@ uv run --locked --extra cp-sat python -m schedula solve examples/invalid-input.j
 `auto` は入力条件から一つの方式を選び、未対応条件は `INVALID_INPUT` として拒否します。
 必須条件を無断で減らしたり緩和したりしません。
 
-上限は従業員250人・役割50・時間枠3000・勤務候補5000、
+勤務候補と選択済み勤務の件数上限はありません。その他の上限は従業員250人・役割50・時間枠3000、
 従業員 × 時間枠 × 役割1,000,000以下です。上限内の性能を保証する値ではありません。
 `time_limit_seconds` はモデル準備後に全目的で共有する探索予算です。
 入力検証・依存読み込み・候補展開・モデル構築・結果検証を含む総時間は
@@ -233,7 +258,7 @@ uv run --locked --extra cp-sat python -m schedula solve examples/invalid-input.j
 夜勤・分割勤務、明示目標に対する公平性・変更最小化は契約0.2・0.3で利用できます。
 候補外の時刻、契約時間に対する公平性、給与計算・法令判定、詳細な矛盾原因・自動緩和は未対応です。外部 API・LLM・PyPI 公開・production デプロイは対象外です。
 ブラウザーの利用入口は、上記のローカル担当配置・JSON デモに限定します。
-参照 ZIP のコードはライセンス未選定のため取り込まず、採用した業務仕様から独自実装しています。
+参照 ZIP のコードは参照元のライセンス未選定のため取り込まず、採用した業務仕様から独自実装しています。
 公開条件は [開発・検証方針](docs/development-policy.md)に記載しています。
 
 ## 検証・ビルド・評価の再実行
@@ -277,6 +302,7 @@ Git には採用判断で使う入力・条件・集計・失敗を含む生デ�
 | [全体像](docs/overview.md) | 目的、利用例、対象範囲、構成、公開物 |
 | [設計方針](docs/design-policy.md) | アルゴリズム選択、制約・選好、検証、LLM の境界 |
 | [入出力契約0.1](docs/io-contract.md)・[契約0.2](docs/io-contract-next.md) | JSON の意味、日時、履歴、目的順序、結果状態と移行 |
+| [再計画・勤務量・希望日時の契約0.4](docs/io-contract-replanning.md) | 新条件、基準スナップショット、公開検証API/CLIと移行 |
 | [不足を伴う計画の契約0.3](docs/io-contract-partial.md) | 元需要を保持した不足集計・独立検証・両ソルバー・CLI・デモと証明範囲 |
 | [開発・検証方針](docs/development-policy.md) | 開発順序、完了条件、公開条件、未決定事項 |
 | [参照実装の評価](docs/evaluations/engine-introduction.md) | CP-SAT を含む実測、導入時の修正、コードの採用可否と公開入口 |

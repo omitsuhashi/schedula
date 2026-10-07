@@ -1,0 +1,50 @@
+{
+  "assignments": [
+    {
+      "employee_id": "alice",
+      "role_id": "kitchen",
+      "interval": {
+        "start": "2026-10-05T10:00:00+09:00",
+        "end": "2026-10-05T11:00:00+09:00"
+      }
+    },
+    {
+      "employee_id": "bob",
+      "role_id": "kitchen",
+      "interval": {
+        "start": "2026-10-06T10:00:00+09:00",
+        "end": "2026-10-06T11:00:00+09:00"
+      }
+    }
+  ],
+  "shifts": [
+    {
+      "candidate_id": "shift_alice_0_600_690",
+      "employee_id": "alice",
+      "work_day": "2026-10-05",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-05T10:00:00+09:00",
+            "end": "2026-10-05T11:30:00+09:00"
+          },
+          "breaks": []
+        }
+      ]
+    },
+    {
+      "candidate_id": "shift_bob_1_600_690",
+      "employee_id": "bob",
+      "work_day": "2026-10-06",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-06T10:00:00+09:00",
+            "end": "2026-10-06T11:30:00+09:00"
+          },
+          "breaks": []
+        }
+      ]
+    }
+  ]
+}

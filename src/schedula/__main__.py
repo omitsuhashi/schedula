@@ -3,8 +3,8 @@ import json
 import sys
 from pathlib import Path
 
-from . import solve
-from .contract import SCHEMA_VERSIONS, InvalidInput, diagnostic, get_schema, load_json
+from . import get_schema, solve, verify
+from .contract import SCHEMA_VERSIONS, InvalidInput, diagnostic, load_json
 from .engine import response, validate_response
 
 
@@ -13,30 +13,49 @@ def main():
     commands = parser.add_subparsers(dest="command", required=True)
     solve_parser = commands.add_parser("solve")
     solve_parser.add_argument("input_file")
+    verify_parser = commands.add_parser("verify")
+    verify_parser.add_argument("input_file")
+    verify_parser.add_argument("solution_file")
     schema_parser = commands.add_parser("schema")
-    schema_parser.add_argument("kind", choices=["request", "response"])
+    schema_parser.add_argument("kind", choices=["request", "response", "solution", "verification"])
     schema_parser.add_argument("--schema-version", choices=SCHEMA_VERSIONS, default="0.1")
     args = parser.parse_args()
     if args.command == "schema":
         result, exit_code = get_schema(args.kind, args.schema_version), 0
     else:
-        try:
-            text = (
+        if args.command == "verify" and args.input_file == args.solution_file == "-":
+            parser.error("標準入力は Request または Solution の一方だけに指定します。")
+
+        def read(path):
+            return load_json(
                 sys.stdin.buffer.read().decode("utf-8")
-                if args.input_file == "-"
-                else Path(args.input_file).read_text(encoding="utf-8")
+                if path == "-"
+                else Path(path).read_text(encoding="utf-8")
             )
-            result = solve(load_json(text))
+
+        try:
+            request = read(args.input_file)
+            result = (
+                verify(request, read(args.solution_file))
+                if args.command == "verify"
+                else solve(request)
+            )
         except InvalidInput as error:
-            result = response(None, "INVALID_INPUT", error.diagnostics)
+            if args.command == "verify":
+                result = verify(None, None)
+                result["diagnostics"] = error.diagnostics
+            else:
+                result = response(None, "INVALID_INPUT", error.diagnostics)
         except OSError, UnicodeError:
-            result = response(
-                None,
-                "INVALID_INPUT",
-                [diagnostic("INPUT_READ_ERROR", "UTF-8 の入力ファイルを読み取れません。")],
-            )
-        validate_response(result)
-        exit_code = 0 if result["status"] in {"OPTIMAL", "FEASIBLE"} else 2
+            diagnostics = [diagnostic("INPUT_READ_ERROR", "UTF-8 の入力ファイルを読み取れません。")]
+            if args.command == "verify":
+                result = verify(None, None)
+                result["diagnostics"] = diagnostics
+            else:
+                result = response(None, "INVALID_INPUT", diagnostics)
+        if args.command != "verify":
+            validate_response(result)
+        exit_code = 0 if result["status"] in {"OPTIMAL", "FEASIBLE", "VALID"} else 2
     print(json.dumps(result, allow_nan=False))
     return exit_code
 

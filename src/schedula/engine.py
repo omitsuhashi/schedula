@@ -64,13 +64,13 @@ def validate_response(result, request=None):
                     "OBJECTIVE_MISMATCH", "結果の目的が Request と一致しません。", "/objectives"
                 )
             )
-        if request["schema_version"] in {"0.2", "0.3"}:
+        if request["schema_version"] in {"0.2", "0.3", "0.4"}:
             from .extensions import evaluate
 
             problem = normalize(request)
             violations, values, shortage = verify_plan(problem, result["solution"])
             errors.extend(violations)
-            if request["schema_version"] == "0.3" and shortage != {
+            if request["schema_version"] in {"0.3", "0.4"} and shortage != {
                 k: v for k, v in result["shortage_summary"].items() if k != "proven_minimal"
             }:
                 errors.append(
@@ -98,7 +98,7 @@ def validate_response(result, request=None):
         proofs = [item["proven_optimal"] for item in result["objectives"]]
         if proofs != sorted(proofs, reverse=True) or (
             result["status"] == "FEASIBLE"
-            and (proofs or result["schema_version"] == "0.3")
+            and (proofs or result["schema_version"] in {"0.3", "0.4"})
             and all(proofs)
         ):
             errors.append(
@@ -108,7 +108,7 @@ def validate_response(result, request=None):
                     "/objectives",
                 )
             )
-    if result["schema_version"] == "0.3" and result["shortage_summary"] is not None:
+    if result["schema_version"] in {"0.3", "0.4"} and result["shortage_summary"] is not None:
         summary = result["shortage_summary"]
         total = 0
         for index, item in enumerate(summary["shortages"]):
@@ -138,7 +138,7 @@ def validate_response(result, request=None):
                     "/shortage_summary/total_person_minutes",
                 )
             )
-    if request is not None and request["schema_version"] in {"0.2", "0.3"}:
+    if request is not None and request["schema_version"] in {"0.2", "0.3", "0.4"}:
         from .diagnosis import validate_result
 
         errors.extend(validate_result(request, result))
@@ -173,9 +173,9 @@ def solve(request: dict) -> dict:
 
     def extend(result):
         result["schema_version"] = schema_version
-        if schema_version in {"0.2", "0.3"}:
+        if schema_version in {"0.2", "0.3", "0.4"}:
             result.update(fairness_summary=None, change_summary=None, diagnosis_result=None)
-        if schema_version == "0.3":
+        if schema_version in {"0.3", "0.4"}:
             result["shortage_summary"] = None
         return result
 
@@ -191,12 +191,16 @@ def solve(request: dict) -> dict:
             loaded_at = time.perf_counter()
             outcome = flow.run(problem)
         solved_at = time.perf_counter()
-        if backend == "min_cost_flow" and outcome.status == "FEASIBLE" and schema_version != "0.3":
+        if (
+            backend == "min_cost_flow"
+            and outcome.status == "FEASIBLE"
+            and schema_version not in {"0.3", "0.4"}
+        ):
             raise RuntimeError("Unexpected flow outcome")
         result = extend(response(request_id, outcome.status, outcome.diagnostics, backend))
         if outcome.status in {"OPTIMAL", "FEASIBLE"}:
             shortage = None
-            if schema_version == "0.3":
+            if schema_version in {"0.3", "0.4"}:
                 violations, values, shortage = verify_plan(problem, outcome.solution)
                 if (
                     shortage is not None
@@ -242,7 +246,7 @@ def solve(request: dict) -> dict:
                 )
             else:
                 result["solution"] = outcome.solution
-                if schema_version == "0.3":
+                if schema_version in {"0.3", "0.4"}:
                     minimal = (
                         shortage["total_person_minutes"] == 0 or outcome.shortage_proven_minimal
                     )
@@ -254,7 +258,7 @@ def solve(request: dict) -> dict:
                         if all(outcome.proven_optimal)
                         else "FEASIBLE"
                     )
-                if schema_version in {"0.2", "0.3"}:
+                if schema_version in {"0.2", "0.3", "0.4"}:
                     from .extensions import evaluate
 
                     _, _, summaries = evaluate(problem, outcome.solution)
@@ -285,10 +289,11 @@ def solve(request: dict) -> dict:
                 backend_loading_elapsed_seconds=loaded_at - normalized_at,
                 preparation_elapsed_seconds=outcome.preparation_elapsed_seconds,
                 verification_elapsed_seconds=verified_at - solved_at,
+                **problem.normalization_stats,
             )
         )
         if backend == "cp_sat" and result["solution"] is not None:
-            if schema_version == "0.3" and outcome.shortage_bound is not None:
+            if schema_version in {"0.3", "0.4"} and outcome.shortage_bound is not None:
                 result["diagnostics"].append(
                     diagnostic(
                         "SHORTAGE_BOUND",
