@@ -55,9 +55,9 @@ def verify(request: dict, solution: dict) -> dict:
         "diagnostics": [],
         "stats": {"elapsed_seconds": 0.0},
     }
-    if result["schema_version"] in {"0.5", "0.6"}:
+    if result["schema_version"] in {"0.5", "0.6", "0.7"}:
         result["priority_summary"] = None
-    if result["schema_version"] == "0.6":
+    if result["schema_version"] in {"0.6", "0.7"}:
         result["continuity_summary"] = None
     try:
         problem = normalize(request)
@@ -83,7 +83,7 @@ def verify(request: dict, solution: dict) -> dict:
             ]
             _, _, summaries = evaluate(problem, solution)
             result.update(summaries)
-            if request["schema_version"] in {"0.5", "0.6"}:
+            if request["schema_version"] in {"0.5", "0.6", "0.7"}:
                 result["priority_summary"] = priority_summary(request, shortage)
     except InvalidInput as error:
         result["diagnostics"] = error.diagnostics
@@ -107,10 +107,13 @@ def verify(request: dict, solution: dict) -> dict:
             verification={"performed": False, "valid": None, "violations": []},
             diagnostics=[diagnostic("INTERNAL_ERROR", "独立検証の処理に失敗しました。")],
         )
-    if result["schema_version"] == "0.6" and result["status"] == "INTERNAL_ERROR":
+    if result["schema_version"] in {"0.6", "0.7"} and result["status"] == "INTERNAL_ERROR":
         result["continuity_summary"] = None
     result["stats"]["elapsed_seconds"] = time.perf_counter() - started
-    if result["schema_version"] in {"0.5", "0.6"} and result["status"] not in {"VALID", "PARTIAL"}:
+    if result["schema_version"] in {"0.5", "0.6", "0.7"} and result["status"] not in {
+        "VALID",
+        "PARTIAL",
+    }:
         result["priority_summary"] = None
     errors = schema_errors("verification", result)
     if errors:
@@ -131,7 +134,7 @@ def verify_shifts(request, grid, shifts, fail):
     coverage, breaks = defaultdict(set), defaultdict(set)
     selected = defaultdict(list)
     scheduled = Counter()
-    extended = request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6"}
+    extended = request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7"}
     for index, shift in enumerate(shifts):
         path = f"/shifts/{index}"
         identifier, employee = shift["candidate_id"], shift["employee_id"]
@@ -472,7 +475,10 @@ def verify_plan(problem, solution, *, require_complete=False):
         required, assigned = expected[slot, role_id], actual[slot, role_id]
         if assigned > required or (
             assigned < required
-            and (request["schema_version"] not in {"0.3", "0.4", "0.5", "0.6"} or require_complete)
+            and (
+                request["schema_version"] not in {"0.3", "0.4", "0.5", "0.6", "0.7"}
+                or require_complete
+            )
         ):
             code = "DEMAND_SHORTAGE" if assigned < required else "DEMAND_EXCESS"
             fail(
@@ -519,7 +525,7 @@ def verify_plan(problem, solution, *, require_complete=False):
         "role_switches": sum(switches.values()),
         "scheduled_minutes": sum(scheduled.values()),
     }
-    if request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6"}:
+    if request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7"}:
         from .extensions import evaluate
 
         extension_violations, extension_metrics, _ = evaluate(problem, solution)

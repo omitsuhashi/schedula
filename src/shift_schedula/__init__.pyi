@@ -8,6 +8,7 @@ from .types import (
     Request04,
     Request05,
     Request06,
+    Request07,
     SchemaVersion,
     Solution,
 )
@@ -40,7 +41,7 @@ def get_schema(
     schema_version: SchemaVersion = "0.1",
 ) -> dict[str, JSONValue]: ...
 def make_baseline(
-    request: Request04 | Request05 | Request06,
+    request: Request04 | Request05 | Request06 | Request07,
     solution: ExtendedSolution | ContinuitySolution,
     plan_id: str,
 ) -> Baseline: ...

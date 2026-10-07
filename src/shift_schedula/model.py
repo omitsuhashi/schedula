@@ -350,7 +350,7 @@ def normalize(request):
                     [item["id"], item["role_id"]],
                 )
             demand[slot][item["role_id"]] = int(item["required_people"])
-            if request["schema_version"] in {"0.5", "0.6"}:
+            if request["schema_version"] in {"0.5", "0.6", "0.7"}:
                 priorities[slot, item["role_id"]] = int(item.get("priority", 0))
     costs = {}
     for index, item in enumerate(request["preferences"]):
@@ -378,7 +378,7 @@ def normalize(request):
         expansion_start = time.perf_counter()
         problem.candidates = expand_candidates(request, grid)
         expansion_seconds = time.perf_counter() - expansion_start
-    if request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6"}:
+    if request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7"}:
         from .diagnosis import validate_options
         from .extensions import validate
 

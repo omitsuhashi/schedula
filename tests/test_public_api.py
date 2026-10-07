@@ -49,7 +49,7 @@ def test_public_validation_reuses_entry_checks_without_solving(assignment_reques
 
 def test_public_types_match_version_fields_and_literals():
     for version, request_type in zip(
-        ("0.1", "0.2", "0.3", "0.4", "0.5", "0.6"),
+        ("0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7"),
         (
             types.Request01,
             types.Request02,
@@ -57,6 +57,7 @@ def test_public_types_match_version_fields_and_literals():
             types.Request04,
             types.Request05,
             types.Request06,
+            types.Request07,
         ),
         strict=True,
     ):
@@ -71,6 +72,7 @@ def test_public_types_match_version_fields_and_literals():
         "0.4",
         "0.5",
         "0.6",
+        "0.7",
     }
     assert "PARTIAL" not in get_args(get_type_hints(types.Response01Success)["status"])
     assert "PARTIAL" in get_args(get_type_hints(types.Response04Success)["status"])
@@ -104,6 +106,21 @@ def test_installed_wheel_types_check_consumer_and_reject_typos(tmp_path):
         "assert validate({'request_id':'incomplete'})['status'] == 'INVALID_INPUT'",
     )
     run(str(python), "-m", "mypy", "--strict", str(ROOT / "examples/typed_api.py"))
+    overlap_consumer = tmp_path / "overlap_consumer.py"
+    overlap_consumer.write_text(
+        "from shift_schedula import make_baseline, solve\n"
+        "from shift_schedula.types import Request07\n"
+        "def roundtrip(request: Request07) -> None:\n"
+        "    result = solve(request)\n"
+        '    if result["schema_version"] == "0.7" and '
+        'result["status"] in {"OPTIMAL", "FEASIBLE", "PARTIAL"}:\n'
+        '        make_baseline(request, result["solution"], "saved")\n'
+        '        summary = result["change_summary"]\n'
+        '        if summary is not None and "comparison_interval" in summary:\n'
+        '            print(summary["comparison_interval"], summary["slot_minutes"])\n',
+        encoding="utf-8",
+    )
+    run(str(python), "-m", "mypy", "--strict", str(overlap_consumer))
     invalid = tmp_path / "invalid_consumer.py"
     invalid.write_text(
         "from shift_schedula import Response\n"

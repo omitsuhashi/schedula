@@ -101,7 +101,8 @@ uv run --locked python -m shift_schedula schema request --schema-version 0.6
 Pythonの入力型は `Request06`、勤務結果は `ContinuitySolution`。
 `make_baseline(request, solution, plan_id)` の引数は変更せず0.6にも対応する。
 元のC・実績・確定勤務をコピーして再検証する。同一Wの基準比較・固定状態は使用できる。
-重複期間へWを移す基準比較・固定再計画は#75の対象で、この実装では期間不一致を拒否する。
+0.6は期間不一致を拒否する。重複期間へWを移す比較・固定再計画は
+[契約0.7](io-contract-overlap.md)を指定する。
 計画から実績への自動変換は追加しない。
 
 検証条件と実行結果は[継続計画の検証記録](evaluations/continuity.md)を参照する。
