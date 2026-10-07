@@ -27,12 +27,17 @@ uv 0.12.23、OR-Tools 9.15.6755、jsonschema 4.26.0、pytest 9.1.1、Ruff 0.16.1
 ```sh
 uv sync --locked --extra cp-sat
 uv run --locked --extra cp-sat pytest -q tests/test_overlap_replanning.py
+uv run --locked --extra cp-sat pytest -q tests/test_demand_priority.py tests/test_overlap_replanning.py tests/test_input_contract.py
 uv run --locked --extra cp-sat pre-commit run --all-files --show-diff-on-failure
 uv run --locked --extra cp-sat pytest -q -ra --junitxml=test-results/pytest.xml
 PLAYWRIGHT_MODULE_PATH=/private/tmp/schedula-revert-browser/node_modules/playwright node tests/playground-browser.cjs
 uv run --locked --extra cp-sat python scripts/evaluate.py examples/continuity_replan.json --output test-results/overlap-replanning.json
 git diff --check
 ```
+
+最終の手元全体テストは1316件と6 subtestsが成功、失敗・スキップ0。隔離wheel導入、sdist単独の中核テスト再実行、
+公開typing consumer、全Schemaの取得、Chromium、pre-commit、bash構文、diff確認が成功した。
+契約0.7を追加した不足総量優先・段階別の時間切れを含む関連145件も成功した。
 
 追加テスト38件が成功、失敗・スキップ0。小規模の担当者列挙とソルバーの不足・目的値を比較した。
 独立検証ではCP-SATの呼び出しを禁止し、評価値の再計算に最適性証明が付かないことも確認した。
@@ -57,3 +62,6 @@ uv.lock SHA、依存・目的値・証明・検証・時間・RSSを保存する
 単一の架空小規模入力の測定であり、大規模性能・応答時間の保証や改善比較には使用しない。
 新規実績の自動生成・粒度/タイムゾーン変換・費用・夜勤休日評価は対象外。
 パッケージ公開・タグ・productionデプロイは実施しない。
+
+実装commitは `6a78bbd2b929548a99da5696f4739ecd18d58ef7`、[PR #81](https://github.com/omitsuhashi/schedula/pull/81)。
+Linux・Windowsの最終CI結果はPRとIssue #75・#58へ記録する。
