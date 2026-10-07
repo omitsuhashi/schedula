@@ -2,7 +2,7 @@
   "type": "object",
   "properties": {
     "schema_version": {
-      "const": "0.6"
+      "const": "0.5"
     },
     "request_id": {
       "type": [
@@ -429,74 +429,6 @@
         }
       ]
     },
-    "continuity_summary": {
-      "oneOf": [
-        {
-          "type": "null"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "context_window": {
-              "$ref": "#/$defs/interval"
-            },
-            "planning_window": {
-              "$ref": "#/$defs/interval"
-            },
-            "employees": {
-              "type": "array",
-              "maxItems": 500,
-              "items": {
-                "type": "object",
-                "properties": {
-                  "employee_id": {
-                    "type": "string",
-                    "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
-                  },
-                  "historical_minutes": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 1152921504606846975
-                  },
-                  "planned_minutes": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 1152921504606846975
-                  },
-                  "outside_planning_minutes": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 1152921504606846975
-                  },
-                  "committed_shift_ids": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
-                    },
-                    "uniqueItems": true
-                  }
-                },
-                "required": [
-                  "employee_id",
-                  "historical_minutes",
-                  "planned_minutes",
-                  "outside_planning_minutes",
-                  "committed_shift_ids"
-                ],
-                "additionalProperties": false
-              }
-            }
-          },
-          "required": [
-            "context_window",
-            "planning_window",
-            "employees"
-          ],
-          "additionalProperties": false
-        }
-      ]
-    },
     "priority_summary": {
       "oneOf": [
         {
@@ -522,7 +454,6 @@
     "change_summary",
     "diagnosis_result",
     "shortage_summary",
-    "continuity_summary",
     "priority_summary"
   ],
   "additionalProperties": false,
@@ -617,40 +548,15 @@
                 },
                 "minItems": 1,
                 "maxItems": 4
-              },
-              "committed_shift_id": {
-                "type": "string",
-                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
               }
             },
             "required": [
+              "candidate_id",
               "employee_id",
               "work_day",
               "segments"
             ],
-            "additionalProperties": false,
-            "oneOf": [
-              {
-                "required": [
-                  "candidate_id"
-                ],
-                "not": {
-                  "required": [
-                    "committed_shift_id"
-                  ]
-                }
-              },
-              {
-                "required": [
-                  "committed_shift_id"
-                ],
-                "not": {
-                  "required": [
-                    "candidate_id"
-                  ]
-                }
-              }
-            ]
+            "additionalProperties": false
           },
           "minItems": 0
         }
@@ -895,9 +801,6 @@
           },
           "priority_summary": {
             "type": "null"
-          },
-          "continuity_summary": {
-            "type": "null"
           }
         }
       }
@@ -1128,6 +1031,7 @@
     }
   ],
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:schedula:response:0.6",
-  "title": "schedula Response 0.6"
+  "$id": "urn:schedula:response:0.5",
+  "title": "schedula Response 0.5",
+  "description": " 契約0.5は不足合計人分を最優先し、同量なら需要priorityの高い群の不足人分を順に最小化する。priority別集計と条件付きの証明を全体の不足最小性と分けて返す。"
 }

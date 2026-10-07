@@ -8,7 +8,7 @@ from itertools import islice
 
 from jsonschema import Draft202012Validator, FormatChecker
 
-SCHEMA_VERSIONS = ("0.1", "0.2", "0.3", "0.4", "0.6")
+SCHEMA_VERSIONS = ("0.1", "0.2", "0.3", "0.4", "0.5", "0.6")
 
 
 def schema_version_of(value):
@@ -117,7 +117,7 @@ def get_schema(kind, schema_version="0.1"):
     if kind not in {"request", "response", "solution", "verification"}:
         raise ValueError("request、response、solution、verification を指定します。")
     if schema_version not in SCHEMA_VERSIONS:
-        raise ValueError("schema_version は 0.1、0.2、0.3、0.4、0.6 のいずれかを指定します。")
+        raise ValueError("schema_version は 0.1〜0.6 のいずれかを指定します。")
     if kind in {"solution", "verification"}:
         if kind == "solution":
             schema = get_schema("response", schema_version)
@@ -128,7 +128,9 @@ def get_schema(kind, schema_version="0.1"):
                 "$defs": schema["$defs"],
             }
         # 旧版にも同じ検証入口を提供し、配布済みの定義を再利用する。
-        schema = get_schema("response", "0.6" if schema_version == "0.6" else "0.4")
+        schema = get_schema(
+            "response", schema_version if schema_version in {"0.5", "0.6"} else "0.4"
+        )
         properties = {
             name: schema["properties"][name]
             for name in (
@@ -151,9 +153,15 @@ def get_schema(kind, schema_version="0.1"):
             },
             demand_satisfied={"type": ["boolean", "null"]},
         )
+        if schema_version in {"0.5", "0.6"}:
+            properties["priority_summary"] = schema["properties"]["priority_summary"]
         properties["objectives"]["items"]["properties"]["proven_optimal"] = {"const": False}
         definitions = {k: v for k, v in schema["$defs"].items() if k != "solution"}
         definitions["shortage_summary"]["properties"]["proven_minimal"] = {"const": False}
+        if schema_version in {"0.5", "0.6"}:
+            definitions["priority_summary"]["properties"]["groups"]["items"]["properties"][
+                "proven_minimal"
+            ] = {"const": False}
         rules = []
         for statuses, performed, valid, complete in (
             (["VALID"], True, True, True),
@@ -182,6 +190,8 @@ def get_schema(kind, schema_version="0.1"):
                         for name in ("shortage_summary", "fairness_summary", "change_summary")
                     }
                 )
+            if schema_version in {"0.5", "0.6"}:
+                expected["priority_summary"] = {"type": "object" if valid else "null"}
             if schema_version == "0.6" and not valid:
                 expected["continuity_summary"] = {"type": "null"}
             rules.append(

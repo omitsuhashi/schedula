@@ -2,7 +2,7 @@
   "type": "object",
   "properties": {
     "schema_version": {
-      "const": "0.6"
+      "const": "0.5"
     },
     "request_id": {
       "type": "string",
@@ -1071,163 +1071,6 @@
         "preserve_assigned",
         "rebuild"
       ]
-    },
-    "continuity": {
-      "type": "object",
-      "properties": {
-        "context_window": {
-          "$ref": "#/$defs/interval"
-        },
-        "employees": {
-          "type": "array",
-          "maxItems": 500,
-          "items": {
-            "type": "object",
-            "properties": {
-              "employee_id": {
-                "type": "string",
-                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
-              },
-              "before_context": {
-                "type": "object",
-                "properties": {
-                  "last_shift_end": {
-                    "type": [
-                      "string",
-                      "null"
-                    ],
-                    "format": "date-time"
-                  },
-                  "consecutive_work_days_before_window": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 366
-                  },
-                  "last_work_day": {
-                    "type": [
-                      "string",
-                      "null"
-                    ],
-                    "format": "date"
-                  }
-                },
-                "required": [
-                  "last_shift_end",
-                  "consecutive_work_days_before_window",
-                  "last_work_day"
-                ],
-                "additionalProperties": false
-              },
-              "past_complete": {
-                "const": true
-              },
-              "actual_shifts": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
-                    },
-                    "segments": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "interval": {
-                            "$ref": "#/$defs/interval"
-                          },
-                          "breaks": {
-                            "type": "array",
-                            "items": {
-                              "$ref": "#/$defs/interval"
-                            },
-                            "minItems": 0,
-                            "maxItems": 10
-                          }
-                        },
-                        "required": [
-                          "interval",
-                          "breaks"
-                        ],
-                        "additionalProperties": false
-                      },
-                      "minItems": 1,
-                      "maxItems": 4
-                    }
-                  },
-                  "required": [
-                    "id",
-                    "segments"
-                  ],
-                  "additionalProperties": false
-                }
-              },
-              "commitments_complete": {
-                "const": true
-              },
-              "committed_shifts": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
-                    },
-                    "segments": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "interval": {
-                            "$ref": "#/$defs/interval"
-                          },
-                          "breaks": {
-                            "type": "array",
-                            "items": {
-                              "$ref": "#/$defs/interval"
-                            },
-                            "minItems": 0,
-                            "maxItems": 10
-                          }
-                        },
-                        "required": [
-                          "interval",
-                          "breaks"
-                        ],
-                        "additionalProperties": false
-                      },
-                      "minItems": 1,
-                      "maxItems": 4
-                    }
-                  },
-                  "required": [
-                    "id",
-                    "segments"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            },
-            "required": [
-              "employee_id",
-              "before_context",
-              "past_complete",
-              "actual_shifts",
-              "commitments_complete",
-              "committed_shifts"
-            ],
-            "additionalProperties": false
-          }
-        }
-      },
-      "required": [
-        "context_window",
-        "employees"
-      ],
-      "additionalProperties": false
     }
   },
   "required": [
@@ -1266,8 +1109,8 @@
       "additionalProperties": false
     }
   },
-  "description": "配列は明示する。需要は元の必要人数を保持し、不足合計人分を最優先で最小化する。需要以外の必須条件は維持する。未指定需要は0。",
+  "description": "配列は明示する。需要は元の必要人数を保持し、不足合計人分を最優先で最小化する。需要以外の必須条件は維持する。未指定需要は0。 契約0.5は不足合計人分を最優先し、同量なら需要priorityの高い群の不足人分を順に最小化する。priority別集計と条件付きの証明を全体の不足最小性と分けて返す。",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:schedula:request:0.6",
-  "title": "schedula Request 0.6"
+  "$id": "urn:schedula:request:0.5",
+  "title": "schedula Request 0.5"
 }

@@ -10,7 +10,7 @@ JSONのdict/list境界を維持する。公開型は標準 `typing` の `TypedDi
 | `solve(request: Request, *, num_workers: int = 2) -> Response` | 求解と独立検証 | 入力不備・依存不足・内部障害を既存Responseの状態で返す |
 | `verify(request: Request, solution: Solution) -> Verification` | 保存・編集した解の独立検証。最適性は認定しない | `VALID` / `PARTIAL` / `INVALID_INPUT` / `INVALID_PLAN` / `INTERNAL_ERROR` |
 | `get_schema(kind, schema_version="0.1")` | `request` / `response` / `solution` / `verification` のSchema | 未知の種類・版は `ValueError` |
-| `make_baseline(request: Request04 | Request06, solution: ExtendedSolution | ContinuitySolution, plan_id: str) -> Baseline` | 契約0.4・0.6のrosterから検証済み基準計画を作る | 入力・解の不備は `InvalidInput`。環境・内部例外は呼び出し側で扱う |
+| `make_baseline(request: Request04 \| Request05 \| Request06, solution: ExtendedSolution \| ContinuitySolution, plan_id: str) -> Baseline` | 契約0.4〜0.6のrosterから検証済み基準計画を作る | 入力・解の不備は `InvalidInput`。環境・内部例外は呼び出し側で扱う |
 
 `InvalidInput` は `ValueError` の派生で、`diagnostics` に既存形式の診断配列を持つ。
 公開関数は入力を書き換えない。make_baselineは返すスナップショットをコピーして作る。
@@ -41,7 +41,7 @@ else:
 
 ## 型付きの利用と状態分岐
 
-`Request` は `Request01` / `Request02` / `Request03` / `Request04` / `Request06` のunion。
+`Request` は `Request01` / `Request02` / `Request03` / `Request04` / `Request05` / `Request06` のunion。
 [契約0.6](io-contract-continuity.md)は実績・確定勤務と独立集計を扱い、移動Wの比較は#75の対象です。
 各版の構築用型と入れ子の型は `shift_schedula.types` にある。
 `schema_version` で契約版、`Response.status` で成功と失敗を分岐できる。
@@ -116,3 +116,6 @@ OSのプロセス起動・終了、親のIPC読み取りや再検証は即時に
 `cleanup_seconds` で区別する。停止確認を済ませてから親へ戻る。
 macOSのローカル検証とWindows/LinuxのCIで正常完了・段階別の期限/取消・異常終了・並行実行を確認する。
 spawnと終了処理は[Python 3.14公式文書](https://docs.python.org/3.14/library/multiprocessing.html)に基づく。
+
+契約0.5の `PriorityDemand.priority` と `Response05Success.priority_summary` は
+[需要priorityの契約](io-contract-priority.md)を参照する。独立検証の同集計は最小性の証明を付けない。

@@ -552,3 +552,80 @@ def test_template_expansion_starts_only_in_planning_window():
     assert candidates[0].output(normalize(data).grid)["segments"][0]["interval"]["end"] == stamp(
         "11-02", "02:00"
     )
+
+
+@pytest.mark.parametrize("backend", ["auto", "cp_sat"])
+def test_continuity_priority_precedes_preference_and_uses_total_shortage_first(backend):
+    data = example()
+    data["solver"]["backend"] = backend
+    data["demand"] = [
+        {
+            "id": "high",
+            "role_id": "kitchen",
+            "interval": {"start": stamp("11-01"), "end": stamp("11-01", "00:30")},
+            "required_people": 1,
+            "priority": 100,
+        },
+        {
+            "id": "low",
+            "role_id": "hall",
+            "interval": {"start": stamp("11-01"), "end": stamp("11-01", "00:30")},
+            "required_people": 1,
+            "priority": 0,
+        },
+    ]
+    data["roles"].append({"id": "hall", "label": "ホール", "required_skills": []})
+    data["preferences"] = [
+        {
+            "id": "avoid",
+            "type": "avoid_role",
+            "employee_ids": ["alice"],
+            "role_id": "kitchen",
+            "penalty_per_minute": 10,
+        }
+    ]
+    data["objectives"] = [{"id": "pref", "metric": "preference_penalty"}]
+    result = solve(data)
+    assert_response(result, "PARTIAL")
+    assert result["shortage_summary"]["total_person_minutes"] == 30
+    assert [g["total_person_minutes"] for g in result["priority_summary"]["groups"]] == [0, 30]
+    assert all(g["proven_minimal"] for g in result["priority_summary"]["groups"])
+    assert result["objectives"][0]["value"] == 300
+    assert result["continuity_summary"]["employees"][0]["planned_minutes"] == 300
+    checked = verify(data, result["solution"])
+    assert all(not g["proven_minimal"] for g in checked["priority_summary"]["groups"])
+    # 完全に供給できる低priorityの長い需要を高priorityの短い需要より先に置く総量評価。
+    row(data)["committed_shifts"] = []
+    data["shift_candidates"] = [
+        {
+            "id": "high_shift",
+            "employee_id": "alice",
+            "segments": [segment(stamp("11-01"), stamp("11-01", "00:30"))],
+        },
+        {
+            "id": "low_shift",
+            "employee_id": "alice",
+            "segments": [segment(stamp("11-01", "01:00"), stamp("11-01", "02:00"))],
+        },
+    ]
+    data["demand"][1]["interval"] = {
+        "start": stamp("11-01", "01:00"),
+        "end": stamp("11-01", "02:00"),
+    }
+    result = solve(data)
+    assert_response(result, "PARTIAL")
+    assert result["shortage_summary"]["total_person_minutes"] == 30
+    assert [g["total_person_minutes"] for g in result["priority_summary"]["groups"]] == [30, 0]
+
+
+def test_verification_rejects_committed_reference_without_continuity():
+    data = example()
+    out = solution(data)
+    del data["continuity"]
+    data["employees"][0]["availability"][0]["end"] = stamp("11-02")
+    data["employees"][0]["history"] = {
+        "last_shift_end": None,
+        "last_work_day": None,
+        "consecutive_work_days_before_window": 0,
+    }
+    assert verify(data, out)["status"] == "INVALID_PLAN"

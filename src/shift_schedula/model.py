@@ -145,6 +145,11 @@ class Problem:
     baseline: dict | None = None
     continuity: list = field(default_factory=list)
     normalization_stats: dict = field(default_factory=dict)
+    priorities: dict = field(default_factory=dict)
+
+
+def priority_levels(request):
+    return tuple(sorted({d.get("priority", 0) for d in request["demand"]}, reverse=True))
 
 
 def unique(items, field, path):
@@ -226,11 +231,15 @@ def normalize(request):
         ):
             reject("INVALID_MINUTES_BOUNDS", "勤務量の下限が上限を超えています。", path)
     if request["solver"]["backend"] == "min_cost_flow" and (
-        roster or request["constraints"] or "role_switches" in metrics or request.get("diagnosis")
+        roster
+        or request["constraints"]
+        or "role_switches" in metrics
+        or request.get("diagnosis")
+        or any(d.get("priority", 0) for d in request["demand"])
     ):
         reject(
             "UNSUPPORTED_BACKEND",
-            "min_cost_flow は roster・明示制約・role_switches 目的を扱えません。",
+            "min_cost_flow は roster・明示制約・role_switches 目的・非既定priorityを扱えません。",
             "/solver/backend",
         )
 
@@ -327,6 +336,7 @@ def normalize(request):
             )
         }
     demand = [{} for _ in range(slots)]
+    priorities = {}
     for index, item in enumerate(request["demand"]):
         path = f"/demand/{index}"
         reference(item["role_id"], ids["roles"], path + "/role_id")
@@ -340,6 +350,8 @@ def normalize(request):
                     [item["id"], item["role_id"]],
                 )
             demand[slot][item["role_id"]] = int(item["required_people"])
+            if request["schema_version"] in {"0.5", "0.6"}:
+                priorities[slot, item["role_id"]] = int(item.get("priority", 0))
     costs = {}
     for index, item in enumerate(request["preferences"]):
         path = f"/preferences/{index}"
@@ -355,6 +367,7 @@ def normalize(request):
                 key = identifier, item["role_id"]
                 costs[key] = costs.get(key, 0) + int(item["penalty_per_minute"]) * grid.slot_minutes
     problem = Problem(request, grid, available, qualified, demand, costs)
+    problem.priorities = priorities
     if roster:
         from .roster import expand_candidates, validate_history
 
@@ -365,7 +378,7 @@ def normalize(request):
         expansion_start = time.perf_counter()
         problem.candidates = expand_candidates(request, grid)
         expansion_seconds = time.perf_counter() - expansion_start
-    if request["schema_version"] in {"0.2", "0.3", "0.4", "0.6"}:
+    if request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6"}:
         from .diagnosis import validate_options
         from .extensions import validate
 
