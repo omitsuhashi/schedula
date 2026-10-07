@@ -94,7 +94,7 @@ def validate(problem):
         return
     source = baseline["source_request"]
     if (
-        source.get("schema_version") in {"0.4", "0.5", "0.6"}
+        source.get("schema_version") in {"0.4", "0.5", "0.6", "0.7"}
         and request["schema_version"] < source["schema_version"]
     ):
         reject(
@@ -107,6 +107,7 @@ def validate(problem):
         "0.4",
         "0.5",
         "0.6",
+        "0.7",
     ):
         reject(
             "UNSUPPORTED_BASELINE_VERSION",
@@ -124,7 +125,7 @@ def validate(problem):
         violations, _ = verify_solution(
             old,
             baseline["source_solution"],
-            require_complete=request["schema_version"] not in {"0.4", "0.5", "0.6"},
+            require_complete=request["schema_version"] not in {"0.4", "0.5", "0.6", "0.7"},
         )
     except InvalidInput as error:
         raise InvalidInput(
@@ -148,27 +149,38 @@ def validate(problem):
                 for item in violations
             ]
         )
+    overlap_start, overlap_end = max(old.grid.start, grid.start), min(old.grid.end, grid.end)
+    sliding = request["schema_version"] == "0.7"
+    step = timedelta(minutes=grid.slot_minutes)
     if (
         source["problem_type"] != "roster"
-        or old.grid.start != grid.start
-        or old.grid.end != grid.end
+        or (not sliding and (old.grid.start != grid.start or old.grid.end != grid.end))
+        or overlap_start >= overlap_end
         or old.grid.timezone.key != grid.timezone.key
         or old.grid.slot_minutes != grid.slot_minutes
+        or (old.grid.start - grid.start) % step
     ):
         reject(
             "BASELINE_WINDOW_MISMATCH",
-            "基準計画は同じ勤務計画の期間・タイムゾーン・粒度で指定します。",
+            "基準計画は対応する期間・同じタイムゾーン・粒度で指定します。",
             "/baseline/source_request",
         )
     old_employees = {employee["id"] for employee in source["employees"]}
     if len(employees | old_employees) > 500:
         reject("INPUT_LIMIT", "比較対象の従業員の和集合は500人以下です。", "/baseline")
     unique(fixed, "id", "/fixed_parts")
+    start, end = (overlap_start - grid.start) // step, (overlap_end - grid.start) // step
     for index, part in enumerate(fixed):
         reference(part["employee_id"], old_employees, f"/fixed_parts/{index}/employee_id")
-        grid.interval(part["interval"], f"/fixed_parts/{index}/interval")
+        a, b = grid.interval(part["interval"], f"/fixed_parts/{index}/interval")
+        if not start <= a < b <= end:
+            reject(
+                "BASELINE_WINDOW_MISMATCH",
+                "固定部分は新旧計画の重複期間内に指定します。",
+                f"/fixed_parts/{index}/interval",
+            )
     work, roles = states(
-        grid, baseline["source_solution"], continuity=bool(source.get("continuity"))
+        old.grid, baseline["source_solution"], continuity=bool(source.get("continuity"))
     )
     if (
         baseline.get("snapshot_origin")
@@ -183,7 +195,7 @@ def validate(problem):
     for index, part in enumerate(baseline.get("source_fixed_states", [])):
         path = f"/baseline/source_fixed_states/{index}"
         reference(part["employee_id"], old_employees, path + "/employee_id")
-        start, end = grid.interval(part["interval"], path + "/interval")
+        a, b = old.grid.interval(part["interval"], path + "/interval")
         for component in ("work", "role"):
             if component in part:
                 requirements.extend(
@@ -194,12 +206,35 @@ def validate(problem):
                         path,
                         [part["employee_id"]],
                     )
-                    for slot in range(start, end)
+                    for slot in range(a, b)
                 )
     violations = check_fixed_states(requirements, work, roles)
     if violations:
         raise InvalidInput(violations)
-    problem.baseline = {**baseline, "work": work, "roles": roles, "employee_ids": old_employees}
+    if sliding and request.get("continuity") and source.get("continuity"):
+        from .continuity import facts
+
+        old_facts = {d["id"]: d for d in facts(source, old.grid)}
+        for duty in facts(request, grid):
+            previous = old_facts.get(duty["id"])
+            if previous is not None and (
+                previous["employee_id"] != duty["employee_id"]
+                or previous["segments"] != duty["segments"]
+            ):
+                reject(
+                    "CONFLICTING_CONTINUITY",
+                    "同じIDの実績・確定勤務の従業員または原区間が基準と矛盾しています。",
+                    "/continuity/employees",
+                    [duty["id"]],
+                )
+    offset = (old.grid.start - grid.start) // step
+    problem.baseline = {
+        **baseline,
+        "work": {(e, s + offset): v for (e, s), v in work.items() if start <= s + offset < end},
+        "roles": {(e, s + offset): v for (e, s), v in roles.items() if start <= s + offset < end},
+        "employee_ids": old_employees,
+        "comparison_slots": (start, end),
+    }
 
 
 def fixed_requirements(problem):
@@ -222,11 +257,13 @@ def fixed_requirements(problem):
                 yield key, component, values.get(key, default), path, [part["id"], key[0]]
 
 
-def check_fixed_states(requirements, work, roles):
+def check_fixed_states(requirements, work, roles, *, employee_ids=None):
     violations = []
     for key, component, expected, path, related in requirements:
         current = work.get(key, "off") if component == "work" else roles.get(key)
-        if current != expected and len(violations) < 1000:
+        if (
+            current != expected or (employee_ids is not None and key[0] not in employee_ids)
+        ) and len(violations) < 1000:
             violations.append(
                 diagnostic(
                     "FIXED_PART_VIOLATION",
@@ -247,10 +284,10 @@ def make_baseline(request: dict, solution: dict, plan_id: str) -> dict:
 
     problem = normalize(request)
     if (
-        request["schema_version"] not in {"0.4", "0.5", "0.6"}
+        request["schema_version"] not in {"0.4", "0.5", "0.6", "0.7"}
         or request["problem_type"] != "roster"
     ):
-        reject("UNSUPPORTED_CONDITION", "make_baseline は契約0.4〜0.6の roster を受け取ります。")
+        reject("UNSUPPORTED_CONDITION", "make_baseline は契約0.4〜0.7の roster を受け取ります。")
     violations, _, _ = verify_plan(problem, solution)
     if violations:
         raise InvalidInput(violations)
@@ -338,13 +375,18 @@ def prepare(model, problem, assignments, shifts, scheduled_by_employee):
     changed_work = [
         1 - work_match(key, baseline["work"].get(key, "off"))
         for key in sorted(work.keys() | breaks.keys() | baseline["work"].keys())
+        if baseline["comparison_slots"][0] <= key[1] < baseline["comparison_slots"][1]
     ]
     changed_roles = [
         1 - role_match(key, baseline["roles"].get(key))
         for key in sorted(roles.keys() | baseline["roles"].keys())
+        if baseline["comparison_slots"][0] <= key[1] < baseline["comparison_slots"][1]
     ]
     expressions["plan_changes"] = sum(changed_work) + sum(changed_roles)
     for key, component, expected, _, _ in fixed_requirements(problem):
+        if request["schema_version"] == "0.7" and key[0] not in problem.available:
+            model.add(False)
+            continue
         match = work_match(key, expected) if component == "work" else role_match(key, expected)
         model.add(match == 1)
     return expressions
@@ -353,7 +395,7 @@ def prepare(model, problem, assignments, shifts, scheduled_by_employee):
 def evaluate(problem, solution):
     metrics = {"fairness_deviation_minutes": 0, "plan_changes": 0}
     summaries = {"fairness_summary": None, "change_summary": None}
-    if problem.request["schema_version"] == "0.6":
+    if problem.request["schema_version"] in {"0.6", "0.7"}:
         from .continuity import summary
 
         summaries["continuity_summary"] = (
@@ -388,13 +430,16 @@ def evaluate(problem, solution):
     violations = []
     baseline = problem.baseline
     if baseline is not None:
+        start, end = baseline["comparison_slots"]
         work_changes = sum(
             work.get(key, "off") != baseline["work"].get(key, "off")
             for key in work.keys() | baseline["work"].keys()
+            if start <= key[1] < end
         )
         role_changes = sum(
             roles.get(key) != baseline["roles"].get(key)
             for key in roles.keys() | baseline["roles"].keys()
+            if start <= key[1] < end
         )
         metrics["plan_changes"] = work_changes + role_changes
         summaries["change_summary"] = {
@@ -404,5 +449,19 @@ def evaluate(problem, solution):
             "role_changes": role_changes,
             "total_changes": work_changes + role_changes,
         }
-        violations.extend(check_fixed_states(fixed_requirements(problem), work, roles))
+        if problem.request["schema_version"] == "0.7":
+            summaries["change_summary"].update(
+                comparison_interval=problem.grid.output_interval(start, end),
+                slot_minutes=problem.grid.slot_minutes,
+            )
+        violations.extend(
+            check_fixed_states(
+                fixed_requirements(problem),
+                work,
+                roles,
+                employee_ids=problem.available
+                if problem.request["schema_version"] == "0.7"
+                else None,
+            )
+        )
     return violations, metrics, summaries

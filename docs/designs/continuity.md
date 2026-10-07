@@ -2,7 +2,8 @@
 
 [#67](https://github.com/omitsuhashi/schedula/issues/67)で設計し、PR #73で採用した仕様。
 実績・確定勤務・期間集計は[#74](https://github.com/omitsuhashi/schedula/issues/74)で契約0.6へ実装した。
-利用方法は[契約0.6](../io-contract-continuity.md)。重複期間の基準比較と固定再計画は#75で未実装。
+利用方法は[契約0.6](../io-contract-continuity.md)。重複期間の基準比較と固定再計画は[#75](https://github.com/omitsuhashi/schedula/issues/75)で
+[契約0.7](../io-contract-overlap.md)へ実装した。
 共通方針・採番・採用前の判断は[設計一覧](../planning-extensions.md)を参照する。
 初回は `roster` のみ。計画期間の両端は従来通りローカル日付の00:00とする。
 
@@ -125,7 +126,7 @@ IDと絶対区間の整合、網羅性宣言の有無、与えられた事実同
 ## 入力例と数値の期待値
 
 以下は差分を説明する架空の入力表。月末・週途中は契約0.6の実行例として用意した。
-1日ずつずらす再計画は#75の未実装範囲。
+1日ずつずらす再計画は契約0.7の[実行例](../../examples/continuity_replan.json)を用意した。
 特記なき日時は2026年、Asia/Tokyo、粒度30分。必要技能は全員が保有し、
 勤務可能時間は記載勤務を包含する。需要は指定箇所だけ、他は0。
 休息条件の数値は試験用の値である。

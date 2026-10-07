@@ -83,8 +83,10 @@ def total_first():
     return data
 
 
-def test_total_shortage_precedes_priority_and_survives_replanning():
+@pytest.mark.parametrize("version", ["0.5", "0.7"])
+def test_total_shortage_precedes_priority_and_survives_replanning(version):
     data = total_first()
+    data["schema_version"] = version
     result = solve(data)
     assert_response(result, "PARTIAL")
     assert result["shortage_summary"]["total_person_minutes"] == 30
@@ -163,8 +165,12 @@ def test_small_exhaustive_oracle(assignment_request, priorities, employees):
         (("OPTIMAL", "OPTIMAL", "OPTIMAL", "FEASIBLE"), (True, True, True)),
     ],
 )
-def test_time_limit_proves_only_reached_prefix(assignment_request, monkeypatch, statuses, proofs):
+@pytest.mark.parametrize("version", ["0.5", "0.7"])
+def test_time_limit_proves_only_reached_prefix(
+    assignment_request, monkeypatch, statuses, proofs, version
+):
     data = assignment(assignment_request)
+    data["schema_version"] = version
     calls, _ = control_search(monkeypatch, statuses)
     result = solve(data)
     assert_response(result, "PARTIAL")

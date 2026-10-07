@@ -41,7 +41,7 @@ class SatResult:
 
 
 def priority_stages(request):
-    levels = priority_levels(request) if request["schema_version"] in {"0.5", "0.6"} else ()
+    levels = priority_levels(request) if request["schema_version"] in {"0.5", "0.6", "0.7"} else ()
     return levels if any(levels) else ()
 
 
@@ -61,7 +61,7 @@ def prepare_roster(model, problem):
             coverage[candidate.employee_id, slot].append(variable)
     for variables in by_day.values():
         model.add(sum(variables) <= 1)
-    if problem.request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6"}:
+    if problem.request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7"}:
         for candidates in by_employee.values():
             model.add_no_overlap(
                 model.new_optional_fixed_size_interval_var(
@@ -156,7 +156,7 @@ def prepare(problem, cp_model):
                     by_employee[employee].append(variable)
                     by_slot[employee, slot].append((role, variable))
                     by_role[slot, role].append(variable)
-            if problem.request["schema_version"] in {"0.3", "0.4", "0.5", "0.6"}:
+            if problem.request["schema_version"] in {"0.3", "0.4", "0.5", "0.6", "0.7"}:
                 shortage = model.new_int_var(0, count, f"shortage_{slot}_{role}")
                 model.add(sum(by_role[slot, role]) + shortage == count)
                 shortages.append(shortage)
@@ -237,12 +237,12 @@ def prepare(problem, cp_model):
                 preference["employee_ids"]
             ) - minutes
         expressions["preference_penalty"] += minutes * int(preference["penalty_per_minute"])
-    if problem.request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6"}:
+    if problem.request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7"}:
         from .extensions import prepare as prepare_extensions
 
         expressions.update(prepare_extensions(model, problem, assignments, shifts, scheduled))
     objectives = tuple(expressions[o["metric"]] for o in problem.request["objectives"])
-    if problem.request["schema_version"] in {"0.3", "0.4", "0.5", "0.6"}:
+    if problem.request["schema_version"] in {"0.3", "0.4", "0.5", "0.6", "0.7"}:
         objectives = (
             sum(shortages) * problem.grid.slot_minutes,
             *(
@@ -272,7 +272,7 @@ def run(problem, cp_model, num_workers=2):
     deadline = start + budget
     best = None
     bounds = [None] * len(objectives)
-    partial = problem.request["schema_version"] in {"0.3", "0.4", "0.5", "0.6"}
+    partial = problem.request["schema_version"] in {"0.3", "0.4", "0.5", "0.6", "0.7"}
     prefix = int(partial) + len(priority_stages(problem.request))
     for index, objective in enumerate(objectives or (None,)):
         path = (
@@ -308,7 +308,7 @@ def run(problem, cp_model, num_workers=2):
                     completed_objectives=max(0, index - prefix),
                     **(
                         {"completed_priority_groups": min(prefix - 1, max(0, index - 1))}
-                        if problem.request["schema_version"] in {"0.5", "0.6"}
+                        if problem.request["schema_version"] in {"0.5", "0.6", "0.7"}
                         else {}
                     ),
                 ),
@@ -371,7 +371,7 @@ def run(problem, cp_model, num_workers=2):
     best.search_elapsed_seconds = time.monotonic() - start
     best.preparation_elapsed_seconds = preparation_elapsed
     best.objective_bounds = tuple(bounds)
-    if problem.request["schema_version"] in {"0.3", "0.4", "0.5", "0.6"}:
+    if problem.request["schema_version"] in {"0.3", "0.4", "0.5", "0.6", "0.7"}:
         if best.solution is not None:
             best.shortage_person_minutes = best.values[0]
             best.shortage_proven_minimal = best.values[0] == 0 or best.proven_optimal[0]

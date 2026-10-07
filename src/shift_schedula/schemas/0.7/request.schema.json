@@ -1,0 +1,1273 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "0.7"
+    },
+    "request_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+    },
+    "problem_type": {
+      "enum": [
+        "assignment",
+        "roster"
+      ]
+    },
+    "planning_window": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "end": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "timezone": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "slot_minutes": {
+          "type": "integer",
+          "enum": [
+            5,
+            10,
+            15,
+            20,
+            30,
+            60
+          ]
+        }
+      },
+      "required": [
+        "start",
+        "end",
+        "timezone",
+        "slot_minutes"
+      ],
+      "additionalProperties": false
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 400
+          }
+        },
+        "required": [
+          "id",
+          "label"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 100
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 400
+          },
+          "required_skills": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "skill_id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+                },
+                "min_level": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 100
+                }
+              },
+              "required": [
+                "skill_id",
+                "min_level"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 0,
+            "maxItems": 100
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "required_skills"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 50
+    },
+    "employees": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 400
+          },
+          "skills": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "skill_id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+                },
+                "level": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 100
+                }
+              },
+              "required": [
+                "skill_id",
+                "level"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 0,
+            "maxItems": 100
+          },
+          "availability": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/interval"
+            },
+            "minItems": 0,
+            "maxItems": 3000
+          },
+          "history": {
+            "type": "object",
+            "properties": {
+              "last_shift_end": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "consecutive_work_days_before_window": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 366
+              },
+              "last_work_day": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date"
+              }
+            },
+            "required": [
+              "last_shift_end",
+              "consecutive_work_days_before_window",
+              "last_work_day"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "skills",
+          "availability"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 250
+    },
+    "demand": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+          },
+          "role_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+          },
+          "interval": {
+            "$ref": "#/$defs/interval"
+          },
+          "required_people": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 250
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 0
+          }
+        },
+        "required": [
+          "id",
+          "role_id",
+          "interval",
+          "required_people"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 10000
+    },
+    "shift_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+          },
+          "employee_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+          },
+          "segments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "interval": {
+                  "$ref": "#/$defs/interval"
+                },
+                "breaks": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/interval"
+                  },
+                  "minItems": 0,
+                  "maxItems": 10
+                }
+              },
+              "required": [
+                "interval",
+                "breaks"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 4
+          }
+        },
+        "required": [
+          "id",
+          "employee_id",
+          "segments"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "shift_templates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+          },
+          "employee_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+            },
+            "minItems": 1,
+            "maxItems": 250,
+            "uniqueItems": true
+          },
+          "dates": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "date"
+            },
+            "minItems": 1,
+            "maxItems": 365,
+            "uniqueItems": true
+          },
+          "start_times": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+            },
+            "minItems": 1,
+            "maxItems": 96,
+            "uniqueItems": true
+          },
+          "segment_options": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "offset_minutes": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10000000
+                  },
+                  "duration_minutes": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10000000
+                  },
+                  "breaks": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "offset_minutes": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 10000000
+                        },
+                        "duration_minutes": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 10000000
+                        }
+                      },
+                      "required": [
+                        "offset_minutes",
+                        "duration_minutes"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 0,
+                    "maxItems": 10
+                  }
+                },
+                "required": [
+                  "offset_minutes",
+                  "duration_minutes",
+                  "breaks"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1,
+              "maxItems": 4
+            },
+            "minItems": 1,
+            "maxItems": 20,
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "id",
+          "employee_ids",
+          "dates",
+          "start_times",
+          "segment_options"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 100
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+              },
+              "type": {
+                "const": "max_assigned_minutes"
+              },
+              "employee_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+                },
+                "minItems": 1,
+                "maxItems": 250,
+                "uniqueItems": true
+              },
+              "limit_minutes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10000000
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "employee_ids",
+              "limit_minutes"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+              },
+              "type": {
+                "const": "max_scheduled_minutes"
+              },
+              "employee_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+                },
+                "minItems": 1,
+                "maxItems": 250,
+                "uniqueItems": true
+              },
+              "limit_minutes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10000000
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "employee_ids",
+              "limit_minutes"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+              },
+              "type": {
+                "const": "min_rest_minutes"
+              },
+              "employee_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+                },
+                "minItems": 1,
+                "maxItems": 250,
+                "uniqueItems": true
+              },
+              "limit_minutes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10000000
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "employee_ids",
+              "limit_minutes"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+              },
+              "type": {
+                "const": "max_consecutive_days"
+              },
+              "employee_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+                },
+                "minItems": 1,
+                "maxItems": 250,
+                "uniqueItems": true
+              },
+              "limit_days": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10000000
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "employee_ids",
+              "limit_days"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+              },
+              "type": {
+                "const": "max_role_switches"
+              },
+              "employee_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+                },
+                "minItems": 1,
+                "maxItems": 250,
+                "uniqueItems": true
+              },
+              "limit_count": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10000000
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "employee_ids",
+              "limit_count"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+              },
+              "type": {
+                "const": "min_split_gap_minutes"
+              },
+              "employee_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+                },
+                "minItems": 1,
+                "maxItems": 250,
+                "uniqueItems": true
+              },
+              "limit_minutes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10000000
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "employee_ids",
+              "limit_minutes"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+              },
+              "type": {
+                "const": "scheduled_minutes_bounds"
+              },
+              "employee_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+                },
+                "minItems": 1,
+                "maxItems": 250,
+                "uniqueItems": true
+              },
+              "interval": {
+                "$ref": "#/$defs/interval"
+              },
+              "min_minutes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10000000
+              },
+              "max_minutes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10000000
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "employee_ids",
+              "interval"
+            ],
+            "additionalProperties": false,
+            "anyOf": [
+              {
+                "required": [
+                  "min_minutes"
+                ]
+              },
+              {
+                "required": [
+                  "max_minutes"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "minItems": 0,
+      "maxItems": 1000
+    },
+    "preferences": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+              },
+              "type": {
+                "const": "avoid_role"
+              },
+              "employee_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+                },
+                "minItems": 1,
+                "maxItems": 250,
+                "uniqueItems": true
+              },
+              "role_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+              },
+              "penalty_per_minute": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10000
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "employee_ids",
+              "role_id",
+              "penalty_per_minute"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+              },
+              "type": {
+                "enum": [
+                  "prefer_work",
+                  "avoid_work"
+                ]
+              },
+              "employee_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+                },
+                "minItems": 1,
+                "maxItems": 250,
+                "uniqueItems": true
+              },
+              "penalty_per_minute": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10000
+              },
+              "interval": {
+                "$ref": "#/$defs/interval"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "employee_ids",
+              "penalty_per_minute",
+              "interval"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "minItems": 0,
+      "maxItems": 1000
+    },
+    "objectives": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+          },
+          "metric": {
+            "enum": [
+              "preference_penalty",
+              "scheduled_minutes",
+              "role_switches",
+              "fairness_deviation_minutes",
+              "plan_changes"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "metric"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 5
+    },
+    "solver": {
+      "type": "object",
+      "properties": {
+        "backend": {
+          "enum": [
+            "auto",
+            "min_cost_flow",
+            "cp_sat"
+          ]
+        },
+        "time_limit_seconds": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 300
+        },
+        "seed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        }
+      },
+      "required": [
+        "backend",
+        "time_limit_seconds",
+        "seed"
+      ],
+      "additionalProperties": false
+    },
+    "fairness": {
+      "type": "object",
+      "properties": {
+        "evaluation_period": {
+          "$ref": "#/$defs/interval"
+        },
+        "employee_targets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "employee_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+              },
+              "target_minutes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10000000
+              }
+            },
+            "required": [
+              "employee_id",
+              "target_minutes"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 250
+        }
+      },
+      "required": [
+        "evaluation_period",
+        "employee_targets"
+      ],
+      "additionalProperties": false
+    },
+    "baseline": {
+      "type": "object",
+      "properties": {
+        "plan_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+        },
+        "source_request": {
+          "type": "object"
+        },
+        "source_solution": {
+          "type": "object"
+        },
+        "source_fixed_states": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "employee_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+              },
+              "interval": {
+                "$ref": "#/$defs/interval"
+              },
+              "work": {
+                "enum": [
+                  "off",
+                  "work",
+                  "break"
+                ]
+              },
+              "role": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "employee_id",
+              "interval"
+            ],
+            "anyOf": [
+              {
+                "required": [
+                  "work"
+                ]
+              },
+              {
+                "required": [
+                  "role"
+                ]
+              }
+            ],
+            "additionalProperties": false
+          }
+        },
+        "snapshot_origin": {
+          "type": "object",
+          "properties": {
+            "request_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+            },
+            "baseline_plan_id": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "replan_mode": {
+              "enum": [
+                "preserve_assigned",
+                "rebuild",
+                null
+              ]
+            }
+          },
+          "required": [
+            "request_id",
+            "baseline_plan_id",
+            "replan_mode"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "plan_id",
+        "source_request",
+        "source_solution"
+      ],
+      "additionalProperties": false,
+      "dependentRequired": {
+        "snapshot_origin": [
+          "source_fixed_states"
+        ]
+      }
+    },
+    "fixed_parts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+          },
+          "employee_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+          },
+          "interval": {
+            "$ref": "#/$defs/interval"
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "work",
+                "role"
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 2,
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "id",
+          "employee_id",
+          "interval",
+          "components"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 1000
+    },
+    "diagnosis": {
+      "type": "object",
+      "properties": {
+        "time_limit_seconds": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 300
+        },
+        "max_suggestions": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "allowed_changes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+              },
+              "edits": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "json_pointer": {
+                      "type": "string",
+                      "maxLength": 400
+                    },
+                    "value": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 10000000
+                    }
+                  },
+                  "required": [
+                    "json_pointer",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 10
+              }
+            },
+            "required": [
+              "id",
+              "edits"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 100
+        }
+      },
+      "required": [
+        "time_limit_seconds",
+        "max_suggestions",
+        "allowed_changes"
+      ],
+      "additionalProperties": false
+    },
+    "replan_mode": {
+      "enum": [
+        "preserve_assigned",
+        "rebuild"
+      ]
+    },
+    "continuity": {
+      "type": "object",
+      "properties": {
+        "context_window": {
+          "$ref": "#/$defs/interval"
+        },
+        "employees": {
+          "type": "array",
+          "maxItems": 500,
+          "items": {
+            "type": "object",
+            "properties": {
+              "employee_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+              },
+              "before_context": {
+                "type": "object",
+                "properties": {
+                  "last_shift_end": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "date-time"
+                  },
+                  "consecutive_work_days_before_window": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 366
+                  },
+                  "last_work_day": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "date"
+                  }
+                },
+                "required": [
+                  "last_shift_end",
+                  "consecutive_work_days_before_window",
+                  "last_work_day"
+                ],
+                "additionalProperties": false
+              },
+              "past_complete": {
+                "const": true
+              },
+              "actual_shifts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+                    },
+                    "segments": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "interval": {
+                            "$ref": "#/$defs/interval"
+                          },
+                          "breaks": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/$defs/interval"
+                            },
+                            "minItems": 0,
+                            "maxItems": 10
+                          }
+                        },
+                        "required": [
+                          "interval",
+                          "breaks"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "minItems": 1,
+                      "maxItems": 4
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "segments"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "commitments_complete": {
+                "const": true
+              },
+              "committed_shifts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}(?![\\s\\S])"
+                    },
+                    "segments": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "interval": {
+                            "$ref": "#/$defs/interval"
+                          },
+                          "breaks": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/$defs/interval"
+                            },
+                            "minItems": 0,
+                            "maxItems": 10
+                          }
+                        },
+                        "required": [
+                          "interval",
+                          "breaks"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "minItems": 1,
+                      "maxItems": 4
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "segments"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "employee_id",
+              "before_context",
+              "past_complete",
+              "actual_shifts",
+              "commitments_complete",
+              "committed_shifts"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "context_window",
+        "employees"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "request_id",
+    "problem_type",
+    "planning_window",
+    "skills",
+    "roles",
+    "employees",
+    "demand",
+    "shift_candidates",
+    "constraints",
+    "preferences",
+    "objectives",
+    "solver"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "interval": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "end": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "description": "配列は明示する。需要は元の必要人数を保持し、不足合計人分を最優先で最小化する。需要以外の必須条件は維持する。未指定需要は0。 基準は元期間で再検証し、比較・固定は新旧の重複期間に限定する。",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:schedula:request:0.7",
+  "title": "schedula Request 0.7"
+}

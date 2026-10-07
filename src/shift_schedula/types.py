@@ -2,7 +2,7 @@
 
 from typing import Literal, NotRequired, TypedDict
 
-type SchemaVersion = Literal["0.1", "0.2", "0.3", "0.4", "0.5", "0.6"]
+type SchemaVersion = Literal["0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7"]
 type JSONValue = None | bool | int | float | str | list[JSONValue] | dict[str, JSONValue]
 type FailureStatus = Literal[
     "INFEASIBLE", "UNKNOWN", "INVALID_INPUT", "BACKEND_UNAVAILABLE", "INTERNAL_ERROR"
@@ -332,7 +332,16 @@ class Request06(ExtendedRequestFields):
     continuity: NotRequired[Continuity]
 
 
-type Request = Request01 | Request02 | Request03 | Request04 | Request05 | Request06
+class Request07(ExtendedRequestFields):
+    schema_version: Literal["0.7"]
+    demand: list[PriorityDemand]
+    constraints: list[Constraint04]
+    preferences: list[AvoidRole | WorkPreference]
+    replan_mode: NotRequired[Literal["preserve_assigned", "rebuild"]]
+    continuity: NotRequired[Continuity]
+
+
+type Request = Request01 | Request02 | Request03 | Request04 | Request05 | Request06 | Request07
 
 
 class Assignment(TypedDict):
@@ -449,6 +458,8 @@ class ChangeSummary(TypedDict):
     work_changes: int
     role_changes: int
     total_changes: int
+    comparison_interval: NotRequired[Interval]
+    slot_minutes: NotRequired[int]
 
 
 class Shortage(TypedDict):
@@ -603,6 +614,22 @@ class Response06Failure(PartialResponseFields):
     priority_summary: None
 
 
+class Response07Success(PartialResponseFields):
+    schema_version: Literal["0.7"]
+    status: Literal["OPTIMAL", "FEASIBLE", "PARTIAL"]
+    solution: ContinuitySolution
+    continuity_summary: ContinuitySummary | None
+    priority_summary: PrioritySummary
+
+
+class Response07Failure(PartialResponseFields):
+    schema_version: Literal["0.7"]
+    status: FailureStatus
+    solution: None
+    continuity_summary: None
+    priority_summary: None
+
+
 type Response = (
     Response01Success
     | Response01Failure
@@ -616,6 +643,8 @@ type Response = (
     | Response05Failure
     | Response06Success
     | Response06Failure
+    | Response07Success
+    | Response07Failure
 )
 
 
