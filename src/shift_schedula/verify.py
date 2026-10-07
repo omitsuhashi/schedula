@@ -1,3 +1,4 @@
+import logging
 import time
 from collections import Counter, defaultdict
 from datetime import timedelta
@@ -10,6 +11,8 @@ from .contract import (
     schema_errors,
     schema_version_of,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def verify(request: dict, solution: dict) -> dict:
@@ -60,6 +63,7 @@ def verify(request: dict, solution: dict) -> dict:
     except InvalidInput as error:
         result["diagnostics"] = error.diagnostics
     except TimezoneDataError:
+        logger.debug("独立検証で時刻データを読み取れませんでした。", exc_info=True)
         result.update(
             status="INTERNAL_ERROR",
             diagnostics=[
@@ -67,6 +71,7 @@ def verify(request: dict, solution: dict) -> dict:
             ],
         )
     except Exception:
+        logger.debug("独立検証で内部例外が発生しました。", exc_info=True)
         result.update(
             status="INTERNAL_ERROR",
             demand_satisfied=None,

@@ -1,10 +1,13 @@
 """元条件の不可能性と、入力者が許可した変更後の解を分けて返す。"""
 
+import logging
 import re
 import time
 from copy import deepcopy
 
 from .contract import diagnostic, reject
+
+logger = logging.getLogger(__name__)
 
 
 def validate_options(request):
@@ -208,6 +211,7 @@ def diagnose(request, status, solve):
                     )
                 )
     except Exception:
+        logger.debug("追加診断で内部例外が発生しました。", exc_info=True)
         result["status"] = "ERROR"
         result["diagnostics"].append(
             diagnostic("DIAGNOSIS_ERROR", "追加診断の処理に失敗しました。")

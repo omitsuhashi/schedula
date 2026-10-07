@@ -1,8 +1,12 @@
+import logging
+
 from .contract import InvalidInput, get_schema, load_json
 from .engine import solve, validate
 from .extensions import make_baseline
 from .types import JSONValue, Request, Response, Validation, Verification
 from .verify import verify
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 __all__ = [
     "solve",

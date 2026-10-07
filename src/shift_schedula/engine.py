@@ -1,3 +1,4 @@
+import logging
 import time
 from importlib.metadata import version
 
@@ -11,6 +12,8 @@ from .contract import (
 )
 from .model import TimezoneDataError, minute_datetime, normalize
 from .verify import verify_plan, verify_solution
+
+logger = logging.getLogger(__name__)
 
 
 def response(
@@ -163,6 +166,7 @@ def validate(request: object) -> dict:
     except InvalidInput as error:
         result.update(status="INVALID_INPUT", diagnostics=error.diagnostics)
     except TimezoneDataError:
+        logger.debug("入力検証で時刻データを読み取れませんでした。", exc_info=True)
         result.update(
             status="INTERNAL_ERROR",
             diagnostics=[
@@ -170,6 +174,7 @@ def validate(request: object) -> dict:
             ],
         )
     except Exception:
+        logger.debug("入力検証で内部例外が発生しました。", exc_info=True)
         result.update(
             status="INTERNAL_ERROR",
             diagnostics=[diagnostic("INTERNAL_ERROR", "入力検証の処理に失敗しました。")],
@@ -371,6 +376,7 @@ def solve(request: dict) -> dict:
                     detail["status"] = "TIME_LIMIT"
                 validated = True
             except Exception:
+                logger.debug("追加診断の結果検証で内部例外が発生しました。", exc_info=True)
                 result["diagnosis_result"] = {
                     "status": "ERROR",
                     "reason": None,
@@ -388,6 +394,7 @@ def solve(request: dict) -> dict:
         result["stats"]["elapsed_seconds"] = time.perf_counter() - start
         return result
     except TimezoneDataError:
+        logger.debug("求解で時刻データを読み取れませんでした。", exc_info=True)
         result = response(
             request_id,
             "INTERNAL_ERROR",
@@ -411,11 +418,13 @@ def solve(request: dict) -> dict:
         if backend == "none":
             result = response(request_id, "INVALID_INPUT", error.diagnostics)
         else:
+            logger.debug("求解結果の検証に失敗しました。", exc_info=True)
             verification = {"performed": True, "valid": False, "violations": error.diagnostics}
             result = response(
                 request_id, "INTERNAL_ERROR", error.diagnostics, backend, verification
             )
     except Exception:
+        logger.debug("求解で内部例外が発生しました。", exc_info=True)
         # 内部例外や壊れた出力は正式な解として公開しない。
         result = response(
             request_id,

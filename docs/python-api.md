@@ -50,6 +50,26 @@ else:
 JSONを読んだ後は `validate` を通し、`VALID` を確認した境界で `cast(Request, value)` を使う。
 型を付けただけの値を検証済みと扱わない。
 
+## 内部障害を調べる
+
+packageのlogger `shift_schedula` は `NullHandler` を持ち、root logger・handler・levelを変更しない。
+求解・入力検証・独立検証・追加診断で捕捉した内部例外はDEBUGの `exc_info` として記録する。
+通常の入力不備や解なしにはtracebackを付けない。ログ未設定時の出力とCLIのJSON stdoutは維持する。
+
+組み込み側で、出力先を設定してから対象loggerのlevelを変える。
+
+```python
+import logging
+
+handler = logging.StreamHandler()  # 既定はstderr。保存先は利用側で指定する。
+logger = logging.getLogger("shift_schedula")
+logger.addHandler(handler)
+logger.setLevel(logging.DEBUG)
+```
+
+ライブラリはRequest/Solutionや従業員情報をログ用に展開しない。
+例外本文には利用側の値が含まれる場合があるため、DEBUGログの保存・アクセス・共有は利用側で管理する。
+
 [実行例](../examples/typed_api.py)は厳密JSON読み取り、フォーム検証、`PARTIAL`を含む状態分岐を示す。
 
 ```sh
