@@ -23,6 +23,7 @@
 uv sync --locked --extra cp-sat
 uv run --locked --extra cp-sat pre-commit run --all-files --show-diff-on-failure
 uv run --locked --extra cp-sat pytest -q -ra --junitxml=test-results/pytest.xml
+uv run --locked --extra cp-sat pytest -q -ra tests/test_cli.py tests/test_sdist.py tests/test_public_api.py tests/test_conflict_refinement.py tests/test_demand_priority.py tests/test_contract_04.py::test_verification_has_no_solver_call_or_proofs --junitxml=test-results/final-regression.xml
 uv run --locked --extra cp-sat python -m shift_schedula solve examples/conflict_refinement.json
 bash -n scripts/deploy
 ```
@@ -31,7 +32,14 @@ bash -n scripts/deploy
 
 初回の全体実行は1365成功・2失敗・6 subtests成功、スキップ0（473.88秒）。
 既存の版別期待値が0.8の正しいPARTIALを含まず、同じ期待値を同梱したsdistの再実行も失敗した。
-期待値を更新した関連78件は成功、失敗・スキップ0。配布の再検証と最終CIの結果を追記する。
+期待値を更新した関連78件は成功、失敗・スキップ0。
+修正後の隔離wheel・sdist・mypy consumer・CLIを含む関連回帰は104件成功、失敗・スキップ0（324.49秒）。
+実装commit `14f5655b00ae6f14330e5aa7b46056426be9266e` の
+[CI](https://github.com/omitsuhashi/schedula/actions/runs/37704336810)は全5ジョブ成功。
+Linux全体は1372件と6 subtests成功、失敗・スキップ0（409.91秒）。
+Windows/Linuxのbase/extraは89件ずつ成功し、スキップ検出とChromiumも通過した。
+文書更新後の最終commitのCI結果は[PR #82](https://github.com/omitsuhashi/schedula/pull/82)と
+[Issue #76](https://github.com/omitsuhashi/schedula/issues/76)に記録する。
 追加の診断検証は42件で、未知の版の拒否・UNKNOWN・期限・背景矛盾・許可変更案を含む。
 テスト作成時には、削除した制約を参照する許可編集と、mockの参照変数の誤りを修正した。
 これらの失敗を機能成功の証拠には使わない。
