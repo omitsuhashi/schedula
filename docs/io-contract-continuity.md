@@ -2,7 +2,7 @@
 
 [Issue #74](https://github.com/omitsuhashi/schedula/issues/74)の実装。
 0.6は0.5の需要優先度と0.4の勤務条件・未完成の計画・公開検証に、`roster` 専用の `continuity` を加える。
-0.5の需要優先度を統合し、不足総量→priority群ごとの不足→指定目的の順序を維持する。
+不足総量→priority群ごとの不足→指定目的の順序を維持する。
 0.1〜0.5のSchemaと意味は変更しない。`continuity` を省略すれば従来どおり
 全従業員の `history` と計画期間内の勤務候補を使う。
 
