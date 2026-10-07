@@ -31,7 +31,7 @@ where = ["src"]
 namespaces = false
 
 [tool.setuptools.package-data]
-shift_schedula = ["schemas/*/*.json"]
+shift_schedula = ["schemas/*/*.json", "py.typed", "*.pyi"]
 
 [tool.ruff]
 target-version = "py314"
@@ -49,6 +49,7 @@ markers = [
 
 [dependency-groups]
 dev = [
+    "mypy>=2.4.0",
     "pre-commit>=4.6.2",
     "pytest>=9.1.1",
     "ruff>=0.16.10",

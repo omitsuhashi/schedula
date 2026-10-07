@@ -518,7 +518,7 @@ def test_wheel_without_ortools_reports_unavailable_and_preserves_flow(tmp_path):
 import importlib.util, json, pathlib, subprocess, sys
 assert importlib.util.find_spec('ortools') is None
 import shift_schedula
-from shift_schedula import get_schema, verify, make_baseline
+from shift_schedula import get_schema, verify, make_baseline, validate
 from jsonschema import Draft202012Validator
 def schema_errors(kind, value):
     return list(Draft202012Validator(get_schema(kind, value['schema_version'])).iter_errors(value))
@@ -565,6 +565,11 @@ invalid_request = {**request, 'constraints': [{'id':'invalid','type':'scheduled_
     'employee_ids':['alice'],'interval':request['constraints'][0]['interval'],
     'min_minutes':91,'max_minutes':90}]}
 assert verify(invalid_request, saved)['status'] == 'INVALID_INPUT'
+assert validate(request)['status'] == 'VALID'
+assert validate(invalid_request)['status'] == 'INVALID_INPUT'
+invalid_baseline = {**request, 'baseline': {'plan_id':'broken',
+    'source_request':request, 'source_solution':{'shifts':[], 'assignments':[]}}}
+assert validate(invalid_baseline)['status'] == 'INVALID_INPUT'
 for index in range(3):
     snapshot = make_baseline(request, saved, f'saved_{index}')
     assert 'baseline' not in snapshot['source_request']

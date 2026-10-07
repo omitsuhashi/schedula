@@ -110,6 +110,8 @@ def test_wheel_installs_and_runs_library_and_cli_in_clean_environment(tmp_path, 
     assert build.returncode == 0, build.stderr
     (wheel,) = tmp_path.glob("*.whl")
     with zipfile.ZipFile(wheel) as archive:
+        assert "shift_schedula/py.typed" in archive.namelist()
+        assert "shift_schedula/__init__.pyi" in archive.namelist()
         assert "shift_schedula/schemas/0.1/request.schema.json" in archive.namelist()
         assert "shift_schedula/schemas/0.1/response.schema.json" in archive.namelist()
         assert "shift_schedula/schemas/0.2/request.schema.json" in archive.namelist()

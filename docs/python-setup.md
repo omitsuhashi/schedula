@@ -28,6 +28,7 @@ uv は **0.12.23** を使用する。直接インストールした uv は `uv s
 | CP-SAT | ortools | `cp-sat` extra |
 | lint・format | ruff | 開発依存 |
 | テストの入口 | pytest | 開発依存 |
+| 公開typingのconsumer検証 | mypy | 開発依存 |
 | コミット前の Ruff 実行 | pre-commit | 開発依存 |
 
 依存定義は `pyproject.toml`、解決した版は `uv.lock` に記録し、両方を Git で管理する。
@@ -128,8 +129,8 @@ Ruff 更新時は `uv run --extra cp-sat pre-commit autoupdate` も実行し、
 hook の `rev` と開発依存の Ruff を同じ版に揃える。
 Python 更新時も、依存の対応と wheel を確認して `uv python pin <version>` で固定し直す。
 
-mypy は型注釈を保守対象にするときだけ、poethepoet は `uv run ...` のコマンド整理が
-必要になったときだけ `uv add --dev` で追加する。現在はどちらも導入していない。
+mypyは公開typingのconsumer検証に導入した。内部実装全体を型チェックしたという意味ではない。
+poethepoetは未導入で、`uv run ...` のコマンド整理が必要になったときだけ追加する。
 
 ## セットアップ時の検証記録
 

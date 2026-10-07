@@ -36,6 +36,7 @@ uv run --locked --extra cp-sat python -m shift_schedula solve examples/roster.js
 `proven_optimal` で目的ごとの証明範囲を確認できます。
 
 最小費用流だけを使う場合は `--extra cp-sat` を省略できます。
+探索なしの入力検証、厳密JSON読み取り、型情報は[Python公開API](docs/python-api.md)を参照してください。
 CP-SAT が必要な入力を依存なしで解くと `BACKEND_UNAVAILABLE` になります。
 標準出力は JSON のみで、結果は `> result.json` で保存できます。
 標準入力と Schema の取得も同じ CLI で実行できます。

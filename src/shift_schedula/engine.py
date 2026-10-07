@@ -146,6 +146,38 @@ def validate_response(result, request=None):
         raise InvalidInput(errors)
 
 
+def validate(request: object) -> dict:
+    """探索せず、構造・参照・時刻・候補・基準計画の意味を検証する。"""
+    start = time.perf_counter()
+    result = {
+        "schema_version": schema_version_of(request),
+        "request_id": request.get("request_id")
+        if isinstance(request, dict) and isinstance(request.get("request_id"), str)
+        else None,
+        "status": "VALID",
+        "diagnostics": [],
+        "stats": {"elapsed_seconds": 0.0},
+    }
+    try:
+        normalize(request)
+    except InvalidInput as error:
+        result.update(status="INVALID_INPUT", diagnostics=error.diagnostics)
+    except TimezoneDataError:
+        result.update(
+            status="INTERNAL_ERROR",
+            diagnostics=[
+                diagnostic("TIMEZONE_DATA_UNAVAILABLE", "OSのTZDBまたはtzdataの導入を確認します。")
+            ],
+        )
+    except Exception:
+        result.update(
+            status="INTERNAL_ERROR",
+            diagnostics=[diagnostic("INTERNAL_ERROR", "入力検証の処理に失敗しました。")],
+        )
+    result["stats"]["elapsed_seconds"] = time.perf_counter() - start
+    return result
+
+
 def choose_backend(request):
     if request["solver"]["backend"] != "auto":
         return request["solver"]["backend"], "EXPLICIT_BACKEND"

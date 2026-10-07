@@ -41,6 +41,8 @@ def test_sdist_builds_and_runs_without_original_checkout(tmp_path):
             "docs/distribution.md",
             "GLOSSARY.md",
             "MANIFEST.in",
+            "src/shift_schedula/py.typed",
+            "src/shift_schedula/__init__.pyi",
         } <= names
         assert not any(
             name.startswith(
