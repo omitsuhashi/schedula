@@ -348,6 +348,8 @@ def test_shared_budget_excludes_preparation_and_records_total_elapsed(monkeypatc
     assert {f["name"]: f["value"] for f in stats["facts"]} == {
         "time_limit_seconds": 10,
         "search_elapsed_seconds": 6,
+        "num_workers": 2,
+        "workers_applied": True,
         "normalization_elapsed_seconds": 0,
         "input_validation_elapsed_seconds": 0,
         "candidate_expansion_elapsed_seconds": 0,

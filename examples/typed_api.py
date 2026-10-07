@@ -22,7 +22,7 @@ def read_form(text: str) -> Request | None:
 
 
 def report(request: Request) -> Response:
-    result = solve(request)
+    result = solve(request, num_workers=1)
     print(result["status"])
     if result["status"] == "PARTIAL":
         print("配置件数", len(result["solution"]["assignments"]))

@@ -221,9 +221,9 @@ def test_only_one_backend_is_called(
         calls["min_cost_flow"] += 1
         return original_flow(problem)
 
-    def run_sat(problem, module):
+    def run_sat(problem, module, num_workers=2):
         calls["cp_sat"] += 1
-        return original_sat(problem, module)
+        return original_sat(problem, module, num_workers)
 
     monkeypatch.setattr(flow, "run", run_flow)
     monkeypatch.setattr(cp_sat, "run", run_sat)

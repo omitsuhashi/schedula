@@ -197,7 +197,7 @@ def choose_backend(request):
     return "min_cost_flow", "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
 
 
-def solve(request: dict) -> dict:
+def solve(request: dict, *, num_workers: int = 2) -> dict:
     start = time.perf_counter()
     request_id = request.get("request_id") if isinstance(request, dict) else None
     if not isinstance(request_id, str):
@@ -217,13 +217,22 @@ def solve(request: dict) -> dict:
         return result
 
     try:
+        if type(num_workers) is not int or not 1 <= num_workers <= 2**31 - 1:
+            raise InvalidInput(
+                [
+                    diagnostic(
+                        "INVALID_EXECUTION_OPTION",
+                        "num_workers は1〜2147483647の整数で指定します。boolは受理しません。",
+                    )
+                ]
+            )
         problem = normalize(request)
         normalized_at = time.perf_counter()
         backend, selection_reason = choose_backend(request)
         if backend == "cp_sat":
             module, library_version = cp_sat.load_backend()
             loaded_at = time.perf_counter()
-            outcome = cp_sat.run(problem, module)
+            outcome = cp_sat.run(problem, module, num_workers)
         else:
             loaded_at = time.perf_counter()
             outcome = flow.run(problem)
@@ -322,6 +331,8 @@ def solve(request: dict) -> dict:
                 "/solver/time_limit_seconds",
                 time_limit_seconds=request["solver"]["time_limit_seconds"],
                 search_elapsed_seconds=outcome.search_elapsed_seconds,
+                num_workers=num_workers if backend == "cp_sat" else None,
+                workers_applied=backend == "cp_sat",
                 normalization_elapsed_seconds=normalized_at - start,
                 backend_loading_elapsed_seconds=loaded_at - normalized_at,
                 preparation_elapsed_seconds=outcome.preparation_elapsed_seconds,
@@ -365,7 +376,9 @@ def solve(request: dict) -> dict:
 
             diagnosis_start = time.perf_counter()
             try:
-                result["diagnosis_result"] = diagnose(request, result["status"], solve)
+                result["diagnosis_result"] = diagnose(
+                    request, result["status"], lambda value: solve(value, num_workers=num_workers)
+                )
                 validate_response(result, request)
                 detail = result["diagnosis_result"]
                 detail["elapsed_seconds"] = time.perf_counter() - diagnosis_start

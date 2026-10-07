@@ -227,13 +227,13 @@ def prepare(problem, cp_model):
     return model, assignments, shifts, objectives
 
 
-def run(problem, cp_model):
+def run(problem, cp_model, num_workers=2):
     preparation_start = time.perf_counter()
     model, variables, shifts, objectives = prepare(problem, cp_model)
     preparation_elapsed = time.perf_counter() - preparation_start
     solver = cp_model.CpSolver()
     solver.parameters.random_seed = int(problem.request["solver"]["seed"])
-    solver.parameters.num_search_workers = 2
+    solver.parameters.num_search_workers = num_workers
     solver.parameters.log_search_progress = False
     budget = problem.request["solver"]["time_limit_seconds"]
     # 準備を終えてから全段階で一つの予算を共有し、段階間の処理も含める。

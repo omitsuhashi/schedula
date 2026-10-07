@@ -7,7 +7,7 @@ JSONのdict/list境界を維持する。公開型は標準 `typing` の `TypedDi
 | --- | --- | --- |
 | `load_json(text: str) -> JSONValue` | 厳密なJSON読み取り。Request以外のJSONも読める | 重複キー・非有限数・不正JSONは `InvalidInput` |
 | `validate(request: object) -> Validation` | 構造・参照・時刻・候補・baselineの意味を探索なしで検証 | JSON結果の `VALID` / `INVALID_INPUT` / `INTERNAL_ERROR` |
-| `solve(request: Request) -> Response` | 求解と独立検証 | 入力不備・依存不足・内部障害を既存Responseの状態で返す |
+| `solve(request: Request, *, num_workers: int = 2) -> Response` | 求解と独立検証 | 入力不備・依存不足・内部障害を既存Responseの状態で返す |
 | `verify(request: Request, solution: Solution) -> Verification` | 保存・編集した解の独立検証。最適性は認定しない | `VALID` / `PARTIAL` / `INVALID_INPUT` / `INVALID_PLAN` / `INTERNAL_ERROR` |
 | `get_schema(kind, schema_version="0.1")` | `request` / `response` / `solution` / `verification` のSchema | 未知の種類・版は `ValueError` |
 | `make_baseline(request: Request04, solution: ExtendedSolution, plan_id: str) -> Baseline` | 契約0.4のrosterから検証済み基準計画を作る | 入力・解の不備は `InvalidInput`。環境・内部例外は呼び出し側で扱う |
@@ -80,3 +80,38 @@ uv run --locked python examples/typed_api.py examples/partial_assignment.json
 型チェックは公開typingのconsumerを対象とする。内部実装全体の静的型検証ではない。
 CIではwheelを別環境へ導入し、このconsumerが成功することと、状態の綴り間違い・未知フィールドを
 mypyが拒否することを検証する。型の仕組みは[mypyのTypedDict文書](https://mypy.readthedocs.io/en/stable/typed_dict.html)を参照する。
+
+## CPU数・総期限・取消
+
+同期 `solve(request)` を基本とする。`num_workers` はPythonの実行オプションで、
+省略時2、boolを除いた正の整数を受け取り、CP-SATのint32範囲（最大2147483647）を検証する。
+不備は `INVALID_INPUT` / `INVALID_EXECUTION_OPTION` として返す。
+CP-SATでは指定値を `num_search_workers` へ渡し、`SEARCH_STATS.facts.num_workers` に記録する。
+最小費用流では適用せず、この値をnull、`workers_applied` をfalseとして記録する。
+業務Requestの内容とJSON契約は変えない。追加診断の子求解にも同じ値を渡す。
+
+`solver.time_limit_seconds` は候補展開・モデル構築後の探索予算であり、呼び出し全体の期限ではない。
+[実行管理例](../examples/controlled_solve.py)の `run_controlled` はstdlibのspawnを使い、
+起動・IPC・求解・独立検証を含む総期限をmonotonic clockで管理する。
+`cancel` には親側の `threading.Event` を渡す。Windowsでも `if __name__ == "__main__"` の
+入口から呼ぶ。子は孫プロセスや共有lockを作らず、呼び出し専用の一時ファイルへJSONを保存する。
+子の終了後に完成したResponseを読み取り、元Requestに対して再検証してから返す。
+
+外側の `status` は `COMPLETED` / `DEADLINE_EXCEEDED` / `CANCELLED` / `WORKER_ERROR`。
+`COMPLETED` の `response` だけが完全なエンジン結果であり、その中の
+`UNKNOWN` / `INFEASIBLE` / `PARTIAL` などを読む。その他は `response: null`。
+期限・取消時にはterminate、必要ならkillを実行してjoinし、プロセスhandleと一時ファイルを片付ける。
+Pipe・Queueは作らないため、途中の大きな送信を親が受信して期限を超えることはない。
+各呼び出しの子とIPCは独立し、一件の取消で他を停止しない。
+
+```sh
+uv run --locked --extra cp-sat python examples/controlled_solve.py examples/roster.json --num-workers 1 --total-seconds 30
+uv run --locked --extra cp-sat python examples/controlled_solve.py examples/roster.json --total-seconds 0.001
+uv run --locked --extra cp-sat python examples/controlled_solve.py examples/roster.json --cancel-after 0.1
+```
+
+OSのプロセス起動・終了、親のIPC読み取りや再検証は即時に中断できないため、ハードリアルタイムではない。
+経過時間を再確認して遅い結果を破棄し、終了確認による超過は `elapsed_seconds` と
+`cleanup_seconds` で区別する。停止確認を済ませてから親へ戻る。
+macOSのローカル検証とWindows/LinuxのCIで正常完了・段階別の期限/取消・異常終了・並行実行を確認する。
+spawnと終了処理は[Python 3.14公式文書](https://docs.python.org/3.14/library/multiprocessing.html)に基づく。
