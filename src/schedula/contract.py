@@ -8,6 +8,13 @@ from itertools import islice
 
 from jsonschema import Draft202012Validator, FormatChecker
 
+SCHEMA_VERSIONS = ("0.1", "0.2", "0.3")
+
+
+def schema_version_of(value):
+    version = value.get("schema_version") if isinstance(value, dict) else None
+    return version if version in SCHEMA_VERSIONS else "0.1"
+
 
 def diagnostic(code, message, pointer="", related_ids=(), **facts):
     return {
@@ -109,8 +116,8 @@ def _date(value):
 def get_schema(kind, schema_version="0.1"):
     if kind not in {"request", "response"}:
         raise ValueError("request または response を指定します。")
-    if schema_version not in {"0.1", "0.2"}:
-        raise ValueError("schema_version は 0.1 または 0.2 を指定します。")
+    if schema_version not in SCHEMA_VERSIONS:
+        raise ValueError("schema_version は 0.1、0.2、0.3 のいずれかを指定します。")
     return json.loads(
         files("schedula")
         .joinpath(f"schemas/{schema_version}/{kind}.schema.json")
@@ -129,9 +136,7 @@ def _validator(kind, schema_version):
 
 def schema_errors(kind, value, schema_version=None):
     if schema_version is None:
-        schema_version = (
-            "0.2" if isinstance(value, dict) and value.get("schema_version") == "0.2" else "0.1"
-        )
+        schema_version = schema_version_of(value)
     return [
         diagnostic("SCHEMA_VIOLATION", error.message, pointer(error.absolute_path))
         for error in islice(_validator(kind, schema_version).iter_errors(value), 100)

@@ -242,6 +242,7 @@ Git には採用判断で使う入力・条件・集計・失敗を含む生デ�
 | [全体像](docs/overview.md) | 目的、利用例、対象範囲、構成、公開物 |
 | [設計方針](docs/design-policy.md) | アルゴリズム選択、制約・選好、検証、LLM の境界 |
 | [入出力契約0.1](docs/io-contract.md)・[契約0.2](docs/io-contract-next.md) | JSON の意味、日時、履歴、目的順序、結果状態と移行 |
+| [不足を伴う計画の契約0.3](docs/io-contract-partial.md) | 採用済みの不足集計・結果状態。Schemaと意味検証を導入し、不足の独立検証・探索は後続Issueで実装 |
 | [開発・検証方針](docs/development-policy.md) | 開発順序、完了条件、公開条件、未決定事項 |
 | [参照実装の評価](docs/evaluations/engine-introduction.md) | CP-SAT を含む実測、導入時の修正、コードの採用可否と公開入口 |
 | [用語集](GLOSSARY.md) | single-context の共通用語 |

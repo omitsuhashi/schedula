@@ -10,7 +10,7 @@ MAX_CANDIDATES = 5000
 
 
 def validate_history(request, grid):
-    extended = request["schema_version"] == "0.2"
+    extended = request["schema_version"] in {"0.2", "0.3"}
     first_day = grid.start.astimezone(grid.timezone).date().toordinal()
     for index, employee in enumerate(request["employees"]):
         path = f"/employees/{index}/history"
@@ -74,7 +74,7 @@ def local_start(day, clock, grid, path):
 
 def expand_candidates(request, grid):
     """元入力から有限候補を生成する。ソルバー用のテーブルは参照しない。"""
-    extended = request["schema_version"] == "0.2"
+    extended = request["schema_version"] in {"0.2", "0.3"}
     employees = {e["id"]: e for e in request["employees"]}
     available = {
         e["id"]: {
@@ -281,6 +281,7 @@ def expand_candidates(request, grid):
                 reject(
                     "INVALID_INTERVAL", "テンプレートの日時が表現できる範囲を超えています。", path
                 )
+            # 0.3でも候補の構造は同じ。0.2の識別子を保持して基準計画と照合する。
             key = json.dumps(
                 ["0.2", template["id"], employee, day, clock, option]
                 if extended

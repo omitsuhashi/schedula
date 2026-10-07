@@ -13,7 +13,7 @@ def verify_shifts(request, grid, shifts, fail):
     coverage, breaks = defaultdict(set), defaultdict(set)
     selected = defaultdict(list)
     scheduled = Counter()
-    extended = request["schema_version"] == "0.2"
+    extended = request["schema_version"] in {"0.2", "0.3"}
     for index, shift in enumerate(shifts):
         path = f"/shifts/{index}"
         identifier, employee = shift["candidate_id"], shift["employee_id"]
@@ -317,7 +317,7 @@ def verify_solution(problem, solution):
         "role_switches": sum(switches.values()),
         "scheduled_minutes": sum(scheduled.values()),
     }
-    if request["schema_version"] == "0.2":
+    if request["schema_version"] in {"0.2", "0.3"}:
         from .extensions import evaluate
 
         extension_violations, extension_metrics, _ = evaluate(problem, solution)

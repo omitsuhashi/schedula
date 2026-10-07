@@ -66,6 +66,12 @@ def validate(problem):
             reject("MISSING_BASELINE", "変更目的と固定部分には基準計画を指定します。", "/baseline")
         return
     source = baseline["source_request"]
+    if request["schema_version"] == "0.2" and source.get("schema_version") == "0.3":
+        reject(
+            "UNSUPPORTED_BASELINE_VERSION",
+            "契約0.2の基準計画は0.1または0.2で指定します。",
+            "/baseline/source_request/schema_version",
+        )
     if "baseline" in source or "diagnosis" in source:
         reject(
             "NESTED_BASELINE",
