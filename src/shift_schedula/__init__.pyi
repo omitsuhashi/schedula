@@ -2,9 +2,11 @@ from typing import Literal
 
 from .types import (
     Baseline,
+    ContinuitySolution,
     Diagnostic,
     ExtendedSolution,
     Request04,
+    Request06,
     SchemaVersion,
     Solution,
 )
@@ -36,4 +38,6 @@ def get_schema(
     kind: Literal["request", "response", "solution", "verification"],
     schema_version: SchemaVersion = "0.1",
 ) -> dict[str, JSONValue]: ...
-def make_baseline(request: Request04, solution: ExtendedSolution, plan_id: str) -> Baseline: ...
+def make_baseline(
+    request: Request04 | Request06, solution: ExtendedSolution | ContinuitySolution, plan_id: str
+) -> Baseline: ...

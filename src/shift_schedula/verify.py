@@ -36,6 +36,8 @@ def verify(request: dict, solution: dict) -> dict:
         "diagnostics": [],
         "stats": {"elapsed_seconds": 0.0},
     }
+    if result["schema_version"] == "0.6":
+        result["continuity_summary"] = None
     try:
         problem = normalize(request)
         violations, values, shortage = verify_plan(problem, solution)
@@ -82,6 +84,8 @@ def verify(request: dict, solution: dict) -> dict:
             verification={"performed": False, "valid": None, "violations": []},
             diagnostics=[diagnostic("INTERNAL_ERROR", "独立検証の処理に失敗しました。")],
         )
+    if result["schema_version"] == "0.6" and result["status"] == "INTERNAL_ERROR":
+        result["continuity_summary"] = None
     result["stats"]["elapsed_seconds"] = time.perf_counter() - started
     errors = schema_errors("verification", result)
     if errors:
@@ -90,6 +94,10 @@ def verify(request: dict, solution: dict) -> dict:
 
 
 def verify_shifts(request, grid, shifts, fail):
+    if request.get("continuity"):
+        from .continuity import verify_shifts as verify_continuity_shifts
+
+        return verify_continuity_shifts(request, grid, shifts, fail)
     from .roster import expand_candidates
 
     # 元入力から再展開し、CP-SAT の候補表・選択変数を使わず照合する。
@@ -98,7 +106,7 @@ def verify_shifts(request, grid, shifts, fail):
     coverage, breaks = defaultdict(set), defaultdict(set)
     selected = defaultdict(list)
     scheduled = Counter()
-    extended = request["schema_version"] in {"0.2", "0.3", "0.4"}
+    extended = request["schema_version"] in {"0.2", "0.3", "0.4", "0.6"}
     for index, shift in enumerate(shifts):
         path = f"/shifts/{index}"
         identifier, employee = shift["candidate_id"], shift["employee_id"]
@@ -283,6 +291,16 @@ def verify_plan(problem, solution, *, require_complete=False):
     except RecursionError:
         return [diagnostic("NON_JSON_VALUE", "解の階層が深すぎます。")], (), None
     violations = schema_errors("solution", solution, problem.request["schema_version"])
+    if not problem.request.get("continuity") and any(
+        "committed_shift_id" in s for s in solution["shifts"]
+    ):
+        violations.append(
+            diagnostic(
+                "UNEXPECTED_COMMITTED_SHIFT",
+                "確定勤務の参照には continuity が必要です。",
+                "/shifts",
+            )
+        )
     if violations:
         return violations, (), None
 
@@ -427,7 +445,7 @@ def verify_plan(problem, solution, *, require_complete=False):
         required, assigned = expected[slot, role_id], actual[slot, role_id]
         if assigned > required or (
             assigned < required
-            and (request["schema_version"] not in {"0.3", "0.4"} or require_complete)
+            and (request["schema_version"] not in {"0.3", "0.4", "0.6"} or require_complete)
         ):
             code = "DEMAND_SHORTAGE" if assigned < required else "DEMAND_EXCESS"
             fail(
@@ -474,7 +492,7 @@ def verify_plan(problem, solution, *, require_complete=False):
         "role_switches": sum(switches.values()),
         "scheduled_minutes": sum(scheduled.values()),
     }
-    if request["schema_version"] in {"0.2", "0.3", "0.4"}:
+    if request["schema_version"] in {"0.2", "0.3", "0.4", "0.6"}:
         from .extensions import evaluate
 
         extension_violations, extension_metrics, _ = evaluate(problem, solution)

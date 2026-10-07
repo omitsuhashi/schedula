@@ -57,7 +57,11 @@ def prepare(problem):
                     arcs.append((employee, role, edge))
         for role_node, role in enumerate(roles, len(employees) + 1):
             qualified = sum(role in problem.qualified[employee] for employee in employees)
-            if qualified < demand[role] and problem.request["schema_version"] not in {"0.3", "0.4"}:
+            if qualified < demand[role] and problem.request["schema_version"] not in {
+                "0.3",
+                "0.4",
+                "0.6",
+            }:
                 return [], diagnostic(
                     "INSUFFICIENT_QUALIFIED_EMPLOYEES",
                     "この役割の勤務可能な有資格者が不足しています。",
@@ -149,7 +153,7 @@ def run(problem):
     deadline = start + problem.request["solver"]["time_limit_seconds"]
     assignments = {}
     cost = 0
-    partial = problem.request["schema_version"] in {"0.3", "0.4"}
+    partial = problem.request["schema_version"] in {"0.3", "0.4", "0.6"}
     completed = True
     for slot, graph, arcs, required in networks:
         status, slot_cost = augment(graph, required, deadline)

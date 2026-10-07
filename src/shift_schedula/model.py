@@ -90,6 +90,7 @@ class ShiftCandidate:
     end: int
     breaks: tuple[tuple[int, int], ...]
     segments: tuple = ()
+    absolute_segments: tuple = ()
 
     @property
     def work_slots(self):
@@ -102,6 +103,15 @@ class ShiftCandidate:
         )
 
     def output(self, grid):
+        if self.absolute_segments:
+            from .continuity import output_segments
+
+            return {
+                "candidate_id": self.id,
+                "employee_id": self.employee_id,
+                "work_day": self.day.isoformat(),
+                "segments": output_segments(self.absolute_segments, grid),
+            }
         if self.segments:
             return {
                 "candidate_id": self.id,
@@ -133,6 +143,7 @@ class Problem:
     costs: dict[tuple[str, str], int]
     candidates: list[ShiftCandidate] = field(default_factory=list)
     baseline: dict | None = None
+    continuity: list = field(default_factory=list)
     normalization_stats: dict = field(default_factory=dict)
 
 
@@ -163,6 +174,9 @@ def normalize(request):
     expansion_seconds = 0.0
     validate_request(request)
     roster = request["problem_type"] == "roster"
+    continuous = "continuity" in request
+    if continuous and not roster:
+        reject("UNSUPPORTED_CONDITION", "continuity は roster 専用です。", "/continuity")
     if not roster:
         for name in ("shift_candidates", "shift_templates"):
             if request.get(name):
@@ -240,9 +254,34 @@ def normalize(request):
             slots=slots,
         )
     grid = TimeGrid(start, end, zone, int(window["slot_minutes"]), slots)
+    if continuous:
+        from .continuity import availability, context_bounds, facts, interval
+
+        context_bounds(request, grid)
+        continuity_facts = facts(request, grid)
+        absolute_available = availability(request, grid)
     for index, constraint in enumerate(request["constraints"]):
         if constraint["type"] == "scheduled_minutes_bounds":
-            grid.interval(constraint["interval"], f"/constraints/{index}/interval")
+            if continuous:
+                if (
+                    minute_datetime(
+                        constraint["interval"]["start"], f"/constraints/{index}/interval/start"
+                    )
+                    < context_bounds(request, grid)[0]
+                ):
+                    reject(
+                        "INCOMPLETE_HISTORY",
+                        "文脈開始より前の勤務量は集計できません。",
+                        f"/constraints/{index}/interval",
+                    )
+                interval(
+                    constraint["interval"],
+                    grid,
+                    context_bounds(request, grid),
+                    f"/constraints/{index}/interval",
+                )
+            else:
+                grid.interval(constraint["interval"], f"/constraints/{index}/interval")
     if roster and any(
         value.astimezone(zone).time() != datetime.min.time() for value in (start, end)
     ):
@@ -265,11 +304,19 @@ def normalize(request):
         for skill_index, skill in enumerate(employee["skills"]):
             reference(skill["skill_id"], ids["skills"], f"{path}/skills/{skill_index}/skill_id")
             levels[skill["skill_id"]] = skill["level"]
-        intervals = [
-            grid.interval(value, f"{path}/availability/{i}")
-            for i, value in enumerate(employee["availability"])
-        ]
-        nonoverlapping(intervals, path + "/availability")
+        intervals = (
+            [
+                (max(0, (a - start) // step), min(slots, (b - start) // step))
+                for a, b in absolute_available[employee["id"]]
+            ]
+            if continuous
+            else [
+                grid.interval(value, f"{path}/availability/{i}")
+                for i, value in enumerate(employee["availability"])
+            ]
+        )
+        if not continuous:
+            nonoverlapping(intervals, path + "/availability")
         available[employee["id"]] = {slot for a, b in intervals for slot in range(a, b)}
         qualified[employee["id"]] = {
             role["id"]
@@ -311,11 +358,14 @@ def normalize(request):
     if roster:
         from .roster import expand_candidates, validate_history
 
-        validate_history(request, grid)
+        if continuous:
+            problem.continuity = continuity_facts
+        else:
+            validate_history(request, grid)
         expansion_start = time.perf_counter()
         problem.candidates = expand_candidates(request, grid)
         expansion_seconds = time.perf_counter() - expansion_start
-    if request["schema_version"] in {"0.2", "0.3", "0.4"}:
+    if request["schema_version"] in {"0.2", "0.3", "0.4", "0.6"}:
         from .diagnosis import validate_options
         from .extensions import validate
 

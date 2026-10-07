@@ -5,7 +5,7 @@ Python の配布名は `shift-schedula`、import 名は `shift_schedula` です�
 
 技能・勤務可能時間・役割別需要・業務ルールから、担当配置（`assignment`）と
 出退勤・休憩を含む勤務計画（`roster`）の検証済み解を求める Python ライブラリと CLI です。
-JSON 契約0.1〜0.4に対応し、独立した配置は最小費用流、
+JSON 契約0.1〜0.4・0.6に対応し、独立した配置は最小費用流、
 担当時間・担当切替を含む配置と勤務計画は CP-SAT を使用します。
 
 独自コード・文書・デモは[MIT](LICENSE)で、自力導入・組み込み・商用利用ができます。
@@ -121,6 +121,9 @@ uv run --locked python -m shift_schedula verify examples/roster_conditions.json 
 `VALID` / `PARTIAL` / `INVALID_INPUT` / `INVALID_PLAN` を分けます。検証だけでは最適性を付与しません。
 公開 `make_baseline(request, solution, plan_id)` で固定条件を保持した次の基準へ変換し、
 `get_schema("request" | "response" | "solution" | "verification", "0.4")` でSchemaを取得できます。
+実績・確定勤務を引き継ぐ週・月境界の集計は[契約0.6](docs/io-contract-continuity.md)で利用できます。
+月末夜勤420分を過去120分・計画内300分へ分け、原区間と休憩を保持します。
+
 詳細と保存・再計画の使い方は[契約0.4](docs/io-contract-replanning.md)、
 合成入力の実測は[結合・規模評価](docs/evaluations/roster-conditions.md)を参照してください。
 
@@ -225,7 +228,7 @@ PY
 | --- | --- | --- |
 | `OPTIMAL` | 検証成功を確認して解を採用する。指定した条件・候補・粒度・目的の範囲で最適 | 0 |
 | `FEASIBLE` | 検証成功と未証明の目的を確認し、採用または探索予算を増やして再計算する | 0 |
-| `PARTIAL` | 契約0.3・0.4の未完成の計画。不足一覧・合計人分・`proven_minimal` を読み、需要充足と検証成功を区別する | 2 |
+| `PARTIAL` | 契約0.3・0.4・0.6の未完成の計画。不足一覧・合計人分・`proven_minimal` を読み、需要充足と検証成功を区別する | 2 |
 | `INFEASIBLE` | 必須条件を満たす解がないと証明された。0.3では需要不足を許容しても計画を作れない。診断を確認する | 2 |
 | `UNKNOWN` | 解も不可能性の証明もない。予算や問題規模を見直す | 2 |
 | `INVALID_INPUT` | `code` / `json_pointer` / `related_ids` / `facts` を基に入力を修正する | 2 |
@@ -233,7 +236,7 @@ PY
 | `INTERNAL_ERROR` | 解を採用せず、入力・エンジン版・診断を保存して調査する | 2 |
 
 解を返すのは独立検証に成功した `OPTIMAL` / `FEASIBLE` / `PARTIAL` だけです。
-0.1・0.2は完全充足を求め、0.3・0.4だけが元需要を保持した不足付き計画を許容します。
+0.1・0.2は完全充足を求め、0.3・0.4・0.6が元需要を保持した不足付き計画を許容します。
 それ以外は `solution: null` / `objectives: []`。終了コード2だけでは状態を区別できません。
 `message` は補助説明で、プログラムでは `status` と診断の `code` で分岐します。
 次の2例は意図的に終了コード2となります。
