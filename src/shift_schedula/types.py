@@ -2,7 +2,7 @@
 
 from typing import Literal, NotRequired, TypedDict
 
-type SchemaVersion = Literal["0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7"]
+type SchemaVersion = Literal["0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8"]
 type JSONValue = None | bool | int | float | str | list[JSONValue] | dict[str, JSONValue]
 type FailureStatus = Literal[
     "INFEASIBLE", "UNKNOWN", "INVALID_INPUT", "BACKEND_UNAVAILABLE", "INTERNAL_ERROR"
@@ -243,6 +243,14 @@ class DiagnosisOptions(TypedDict):
     allowed_changes: list[AllowedChange]
 
 
+class ConflictRefinement(TypedDict):
+    time_limit_seconds: float
+
+
+class DiagnosisOptions08(DiagnosisOptions):
+    conflict_refinement: NotRequired[ConflictRefinement]
+
+
 class RequestFields(TypedDict):
     request_id: str
     problem_type: Literal["assignment", "roster"]
@@ -341,7 +349,27 @@ class Request07(ExtendedRequestFields):
     continuity: NotRequired[Continuity]
 
 
-type Request = Request01 | Request02 | Request03 | Request04 | Request05 | Request06 | Request07
+class Request08(RequestFields):
+    schema_version: Literal["0.8"]
+    demand: list[PriorityDemand]
+    constraints: list[Constraint04]
+    preferences: list[AvoidRole | WorkPreference]
+    replan_mode: NotRequired[Literal["preserve_assigned", "rebuild"]]
+    continuity: NotRequired[Continuity]
+
+    employees: list[Employee]
+    shift_candidates: list[ShiftCandidate]
+    shift_templates: NotRequired[list[ShiftTemplate]]
+    objectives: list[Objective]
+    fairness: NotRequired[Fairness]
+    baseline: NotRequired[Baseline]
+    fixed_parts: NotRequired[list[FixedPart]]
+    diagnosis: NotRequired[DiagnosisOptions08]
+
+
+type Request = (
+    Request01 | Request02 | Request03 | Request04 | Request05 | Request06 | Request07 | Request08
+)
 
 
 class Assignment(TypedDict):
@@ -500,21 +528,56 @@ class Conflict(TypedDict):
     minimality: Literal["not_proven"]
 
 
+class ConflictCondition08(ConflictCondition):
+    group_id: str
+
+
+class ConflictCheck(TypedDict):
+    phase: Literal["initial", "removal", "final", "witness_recheck"]
+    active_groups: list[str]
+    removed_group_id: str | None
+    status: Literal["INFEASIBLE", "UNKNOWN", "FEASIBLE", "OPTIMAL"]
+    witness_verified: bool | None
+    completed_in_budget: bool
+    elapsed_seconds: float
+    preparation_elapsed_seconds: float
+    search_elapsed_seconds: float
+    verification_elapsed_seconds: float
+
+
+class Conflict08(TypedDict):
+    conditions: list[ConflictCondition08]
+    background_conditions: list[ConflictCondition08]
+    infeasibility_proven: Literal[True]
+    minimality: Literal["not_proven", "inclusion_minimal"]
+    minimality_scope: Literal["condition_groups_relative_to_background"]
+    background_only: bool
+    rechecked: bool
+    checks: list[ConflictCheck]
+
+
 class Suggestion(TypedDict):
     option_id: str
     modified_request: Request
     response: Response
 
 
-class DiagnosisResult(TypedDict):
+class DiagnosisResultFields(TypedDict):
     status: Literal["COMPLETE", "TIME_LIMIT", "ERROR", "UNSUPPORTED", "NOT_APPLICABLE"]
     reason: str | None
-    conflict: Conflict | None
     suggestions: list[Suggestion]
     suggestion_minimality: Literal["not_proven"]
     time_limit_seconds: float
     elapsed_seconds: float
     diagnostics: list[Diagnostic]
+
+
+class DiagnosisResult(DiagnosisResultFields):
+    conflict: Conflict | None
+
+
+class DiagnosisResult08(DiagnosisResultFields):
+    conflict: Conflict08 | None
 
 
 class ResponseFields(TypedDict):
@@ -630,6 +693,29 @@ class Response07Failure(PartialResponseFields):
     priority_summary: None
 
 
+class Response08Fields(ResponseFields):
+    fairness_summary: FairnessSummary | None
+    change_summary: ChangeSummary | None
+    diagnosis_result: DiagnosisResult08 | None
+    shortage_summary: ShortageSummary | None
+
+
+class Response08Success(Response08Fields):
+    schema_version: Literal["0.8"]
+    status: Literal["OPTIMAL", "FEASIBLE", "PARTIAL"]
+    solution: ContinuitySolution
+    continuity_summary: ContinuitySummary | None
+    priority_summary: PrioritySummary
+
+
+class Response08Failure(Response08Fields):
+    schema_version: Literal["0.8"]
+    status: FailureStatus
+    solution: None
+    continuity_summary: None
+    priority_summary: None
+
+
 type Response = (
     Response01Success
     | Response01Failure
@@ -645,6 +731,8 @@ type Response = (
     | Response06Failure
     | Response07Success
     | Response07Failure
+    | Response08Success
+    | Response08Failure
 )
 
 

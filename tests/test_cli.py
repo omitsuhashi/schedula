@@ -163,7 +163,7 @@ from shift_schedula import get_schema, verify, make_baseline
 from jsonschema import Draft202012Validator
 def schema_errors(kind, value):
     return list(Draft202012Validator(get_schema(kind, value['schema_version'])).iter_errors(value))
-for schema_version in ('0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7'):
+for schema_version in ('0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8'):
     for kind in ('request', 'response', 'solution', 'verification'):
         schema = get_schema(kind, schema_version)
         assert schema['$id'] == f'urn:schedula:{kind}:{schema_version}'
@@ -179,6 +179,7 @@ for filename, status, values in [
     ('fairness.json', 'OPTIMAL', [0, 720]),
     ('replan.json', 'OPTIMAL', [16, 0, 240]),
     ('diagnosis.json', 'INFEASIBLE', []),
+    ('conflict_refinement.json', 'INFEASIBLE', []),
     ('partial_assignment.json', 'PARTIAL', []),
     ('partial_roster.json', 'PARTIAL', [90]),
     ('roster_conditions.json', 'OPTIMAL', [0, 180]),

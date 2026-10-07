@@ -1,8 +1,8 @@
-# 不可能性の矛盾条件を絞り込む契約案
+# 不可能性の矛盾条件を絞り込む契約
 
-[#68](https://github.com/omitsuhashi/schedula/issues/68)の仕様案。
-現在の `diagnosis.conditions` は全必須条件を返し、`validate_result` も全件一致を要求する。
-新版では背景条件Bと削除できる条件集合Gを分け、Bを保持した十分集合C⊆Gを返す。
+[#68](https://github.com/omitsuhashi/schedula/issues/68)で採用した設計を、[#76](https://github.com/omitsuhashi/schedula/issues/76)で[契約0.8](../diagnosis.md#契約08の条件グループ縮小)へ実装した。
+旧版の `conflict.conditions` は全必須条件を返し、`validate_result` も全件一致を要求する。
+契約0.8では背景条件Bと削除できる条件集合Gを分け、Bを保持した十分集合C⊆Gを返す。
 元の `INFEASIBLE`・解なしと、既存 `allowed_changes` の許可範囲は変えない。
 
 ## 条件の分類

@@ -5,7 +5,7 @@ Python の配布名は `shift-schedula`、import 名は `shift_schedula` です�
 
 技能・勤務可能時間・役割別需要・業務ルールから、担当配置（`assignment`）と
 出退勤・休憩を含む勤務計画（`roster`）の検証済み解を求める Python ライブラリと CLI です。
-JSON 契約0.1〜0.7に対応し、独立した配置は最小費用流、
+JSON 契約0.1〜0.8に対応し、独立した配置は最小費用流、
 担当時間・担当切替を含む配置と勤務計画は CP-SAT を使用します。
 
 独自コード・文書・デモは[MIT](LICENSE)で、自力導入・組み込み・商用利用ができます。
@@ -102,6 +102,9 @@ uv run --locked --extra cp-sat python -m shift_schedula solve examples/partial_r
 入力・候補・目的を変更せずに版だけで不足を許容できるのは0.2→0.3です。
 0.1の勤務計画は `history.last_work_day` と `segments` / `segment_options` へ明示的に移行します。
 詳細は[契約0.3](docs/io-contract-partial.md)、実測と再実行は[検証記録](docs/evaluations/partial-plans.md)を参照してください。
+
+不可能性の十分集合を条件グループ単位で絞るには[契約0.8の診断](docs/diagnosis.md#契約08の条件グループ縮小)を使います。
+[架空入力](examples/conflict_refinement.json)は元の `INFEASIBLE` を保持し、背景条件に対する包含極小性と確認範囲を返します。
 
 ## 再計画・期間別勤務量・希望日時と編集後の検証
 
@@ -313,7 +316,7 @@ Git には採用判断で使う入力・条件・集計・失敗を含む生デ�
 | [入出力契約0.1](docs/io-contract.md)・[契約0.2](docs/io-contract-next.md) | JSON の意味、日時、履歴、目的順序、結果状態と移行 |
 | [再計画・勤務量・希望日時の契約0.4](docs/io-contract-replanning.md) | 新条件、基準スナップショット、公開検証API/CLIと移行 |
 | [重複期間の基準比較・固定再計画の契約0.7](docs/io-contract-overlap.md) | 元の基準を保持した移動期間の比較・固定・変更集計 |
-| [継続計画・診断・費用・夜勤休日評価の設計案](docs/planning-extensions.md) | Issue #67〜#70の仕様案、数値例、検証計画、実装の依存関係。継続計画と重複期間の再計画は実装済み |
+| [継続計画・診断・費用・夜勤休日評価の設計案](docs/planning-extensions.md) | Issue #67〜#70の仕様案、数値例、検証計画、実装の依存関係。継続計画・重複期間の再計画・矛盾縮小は実装済み |
 | [不足を伴う計画の契約0.3](docs/io-contract-partial.md) | 元需要を保持した不足集計・独立検証・両ソルバー・CLI・デモと証明範囲 |
 | [開発・検証方針](docs/development-policy.md) | 開発順序、完了条件、公開条件、未決定事項 |
 | [参照実装の評価](docs/evaluations/engine-introduction.md) | CP-SAT を含む実測、導入時の修正、コードの採用可否と公開入口 |

@@ -8,7 +8,7 @@ from .model import ShiftCandidate, minute_datetime, nonoverlapping, reference, u
 
 
 def validate_history(request, grid):
-    extended = request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7"}
+    extended = request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8"}
     first_day = grid.start.astimezone(grid.timezone).date().toordinal()
     for index, employee in enumerate(request["employees"]):
         path = f"/employees/{index}/history"
@@ -72,7 +72,7 @@ def local_start(day, clock, grid, path):
 
 def expand_candidates(request, grid):
     """元入力から有限候補を生成する。ソルバー用のテーブルは参照しない。"""
-    extended = request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7"}
+    extended = request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8"}
     employees = {e["id"]: e for e in request["employees"]}
     available = (
         {}
