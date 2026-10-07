@@ -417,6 +417,18 @@ def test_partial_baseline_old_versions_and_invalid_snapshot_not_trusted():
     assert invalid["diagnostics"][0]["code"] == "FIXED_PART_VIOLATION"
 
 
+@pytest.mark.parametrize("state", [{"work": "off"}, {"role": None}])
+def test_snapshot_states_reject_unknown_employee_even_when_empty(state):
+    data = replan_case()
+    data["baseline"]["source_fixed_states"].append(
+        {"employee_id": "unknown", "interval": interval(end=630), **state}
+    )
+    with pytest.raises(InvalidInput) as error:
+        normalize(data)
+    assert error.value.diagnostics[0]["code"] == "UNKNOWN_REFERENCE"
+    assert error.value.diagnostics[0]["json_pointer"].endswith("/employee_id")
+
+
 def test_preserved_assignments_over_1000_do_not_expand_fixed_parts():
     data = current(request(days=5, employees=tuple(f"e{i}" for i in range(201))))
     data["roles"] = data["roles"][:1]

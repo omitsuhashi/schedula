@@ -152,6 +152,7 @@ def validate(problem):
     requirements = []
     for index, part in enumerate(baseline.get("source_fixed_states", [])):
         path = f"/baseline/source_fixed_states/{index}"
+        reference(part["employee_id"], old_employees, path + "/employee_id")
         start, end = grid.interval(part["interval"], path + "/interval")
         for component in ("work", "role"):
             if component in part:
