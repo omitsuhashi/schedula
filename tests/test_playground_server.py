@@ -265,8 +265,12 @@ def test_json_input_reports_engine_validation(http_server):
     assert call(http_server, body=b"null", path="/solve-json")[1]["status"] == "INVALID_INPUT"
 
 
-def test_json_sample_100_people_30_days(http_server):
+@pytest.mark.parametrize("standby", [False, True], ids=["solver", "feasible-standby"])
+def test_json_sample_100_people_30_days(http_server, monkeypatch, standby):
+    from schedula.engine import response
+    from schedula.flow import make_solution
     from schedula.model import normalize
+    from schedula.verify import verify_solution
 
     body = (server.SAMPLES / "roster-100-30.json").read_bytes()
     request = json.loads(body)
@@ -276,9 +280,56 @@ def test_json_sample_100_people_30_days(http_server):
     assert problem.grid.slot_minutes == 30
     assert len(problem.candidates) == 3000
     assert len(body) > server.MAX_BODY
+    if standby:
+        first_day = problem.grid.start.astimezone(problem.grid.timezone).date()
+        positions = {employee["id"]: index for index, employee in enumerate(request["employees"])}
+        assignments = {employee: [] for employee in positions}
+        selected = []
+        # 休憩時間ごとの25人から10人を選び、各従業員に5日ごとに2勤務を割り当てる。
+        for candidate in problem.candidates:
+            day = (candidate.day - first_day).days
+            position = positions[candidate.employee_id] % 50 // 2
+            if (position - day * 10) % 25 < 10:
+                selected.append(candidate)
+                role = next(iter(problem.qualified[candidate.employee_id]))
+                assignments[candidate.employee_id].extend(
+                    (slot, role) for slot in candidate.work_slots
+                )
+        solution = make_solution(problem.grid, assignments)
+        extra = next(
+            c
+            for c in problem.candidates
+            if c.employee_id == request["employees"][20]["id"] and c.day == first_day
+        )
+        assert extra not in selected
+        solution["shifts"] = [c.output(problem.grid) for c in [*selected, extra]]
+        violations, values = verify_solution(problem, solution)
+        assert violations == []
+        assert len(solution["shifts"]) == 1201
+        assert values == (540450,)
+        replay = response(
+            request["request_id"],
+            "FEASIBLE",
+            backend="cp_sat",
+            selection_reason="JOINT_ROSTER",
+            verification={"performed": True, "valid": True, "violations": []},
+        )
+        replay.update(
+            solution=solution,
+            objectives=[
+                {
+                    "id": "work",
+                    "metric": "scheduled_minutes",
+                    "value": values[0],
+                    "proven_optimal": False,
+                }
+            ],
+        )
+        monkeypatch.setattr(server, "solve", lambda _: replay)
     status, result = call(http_server, body=body, path="/solve-json", timeout=120)
     assert status == 200
     assert result["status"] in {"OPTIMAL", "FEASIBLE"}
     assert_response(result, result["status"])
-    assert len(result["solution"]["shifts"]) == 1200
-    assert result["objectives"][0]["value"] == 540000
+    violations, values = verify_solution(problem, result["solution"])
+    assert violations == []
+    assert values == tuple(item["value"] for item in result["objectives"])

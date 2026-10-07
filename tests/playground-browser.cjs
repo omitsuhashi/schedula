@@ -126,7 +126,7 @@ async function jsonInputChecks(page) {
   assert.ok(["OPTIMAL", "FEASIBLE"].includes(large.response.status));
   assert.deepEqual(large.input, sample);
   assert.equal(large.response.verification.valid, true);
-  assert.equal(large.response.solution.shifts.length, 1200);
+  assert.ok(large.response.solution.shifts.length >= 1200);
   assert.equal(await page.locator("#json-day option").count(), 30);
   assert.equal(await page.locator("#json-output table").first().locator("tbody tr").count(), 100);
   assert.equal(await page.locator("#json-output table").first().locator("thead th").count(), 17);
