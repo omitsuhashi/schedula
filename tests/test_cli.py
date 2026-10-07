@@ -237,7 +237,7 @@ print('clean wheel: library and CLI; assignment, roster, infeasible, invalid inp
             text=True,
         )
         assert setup.returncode == 0, setup.stderr
-        python = environment / "bin/python"
+        python = environment / ("Scripts/python.exe" if sys.platform == "win32" else "bin/python")
         install = subprocess.run(
             [
                 "uv",

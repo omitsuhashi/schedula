@@ -24,6 +24,7 @@ uv は **0.12.23** を使用する。直接インストールした uv は `uv s
 | 用途 | パッケージ | 設定 |
 | --- | --- | --- |
 | JSON Schema 検証 | jsonschema | 実行依存 |
+| IANA タイムゾーンデータ | tzdata | 実行依存（OSデータがない場合のfallback） |
 | CP-SAT | ortools | `cp-sat` extra |
 | lint・format | ruff | 開発依存 |
 | テストの入口 | pytest | 開発依存 |
@@ -38,6 +39,15 @@ setuptools で版別 Schema を同梱する。利用・ビルドは [担当配�
 [勤務計画の手順](roster.md)を参照する。
 最小費用流だけを利用する場合は `uv sync --locked` / `uv run --locked ...` で実行でき、
 OR-Tools は不要。開発・CI の検証では既存どおり `--extra cp-sat` を維持する。
+
+タイムゾーンは標準 `zoneinfo` がOSのTZDBを優先し、見つからなければ直接依存の `tzdata` を使う。
+ライブラリはTZPATHを変更せず、データをネットワークから取得しない。
+`PYTHONTZPATH=""` を設定した別プロセスではOSのデータを使わず、fallbackを再現できる。
+WindowsのPowerShellでは `$env:PYTHONTZPATH = ""` としてから起動する。
+再現時にはPython・OS・tzdataの版と、PYTHONTZPATHの設定を記録する。
+存在しないゾーン名は `INVALID_INPUT` / `INVALID_TIMEZONE`、時刻データの欠落・破損・
+読み取り障害は `INTERNAL_ERROR` / `TIMEZONE_DATA_UNAVAILABLE` となる。
+CIの `timezone-distribution` でLinux/Windowsのbaseとextraを別環境で確認する。
 
 ## 初回セットアップ
 

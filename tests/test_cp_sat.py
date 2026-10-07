@@ -1,6 +1,7 @@
 import copy
 import itertools
 import json
+import os
 import random
 import subprocess
 import sys
@@ -602,6 +603,7 @@ print('isolated wheel: flow OPTIMAL; CP-SAT BACKEND_UNAVAILABLE; incompatible fl
             str(ROOT),
         ],
         cwd=tmp_path,
+        env={**os.environ, "PYTHONTZPATH": ""},
         capture_output=True,
         text=True,
     )

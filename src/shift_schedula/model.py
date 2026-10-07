@@ -1,10 +1,42 @@
 import errno
+import posixpath
 import time
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from .contract import parse_datetime, reject, validate_request
+
+
+class TimezoneDataError(RuntimeError):
+    """OSとtzdataから利用できる時刻データを取得できない環境障害。"""
+
+
+def load_timezone(key):
+    if (
+        "\x00" in key
+        or "\\" in key
+        or ":" in key
+        or any(part in {".", ".."} for part in key.split("/"))
+        or posixpath.isabs(key)
+        or posixpath.normpath(key) != key
+    ):
+        reject("INVALID_TIMEZONE", "IANA タイムゾーンを指定します。", "/planning_window/timezone")
+    try:
+        return ZoneInfo(key)
+    except ZoneInfoNotFoundError:
+        try:
+            # キャッシュ済みゾーンでデータ欠落を見逃さない。
+            ZoneInfo.no_cache("UTC")
+        except (ZoneInfoNotFoundError, ValueError, OSError, ImportError) as unavailable:
+            raise TimezoneDataError("OSのTZDBまたはtzdataを確認してください。") from unavailable
+        reject("INVALID_TIMEZONE", "IANA タイムゾーンを指定します。", "/planning_window/timezone")
+    except ValueError as error:
+        raise TimezoneDataError("時刻データが破損しています。") from error
+    except OSError as error:
+        if error.errno == errno.ENAMETOOLONG:
+            reject("INVALID_TIMEZONE", "timezone 名が長すぎます。", "/planning_window/timezone")
+        raise TimezoneDataError("時刻データを読み取れません。") from error
 
 
 def minute_datetime(value, pointer):
@@ -189,14 +221,7 @@ def normalize(request):
         )
 
     window = request["planning_window"]
-    try:
-        zone = ZoneInfo(window["timezone"])
-    except ZoneInfoNotFoundError, ValueError:
-        reject("INVALID_TIMEZONE", "IANA タイムゾーンを指定します。", "/planning_window/timezone")
-    except OSError as error:
-        if error.errno == errno.ENAMETOOLONG:
-            reject("INVALID_TIMEZONE", "timezone 名が長すぎます。", "/planning_window/timezone")
-        raise
+    zone = load_timezone(window["timezone"])
     start = minute_datetime(window["start"], "/planning_window/start")
     end = minute_datetime(window["end"], "/planning_window/end")
     step = timedelta(minutes=int(window["slot_minutes"]))

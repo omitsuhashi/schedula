@@ -9,7 +9,7 @@ from .contract import (
     schema_errors,
     schema_version_of,
 )
-from .model import minute_datetime, normalize
+from .model import TimezoneDataError, minute_datetime, normalize
 from .verify import verify_plan, verify_solution
 
 
@@ -355,6 +355,13 @@ def solve(request: dict) -> dict:
             validate_response(result, request)
         result["stats"]["elapsed_seconds"] = time.perf_counter() - start
         return result
+    except TimezoneDataError:
+        result = response(
+            request_id,
+            "INTERNAL_ERROR",
+            [diagnostic("TIMEZONE_DATA_UNAVAILABLE", "OSのTZDBまたはtzdataの導入を確認します。")],
+            backend,
+        )
     except cp_sat.BackendUnavailable:
         result = response(
             request_id,

@@ -485,6 +485,7 @@ version = "0.1.4"
 source = { editable = "." }
 dependencies = [
     { name = "jsonschema" },
+    { name = "tzdata" },
 ]
 
 [package.optional-dependencies]
@@ -503,6 +504,7 @@ dev = [
 requires-dist = [
     { name = "jsonschema", specifier = ">=4.26.0" },
     { name = "ortools", marker = "extra == 'cp-sat'", specifier = ">=9.15.6755" },
+    { name = "tzdata", specifier = ">=2026.5" },
 ]
 provides-extras = ["cp-sat"]
 

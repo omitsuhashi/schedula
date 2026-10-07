@@ -15,7 +15,7 @@ from .contract import (
 def verify(request: dict, solution: dict) -> dict:
     """JSON 型の編集解を検証する。探索と最適性の認定は行わない。"""
     from .extensions import evaluate
-    from .model import normalize
+    from .model import TimezoneDataError, normalize
 
     started = time.perf_counter()
     result = {
@@ -59,6 +59,13 @@ def verify(request: dict, solution: dict) -> dict:
             result.update(summaries)
     except InvalidInput as error:
         result["diagnostics"] = error.diagnostics
+    except TimezoneDataError:
+        result.update(
+            status="INTERNAL_ERROR",
+            diagnostics=[
+                diagnostic("TIMEZONE_DATA_UNAVAILABLE", "OSのTZDBまたはtzdataの導入を確認します。")
+            ],
+        )
     except Exception:
         result.update(
             status="INTERNAL_ERROR",

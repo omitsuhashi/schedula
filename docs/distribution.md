@@ -48,6 +48,8 @@ OR-ToolsはApache-2.0で、任意の `cp-sat` extraとして導入する。
 2026-10-07時点の最新安定版も3.14.8であり、新しい安定版・free-threaded・他実装は未検証。
 Windowsの実動作は未検証。CP-SATは対象環境のOR-Tools wheelが必要となる。
 最小費用流と保存済み勤務計画の独立検証にはOR-Toolsが不要。
+`tzdata` はbaseの直接依存として同梱表示を保持し、OSの時刻データがない環境でも使う。
+OSのTZDB優先・tzdata fallbackと再現方法は[Pythonセットアップ](python-setup.md)を参照する。
 
 ```sh
 uv build --wheel
