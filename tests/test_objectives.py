@@ -349,6 +349,8 @@ def test_shared_budget_excludes_preparation_and_records_total_elapsed(monkeypatc
         "time_limit_seconds": 10,
         "search_elapsed_seconds": 6,
         "normalization_elapsed_seconds": 0,
+        "input_validation_elapsed_seconds": 0,
+        "candidate_expansion_elapsed_seconds": 0,
         "backend_loading_elapsed_seconds": 100,
         "preparation_elapsed_seconds": 200,
         "verification_elapsed_seconds": 400,

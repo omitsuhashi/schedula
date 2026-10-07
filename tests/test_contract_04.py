@@ -661,3 +661,19 @@ def test_verification_schema_rejects_forged_validity_and_optimality():
     result = verify(data, {"assignments": [], "shifts": []})
     result["shortage_summary"]["proven_minimal"] = True
     assert schema_errors("verification", result)
+
+
+def test_cli_malformed_solution_keeps_request_version_and_identity(tmp_path):
+    req, sol = tmp_path / "request.json", tmp_path / "bad.json"
+    data = current()
+    req.write_text(json.dumps(data))
+    sol.write_text("{")
+    result = subprocess.run(
+        [sys.executable, "-m", "schedula", "verify", str(req), str(sol)],
+        capture_output=True,
+        text=True,
+    )
+    checked = json.loads(result.stdout)
+    assert result.returncode == 2 and checked["status"] == "INVALID_INPUT"
+    assert checked["schema_version"] == "0.4" and checked["request_id"] == data["request_id"]
+    assert not schema_errors("verification", checked)

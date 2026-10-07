@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 
 from . import get_schema, solve, verify
-from .contract import SCHEMA_VERSIONS, InvalidInput, diagnostic, load_json
+from .contract import SCHEMA_VERSIONS, InvalidInput, diagnostic, load_json, schema_version_of
 from .engine import response, validate_response
 
 
@@ -33,6 +33,7 @@ def main():
                 else Path(path).read_text(encoding="utf-8")
             )
 
+        request = None
         try:
             request = read(args.input_file)
             result = (
@@ -40,17 +41,21 @@ def main():
                 if args.command == "verify"
                 else solve(request)
             )
-        except InvalidInput as error:
+        except (InvalidInput, OSError, UnicodeError) as error:
+            diagnostics = (
+                error.diagnostics
+                if isinstance(error, InvalidInput)
+                else [diagnostic("INPUT_READ_ERROR", "UTF-8 の入力ファイルを読み取れません。")]
+            )
             if args.command == "verify":
                 result = verify(None, None)
-                result["diagnostics"] = error.diagnostics
-            else:
-                result = response(None, "INVALID_INPUT", error.diagnostics)
-        except OSError, UnicodeError:
-            diagnostics = [diagnostic("INPUT_READ_ERROR", "UTF-8 の入力ファイルを読み取れません。")]
-            if args.command == "verify":
-                result = verify(None, None)
-                result["diagnostics"] = diagnostics
+                result.update(
+                    schema_version=schema_version_of(request),
+                    diagnostics=diagnostics,
+                    request_id=request.get("request_id")
+                    if isinstance(request, dict) and isinstance(request.get("request_id"), str)
+                    else None,
+                )
             else:
                 result = response(None, "INVALID_INPUT", diagnostics)
         if args.command != "verify":

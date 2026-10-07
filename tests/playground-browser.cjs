@@ -203,15 +203,16 @@ async function jsonInputChecks(page) {
   await page.screenshot({path: "test-results/playground-json-mobile.png"});
   report.interactions.push({json_sample: "100人・30日・30分", status: large.response.status, verification: large.response.verification, stats: large.response.stats});
 
-  for (const name of ["roster", "overnight", "split_roster", "infeasible", "invalid-input", "partial_assignment", "partial_roster"]) {
+  for (const name of ["roster", "overnight", "split_roster", "infeasible", "invalid-input", "roster_conditions", "partial_replan_preserve_assigned", "partial_replan_rebuild", "partial_assignment", "partial_roster"]) {
     const input = readFileSync(`examples/${name}.json`);
+    const partial = name.startsWith("partial_") && name !== "partial_replan_rebuild";
     await page.locator("#json-file").setInputFiles({name: `${name}.json`, mimeType: "application/json", buffer: input});
     await waitJSON("読み込みました");
     assert.equal(await page.locator("#json-output table").count(), 0);
     await page.locator("#json-calculate").click();
-    await waitJSON(name === "infeasible" ? "INFEASIBLE" : name === "invalid-input" ? "INVALID_INPUT" : name.startsWith("partial_") ? "PARTIAL" : "OPTIMAL");
+    await waitJSON(name === "infeasible" ? "INFEASIBLE" : name === "invalid-input" ? "INVALID_INPUT" : partial ? "PARTIAL" : "OPTIMAL");
     assert.deepEqual(await page.evaluate(() => jsonPair.input), JSON.parse(input));
-    assert.equal(await page.locator("#json-output table").count(), ["infeasible", "invalid-input"].includes(name) ? 0 : name.startsWith("partial_") ? 3 : 2);
+    assert.equal(await page.locator("#json-output table").count(), ["infeasible", "invalid-input"].includes(name) ? 0 : partial ? 3 : 2);
   }
   await largeShortageRendering(page);
   const request = {...JSON.parse(readFileSync('examples/assignment.json', 'utf8')), schema_version: '0.3'};
