@@ -214,8 +214,22 @@ async function jsonInputChecks(page) {
     assert.equal(await page.locator("#json-output table").count(), ["infeasible", "invalid-input"].includes(name) ? 0 : name.startsWith("partial_") ? 3 : 2);
   }
   await largeShortageRendering(page);
-  // 実ソルバーの結果を変更した表示サンプル。探索の最適性の実測ではない。
   const request = {...JSON.parse(readFileSync('examples/assignment.json', 'utf8')), schema_version: '0.3'};
+  // 夏時間終了で同じ壁時計時刻が繰り返されても、実際の不足区間を区別する。
+  const clockChange = structuredClone(request);
+  Object.assign(clockChange.planning_window, {start: '2026-11-01T00:00:00-04:00', end: '2026-11-01T03:00:00-05:00', timezone: 'America/New_York'});
+  clockChange.demand = [{...clockChange.demand[0], interval: {start: '2026-11-01T01:30:00-04:00', end: '2026-11-01T01:30:00-05:00'}}];
+  clockChange.employees.forEach(employee => { employee.availability = []; });
+  await page.locator('#json-input').fill(JSON.stringify(clockChange));
+  await page.locator('#json-calculate').click();
+  await waitJSON('PARTIAL');
+  const clockResult = await page.evaluate(() => jsonPair.response);
+  assert.deepEqual(clockResult.verification, {performed: true, valid: true, violations: []});
+  assert.equal(clockResult.shortage_summary.total_person_minutes, 60);
+  const displayedInterval = await page.locator('#json-output').getByRole('region', {name: '不足の一覧', exact: true}).locator('tbody td').nth(1).innerText();
+  assert.equal(displayedInterval, '11/01 01:30 GMT-4〜11/01 01:30 GMT-5');
+  report.interactions.push({clock_change: 'America/New_York の夏時間終了', total_person_minutes: 60, displayed_interval: displayedInterval});
+  // 実ソルバーの結果を変更した表示サンプル。探索の最適性の実測ではない。
   for (const state of ['FEASIBLE', 'PARTIAL']) {
     if (state === 'PARTIAL') request.employees[0].availability = [];
     await page.locator('#json-input').fill(JSON.stringify(request));
