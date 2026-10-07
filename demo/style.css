@@ -39,6 +39,7 @@ input[type=number] { width: 48px; }
 input[type=checkbox] { accent-color: #32725e; width: 18px; height: 18px; }
 .kitchen { background: #e3eee8; color: #214c3c; }
 .hall { background: #e8eff7; color: #284765; }
+.shortage { background: #fff0e7; color: #802d17; font-weight: 600; }
 .washing { background: #f9f0db; color: #6b531d; }
 #status { font-weight: 700; padding: 10px; background: #f1f7f3; border-left: 4px solid #448573; }
 .comparison { border-top: 1px solid #cbd8cf; padding-top: 18px; }

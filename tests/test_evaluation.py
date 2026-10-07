@@ -233,3 +233,19 @@ def test_evaluation_keeps_original_infeasibility_and_verified_suggestions(tmp_pa
     assert suggestion["response"]["change_summary"]
     assert report["summaries"][0]["solution_rate"] == 0
     assert report["summaries"][0]["verified_suggestions"] == 1
+
+
+def test_partial_evaluation_preserves_shortage_and_verified_rate(tmp_path):
+    report = run_evaluation(tmp_path, ROOT / "examples/partial_roster.json")
+    row = report["measurements"][0]
+    assert row["status"] == "PARTIAL"
+    assert row["shortage_summary"]["total_person_minutes"] == 30
+    assert row["shortage_summary"]["proven_minimal"]
+    assert report["summaries"][0]["verified_solutions"] == 1
+    import runpy
+
+    functions = runpy.run_path(str(ROOT / "scripts/evaluate.py"))
+    row["shortage_summary"]["proven_minimal"] = False
+    for objective in row["objectives"]:
+        objective["proven_optimal"] = False
+    assert all(q["best_bound"] is None for q in functions["objective_quality"](row))

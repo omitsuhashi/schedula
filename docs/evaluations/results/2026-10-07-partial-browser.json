@@ -1,0 +1,434 @@
+{
+  "scenarios": [
+    {
+      "scenario": "normal",
+      "step": "initial",
+      "status": "OPTIMAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      }
+    },
+    {
+      "scenario": "normal",
+      "step": "changed",
+      "status": "OPTIMAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "shortage_summary": {
+        "total_person_minutes": 0,
+        "shortages": [],
+        "proven_minimal": true
+      }
+    },
+    {
+      "scenario": "normal",
+      "step": "restored",
+      "status": "OPTIMAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "shortage_summary": {
+        "total_person_minutes": 0,
+        "shortages": [],
+        "proven_minimal": true
+      }
+    },
+    {
+      "scenario": "absence",
+      "step": "initial",
+      "status": "OPTIMAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      }
+    },
+    {
+      "scenario": "absence",
+      "step": "changed",
+      "status": "PARTIAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "shortage_summary": {
+        "total_person_minutes": 60,
+        "shortages": [
+          {
+            "demand_id": "kitchen_2",
+            "role_id": "kitchen",
+            "interval": {
+              "start": "2026-10-06T12:00:00+09:00",
+              "end": "2026-10-06T12:30:00+09:00"
+            },
+            "required_people": 2,
+            "assigned_people": 1,
+            "missing_people": 1
+          },
+          {
+            "demand_id": "kitchen_3",
+            "role_id": "kitchen",
+            "interval": {
+              "start": "2026-10-06T12:30:00+09:00",
+              "end": "2026-10-06T13:00:00+09:00"
+            },
+            "required_people": 2,
+            "assigned_people": 1,
+            "missing_people": 1
+          }
+        ],
+        "proven_minimal": true
+      }
+    },
+    {
+      "scenario": "absence",
+      "step": "repaired",
+      "status": "OPTIMAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "shortage_summary": {
+        "total_person_minutes": 0,
+        "shortages": [],
+        "proven_minimal": true
+      }
+    },
+    {
+      "scenario": "absence",
+      "step": "restored",
+      "status": "OPTIMAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "shortage_summary": {
+        "total_person_minutes": 0,
+        "shortages": [],
+        "proven_minimal": true
+      }
+    },
+    {
+      "scenario": "peak",
+      "step": "initial",
+      "status": "OPTIMAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      }
+    },
+    {
+      "scenario": "peak",
+      "step": "changed",
+      "status": "OPTIMAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "shortage_summary": {
+        "total_person_minutes": 0,
+        "shortages": [],
+        "proven_minimal": true
+      }
+    },
+    {
+      "scenario": "peak",
+      "step": "restored",
+      "status": "OPTIMAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "shortage_summary": {
+        "total_person_minutes": 0,
+        "shortages": [],
+        "proven_minimal": true
+      }
+    }
+  ],
+  "response_samples": [
+    "initial-http-validation",
+    "initial-unknown-baseline",
+    "initial-http-guide",
+    "INFEASIBLE",
+    "UNKNOWN",
+    "INVALID_INPUT",
+    "BACKEND_UNAVAILABLE",
+    "INTERNAL_ERROR",
+    "http-error",
+    "communication",
+    "request-id",
+    "verification",
+    "malformed",
+    "shortage",
+    "double",
+    "計算中・二重送信抑止・編集で失効した遅延応答",
+    "待機期限（テスト時のみ100msに短縮）・期限後応答の拒否・復帰",
+    "JSON FEASIBLE 未証明の表示",
+    "JSON PARTIAL 未証明の表示"
+  ],
+  "interactions": [
+    "勤務不可→需要ガイド→解除でサンプル時刻・編集済み時刻を保持、復元でサンプル時刻へ戻る",
+    "キーボード編集・再計算・復元、自由編集の保持、シナリオ切替の取消、重複名のID比較",
+    "空欄・小数・範囲外の入力不備、ラベルの文字表示",
+    {
+      "viewport": 1440,
+      "geometry": {
+        "width": 1440,
+        "document": 1440,
+        "columns": 2
+      },
+      "keyboard_focus": true
+    },
+    {
+      "viewport": 390,
+      "geometry": {
+        "width": 390,
+        "document": 390,
+        "columns": 1
+      },
+      "keyboard_focus": true
+    },
+    "強制配色でも状態・役割名を文字で確認",
+    "技能チェックをキーボードで編集して不足付き配置を実計算、勤務可能時間の逆転を拒否",
+    {
+      "all_missing": {
+        "total_person_minutes": 660,
+        "shortages": [
+          {
+            "demand_id": "kitchen_0",
+            "role_id": "kitchen",
+            "interval": {
+              "start": "2026-10-06T11:00:00+09:00",
+              "end": "2026-10-06T11:30:00+09:00"
+            },
+            "required_people": 1,
+            "assigned_people": 0,
+            "missing_people": 1
+          },
+          {
+            "demand_id": "kitchen_1",
+            "role_id": "kitchen",
+            "interval": {
+              "start": "2026-10-06T11:30:00+09:00",
+              "end": "2026-10-06T12:00:00+09:00"
+            },
+            "required_people": 1,
+            "assigned_people": 0,
+            "missing_people": 1
+          },
+          {
+            "demand_id": "kitchen_2",
+            "role_id": "kitchen",
+            "interval": {
+              "start": "2026-10-06T12:00:00+09:00",
+              "end": "2026-10-06T12:30:00+09:00"
+            },
+            "required_people": 2,
+            "assigned_people": 0,
+            "missing_people": 2
+          },
+          {
+            "demand_id": "kitchen_3",
+            "role_id": "kitchen",
+            "interval": {
+              "start": "2026-10-06T12:30:00+09:00",
+              "end": "2026-10-06T13:00:00+09:00"
+            },
+            "required_people": 2,
+            "assigned_people": 0,
+            "missing_people": 2
+          },
+          {
+            "demand_id": "kitchen_4",
+            "role_id": "kitchen",
+            "interval": {
+              "start": "2026-10-06T13:00:00+09:00",
+              "end": "2026-10-06T13:30:00+09:00"
+            },
+            "required_people": 1,
+            "assigned_people": 0,
+            "missing_people": 1
+          },
+          {
+            "demand_id": "kitchen_5",
+            "role_id": "kitchen",
+            "interval": {
+              "start": "2026-10-06T13:30:00+09:00",
+              "end": "2026-10-06T14:00:00+09:00"
+            },
+            "required_people": 1,
+            "assigned_people": 0,
+            "missing_people": 1
+          },
+          {
+            "demand_id": "hall_0",
+            "role_id": "hall",
+            "interval": {
+              "start": "2026-10-06T11:00:00+09:00",
+              "end": "2026-10-06T11:30:00+09:00"
+            },
+            "required_people": 1,
+            "assigned_people": 0,
+            "missing_people": 1
+          },
+          {
+            "demand_id": "hall_1",
+            "role_id": "hall",
+            "interval": {
+              "start": "2026-10-06T11:30:00+09:00",
+              "end": "2026-10-06T12:00:00+09:00"
+            },
+            "required_people": 1,
+            "assigned_people": 0,
+            "missing_people": 1
+          },
+          {
+            "demand_id": "hall_2",
+            "role_id": "hall",
+            "interval": {
+              "start": "2026-10-06T12:00:00+09:00",
+              "end": "2026-10-06T12:30:00+09:00"
+            },
+            "required_people": 2,
+            "assigned_people": 0,
+            "missing_people": 2
+          },
+          {
+            "demand_id": "hall_3",
+            "role_id": "hall",
+            "interval": {
+              "start": "2026-10-06T12:30:00+09:00",
+              "end": "2026-10-06T13:00:00+09:00"
+            },
+            "required_people": 2,
+            "assigned_people": 0,
+            "missing_people": 2
+          },
+          {
+            "demand_id": "hall_4",
+            "role_id": "hall",
+            "interval": {
+              "start": "2026-10-06T13:00:00+09:00",
+              "end": "2026-10-06T13:30:00+09:00"
+            },
+            "required_people": 1,
+            "assigned_people": 0,
+            "missing_people": 1
+          },
+          {
+            "demand_id": "hall_5",
+            "role_id": "hall",
+            "interval": {
+              "start": "2026-10-06T13:30:00+09:00",
+              "end": "2026-10-06T14:00:00+09:00"
+            },
+            "required_people": 1,
+            "assigned_people": 0,
+            "missing_people": 1
+          },
+          {
+            "demand_id": "washing_0",
+            "role_id": "washing",
+            "interval": {
+              "start": "2026-10-06T11:00:00+09:00",
+              "end": "2026-10-06T11:30:00+09:00"
+            },
+            "required_people": 1,
+            "assigned_people": 0,
+            "missing_people": 1
+          },
+          {
+            "demand_id": "washing_1",
+            "role_id": "washing",
+            "interval": {
+              "start": "2026-10-06T11:30:00+09:00",
+              "end": "2026-10-06T12:00:00+09:00"
+            },
+            "required_people": 1,
+            "assigned_people": 0,
+            "missing_people": 1
+          },
+          {
+            "demand_id": "washing_2",
+            "role_id": "washing",
+            "interval": {
+              "start": "2026-10-06T12:00:00+09:00",
+              "end": "2026-10-06T12:30:00+09:00"
+            },
+            "required_people": 1,
+            "assigned_people": 0,
+            "missing_people": 1
+          },
+          {
+            "demand_id": "washing_3",
+            "role_id": "washing",
+            "interval": {
+              "start": "2026-10-06T12:30:00+09:00",
+              "end": "2026-10-06T13:00:00+09:00"
+            },
+            "required_people": 1,
+            "assigned_people": 0,
+            "missing_people": 1
+          },
+          {
+            "demand_id": "washing_4",
+            "role_id": "washing",
+            "interval": {
+              "start": "2026-10-06T13:00:00+09:00",
+              "end": "2026-10-06T13:30:00+09:00"
+            },
+            "required_people": 1,
+            "assigned_people": 0,
+            "missing_people": 1
+          },
+          {
+            "demand_id": "washing_5",
+            "role_id": "washing",
+            "interval": {
+              "start": "2026-10-06T13:30:00+09:00",
+              "end": "2026-10-06T14:00:00+09:00"
+            },
+            "required_people": 1,
+            "assigned_people": 0,
+            "missing_people": 1
+          }
+        ],
+        "proven_minimal": true
+      },
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      }
+    },
+    {
+      "json_sample": "100人・30日・30分",
+      "status": "FEASIBLE",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "stats": {
+        "elapsed_seconds": 31.82425125001464
+      }
+    },
+    "JSON のファイル入力・夜勤・分割勤務・解なし・入力不備・重複キー・不正UTF-8・日付切替・編集で結果を失効"
+  ],
+  "browser": "154.0.8037.99",
+  "page_errors": []
+}

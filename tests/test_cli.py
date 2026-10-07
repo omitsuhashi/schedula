@@ -158,6 +158,8 @@ for filename, status, values in [
     ('fairness.json', 'OPTIMAL', [0, 720]),
     ('replan.json', 'OPTIMAL', [16, 0, 240]),
     ('diagnosis.json', 'INFEASIBLE', []),
+    ('partial_assignment.json', 'PARTIAL', []),
+    ('partial_roster.json', 'PARTIAL', [90]),
 ]:
     path = root / 'examples' / filename
     request = json.loads(path.read_text(encoding='utf-8'))
@@ -169,10 +171,13 @@ for filename, status, values in [
         assert response['status'] == status
         assert not schema_errors('response', response)
         assert [o['value'] for o in response['objectives']] == values
-        if status == 'OPTIMAL':
+        if status in {'OPTIMAL', 'PARTIAL'}:
             assert response['verification'] == {
                 'performed': True, 'valid': True, 'violations': []}
             assert all(o['proven_optimal'] for o in response['objectives'])
+            if status == 'PARTIAL':
+                assert response['shortage_summary']['proven_minimal']
+                assert response['shortage_summary']['total_person_minutes'] > 0
         else:
             assert response['solution'] is None and response['diagnostics']
 print('clean wheel: library and CLI; assignment, roster, infeasible, invalid input')

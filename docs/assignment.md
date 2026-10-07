@@ -163,3 +163,18 @@ wheel のテストは、ソース checkout を import せず同梱 Schema・ラ�
 [目的順序・終了状態の検証記録](evaluations/objectives.md) に残す。
 クリーンな wheel の隔離導入、CI のスキップ検出、週単位の架空入力の時間・メモリは
 [利用入口・CI・実行評価](evaluations/runtime.md)に記録する。
+
+## 契約0.3の不足付き担当配置
+
+本書の従来例・解なし診断は契約0.1・0.2の完全充足を求める経路である。
+[契約0.3](io-contract-partial.md)では元の必要人数を保持し、最小費用流は各枠の最大流、
+CP-SATは不足合計人分の最小化を全指定目的に優先する。時間切れの検証済み途中配置も返せる。
+`PARTIAL` は `solution` と `shortage_summary` を持ち、CLI終了コード2でもJSONを保存できる。
+資格・勤務可能時間・二重配置・過剰配置・担当時間上限・担当切替上限は緩和しない。
+
+```sh
+uv run --locked python -m schedula solve examples/partial_assignment.json > result.json
+```
+
+不足合計60人分、最小性証明済み。独立検証成功と需要充足は別であり、
+未証明の不足を不可避とは判断しない。[検証記録](evaluations/partial-plans.md)を参照する。

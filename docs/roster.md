@@ -108,3 +108,20 @@ JSON 表現の SHA-256 から生成する。入力配列の順序を変えても
 目的順序と終了状態の実測は [目的順序・終了状態の検証記録](evaluations/objectives.md)に記録する。
 クリーンな wheel の隔離導入と20人・7日・560候補の架空入力による時間・メモリは
 [利用入口・CI・実行評価](evaluations/runtime.md)に記録する。
+
+## 契約0.3の不足付き勤務計画
+
+本書の従来候補・テンプレート表現は0.1である。0.2・0.3では `segments` / `segment_options` と
+`history.last_work_day` を明示し、夜勤・分割勤務・公平性・再計画を継承する。
+[契約0.3](io-contract-partial.md)では勤務選択と担当配置の同時最適化を維持し、
+元の需要に対する不足人分を勤務量・公平性・変更最小化より先に最小化する。
+固定部分、休憩、勤務量上限、休息、連勤は必須条件のままである。
+
+```sh
+uv run --locked --extra cp-sat python -m schedula solve examples/partial_roster.json > result.json
+```
+
+`PARTIAL`、不足合計30人分、勤務量90分、最小性証明済み、CLI終了コード2となる。
+不足があっても他の必須条件と集計を検証できた計画を返す。固定などが成立しなければ
+`INFEASIBLE`、計画を取得できなければ `UNKNOWN` とし、空計画を捏造しない。
+基準計画は0.3でも完全な計画に限定する。[検証記録](evaluations/partial-plans.md)を参照する。

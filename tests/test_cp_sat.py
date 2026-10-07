@@ -518,7 +518,12 @@ request = json.loads((root / 'examples/assignment.json').read_text(encoding='utf
 result = schedula.solve(request)
 assert result['status'] == 'OPTIMAL' and result['verification']['valid'] is True
 assert result['solver']['backend'] == 'min_cost_flow' and not schema_errors('response', result)
-for example in ['linked_assignment.json', 'roster.json']:
+partial = json.loads((root / 'examples/partial_assignment.json').read_text(encoding='utf-8'))
+result = schedula.solve(partial)
+assert result['status'] == 'PARTIAL' and result['verification']['valid']
+assert result['shortage_summary']['total_person_minutes'] == 60
+assert not schema_errors('response', result)
+for example in ['linked_assignment.json', 'roster.json', 'partial_roster.json']:
     request = json.loads((root / 'examples' / example).read_text(encoding='utf-8'))
     for backend in ['auto', 'cp_sat']:
         request['solver']['backend'] = backend

@@ -80,7 +80,7 @@ def validate(problem):
         )
     try:
         old = normalize(source)
-        violations, _ = verify_solution(old, baseline["source_solution"])
+        violations, _ = verify_solution(old, baseline["source_solution"], require_complete=True)
     except InvalidInput as error:
         raise InvalidInput(
             [

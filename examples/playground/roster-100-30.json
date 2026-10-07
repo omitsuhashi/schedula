@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1",
+  "schema_version": "0.3",
   "request_id": "roster_100_people_30_days",
   "problem_type": "roster",
   "planning_window": {
@@ -58,7 +58,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -78,7 +79,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -98,7 +100,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -118,7 +121,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -138,7 +142,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -158,7 +163,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -178,7 +184,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -198,7 +205,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -218,7 +226,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -238,7 +247,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -258,7 +268,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -278,7 +289,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -298,7 +310,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -318,7 +331,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -338,7 +352,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -358,7 +373,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -378,7 +394,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -398,7 +415,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -418,7 +436,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -438,7 +457,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -458,7 +478,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -478,7 +499,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -498,7 +520,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -518,7 +541,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -538,7 +562,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -558,7 +583,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -578,7 +604,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -598,7 +625,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -618,7 +646,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -638,7 +667,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -658,7 +688,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -678,7 +709,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -698,7 +730,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -718,7 +751,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -738,7 +772,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -758,7 +793,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -778,7 +814,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -798,7 +835,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -818,7 +856,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -838,7 +877,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -858,7 +898,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -878,7 +919,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -898,7 +940,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -918,7 +961,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -938,7 +982,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -958,7 +1003,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -978,7 +1024,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -998,7 +1045,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1018,7 +1066,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1038,7 +1087,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1058,7 +1108,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1078,7 +1129,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1098,7 +1150,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1118,7 +1171,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1138,7 +1192,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1158,7 +1213,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1178,7 +1234,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1198,7 +1255,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1218,7 +1276,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1238,7 +1297,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1258,7 +1318,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1278,7 +1339,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1298,7 +1360,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1318,7 +1381,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1338,7 +1402,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1358,7 +1423,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1378,7 +1444,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1398,7 +1465,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1418,7 +1486,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1438,7 +1507,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1458,7 +1528,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1478,7 +1549,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1498,7 +1570,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1518,7 +1591,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1538,7 +1612,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1558,7 +1633,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1578,7 +1654,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1598,7 +1675,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1618,7 +1696,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1638,7 +1717,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1658,7 +1738,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1678,7 +1759,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1698,7 +1780,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1718,7 +1801,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1738,7 +1822,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1758,7 +1843,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1778,7 +1864,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1798,7 +1885,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1818,7 +1906,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1838,7 +1927,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1858,7 +1948,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1878,7 +1969,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1898,7 +1990,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1918,7 +2011,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1938,7 +2032,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1958,7 +2053,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1978,7 +2074,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -1998,7 +2095,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -2018,7 +2116,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -2038,7 +2137,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     }
   ],
@@ -3755,14 +3855,19 @@
       "start_times": [
         "09:00"
       ],
-      "duration_minutes_options": [
-        480
-      ],
-      "break_options": [
-        {
-          "offset_minutes": 180,
-          "duration_minutes": 30
-        }
+      "segment_options": [
+        [
+          {
+            "offset_minutes": 0,
+            "duration_minutes": 480,
+            "breaks": [
+              {
+                "offset_minutes": 180,
+                "duration_minutes": 30
+              }
+            ]
+          }
+        ]
       ]
     },
     {
@@ -3854,14 +3959,19 @@
       "start_times": [
         "09:00"
       ],
-      "duration_minutes_options": [
-        480
-      ],
-      "break_options": [
-        {
-          "offset_minutes": 210,
-          "duration_minutes": 30
-        }
+      "segment_options": [
+        [
+          {
+            "offset_minutes": 0,
+            "duration_minutes": 480,
+            "breaks": [
+              {
+                "offset_minutes": 210,
+                "duration_minutes": 30
+              }
+            ]
+          }
+        ]
       ]
     }
   ],

@@ -37,3 +37,13 @@ uv run --locked --extra cp-sat python -m schedula solve examples/diagnosis.json
 `NOT_APPLICABLE` / `ORIGINAL_FEASIBLE` とし、証明集合も変更案探索も行わない。
 独立検証は変更後の入力と解・全目的値・公平性/変更集計を照合する。
 元と変更後の入力の差も許可編集・予算短縮・診断無効化だけであることを確認する。
+
+## 契約0.3の不足と診断
+
+[不足付き勤務計画の例](../examples/partial_roster.json)は元需要を保った `PARTIAL` と不足30人分を返す。
+`diagnosis_result` は `NOT_APPLICABLE` / `ORIGINAL_PARTIAL`、`conflict: null`、`suggestions: []`。
+不足最小性の証明有無によらず、元の完全充足問題の解なしとして条件変更案を探索しない。
+0.3の `INFEASIBLE` では需要不足を許容しても成立しない必須条件の十分集合を返し、
+基本条件コードは `DEMAND_LIMIT_AND_SINGLE_ASSIGNMENT` とする。
+条件変更案の成功は変更後の完全な `OPTIMAL` / `FEASIBLE` だけに限定する。
+詳細は[契約0.3](io-contract-partial.md)と[検証記録](evaluations/partial-plans.md)を参照する。

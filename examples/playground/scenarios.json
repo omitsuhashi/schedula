@@ -57,7 +57,7 @@
       },
       {
         "id": "changed",
-        "instruction": "あおいの「勤務不可」を選び、勤務可能時間を空にして再計算する。",
+        "instruction": "あおいの「勤務不可」を選んで再計算し、元の必要人数のまま不足と配置できた箇所を比較する。",
         "restore": false,
         "changes": {
           "employees": {
@@ -67,32 +67,14 @@
           }
         },
         "expected": {
-          "status": "INFEASIBLE",
-          "diagnostic": {
-            "code": "INSUFFICIENT_QUALIFIED_EMPLOYEES",
-            "related_ids": [
-              "kitchen"
-            ],
-            "facts": [
-              {
-                "name": "slot",
-                "value": 2
-              },
-              {
-                "name": "required_people",
-                "value": 2
-              },
-              {
-                "name": "eligible_people",
-                "value": 1
-              }
-            ]
-          }
+          "status": "PARTIAL",
+          "assigned_slots": 20,
+          "total_person_minutes": 60
         }
       },
       {
         "id": "repaired",
-        "instruction": "あおいを勤務不可のまま、12:00〜12:30 と12:30〜13:00 の調理の必要人数を2人から1人に変更して再計算する。",
+        "instruction": "必要人数を見直す場合は、あおいを勤務不可のまま12:00〜13:00の調理を2人から1人へ明示的に変更し、再計算する。",
         "restore": false,
         "changes": {
           "demand": {

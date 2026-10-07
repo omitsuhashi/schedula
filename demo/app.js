@@ -7,6 +7,7 @@ const range = interval => `${time(interval.start)}〜${time(interval.end)}`;
 const stateText = {
   OPTIMAL: "条件を満たす配置です。",
   FEASIBLE: "条件を満たします。最適性は未証明です。",
+  PARTIAL: "必須枠に不足があります。未完成の担当配置を出力しました。",
   INFEASIBLE: "この条件を満たす配置はありません。条件を見直してください。",
   UNKNOWN: "探索予算内に結果が確定しませんでした。再計算できます。",
   INVALID_INPUT: "入力不備があります。診断の欄を修正してください。",
@@ -22,7 +23,7 @@ function node(tag, text = "", attributes = {}, children = []) {
   const result = document.createElement(tag);
   result.textContent = text;
   for (const [key, value] of Object.entries(attributes)) result.setAttribute(key, value);
-  result.append(...children);
+  for (const child of children) result.append(child);
   return result;
 }
 
@@ -80,7 +81,7 @@ function renderForm(request, preserveTimes = false) {
       return node("td", "", {}, [input]);
     }),
   ]));
-  $("demand").replaceChildren(table("入力した人数ちょうどを配置します。", ["役割", ...slots.map(range)], demandRows));
+  $("demand").replaceChildren(table("元の必要人数を保ち、配置できない人数を不足として表示します。", ["役割", ...slots.map(range)], demandRows));
 }
 
 function readRequest(report = false) {
@@ -110,7 +111,7 @@ function readRequest(report = false) {
 }
 
 function validPair(pair) {
-  return !!pair && ["OPTIMAL", "FEASIBLE"].includes(pair.response.status) &&
+  return !!pair && ["OPTIMAL", "FEASIBLE", "PARTIAL"].includes(pair.response.status) &&
     pair.response.verification?.performed === true && pair.response.verification?.valid === true &&
     !!pair.response.solution;
 }
@@ -136,7 +137,7 @@ function renderAssignments(pair) {
       return node("td", role ? roleName(role, pair.input) : available ? "担当なし" : "勤務可能時間外", {class: role || ""});
     }),
   ]));
-  return scroll("担当配置の結果表", table(`${pair.input.request_id} · 独立検証：成功`, ["従業員", ...slots.map(range)], rows));
+  return scroll("担当配置の結果表", table(`${pair.input.request_id} · ${verificationText(pair.response)}`, ["従業員", ...slots.map(range)], rows));
 }
 
 function renderCoverage(pair) {
@@ -144,9 +145,49 @@ function renderCoverage(pair) {
   const rows = pair.input.roles.map(role => node("tr", "", {}, [node("th", role.label, {scope: "row"}), ...slots.map((slot, index) => {
     const count = pair.input.employees.filter(employee => grid.get(`${employee.id}/${index}`) === role.id).length;
     const demand = pair.input.demand.find(item => item.role_id === role.id && item.interval.start === slot.start);
-    return node("td", `${count} / ${demand.required_people}`);
+    return coverageCell(count, demand.required_people);
   })]));
   return scroll("需要充足の結果表", table("配置人数 / 実行時の必要人数", ["役割", ...slots.map(range)], rows));
+}
+
+function coverageCell(assigned, required) {
+  const missing = required - assigned;
+  return node("td", `${assigned} / ${required}${missing > 0 ? ` · 不足${missing}人` : ""}`, {class: missing > 0 ? "shortage" : ""});
+}
+
+function verificationText(result) {
+  return result.status === "PARTIAL" ? "独立検証：不足集計・需要以外の必須条件を確認済み" : "独立検証：成功";
+}
+
+function renderShortages(pair) {
+  const summary = pair.response.shortage_summary;
+  if (!summary) return node("span");
+  const roles = new Map(pair.input.roles.map(role => [role.id, role.label || role.id]));
+  const zone = pair.input.planning_window.timezone;
+  const dateTime = new Intl.DateTimeFormat("ja-JP", {timeZone: zone, month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23"});
+  const result = node("div", "", {}, [
+    node("p", `不足合計：${summary.total_person_minutes}人分 · ${summary.proven_minimal ? "不足最小性：証明済み（追加従業員数を示す値ではありません）" : "不足最小性：未証明。埋められないことが確定したわけではありません。"}`),
+  ]);
+  if (!summary.shortages.length) return result;
+  const pageSize = 100;
+  const select = node("select", "", {"aria-label": "不足一覧のページ"},
+    Array.from({length: Math.ceil(summary.shortages.length / pageSize)}, (_, index) =>
+      node("option", `${index + 1}ページ`, {value: index})));
+  const list = node("div");
+  const render = () => {
+    const first = Number(select.value) * pageSize;
+    const last = Math.min(first + pageSize, summary.shortages.length);
+    list.replaceChildren(scroll("不足の一覧", table(`元の必要人数と配置人数・不足人数 · 全${summary.shortages.length}件中${first + 1}〜${last}件`, ["需要ID", "役割", "時間帯", "必要人数", "配置人数", "不足人数"], summary.shortages.slice(first, last).map(item => node("tr", "", {}, [
+      node("th", item.demand_id, {scope: "row"}), node("td", roles.get(item.role_id)),
+      node("td", `${dateTime.format(Date.parse(item.interval.start))}〜${dateTime.format(Date.parse(item.interval.end))}`),
+      node("td", `${item.required_people}人`), node("td", `${item.assigned_people}人`), node("td", `不足${item.missing_people}人`, {class: "shortage"}),
+    ])))));
+  };
+  select.addEventListener("change", render);
+  if (summary.shortages.length > pageSize) result.append(node("label", "不足一覧のページ ", {class: "toolbar"}, [select]));
+  result.append(list);
+  render();
+  return result;
 }
 
 function details(label, value) {
@@ -202,6 +243,7 @@ function renderComparison() {
     area.append(node("p", "両方に検証済みの配置があるときだけ担当差分を表示します。"));
     return;
   }
+  area.append(node("p", `不足合計：元の条件${baseline.response.shortage_summary?.total_person_minutes || 0}人分 → 現在${current.response.shortage_summary?.total_person_minutes || 0}人分`));
   const before = assignmentGrid(baseline), after = assignmentGrid(current);
   const differences = [];
   for (const employee of baseline.input.employees) slots.forEach((slot, index) => {
@@ -215,13 +257,13 @@ function renderResult(message) {
   $("status").textContent = message || (current ? `${stateText[current.response.status]} · ${current.response.status}` : "まだ計算していません。");
   $("output").replaceChildren();
   if (current) {
-    if (validPair(current)) $("output").append(renderAssignments(current), node("h2", "必要人数の充足"), renderCoverage(current));
+    if (validPair(current)) $("output").append(renderShortages(current), renderAssignments(current), node("h2", "必要人数の充足"), renderCoverage(current));
     $("output").append(details("計算の詳細・確定入力と実結果", current));
     renderDiagnostics(current.response.diagnostics);
   } else renderDiagnostics([]);
   $("previous").replaceChildren();
   if (previous) $("previous").append(node("details", "", {}, [node("summary", `変更前の結果：${previous.response.status}（現在の条件には無効）`),
-    ...(validPair(previous) ? [renderAssignments(previous)] : []), details("変更前の確定入力と実結果", previous)]));
+    ...(validPair(previous) ? [renderShortages(previous), renderAssignments(previous)] : []), details("変更前の確定入力と実結果", previous)]));
   renderComparison();
 }
 
@@ -276,14 +318,53 @@ function edited() {
 function acceptResponse(response, request, requestBoundaries = boundaries) {
   if (!response || response.schema_version !== request.schema_version || response.request_id !== request.request_id || !stateText[response.status] ||
       !Array.isArray(response.diagnostics) || !Array.isArray(response.objectives) || !response.verification || !response.solver || !response.stats) throw new Error("応答の形式または実行識別子が一致しません。");
-  const success = ["OPTIMAL", "FEASIBLE"].includes(response.status);
-  if (success ? !validPair({input: request, response}) || !Array.isArray(response.solution.assignments) : response.solution !== null || response.objectives.length !== 0) throw new Error("応答の状態と解・独立検証が一致しません。");
+  const success = ["OPTIMAL", "FEASIBLE", "PARTIAL"].includes(response.status);
+  if (success ? !validPair({input: request, response}) || !Array.isArray(response.solution.assignments) : response.solution !== null || response.objectives.length !== 0 || response.verification.valid === true) throw new Error("応答の状態と解・独立検証が一致しません。");
   if (!response.diagnostics.every(item => item && typeof item.code === "string" && typeof item.message === "string") ||
       !response.objectives.every(item => item && typeof item.proven_optimal === "boolean" && Number.isFinite(item.value))) throw new Error("応答の診断または評価値が不正です。");
-  if (success && response.objectives.length !== request.objectives.length) throw new Error("応答の目的が入力と一致しません。");
+  if (success && (response.objectives.length !== request.objectives.length || response.objectives.some((item, i) => item.id !== request.objectives[i].id || item.metric !== request.objectives[i].metric))) throw new Error("応答の目的が入力と一致しません。");
   if (success && !response.solution.assignments.every(item => item && request.employees.some(employee => employee.id === item.employee_id) &&
       request.roles.some(role => role.id === item.role_id) && requestBoundaries.some(value => Date.parse(value) === Date.parse(item.interval?.start)) &&
       requestBoundaries.some(value => Date.parse(value) === Date.parse(item.interval?.end)) && Date.parse(item.interval.start) < Date.parse(item.interval.end))) throw new Error("担当配置の参照または日時が不正です。");
+  if (request.schema_version === "0.3") {
+    if (!success) { if (response.shortage_summary !== null) throw new Error("計画がない応答に不足集計があります。"); return; }
+    const summary = response.shortage_summary;
+    if (!summary || typeof summary.proven_minimal !== "boolean" || !Number.isSafeInteger(summary.total_person_minutes) || !Array.isArray(summary.shortages)) throw new Error("不足集計が不正です。");
+    const grid = requestBoundaries.map(Date.parse), positions = new Map(grid.map((value, i) => [value, i]));
+    const counts = new Map(), occupied = new Set();
+    for (const item of response.solution.assignments) {
+      for (let i = positions.get(Date.parse(item.interval.start)); i < positions.get(Date.parse(item.interval.end)); i++) {
+        const key = `${item.role_id}/${i}`;
+        const employeeSlot = `${item.employee_id}/${i}`;
+        if (occupied.has(employeeSlot)) throw new Error("応答に二重配置があります。");
+        occupied.add(employeeSlot);
+        counts.set(key, (counts.get(key) || 0) + 1);
+      }
+    }
+    const expected = [];
+    let total = 0;
+    for (const demand of request.demand) {
+      let run = null;
+      for (let i = positions.get(Date.parse(demand.interval.start)); i < positions.get(Date.parse(demand.interval.end)); i++) {
+        const assigned = counts.get(`${demand.role_id}/${i}`) || 0, missing = demand.required_people - assigned;
+        if (missing < 0) throw new Error("応答に過剰配置があります。");
+        counts.delete(`${demand.role_id}/${i}`);
+        if (missing <= 0) { run = null; continue; }
+        total += missing * (grid[i + 1] - grid[i]) / 60000;
+        if (run && run.end === grid[i] && run.assigned_people === assigned) run.end = grid[i + 1];
+        else {
+          run = {demand_id: demand.id, role_id: demand.role_id, start: grid[i], end: grid[i + 1], required_people: demand.required_people, assigned_people: assigned, missing_people: missing};
+          expected.push(run);
+        }
+      }
+    }
+    const actual = summary.shortages.map(item => ({demand_id: item.demand_id, role_id: item.role_id, start: Date.parse(item.interval?.start), end: Date.parse(item.interval?.end), required_people: item.required_people, assigned_people: item.assigned_people, missing_people: item.missing_people}));
+    const proofs = response.objectives.map(item => item.proven_optimal);
+    if (counts.size || total !== summary.total_person_minutes || JSON.stringify(expected) !== JSON.stringify(actual) ||
+        (total > 0) !== (response.status === "PARTIAL") || (!total && !summary.proven_minimal) ||
+        (!summary.proven_minimal && proofs.some(Boolean)) || proofs.some((proof, i) => proof && proofs.slice(0, i).includes(false)) ||
+        (response.status === "OPTIMAL" && !proofs.every(Boolean)) || (response.status === "FEASIBLE" && proofs.every(Boolean))) throw new Error("不足・状態・最適性の証明が入力と一致しません。");
+  } else if (response.status === "PARTIAL") throw new Error("旧契約は不足付き計画に対応していません。");
 }
 
 async function calculate() {
@@ -438,10 +519,10 @@ function renderJSONDay(pair, daySlots, area, showAll = false) {
     node("th", role.label || role.id, {scope: "row"}), ...visible.map(({slot, index}) => {
       const count = pair.input.employees.filter(employee => assignments.get(`${employee.id}/${index}`) === role.id).length;
       const required = pair.input.demand.find(item => item.role_id === role.id && covers(item.interval, slot))?.required_people || 0;
-      return node("td", `${count} / ${required}`);
+      return coverageCell(count, required);
     }),
   ]));
-  area.replaceChildren(scroll("JSON の担当配置表", table(`${daySlots[0].date} · 独立検証：成功`, ["従業員", ...visible.map(({slot}) => slot.label)], rows)),
+  area.replaceChildren(scroll("JSON の担当配置表", table(`${daySlots[0].date} · ${verificationText(pair.response)}`, ["従業員", ...visible.map(({slot}) => slot.label)], rows)),
     scroll("JSON の需要充足表", table("配置人数 / 必要人数", ["役割", ...visible.map(({slot}) => slot.label)], coverage)));
 }
 
@@ -450,8 +531,9 @@ function renderJSONResult() {
   const area = $("json-output");
   area.replaceChildren();
   if (validPair(pair)) {
+    area.append(renderShortages(pair));
     const grid = jsonSlots(pair.input);
-    area.append(node("p", `${pair.input.employees.length}人 · ${new Set(grid.map(slot => slot.date)).size}日 · ${pair.input.planning_window.slot_minutes}分刻み · ${grid.length}時間枠 · 独立検証：成功 · 総処理時間 ${result.stats.elapsed_seconds.toFixed(2)}秒`));
+    area.append(node("p", `${pair.input.employees.length}人 · ${new Set(grid.map(slot => slot.date)).size}日 · ${pair.input.planning_window.slot_minutes}分刻み · ${grid.length}時間枠 · ${verificationText(result)} · 総処理時間 ${result.stats.elapsed_seconds.toFixed(2)}秒`));
     const select = node("select", "", {id: "json-day"});
     select.append(...[...new Set(grid.map(slot => slot.date))].map(date => node("option", date, {value: date})));
     const tables = node("div");
@@ -490,13 +572,13 @@ async function calculateJSON() {
     ]);
     if (token !== generation) return;
     const input = JSON.parse(text);
-    const expected = {...input, schema_version: input?.schema_version === "0.2" ? "0.2" : "0.1", request_id: typeof input?.request_id === "string" ? input.request_id : null};
-    const requestBoundaries = ["OPTIMAL", "FEASIBLE"].includes(result.status) ?
+    const expected = {...input, schema_version: ["0.2", "0.3"].includes(input?.schema_version) ? input.schema_version : "0.1", request_id: typeof input?.request_id === "string" ? input.request_id : null};
+    const requestBoundaries = ["OPTIMAL", "FEASIBLE", "PARTIAL"].includes(result.status) ?
       [input.planning_window.start, ...jsonSlots(input).map(slot => new Date(slot.end).toISOString())] : [];
     acceptResponse(result, expected, requestBoundaries);
     jsonPair = {input, response: result};
     renderJSONResult();
-    $("json-status").textContent = `${stateText[result.status]} · ${result.status}`;
+    $("json-status").textContent = `${result.status === "PARTIAL" && input.problem_type === "roster" ? "必須枠に不足があります。未完成の勤務計画を出力しました。" : stateText[result.status]} · ${result.status}`;
   } catch (error) {
     if (token !== generation) return;
     controller.abort();

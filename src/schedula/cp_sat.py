@@ -31,6 +31,9 @@ class SatResult:
     search_elapsed_seconds: float = 0.0
     preparation_elapsed_seconds: float = 0.0
     objective_bounds: tuple = ()
+    shortage_person_minutes: int | None = None
+    shortage_proven_minimal: bool = False
+    shortage_bound: float | None = None
 
 
 def prepare_roster(model, problem):
@@ -114,6 +117,7 @@ def prepare(problem, cp_model):
     by_employee = defaultdict(list)
     by_slot = defaultdict(list)
     by_role = defaultdict(list)
+    shortages = []
     for slot, demand in enumerate(problem.demand):
         for role, count in sorted(demand.items()):
             if not count:
@@ -128,7 +132,12 @@ def prepare(problem, cp_model):
                     by_employee[employee].append(variable)
                     by_slot[employee, slot].append((role, variable))
                     by_role[slot, role].append(variable)
-            model.add(sum(by_role[slot, role]) == count)
+            if problem.request["schema_version"] == "0.3":
+                shortage = model.new_int_var(0, count, f"shortage_{slot}_{role}")
+                model.add(sum(by_role[slot, role]) + shortage == count)
+                shortages.append(shortage)
+            else:
+                model.add(sum(by_role[slot, role]) == count)
     for values in by_slot.values():
         model.add(sum(variable for _, variable in values) <= 1)
     if roster:
@@ -184,6 +193,8 @@ def prepare(problem, cp_model):
 
         expressions.update(prepare_extensions(model, problem, assignments, shifts, scheduled))
     objectives = tuple(expressions[o["metric"]] for o in problem.request["objectives"])
+    if problem.request["schema_version"] == "0.3":
+        objectives = (sum(shortages) * problem.grid.slot_minutes, *objectives)
     if objectives:
         model.minimize(objectives[0])
     if model.validate():
@@ -205,7 +216,15 @@ def run(problem, cp_model):
     deadline = start + budget
     best = None
     bounds = [None] * len(objectives)
+    partial = problem.request["schema_version"] == "0.3"
     for index, objective in enumerate(objectives or (None,)):
+        path = (
+            "/shortage_summary"
+            if partial and index == 0
+            else f"/objectives/{index - int(partial)}"
+            if objectives
+            else "/solver/time_limit_seconds"
+        )
         remaining = budget if index == 0 else deadline - time.monotonic()
         if remaining <= 0:
             status = cp_model.UNKNOWN
@@ -226,8 +245,8 @@ def run(problem, cp_model):
                 diagnostic(
                     "TIME_LIMIT",
                     "探索予算内に目的順序の最適化を完了できませんでした。",
-                    f"/objectives/{index}" if objectives else "/solver/time_limit_seconds",
-                    completed_objectives=index,
+                    path,
+                    completed_objectives=max(0, index - int(partial)),
                 ),
             )
             break
@@ -272,7 +291,7 @@ def run(problem, cp_model):
                 diagnostic(
                     "OPTIMALITY_UNPROVEN",
                     "上位目的の最適性が未証明のため、後続の目的は探索しません。",
-                    f"/objectives/{index}" if objectives else "/objectives",
+                    path,
                 ),
             )
             break
@@ -284,4 +303,14 @@ def run(problem, cp_model):
     best.search_elapsed_seconds = time.monotonic() - start
     best.preparation_elapsed_seconds = preparation_elapsed
     best.objective_bounds = tuple(bounds)
+    if problem.request["schema_version"] == "0.3":
+        if best.solution is not None:
+            best.shortage_person_minutes = best.values[0]
+            best.shortage_proven_minimal = best.values[0] == 0 or best.proven_optimal[0]
+            best.values = best.values[1:]
+            best.proven_optimal = best.proven_optimal[1:]
+            if not best.shortage_person_minutes and all(best.proven_optimal):
+                best.status = "OPTIMAL"
+        best.shortage_bound = best.objective_bounds[0]
+        best.objective_bounds = best.objective_bounds[1:]
     return best
