@@ -2,7 +2,7 @@
 
 from typing import Literal, NotRequired, TypedDict
 
-type SchemaVersion = Literal["0.1", "0.2", "0.3", "0.4", "0.5"]
+type SchemaVersion = Literal["0.1", "0.2", "0.3", "0.4", "0.5", "0.6"]
 type JSONValue = None | bool | int | float | str | list[JSONValue] | dict[str, JSONValue]
 type FailureStatus = Literal[
     "INFEASIBLE", "UNKNOWN", "INVALID_INPUT", "BACKEND_UNAVAILABLE", "INTERNAL_ERROR"
@@ -304,7 +304,35 @@ class Request05(ExtendedRequestFields):
     replan_mode: NotRequired[Literal["preserve_assigned", "rebuild"]]
 
 
-type Request = Request01 | Request02 | Request03 | Request04 | Request05
+class ContinuityDuty(TypedDict):
+    id: str
+    segments: list[Segment]
+
+
+class ContinuityEmployee(TypedDict):
+    employee_id: str
+    before_context: History
+    past_complete: Literal[True]
+    actual_shifts: list[ContinuityDuty]
+    commitments_complete: Literal[True]
+    committed_shifts: list[ContinuityDuty]
+
+
+class Continuity(TypedDict):
+    context_window: Interval
+    employees: list[ContinuityEmployee]
+
+
+class Request06(ExtendedRequestFields):
+    schema_version: Literal["0.6"]
+    demand: list[PriorityDemand]
+    constraints: list[Constraint04]
+    preferences: list[AvoidRole | WorkPreference]
+    replan_mode: NotRequired[Literal["preserve_assigned", "rebuild"]]
+    continuity: NotRequired[Continuity]
+
+
+type Request = Request01 | Request02 | Request03 | Request04 | Request05 | Request06
 
 
 class Assignment(TypedDict):
@@ -337,7 +365,33 @@ class ExtendedSolution(TypedDict):
     shifts: list[Shift]
 
 
-type Solution = Solution01 | ExtendedSolution
+class CommittedShift(TypedDict):
+    committed_shift_id: str
+    employee_id: str
+    work_day: str
+    segments: list[Segment]
+
+
+class ContinuitySolution(TypedDict):
+    assignments: list[Assignment]
+    shifts: list[Shift | CommittedShift]
+
+
+class ContinuityEmployeeSummary(TypedDict):
+    employee_id: str
+    historical_minutes: int
+    planned_minutes: int
+    outside_planning_minutes: int
+    committed_shift_ids: list[str]
+
+
+class ContinuitySummary(TypedDict):
+    context_window: Interval
+    planning_window: Interval
+    employees: list[ContinuityEmployeeSummary]
+
+
+type Solution = Solution01 | ExtendedSolution | ContinuitySolution
 
 
 class Fact(TypedDict):
@@ -533,6 +587,22 @@ class Response05Failure(PartialResponseFields):
     priority_summary: None
 
 
+class Response06Success(PartialResponseFields):
+    schema_version: Literal["0.6"]
+    status: Literal["OPTIMAL", "FEASIBLE", "PARTIAL"]
+    solution: ContinuitySolution
+    continuity_summary: ContinuitySummary | None
+    priority_summary: PrioritySummary
+
+
+class Response06Failure(PartialResponseFields):
+    schema_version: Literal["0.6"]
+    status: FailureStatus
+    solution: None
+    continuity_summary: None
+    priority_summary: None
+
+
 type Response = (
     Response01Success
     | Response01Failure
@@ -544,11 +614,14 @@ type Response = (
     | Response04Failure
     | Response05Success
     | Response05Failure
+    | Response06Success
+    | Response06Failure
 )
 
 
 class Verification(TypedDict):
     priority_summary: NotRequired[PrioritySummary | None]
+    continuity_summary: NotRequired[ContinuitySummary | None]
     schema_version: SchemaVersion
     request_id: str | None
     status: Literal["VALID", "PARTIAL", "INVALID_INPUT", "INVALID_PLAN", "INTERNAL_ERROR"]

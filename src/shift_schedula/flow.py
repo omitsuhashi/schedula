@@ -61,6 +61,7 @@ def prepare(problem):
                 "0.3",
                 "0.4",
                 "0.5",
+                "0.6",
             }:
                 return [], diagnostic(
                     "INSUFFICIENT_QUALIFIED_EMPLOYEES",
@@ -153,7 +154,7 @@ def run(problem):
     deadline = start + problem.request["solver"]["time_limit_seconds"]
     assignments = {}
     cost = 0
-    partial = problem.request["schema_version"] in {"0.3", "0.4", "0.5"}
+    partial = problem.request["schema_version"] in {"0.3", "0.4", "0.5", "0.6"}
     completed = True
     for slot, graph, arcs, required in networks:
         status, slot_cost = augment(graph, required, deadline)

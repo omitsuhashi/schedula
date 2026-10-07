@@ -8,7 +8,7 @@ from .model import ShiftCandidate, minute_datetime, nonoverlapping, reference, u
 
 
 def validate_history(request, grid):
-    extended = request["schema_version"] in {"0.2", "0.3", "0.4", "0.5"}
+    extended = request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6"}
     first_day = grid.start.astimezone(grid.timezone).date().toordinal()
     for index, employee in enumerate(request["employees"]):
         path = f"/employees/{index}/history"
@@ -72,23 +72,48 @@ def local_start(day, clock, grid, path):
 
 def expand_candidates(request, grid):
     """元入力から有限候補を生成する。ソルバー用のテーブルは参照しない。"""
-    extended = request["schema_version"] in {"0.2", "0.3", "0.4", "0.5"}
+    extended = request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6"}
     employees = {e["id"]: e for e in request["employees"]}
-    available = {
-        e["id"]: {
-            slot
-            for index, interval in enumerate(e["availability"])
-            for a, b in [grid.interval(interval, f"/employees/{e['id']}/availability/{index}")]
-            for slot in range(a, b)
+    available = (
+        {}
+        if request.get("continuity")
+        else {
+            e["id"]: {
+                slot
+                for index, interval in enumerate(e["availability"])
+                for a, b in [grid.interval(interval, f"/employees/{e['id']}/availability/{index}")]
+                for slot in range(a, b)
+            }
+            for e in request["employees"]
         }
-        for e in request["employees"]
-    }
+    )
+    if request.get("continuity"):
+        from .continuity import availability, context_bounds
+
+        absolute_available = availability(request, grid)
+        bounds = context_bounds(request, grid)
     identifiers = unique(request["shift_candidates"], "id", "/shift_candidates")
     templates = request.get("shift_templates", [])
     unique(templates, "id", "/shift_templates")
     result = []
 
     def add(identifier, employee, segments, path, generated=False):
+        if request.get("continuity"):
+            from .continuity import candidate
+
+            value = candidate(
+                identifier,
+                employee,
+                segments,
+                grid,
+                bounds,
+                absolute_available[employee],
+                path,
+                generated=generated,
+            )
+            if value is not None:
+                result.append(value)
+            return
         step = timedelta(minutes=grid.slot_minutes)
         if not 1 <= len(segments) <= 4:
             reject("INVALID_SEGMENTS", "勤務区間数は1〜4件にします。", path + "/segments")

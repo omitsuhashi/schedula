@@ -2,22 +2,42 @@
 
 from collections import Counter, defaultdict
 from copy import deepcopy
+from datetime import timedelta
 
-from .contract import InvalidInput, diagnostic, reject, schema_errors
+from .contract import InvalidInput, diagnostic, parse_datetime, reject, schema_errors
 
 
-def states(grid, solution):
+def states(grid, solution, *, continuity=False):
     """共通解から勤務・担当状態を再構成し、候補表やソルバー変数を参照しない。"""
     work, roles = {}, {}
     for index, shift in enumerate(solution["shifts"]):
         segments = shift.get("segments", [shift])
         for segment_index, segment in enumerate(segments):
             path = f"/shifts/{index}/segments/{segment_index}"
-            start, end = grid.interval(segment["interval"], path + "/interval")
+            value = segment["interval"]
+            if continuity:
+                # 状態比較はW内だけ。原区間は保存したまま投影する。
+                a, b = parse_datetime(value["start"]), parse_datetime(value["end"])
+                if b <= grid.start or a >= grid.end:
+                    continue
+                value = grid.output_interval(
+                    max(0, (a - grid.start) // timedelta(minutes=grid.slot_minutes)),
+                    min(grid.slots, (b - grid.start) // timedelta(minutes=grid.slot_minutes)),
+                )
+            start, end = grid.interval(value, path + "/interval")
             for slot in range(start, end):
                 work[shift["employee_id"], slot] = "work"
             for break_index, interval in enumerate(segment["breaks"]):
-                start, end = grid.interval(interval, f"{path}/breaks/{break_index}")
+                value = interval
+                if continuity:
+                    a, b = parse_datetime(value["start"]), parse_datetime(value["end"])
+                    if b <= grid.start or a >= grid.end:
+                        continue
+                    value = grid.output_interval(
+                        max(0, (a - grid.start) // timedelta(minutes=grid.slot_minutes)),
+                        min(grid.slots, (b - grid.start) // timedelta(minutes=grid.slot_minutes)),
+                    )
+                start, end = grid.interval(value, f"{path}/breaks/{break_index}")
                 for slot in range(start, end):
                     work[shift["employee_id"], slot] = "break"
     for index, assignment in enumerate(solution["assignments"]):
@@ -74,7 +94,7 @@ def validate(problem):
         return
     source = baseline["source_request"]
     if (
-        source.get("schema_version") in {"0.4", "0.5"}
+        source.get("schema_version") in {"0.4", "0.5", "0.6"}
         and request["schema_version"] < source["schema_version"]
     ):
         reject(
@@ -82,7 +102,12 @@ def validate(problem):
             "旧版の基準に新しい契約版は指定できません。",
             "/baseline/source_request/schema_version",
         )
-    if request["schema_version"] == "0.2" and source.get("schema_version") in ("0.3", "0.4", "0.5"):
+    if request["schema_version"] == "0.2" and source.get("schema_version") in (
+        "0.3",
+        "0.4",
+        "0.5",
+        "0.6",
+    ):
         reject(
             "UNSUPPORTED_BASELINE_VERSION",
             "契約0.2の基準計画は0.1または0.2で指定します。",
@@ -99,7 +124,7 @@ def validate(problem):
         violations, _ = verify_solution(
             old,
             baseline["source_solution"],
-            require_complete=request["schema_version"] not in {"0.4", "0.5"},
+            require_complete=request["schema_version"] not in {"0.4", "0.5", "0.6"},
         )
     except InvalidInput as error:
         raise InvalidInput(
@@ -142,7 +167,9 @@ def validate(problem):
     for index, part in enumerate(fixed):
         reference(part["employee_id"], old_employees, f"/fixed_parts/{index}/employee_id")
         grid.interval(part["interval"], f"/fixed_parts/{index}/interval")
-    work, roles = states(grid, baseline["source_solution"])
+    work, roles = states(
+        grid, baseline["source_solution"], continuity=bool(source.get("continuity"))
+    )
     if (
         baseline.get("snapshot_origin")
         and baseline["snapshot_origin"]["request_id"] != source["request_id"]
@@ -219,8 +246,11 @@ def make_baseline(request: dict, solution: dict, plan_id: str) -> dict:
     from .verify import verify_plan
 
     problem = normalize(request)
-    if request["schema_version"] not in {"0.4", "0.5"} or request["problem_type"] != "roster":
-        reject("UNSUPPORTED_CONDITION", "make_baseline は契約0.4・0.5の roster を受け取ります。")
+    if (
+        request["schema_version"] not in {"0.4", "0.5", "0.6"}
+        or request["problem_type"] != "roster"
+    ):
+        reject("UNSUPPORTED_CONDITION", "make_baseline は契約0.4〜0.6の roster を受け取ります。")
     violations, _, _ = verify_plan(problem, solution)
     if violations:
         raise InvalidInput(violations)
@@ -287,6 +317,14 @@ def prepare(model, problem, assignments, shifts, scheduled_by_employee):
         for start, end in candidate.breaks:
             for slot in range(start, end):
                 breaks[candidate.employee_id, slot].append(shifts[candidate.id])
+    if request.get("continuity"):
+        from .continuity import covered_slots
+
+        for duty in problem.continuity:
+            for slot in covered_slots(duty["segments"], grid):
+                work[duty["employee_id"], slot].append(1)
+            for slot in covered_slots(duty["segments"], grid, breaks=True):
+                breaks[duty["employee_id"], slot].append(1)
     for (employee, slot, _), variable in assignments.items():
         roles[employee, slot].append(variable)
 
@@ -315,8 +353,18 @@ def prepare(model, problem, assignments, shifts, scheduled_by_employee):
 def evaluate(problem, solution):
     metrics = {"fairness_deviation_minutes": 0, "plan_changes": 0}
     summaries = {"fairness_summary": None, "change_summary": None}
+    if problem.request["schema_version"] == "0.6":
+        from .continuity import summary
+
+        summaries["continuity_summary"] = (
+            summary(problem.request, problem.grid, solution)
+            if problem.request.get("continuity")
+            else None
+        )
     try:
-        work, roles = states(problem.grid, solution)
+        work, roles = states(
+            problem.grid, solution, continuity=bool(problem.request.get("continuity"))
+        )
     except InvalidInput as error:
         return error.diagnostics, metrics, summaries
     fairness = problem.request.get("fairness")
