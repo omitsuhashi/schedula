@@ -12,16 +12,23 @@ uv 自体の導入は [公式のインストール手順](https://docs.astral.sh
 [OR-Tools 9.15.6755](https://pypi.org/project/ortools/9.15.6755/)の Python 3.14 用 wheel と、
 [jsonschema 4.26.0](https://pypi.org/project/jsonschema/4.26.0/)の対応を確認した。
 macOS ARM64 で実際に依存をインストールして動作を確認した。
-Python 3.15 用の OR-Tools wheel は確認できていないため、対応範囲は `>=3.14,<3.15` とする。
-`.python-version` に `3.14.8` を固定し、ローカルと CI で同じ Python を使用する。
+配布の最低要件は `>=3.14` とし、上限で将来版のインストールを一律に禁止しない。
+2026-10-07 の公式配布一覧では最新安定版も 3.14.8、3.15 は pre-release だったため、
+最低版と最新安定版の CI を重複させない。通常の CPython 3.14 で base と `cp-sat` extra の
+隔離導入を検証する。3.15 以降・free-threaded・他の Python 実装は未検証であり、
+特に CP-SAT は対象 Python・OS の OR-Tools wheel が必要となる。
+`.python-version` は開発用の `3.14.8` を維持し、利用者向けの許容範囲とは分ける。
+新しい安定版が出たら base/extra を別々に測定し、依存が未対応なら結果と制限を課題に記録する。
 uv は **0.12.23** を使用する。直接インストールした uv は `uv self update 0.12.23` で更新できる。
 
 | 用途 | パッケージ | 設定 |
 | --- | --- | --- |
 | JSON Schema 検証 | jsonschema | 実行依存 |
+| IANA タイムゾーンデータ | tzdata | 実行依存（OSデータがない場合のfallback） |
 | CP-SAT | ortools | `cp-sat` extra |
 | lint・format | ruff | 開発依存 |
 | テストの入口 | pytest | 開発依存 |
+| 公開typingのconsumer検証 | mypy | 開発依存 |
 | コミット前の Ruff 実行 | pre-commit | 開発依存 |
 
 依存定義は `pyproject.toml`、解決した版は `uv.lock` に記録し、両方を Git で管理する。
@@ -33,6 +40,18 @@ setuptools で版別 Schema を同梱する。利用・ビルドは [担当配�
 [勤務計画の手順](roster.md)を参照する。
 最小費用流だけを利用する場合は `uv sync --locked` / `uv run --locked ...` で実行でき、
 OR-Tools は不要。開発・CI の検証では既存どおり `--extra cp-sat` を維持する。
+
+タイムゾーンは標準 `zoneinfo` がOSのTZDBを優先し、見つからなければ直接依存の `tzdata` を使う。
+ライブラリはTZPATHを変更せず、データをネットワークから取得しない。
+`PYTHONTZPATH=""` を設定した別プロセスではOSのデータを使わず、fallbackを再現できる。
+WindowsのPowerShellでは `$env:PYTHONTZPATH = ""` としてから起動する。
+再現時にはPython・OS・tzdataの版と、PYTHONTZPATHの設定を記録する。
+存在しないゾーン名は `INVALID_INPUT` / `INVALID_TIMEZONE`、時刻データの欠落・破損・
+読み取り障害は `INTERNAL_ERROR` / `TIMEZONE_DATA_UNAVAILABLE` となる。
+CIの `timezone-distribution` でLinux/Windowsのbaseとextraを別環境で確認する。
+2026-10-07、[CI実行](https://github.com/omitsuhashi/schedula/actions/runs/37582595920)で
+4環境それぞれ87件、skip 0が成功した。OSのTZDBを使わないwheelの求解・独立検証・
+Schema取得と、不正入力・データ障害の区別を含む。Windowsの全中核テストの結果ではない。
 
 ## 初回セットアップ
 
@@ -110,8 +129,8 @@ Ruff 更新時は `uv run --extra cp-sat pre-commit autoupdate` も実行し、
 hook の `rev` と開発依存の Ruff を同じ版に揃える。
 Python 更新時も、依存の対応と wheel を確認して `uv python pin <version>` で固定し直す。
 
-mypy は型注釈を保守対象にするときだけ、poethepoet は `uv run ...` のコマンド整理が
-必要になったときだけ `uv add --dev` で追加する。現在はどちらも導入していない。
+mypyは公開typingのconsumer検証に導入した。内部実装全体を型チェックしたという意味ではない。
+poethepoetは未導入で、`uv run ...` のコマンド整理が必要になったときだけ追加する。
 
 ## セットアップ時の検証記録
 

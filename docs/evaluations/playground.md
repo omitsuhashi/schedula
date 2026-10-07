@@ -8,7 +8,7 @@ Issue #28〜#31 に対して、実行入口・共通画面・3シナリオ・比
 
 基点は `4ad9714d1a636b9559c02a410e3004e20d6ed45e`。
 検証時の実装・チェック・CI 定義の SHA-256、環境、コマンド、10条件の実結果を
-[生データ](results/2026-10-06-playground-runtime.json)に保存した。
+[生データ](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-playground-runtime.json)に保存した。
 確定した対象 commit と CI 実行 URL は、この変更を含む実装 PR の本文に記録する。
 CI は既存の `deploy-entrypoint` で全回帰と実 Chromium の結合チェックを実行し、
 JUnit XML・ブラウザー結果 JSON・画面画像を `pytest-results` artifact に保存する。
@@ -105,7 +105,7 @@ Issue #28〜#31 の実装・検証条件を満たす変更をPRにまとめ、Is
 
 既存の `tests/playground-browser.cjs` に以下のチェックを追加し、実Chromeで成功した。
 修正前のチェックは、ゆいの終了時刻13:00が14:00になる差分で失敗した。
-対象ソースのハッシュ・環境・結果は[レビュー修正の実行記録](results/2026-10-06-playground-review-fixes.json)に保存した。
+対象ソースのハッシュ・環境・結果は[レビュー修正の実行記録](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-playground-review-fixes.json)に保存した。
 最新commitとCIのURL・結果はPR本文に記録する。
 
 | 再現経路 | 確認した結果 |

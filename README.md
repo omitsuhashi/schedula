@@ -5,7 +5,7 @@ Python の配布名は `shift-schedula`、import 名は `shift_schedula` です�
 
 技能・勤務可能時間・役割別需要・業務ルールから、担当配置（`assignment`）と
 出退勤・休憩を含む勤務計画（`roster`）の検証済み解を求める Python ライブラリと CLI です。
-JSON 契約0.1〜0.4に対応し、独立した配置は最小費用流、
+JSON 契約0.1〜0.6に対応し、独立した配置は最小費用流、
 担当時間・担当切替を含む配置と勤務計画は CP-SAT を使用します。
 
 独自コード・文書・デモは[MIT](LICENSE)で、自力導入・組み込み・商用利用ができます。
@@ -15,7 +15,9 @@ JSON 契約0.1〜0.4に対応し、独立した配置は最小費用流、
 ## クリーンな環境から実行する
 
 [uv](https://docs.astral.sh/uv/getting-started/installation/) と Git を導入し、次を実行します。
-Python 3.14.8 と依存版は `.python-version` / `uv.lock` で固定しています。
+利用者向けの Python 要件は `>=3.14` です。開発環境は CPython 3.14.8 を
+`.python-version` に固定し、依存版は `uv.lock` に記録しています。
+測定した対応環境と将来版の制限は[Pythonセットアップ](docs/python-setup.md)を参照してください。
 すでに clone 済みなら、リポジトリ直下で `uv python install` から実行してください。
 
 ```sh
@@ -34,6 +36,7 @@ uv run --locked --extra cp-sat python -m shift_schedula solve examples/roster.js
 `proven_optimal` で目的ごとの証明範囲を確認できます。
 
 最小費用流だけを使う場合は `--extra cp-sat` を省略できます。
+探索なしの入力検証、厳密JSON読み取り、型情報は[Python公開API](docs/python-api.md)を参照してください。
 CP-SAT が必要な入力を依存なしで解くと `BACKEND_UNAVAILABLE` になります。
 標準出力は JSON のみで、結果は `> result.json` で保存できます。
 標準入力と Schema の取得も同じ CLI で実行できます。
@@ -70,7 +73,7 @@ uv run --locked python demo/server.py
 再実行コマンドと検証結果は[デモの検証記録](docs/evaluations/playground.md)を参照してください。
 
 画面上部の「JSON で担当配置・勤務計画を計算する」を開くと、JSON の貼り付け・
-UTF-8 ファイルの読み込み（2 MiBまで）から、契約0.1〜0.4の入力を実行できます。
+UTF-8 ファイルの読み込み（2 MiBまで）から、契約0.1〜0.6の入力を実行できます。
 「100人・30日・30分刻みの勤務計画」を選び、「サンプルを読み込む」→「JSON で計算」を押します。
 結果の日付を選ぶと、100人分の担当・休憩・待機・勤務なしと役割別の需要充足を確認できます。
 
@@ -118,6 +121,9 @@ uv run --locked python -m shift_schedula verify examples/roster_conditions.json 
 `VALID` / `PARTIAL` / `INVALID_INPUT` / `INVALID_PLAN` を分けます。検証だけでは最適性を付与しません。
 公開 `make_baseline(request, solution, plan_id)` で固定条件を保持した次の基準へ変換し、
 `get_schema("request" | "response" | "solution" | "verification", "0.4")` でSchemaを取得できます。
+実績・確定勤務を引き継ぐ週・月境界の集計は[契約0.6](docs/io-contract-continuity.md)で利用できます。
+月末夜勤420分を過去120分・計画内300分へ分け、原区間と休憩を保持します。
+
 詳細と保存・再計画の使い方は[契約0.4](docs/io-contract-replanning.md)、
 合成入力の実測は[結合・規模評価](docs/evaluations/roster-conditions.md)を参照してください。
 
@@ -222,7 +228,7 @@ PY
 | --- | --- | --- |
 | `OPTIMAL` | 検証成功を確認して解を採用する。指定した条件・候補・粒度・目的の範囲で最適 | 0 |
 | `FEASIBLE` | 検証成功と未証明の目的を確認し、採用または探索予算を増やして再計算する | 0 |
-| `PARTIAL` | 契約0.3・0.4の未完成の計画。不足一覧・合計人分・`proven_minimal` を読み、需要充足と検証成功を区別する | 2 |
+| `PARTIAL` | 契約0.3〜0.6の未完成の計画。不足一覧・合計人分・`proven_minimal` を読み、需要充足と検証成功を区別する | 2 |
 | `INFEASIBLE` | 必須条件を満たす解がないと証明された。0.3では需要不足を許容しても計画を作れない。診断を確認する | 2 |
 | `UNKNOWN` | 解も不可能性の証明もない。予算や問題規模を見直す | 2 |
 | `INVALID_INPUT` | `code` / `json_pointer` / `related_ids` / `facts` を基に入力を修正する | 2 |
@@ -230,7 +236,7 @@ PY
 | `INTERNAL_ERROR` | 解を採用せず、入力・エンジン版・診断を保存して調査する | 2 |
 
 解を返すのは独立検証に成功した `OPTIMAL` / `FEASIBLE` / `PARTIAL` だけです。
-0.1・0.2は完全充足を求め、0.3・0.4だけが元需要を保持した不足付き計画を許容します。
+0.1・0.2は完全充足を求め、0.3〜0.6だけが元需要を保持した不足付き計画を許容します。
 それ以外は `solution: null` / `objectives: []`。終了コード2だけでは状態を区別できません。
 `message` は補助説明で、プログラムでは `status` と診断の `code` で分岐します。
 次の2例は意図的に終了コード2となります。
@@ -306,6 +312,7 @@ Git には採用判断で使う入力・条件・集計・失敗を含む生デ�
 | [設計方針](docs/design-policy.md) | アルゴリズム選択、制約・選好、検証、LLM の境界 |
 | [入出力契約0.1](docs/io-contract.md)・[契約0.2](docs/io-contract-next.md) | JSON の意味、日時、履歴、目的順序、結果状態と移行 |
 | [再計画・勤務量・希望日時の契約0.4](docs/io-contract-replanning.md) | 新条件、基準スナップショット、公開検証API/CLIと移行 |
+| [継続計画・診断・費用・夜勤休日評価の設計案](docs/planning-extensions.md) | Issue #67〜#70の仕様案、数値例、検証計画、実装の依存関係。未実装 |
 | [不足を伴う計画の契約0.3](docs/io-contract-partial.md) | 元需要を保持した不足集計・独立検証・両ソルバー・CLI・デモと証明範囲 |
 | [開発・検証方針](docs/development-policy.md) | 開発順序、完了条件、公開条件、未決定事項 |
 | [参照実装の評価](docs/evaluations/engine-introduction.md) | CP-SAT を含む実測、導入時の修正、コードの採用可否と公開入口 |
@@ -343,3 +350,7 @@ main の force push と削除は禁止します。ruleset の bypass は許可�
 デプロイに関して未確定なのは、production の承認者、実際のビルドコマンド、
 デプロイ先です。デプロイの入口と CI はセットアップ PR で導入し、
 merge 後に main で利用できるようになります。
+
+契約0.5では需要の任意 `priority`（省略時0）を指定できる。不足総量を先に最小化し、
+同量の計画では高いpriority群の不足、利用者の目的の順に比較する。
+[契約と証明範囲](docs/io-contract-priority.md)、[1人・2役割の例](examples/demand_priority.json)を参照する。

@@ -6,6 +6,35 @@ on:
 permissions:
   contents: read
 jobs:
+  timezone-distribution:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        extra: [base, cp-sat]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: "0.12.23"
+          enable-cache: true
+      - name: Sync base dependencies
+        if: matrix.extra == 'base'
+        run: uv sync --locked
+      - name: Sync CP-SAT extra
+        if: matrix.extra == 'cp-sat'
+        run: uv sync --locked --extra cp-sat
+      - name: Validate timezone data, wheel dependencies and spawn control
+        run: uv run --no-sync pytest -q -ra tests/test_timezone.py tests/test_input_contract.py tests/test_execution.py --junitxml=test-results/timezone.xml
+      - name: Reject skipped tests
+        run: uv run --no-sync python -c "import xml.etree.ElementTree as ET; assert not ET.parse('test-results/timezone.xml').findall('.//skipped')"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: timezone-${{ matrix.os }}-${{ matrix.extra }}
+          path: test-results/
   deploy-entrypoint:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -17,6 +46,7 @@ jobs:
           version: "0.12.23"
           enable-cache: true
       - name: Sync Python environment
+        # 最低対応版と最新安定版はともに3.14（2026-10-07確認）。次の安定版で検証を追加する。
         run: uv sync --locked --extra cp-sat
       - name: Validate Ruff hooks
         run: uv run --locked --extra cp-sat pre-commit run --all-files --show-diff-on-failure

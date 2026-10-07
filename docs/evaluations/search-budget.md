@@ -39,8 +39,8 @@
 
 基準は `3e19b0c0edf6507237dc30de92041c0af6af733c`、環境・入力は5秒評価と同じ。
 30/60秒は各入力1回、120/300秒は40人14日を各1回のスクリーニングとし、合格判定には使わない。
-rawは [30秒](results/2026-10-06-screening-30.json)・[60秒](results/2026-10-06-screening-60.json)・
-[120秒](results/2026-10-06-screening-large-120.json)・[300秒](results/2026-10-06-screening-large-300.json)。
+rawは [30秒](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-screening-30.json)・[60秒](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-screening-60.json)・
+[120秒](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-screening-large-120.json)・[300秒](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-screening-large-300.json)。
 
 | worker1・入力 | 予算 | 状態 | 目的順の値 | request秒 | RSS MiB |
 | --- | --- | --- | --- | --- | --- |
@@ -59,13 +59,13 @@ rawは [30秒](results/2026-10-06-screening-30.json)・[60秒](results/2026-10-0
 | 40人14日 | `FEASIBLE` | `[1080,131340,95]` | 30.956 | 665.625 |
 | 20人7日15分 | `FEASIBLE` | `[270,33000,85]` | 30.561 | 396.594 |
 
-[通常/15分](results/2026-10-06-workers-2-normal-30.json)・[40人14日](results/2026-10-06-workers-2-large-30.json)の
+[通常/15分](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-workers-2-normal-30.json)・[40人14日](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-workers-2-large-30.json)の
 source tree SHAは `1c2acfd334d26dc5948c72291f0c7666b95b92a2d436d5e04e477ad09bb0502b`。
 基準commitのコピーを変更したため `external_tree_copy` / `dirty: true` と明記する。
 4workerへの増加や別アルゴリズムは、2workerで解獲得・通常品質が改善しメモリ目安内のため追加しなかった。
 この比較は採用候補を選ぶ証拠であり、最終の反復検証で合否を判断する。
 
-worker1の30秒冷起動は、[通常と15分を各3回](results/2026-10-06-budget-30-cold.json)測定した。
+worker1の30秒冷起動は、[通常と15分を各3回](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-budget-30-cold.json)測定した。
 すべて検証済み `FEASIBLE`、通常は `[360,33000,58]` / 最大30.542秒・199 MiB、
 15分は `[375,33000,140]` / 最大30.561秒・295.266 MiB。
 この段階は機能編集と小規模テストが並行したため、完全なホスト占有測定とはしない。
@@ -95,8 +95,8 @@ wheelの隔離導入（0.1/0.2 Schemaと全例）を含む。
 
 ### 最終反復
 
-固定sourceの [改善前40人14日・冷起動3回](results/2026-10-06-before-large-30-cold.json) と
-[改善後4入力・各冷起動3回](results/2026-10-06-final-cold.json) を比較した。
+固定sourceの [改善前40人14日・冷起動3回](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-before-large-30-cold.json) と
+[改善後4入力・各冷起動3回](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-final-cold.json) を比較した。
 改善前40人14日は `UNKNOWN` 3/3、検証済み解0/3、最大30.682秒・479.953 MiB。
 改善後は通常・40人14日・15分の全9試行で検証済み `FEASIBLE` を取得した。
 
@@ -123,7 +123,7 @@ package版0.1.3と契約版0.1/0.2は区別する。通常・拡大・15分の�
 実効の30秒だけを `solver_request` と条件欄へ記録し、原本の入力SHAは保持した。
 
 最終冷起動の開始時に通常入力のパスを誤指定した実行は保存前に中断した。
-[中断台帳](results/2026-10-06-final-cold-input-path-error.json)に実行コマンド・誤/正パス・exit130を残し、
+[中断台帳](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-final-cold-input-path-error.json)に実行コマンド・誤/正パス・exit130を残し、
 取得できなかった件数・時間・RSSを `null` とした。正しい入力の反復とは別の実行記録であり、未取得値を補完しない。
 全測定後の2026-10-06T06:13:32Zには評価runnerの残存プロセスがないことを確認した。
 中断時の子プロセス一覧は取得しておらず、この事後確認から測定中のホスト専有は主張しない。
@@ -136,7 +136,7 @@ uv run --locked --extra cp-sat python scripts/evaluate.py docs/evaluations/input
 uv run --locked --extra cp-sat python scripts/evaluate.py docs/evaluations/inputs/roster-week.json docs/evaluations/inputs/roster-fortnight-large.json docs/evaluations/inputs/roster-week-15min.json docs/evaluations/inputs/roster-extended.json --repeat 3 --time-limit-seconds 30 --timeout-seconds 60 --source-ref b6128903668095297cdb03a8be95a5d738ae8e6b --output docs/evaluations/results/2026-10-06-final-cold.json
 ```
 
-[最終並行測定](results/2026-10-06-final-parallel.json) は通常/40人14日の各2試行、Pythonプロセス上限2、各CP-SAT worker2とした。
+[最終並行測定](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-final-parallel.json) は通常/40人14日の各2試行、Pythonプロセス上限2、各CP-SAT worker2とした。
 
 | 入力 | 検証済み解 | request平均 / 中央 / p95=最大 秒 | RSS最大 MiB |
 | --- | --- | --- | --- |

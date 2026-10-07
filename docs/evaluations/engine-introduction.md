@@ -26,7 +26,7 @@ schedula のコード・テスト・実行用 Schema は、採用済みの業務
 SHA-256: dd45f15862f866a0b28762b3314b2fb07c0f2d4942630b6a299106023c9879d6
 ```
 
-[manifest](../reference/skillshift-starter-0.1/manifest.json)のアーカイブ SHA-256 と一致した。
+[manifest](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/reference/skillshift-starter-0.1/manifest.json)のアーカイブ SHA-256 と一致した。
 ZIP は22ファイル。保存済み原本8件について、ZIP 内の元パス、バイト数、SHA-256、
 保存ファイルとのバイト列一致を確認した。原本の変更はない。
 

@@ -3,6 +3,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import pytest
+
+pytestmark = pytest.mark.repository
+
 DEPLOY = Path(__file__).resolve().parents[1] / "scripts" / "deploy"
 
 

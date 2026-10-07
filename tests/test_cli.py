@@ -110,6 +110,8 @@ def test_wheel_installs_and_runs_library_and_cli_in_clean_environment(tmp_path, 
     assert build.returncode == 0, build.stderr
     (wheel,) = tmp_path.glob("*.whl")
     with zipfile.ZipFile(wheel) as archive:
+        assert "shift_schedula/py.typed" in archive.namelist()
+        assert "shift_schedula/__init__.pyi" in archive.namelist()
         assert "shift_schedula/schemas/0.1/request.schema.json" in archive.namelist()
         assert "shift_schedula/schemas/0.1/response.schema.json" in archive.namelist()
         assert "shift_schedula/schemas/0.2/request.schema.json" in archive.namelist()
@@ -122,6 +124,7 @@ def test_wheel_installs_and_runs_library_and_cli_in_clean_environment(tmp_path, 
         (metadata,) = [name for name in archive.namelist() if name.endswith(".dist-info/METADATA")]
         assert metadata.startswith("shift_schedula-")
         assert b"Name: shift-schedula\n" in archive.read(metadata)
+        assert b"Requires-Python: >=3.14\n" in archive.read(metadata)
         assert any(name.endswith("/licenses/LICENSE") for name in archive.namelist())
         assert any(name.endswith("/licenses/THIRD_PARTY_NOTICES.md") for name in archive.namelist())
         assert not any("reference/" in name or "tests/" in name for name in archive.namelist())
@@ -160,7 +163,7 @@ from shift_schedula import get_schema, verify, make_baseline
 from jsonschema import Draft202012Validator
 def schema_errors(kind, value):
     return list(Draft202012Validator(get_schema(kind, value['schema_version'])).iter_errors(value))
-for schema_version in ('0.1', '0.2', '0.3', '0.4'):
+for schema_version in ('0.1', '0.2', '0.3', '0.4', '0.5', '0.6'):
     for kind in ('request', 'response', 'solution', 'verification'):
         schema = get_schema(kind, schema_version)
         assert schema['$id'] == f'urn:schedula:{kind}:{schema_version}'
@@ -236,7 +239,7 @@ print('clean wheel: library and CLI; assignment, roster, infeasible, invalid inp
             text=True,
         )
         assert setup.returncode == 0, setup.stderr
-        python = environment / "bin/python"
+        python = environment / ("Scripts/python.exe" if sys.platform == "win32" else "bin/python")
         install = subprocess.run(
             [
                 "uv",

@@ -1,10 +1,13 @@
 """元条件の不可能性と、入力者が許可した変更後の解を分けて返す。"""
 
+import logging
 import re
 import time
 from copy import deepcopy
 
 from .contract import diagnostic, reject
+
+logger = logging.getLogger(__name__)
 
 
 def validate_options(request):
@@ -64,7 +67,7 @@ def conditions(request):
     add("PLANNING_GRID", "/planning_window", interval=window)
     add(
         "DEMAND_LIMIT_AND_SINGLE_ASSIGNMENT"
-        if request["schema_version"] in {"0.3", "0.4"}
+        if request["schema_version"] in {"0.3", "0.4", "0.5", "0.6"}
         else "EXACT_DEMAND_AND_SINGLE_ASSIGNMENT",
         "/problem_type",
     )
@@ -77,6 +80,23 @@ def conditions(request):
         add("AVAILABILITY", f"/employees/{i}/availability", [employee["id"]], window)
         if "history" in employee:
             add("HISTORY", f"/employees/{i}/history", [employee["id"]])
+    if request.get("continuity"):
+        add("CONTINUITY_BACKGROUND", "/continuity/context_window")
+        for i, row in enumerate(request["continuity"]["employees"]):
+            add(
+                "HISTORY_BACKGROUND",
+                f"/continuity/employees/{i}/before_context",
+                [row["employee_id"]],
+            )
+            for name in ("actual_shifts", "committed_shifts"):
+                for j, duty in enumerate(row[name]):
+                    add(
+                        "ACTUAL_SHIFT_BACKGROUND"
+                        if name == "actual_shifts"
+                        else "COMMITTED_SHIFT_BACKGROUND",
+                        f"/continuity/employees/{i}/{name}/{j}",
+                        [row["employee_id"], duty["id"]],
+                    )
     for i, candidate in enumerate(request["shift_candidates"]):
         segments = candidate["segments"]
         add(
@@ -208,6 +228,7 @@ def diagnose(request, status, solve):
                     )
                 )
     except Exception:
+        logger.debug("追加診断で内部例外が発生しました。", exc_info=True)
         result["status"] = "ERROR"
         result["diagnostics"].append(
             diagnostic("DIAGNOSIS_ERROR", "追加診断の処理に失敗しました。")
