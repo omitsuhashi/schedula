@@ -196,13 +196,11 @@ def test_version_three_preserves_extended_input_semantics(name):
         complete.setdefault("change_summary", None)
         complete.setdefault("diagnosis_result", None)
         validate_response(complete, request)
-    # 不足の最適化が導入されるまでは、旧ソルバーへ渡さない。
     result = solve(request)
     assert result["schema_version"] == "0.3"
-    assert result["status"] == "BACKEND_UNAVAILABLE"
-    assert result["diagnostics"][0]["code"] == "PARTIAL_PLANNING_UNAVAILABLE"
-    assert result["solver"]["backend"] == "none"
-    assert result["solution"] is result["shortage_summary"] is None
+    assert result["status"] == ("PARTIAL" if name == "diagnosis" else "OPTIMAL")
+    assert result["shortage_summary"]["proven_minimal"]
+    assert result["verification"]["valid"]
     validate_response(result, request)
 
 
@@ -293,17 +291,17 @@ def test_full_response_with_original_request_and_legacy_boundaries(assignment_re
     legacy = solve({**assignment_request, "schema_version": "0.2"})
     with pytest.raises(InvalidInput, match="契約版"):
         validate_response(legacy, assignment_request)
-    # #36までは不足を含む実計画の独立検証は成功させない。
+    # 元入力と合わない合成応答は独立検証で拒否する。
     with pytest.raises(InvalidInput):
         validate_response(result_example("PARTIAL"), assignment_request)
-    # 完全な配置に架空の不足一覧を付けても、未導入の照合をすり抜けさせない。
+    # 完全な配置に架空の不足一覧を付けても照合をすり抜けさせない。
     legacy["schema_version"] = "0.3"
     legacy["status"] = "PARTIAL"
     legacy["shortage_summary"] = result_example("PARTIAL")["shortage_summary"]
     legacy["shortage_summary"]["proven_minimal"] = True
     with pytest.raises(InvalidInput) as error:
         validate_response(legacy, assignment_request)
-    assert error.value.diagnostics[0]["code"] == "PARTIAL_VERIFICATION_UNAVAILABLE"
+    assert error.value.diagnostics[0]["code"] == "SHORTAGE_MISMATCH"
 
 
 @pytest.mark.parametrize("kind", ["request", "response"])

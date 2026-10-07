@@ -61,6 +61,12 @@ def test_playground_scenario(scenario):
             assert sum(slot in slots for slots in problem.available.values()) == sum(
                 problem.demand[slot].values()
             )
+        if result["status"] == "PARTIAL":
+            assert (
+                result["shortage_summary"]["total_person_minutes"]
+                == expected["total_person_minutes"]
+            )
+            assert result["shortage_summary"]["proven_minimal"]
         if scenario["id"] == "absence" and step["id"] == "repaired":
             assert request["employees"][0]["availability"] == []
             assert all(item["employee_id"] != "aoi" for item in result["solution"]["assignments"])

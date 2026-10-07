@@ -20,6 +20,14 @@ FILES = {
     "/style.css": (ROOT / "demo" / "style.css", "text/css; charset=utf-8"),
     "/samples/lunch.json": (SAMPLES / "lunch.json", "application/json; charset=utf-8"),
     "/samples/scenarios.json": (SAMPLES / "scenarios.json", "application/json; charset=utf-8"),
+    "/samples/partial_assignment.json": (
+        ROOT / "examples" / "partial_assignment.json",
+        "application/json; charset=utf-8",
+    ),
+    "/samples/partial_roster.json": (
+        ROOT / "examples" / "partial_roster.json",
+        "application/json; charset=utf-8",
+    ),
     "/samples/roster.json": (ROOT / "examples" / "roster.json", "application/json; charset=utf-8"),
     "/samples/roster-100-30.json": (
         SAMPLES / "roster-100-30.json",

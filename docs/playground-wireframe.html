@@ -64,7 +64,7 @@ small { color:#647168; font-weight:400; } .scroll { overflow:auto; } .people sel
 </tbody></table></div></section>
 <section class="comparison"><h2>元の条件と比較する</h2><div class="compare-grid"><div><strong>元の条件</strong><p>通常のランチ営業<br><span class="status">OPTIMAL · 検証成功</span></p></div><div><strong>現在の条件</strong><p>まだ変更はありません。<br>条件を変えて再計算してください。</p></div></div><p class="note">入力の変更 → 担当の変更を表示します。変更量の最小化は行いません。</p></section>
 </div></div>
-<details><summary>解なしになったときの表示案を見る</summary><div class="error"><strong>この条件を満たす配置はありません · INFEASIBLE</strong><p>あおいの勤務可能時間を空にした結果、12:00〜12:30の調理は必要2人に対し、担当資格があり勤務可能な従業員が1人です。</p><p>現在の担当表は表示しません。元の成立した配置と、変更した条件を比較欄に残します。</p></div><p>復帰ガイド：あおいを勤務不可のまま、12:00〜13:00の調理を2人から1人に変更し、再計算する。</p><p class="note">需要を減らすかは利用者が選びます。無断で緩和しません。実店舗への推奨ではありません。</p></details>
+<details><summary>不足付き担当配置の表示案を見る</summary><div class="error"><strong>必須枠に不足があります。未完成の担当配置を出力しました · PARTIAL</strong><p>あおいの勤務可能時間を空にした結果、12:00〜13:00の調理は必要2人・配置1人・不足1人です。不足合計60人分、最小性は証明済みです。</p><p>配置できた20人枠の担当表と不足一覧を同時に表示し、元の条件と比較します。独立検証は不足集計・需要以外の必須条件を確認したことを示します。</p></div><p>編集ガイド：必要人数を見直す場合は、あおいを勤務不可のまま12:00〜13:00の調理を2人から1人に明示変更し、再計算する。</p><p class="note">需要を減らすかは利用者が選びます。無断で緩和しません。実店舗への推奨ではありません。</p></details>
 <details><summary>計算の詳細と状態の仕様</summary><p>追加の目的は指定していません。OPTIMAL は入力条件の範囲での状態であり、人選の優劣や変更最小化を保証しません。</p><p>編集後は「再計算が必要」と表示し、前回結果を現在の有効な配置として扱いません。UNKNOWN は未確定、通信失敗は取得失敗として区別します。</p><a href="playground.md">編集上限・全状態・実行入口・検証記録を読む</a></details>
 </main><footer>全データは架空です。勤務計画・法令判定・実店舗の適正人数を示すものではありません。</footer>
 </html>

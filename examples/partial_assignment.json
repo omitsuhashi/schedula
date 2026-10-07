@@ -1,6 +1,6 @@
 {
   "schema_version": "0.3",
-  "request_id": "playground_lunch",
+  "request_id": "partial_assignment",
   "problem_type": "assignment",
   "planning_window": {
     "start": "2026-10-06T11:00:00+09:00",
@@ -68,12 +68,7 @@
           "level": 1
         }
       ],
-      "availability": [
-        {
-          "start": "2026-10-06T11:00:00+09:00",
-          "end": "2026-10-06T14:00:00+09:00"
-        }
-      ]
+      "availability": []
     },
     {
       "id": "ren",

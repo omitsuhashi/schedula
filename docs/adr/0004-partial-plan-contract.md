@@ -17,4 +17,4 @@ status: accepted
 結果の不足一覧は診断から独立させ、省略せず返す。独立検証の成功は需要充足と同義ではなくなるため、
 呼び出し側は `status` と不足集計を読む必要がある。基準計画は引き続き完全な計画だけを受理する。
 2026-10-07の利用者による計画承認と [Issue #35](https://github.com/omitsuhashi/schedula/issues/35)に基づく。
-フィールド・証明範囲・段階的な導入境界は[契約0.3](../io-contract-partial.md)に定める。
+フィールド・証明範囲・実行と検証の境界は[契約0.3](../io-contract-partial.md)に定める。

@@ -15,11 +15,17 @@ async function verified(page, expected) {
   await status(page, expected.status);
   const pair = await page.evaluate(() => structuredClone(current));
   assert.equal(pair.response.status, expected.status);
-  if (expected.status === "OPTIMAL") {
+  if (["OPTIMAL", "PARTIAL"].includes(expected.status)) {
     assert.deepEqual([pair.response.verification.performed, pair.response.verification.valid], [true, true]);
     const count = pair.response.solution.assignments.reduce((sum, item) => sum + (Date.parse(item.interval.end) - Date.parse(item.interval.start)) / 1800000, 0);
     assert.equal(count, expected.assigned_slots);
-    assert.equal(await page.locator("#output table").count(), 2);
+    assert.equal(await page.locator("#output table").count(), expected.status === "PARTIAL" ? 3 : 2);
+    if (expected.status === "PARTIAL") {
+      assert.equal(pair.response.shortage_summary.total_person_minutes, expected.total_person_minutes);
+      assert.ok((await page.locator("#output").innerText()).includes("不足1人"));
+      assert.ok((await page.locator("#output").innerText()).includes("需要以外の必須条件"));
+      assert.ok((await page.locator("#comparison").innerText()).includes("担当差分："));
+    }
   } else {
     assert.equal(pair.response.solution, null);
     assert.equal(await page.locator("#output table").count(), 0);
@@ -59,7 +65,7 @@ async function reviewRegressions(page, url) {
       if (requests !== 1) { await route.continue(); return; }
       if (kind === "initial-unknown-baseline") {
         const result = await (await route.fetch()).json();
-        Object.assign(result, {status: "UNKNOWN", solution: null, objectives: [], verification: {performed: false, valid: null, violations: []}});
+        Object.assign(result, {status: "UNKNOWN", solution: null, objectives: [], shortage_summary: null, verification: {performed: false, valid: null, violations: []}});
         await route.fulfill({json: result});
       } else await route.fulfill({status: 500, json: {error: {code: "SERVER_ERROR", message: "初回失敗の応答サンプル", json_pointer: null}}});
     });
@@ -146,15 +152,33 @@ async function jsonInputChecks(page) {
   await page.screenshot({path: "test-results/playground-json-mobile.png"});
   report.interactions.push({json_sample: "100人・30日・30分", status: large.response.status, verification: large.response.verification, stats: large.response.stats});
 
-  for (const name of ["roster", "overnight", "split_roster", "infeasible", "invalid-input"]) {
+  for (const name of ["roster", "overnight", "split_roster", "infeasible", "invalid-input", "partial_assignment", "partial_roster"]) {
     const input = readFileSync(`examples/${name}.json`);
     await page.locator("#json-file").setInputFiles({name: `${name}.json`, mimeType: "application/json", buffer: input});
     await waitJSON("読み込みました");
     assert.equal(await page.locator("#json-output table").count(), 0);
     await page.locator("#json-calculate").click();
-    await waitJSON(name === "infeasible" ? "INFEASIBLE" : name === "invalid-input" ? "INVALID_INPUT" : "OPTIMAL");
+    await waitJSON(name === "infeasible" ? "INFEASIBLE" : name === "invalid-input" ? "INVALID_INPUT" : name.startsWith("partial_") ? "PARTIAL" : "OPTIMAL");
     assert.deepEqual(await page.evaluate(() => jsonPair.input), JSON.parse(input));
-    assert.equal(await page.locator("#json-output table").count(), ["infeasible", "invalid-input"].includes(name) ? 0 : 2);
+    assert.equal(await page.locator("#json-output table").count(), ["infeasible", "invalid-input"].includes(name) ? 0 : name.startsWith("partial_") ? 3 : 2);
+  }
+  // 実ソルバーの結果を変更した表示サンプル。探索の最適性の実測ではない。
+  const request = {...JSON.parse(readFileSync('examples/assignment.json', 'utf8')), schema_version: '0.3'};
+  for (const state of ['FEASIBLE', 'PARTIAL']) {
+    if (state === 'PARTIAL') request.employees[0].availability = [];
+    await page.locator('#json-input').fill(JSON.stringify(request));
+    await page.route('**/solve-json', async route => {
+      const result = await (await route.fetch()).json();
+      result.status = state;
+      result.objectives.forEach(o => { o.proven_optimal = false; });
+      if (state === 'PARTIAL') result.shortage_summary.proven_minimal = false;
+      await route.fulfill({json: result});
+    });
+    await page.locator('#json-calculate').click();
+    await waitJSON(state);
+    if (state === 'PARTIAL') assert.ok((await page.locator('#json-output').innerText()).includes('不足最小性：未証明'));
+    report.response_samples.push(`JSON ${state} 未証明の表示`);
+    await page.unroute('**/solve-json');
   }
   for (const [text, expected] of [["{", "INVALID_JSON"], ['{"a":1,"a":2}', "DUPLICATE_JSON_KEY"], ["null", "INVALID_INPUT"]]) {
     await page.locator("#json-input").fill(text);
@@ -212,8 +236,18 @@ async function main() {
         await page.locator("#calculate").click();
       }
       const pair = await verified(page, step.expected);
+      if (scenario.id === "absence" && step.id === "changed") {
+        await page.setViewportSize({width: 390, height: 844});
+        assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+        await page.locator('#result').scrollIntoViewIfNeeded();
+        await page.emulateMedia({forcedColors: 'active'});
+        assert.ok((await page.locator('#output').innerText()).includes('不足1人'));
+        await page.screenshot({path: 'test-results/playground-partial-mobile.png'});
+        await page.emulateMedia({forcedColors: 'none'});
+        await page.setViewportSize({width: 1440, height: 1000});
+      }
       if (scenario.id === "absence" && step.id === "repaired") assert.deepEqual(pair.input.employees[0].availability, []);
-      report.scenarios.push({scenario: scenario.id, step: step.id, status: pair.response.status, verification: pair.response.verification});
+      report.scenarios.push({scenario: scenario.id, step: step.id, status: pair.response.status, verification: pair.response.verification, shortage_summary: pair.response.shortage_summary});
       if (!step.restore) assert.equal((await page.evaluate(() => baseline.input.request_id)), initial.input.request_id);
     }
     const before = await page.evaluate(() => ({baseline, current, input: readRequest()}));
@@ -286,8 +320,8 @@ async function main() {
   await page.keyboard.press("Space");
   await page.locator("#calculate").focus();
   await page.keyboard.press("Enter");
-  await status(page, "INFEASIBLE");
-  assert.equal(await page.locator("#output table").count(), 0);
+  await status(page, "PARTIAL");
+  assert.equal(await page.locator("#output table").count(), 3);
   await page.locator("#restore").click();
   initial = await verified(page, {status: "OPTIMAL", assigned_slots: 22});
   await page.locator('[data-pointer="/employees/0/availability/0/end"]').selectOption("2026-10-06T11:00:00+09:00");
@@ -295,15 +329,26 @@ async function main() {
   await status(page, "入力不備");
   await page.locator("#restore").click();
   initial = await verified(page, {status: "OPTIMAL", assigned_slots: 22});
-  report.interactions.push("技能チェックをキーボードで編集して解なしを実計算、勤務可能時間の逆転を拒否");
+  report.interactions.push("技能チェックをキーボードで編集して不足付き配置を実計算、勤務可能時間の逆転を拒否");
+
+  for (let i = 0; i < 6; i++) await page.locator(`[data-pointer="/employees/${i}/availability"]`).check();
+  await page.locator('#calculate').click();
+  await status(page, 'PARTIAL');
+  const allMissing = await page.evaluate(() => current);
+  assert.equal(allMissing.response.solution.assignments.length, 0);
+  assert.equal(allMissing.response.shortage_summary.total_person_minutes, 660);
+  assert.ok((await page.locator('#output').innerText()).includes('不足'));
+  report.interactions.push({all_missing: allMissing.response.shortage_summary, verification: allMissing.response.verification});
+  await page.locator('#restore').click();
+  initial = await verified(page, {status: 'OPTIMAL', assigned_slots: 22});
 
   // 以下は実エンジンの実測ではなく、表示・応答失効を確認する応答サンプル。
-  for (const state of ["FEASIBLE", "INFEASIBLE", "UNKNOWN", "INVALID_INPUT", "BACKEND_UNAVAILABLE", "INTERNAL_ERROR"]) {
+  for (const state of ["INFEASIBLE", "UNKNOWN", "INVALID_INPUT", "BACKEND_UNAVAILABLE", "INTERNAL_ERROR"]) {
     await page.route("**/solve", async route => {
       const result = structuredClone(initial.response);
       result.request_id = route.request().postDataJSON().request_id;
       result.status = state;
-      if (state !== "FEASIBLE") { result.solution = null; result.objectives = []; result.verification = {performed: false, valid: null, violations: []}; }
+      if (state !== "FEASIBLE") { result.shortage_summary = null; result.solution = null; result.objectives = []; result.verification = {performed: false, valid: null, violations: []}; }
       result.diagnostics = [{code: "DISPLAY_SAMPLE", message: "表示確認用の応答サンプル", json_pointer: "/demand/0/required_people", related_ids: [], facts: []}];
       await route.fulfill({json: result});
     });
@@ -316,7 +361,7 @@ async function main() {
     report.response_samples.push(state);
     await page.unroute("**/solve");
   }
-  for (const kind of ["http-error", "communication", "request-id", "verification", "malformed"]) {
+  for (const kind of ["http-error", "communication", "request-id", "verification", "malformed", "shortage", "double"]) {
     await page.route("**/solve", async route => {
       if (kind === "communication") { await route.abort(); return; }
       if (kind === "http-error") { await route.fulfill({status: 503, json: {error: {code: "BUSY", message: "計算中", json_pointer: null}}}); return; }
@@ -324,6 +369,8 @@ async function main() {
       result.request_id = kind === "request-id" ? "old_request" : route.request().postDataJSON().request_id;
       if (kind === "verification") result.verification.valid = false;
       if (kind === "malformed") result.solution.assignments = [{}];
+      if (kind === "shortage") result.shortage_summary.total_person_minutes = 30;
+      if (kind === "double") result.solution.assignments.push(structuredClone(result.solution.assignments[0]));
       await route.fulfill({json: result});
     });
     await page.locator("#calculate").click();

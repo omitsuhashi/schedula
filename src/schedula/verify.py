@@ -160,15 +160,20 @@ def verify_shifts(request, grid, shifts, fail):
     return coverage, breaks, scheduled
 
 
-def verify_solution(problem, solution):
-    """元入力と共通の解を照合し、違反と目的順の再計算値を返す。"""
+def verify_solution(problem, solution, *, require_complete=False):
+    """従来の呼び出し向けに、違反と目的順の再計算値を返す。"""
+    return verify_plan(problem, solution, require_complete=require_complete)[:2]
+
+
+def verify_plan(problem, solution, *, require_complete=False):
+    """元入力と解を照合し、違反・目的値・不足を独立に再計算する。"""
     try:
         check_json(solution)
     except InvalidInput as error:
-        return error.diagnostics, ()
+        return error.diagnostics, (), None
     violations = schema_errors("solution", solution, problem.request["schema_version"])
     if violations:
-        return violations, ()
+        return violations, (), None
 
     def fail(code, message, path, related_ids=(), **facts):
         if len(violations) < 1000:
@@ -265,13 +270,37 @@ def verify_solution(problem, solution):
                     slot=start,
                 )
     expected = Counter()
+    shortages = []
+    total = 0
     for index, demand in enumerate(request["demand"]):
         start, end = grid.interval(demand["interval"], f"/demand/{index}/interval")
+        runs = []
         for slot in range(start, end):
-            expected[slot, demand["role_id"]] = int(demand["required_people"])
+            required = int(demand["required_people"])
+            expected[slot, demand["role_id"]] = required
+            assigned = actual[slot, demand["role_id"]]
+            if assigned < required:
+                total += (required - assigned) * grid.slot_minutes
+                if runs and runs[-1][1] == slot and runs[-1][2] == assigned:
+                    runs[-1][1] = slot + 1
+                else:
+                    runs.append([slot, slot + 1, assigned])
+        shortages.extend(
+            {
+                "demand_id": demand["id"],
+                "role_id": demand["role_id"],
+                "interval": grid.output_interval(a, b),
+                "required_people": required,
+                "assigned_people": assigned,
+                "missing_people": required - assigned,
+            }
+            for a, b, assigned in runs
+        )
     for slot, role_id in sorted(expected.keys() | actual.keys()):
         required, assigned = expected[slot, role_id], actual[slot, role_id]
-        if assigned != required:
+        if assigned > required or (
+            assigned < required and (request["schema_version"] != "0.3" or require_complete)
+        ):
             code = "DEMAND_SHORTAGE" if assigned < required else "DEMAND_EXCESS"
             fail(
                 code,
@@ -323,4 +352,8 @@ def verify_solution(problem, solution):
         extension_violations, extension_metrics, _ = evaluate(problem, solution)
         violations.extend(extension_violations)
         metrics.update(extension_metrics)
-    return violations[:1000], tuple(metrics[o["metric"]] for o in request["objectives"])
+    return (
+        violations[:1000],
+        tuple(metrics[o["metric"]] for o in request["objectives"]),
+        {"total_person_minutes": total, "shortages": shortages},
+    )

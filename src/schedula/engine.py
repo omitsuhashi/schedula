@@ -10,7 +10,7 @@ from .contract import (
     schema_version_of,
 )
 from .model import minute_datetime, normalize
-from .verify import verify_solution
+from .verify import verify_plan, verify_solution
 
 
 def response(
@@ -55,17 +55,6 @@ def validate_response(result, request=None):
                 )
             ]
         )
-    if request is not None and result["status"] == "PARTIAL":
-        # #36で元入力・配置との不足照合を導入するまで、集計の自己申告を採用しない。
-        raise InvalidInput(
-            [
-                diagnostic(
-                    "PARTIAL_VERIFICATION_UNAVAILABLE",
-                    "未完成の計画と元入力の独立検証は未導入です。",
-                    "/shortage_summary",
-                )
-            ]
-        )
     if request is not None and result["status"] in {"OPTIMAL", "FEASIBLE", "PARTIAL"}:
         expected = [(item["id"], item["metric"]) for item in request["objectives"]]
         actual = [(item["id"], item["metric"]) for item in result["objectives"]]
@@ -79,8 +68,18 @@ def validate_response(result, request=None):
             from .extensions import evaluate
 
             problem = normalize(request)
-            violations, values = verify_solution(problem, result["solution"])
+            violations, values, shortage = verify_plan(problem, result["solution"])
             errors.extend(violations)
+            if request["schema_version"] == "0.3" and shortage != {
+                k: v for k, v in result["shortage_summary"].items() if k != "proven_minimal"
+            }:
+                errors.append(
+                    diagnostic(
+                        "SHORTAGE_MISMATCH",
+                        "不足集計が元入力と返却解に一致しません。",
+                        "/shortage_summary",
+                    )
+                )
             if values != tuple(item["value"] for item in result["objectives"]):
                 errors.append(
                     diagnostic(
@@ -182,24 +181,6 @@ def solve(request: dict) -> dict:
 
     try:
         problem = normalize(request)
-        if schema_version == "0.3":
-            # #37で不足最小化を導入するまで、旧ソルバーの結果を0.3として公開しない。
-            result = extend(
-                response(
-                    request_id,
-                    "BACKEND_UNAVAILABLE",
-                    [
-                        diagnostic(
-                            "PARTIAL_PLANNING_UNAVAILABLE",
-                            "契約0.3の不足を伴う計画の探索は未導入です。",
-                            "/schema_version",
-                        )
-                    ],
-                )
-            )
-            result["stats"]["elapsed_seconds"] = time.perf_counter() - start
-            validate_response(result, request)
-            return result
         normalized_at = time.perf_counter()
         backend, selection_reason = choose_backend(request)
         if backend == "cp_sat":
@@ -210,11 +191,26 @@ def solve(request: dict) -> dict:
             loaded_at = time.perf_counter()
             outcome = flow.run(problem)
         solved_at = time.perf_counter()
-        if backend == "min_cost_flow" and outcome.status == "FEASIBLE":
+        if backend == "min_cost_flow" and outcome.status == "FEASIBLE" and schema_version != "0.3":
             raise RuntimeError("Unexpected flow outcome")
         result = extend(response(request_id, outcome.status, outcome.diagnostics, backend))
         if outcome.status in {"OPTIMAL", "FEASIBLE"}:
-            violations, values = verify_solution(problem, outcome.solution)
+            shortage = None
+            if schema_version == "0.3":
+                violations, values, shortage = verify_plan(problem, outcome.solution)
+                if (
+                    shortage is not None
+                    and shortage["total_person_minutes"] != outcome.shortage_person_minutes
+                ):
+                    violations.append(
+                        diagnostic(
+                            "SHORTAGE_MISMATCH",
+                            "ソルバーの不足量が返却解と一致しません。",
+                            "/shortage_summary",
+                        )
+                    )
+            else:
+                violations, values = verify_solution(problem, outcome.solution)
             if not violations and values != outcome.values:
                 if len(values) != len(outcome.values):
                     violations = [
@@ -246,6 +242,18 @@ def solve(request: dict) -> dict:
                 )
             else:
                 result["solution"] = outcome.solution
+                if schema_version == "0.3":
+                    minimal = (
+                        shortage["total_person_minutes"] == 0 or outcome.shortage_proven_minimal
+                    )
+                    result["shortage_summary"] = {**shortage, "proven_minimal": minimal}
+                    result["status"] = (
+                        "PARTIAL"
+                        if shortage["total_person_minutes"]
+                        else "OPTIMAL"
+                        if all(outcome.proven_optimal)
+                        else "FEASIBLE"
+                    )
                 if schema_version in {"0.2", "0.3"}:
                     from .extensions import evaluate
 
@@ -280,6 +288,15 @@ def solve(request: dict) -> dict:
             )
         )
         if backend == "cp_sat" and result["solution"] is not None:
+            if schema_version == "0.3" and outcome.shortage_bound is not None:
+                result["diagnostics"].append(
+                    diagnostic(
+                        "SHORTAGE_BOUND",
+                        "不足合計人分の探索下限です。",
+                        "/shortage_summary",
+                        best_bound=outcome.shortage_bound,
+                    )
+                )
             for index, bound in enumerate(outcome.objective_bounds):
                 if bound is not None:
                     result["diagnostics"].append(
@@ -298,6 +315,7 @@ def solve(request: dict) -> dict:
         if request.get("diagnosis") and result["status"] in {
             "OPTIMAL",
             "FEASIBLE",
+            "PARTIAL",
             "INFEASIBLE",
             "UNKNOWN",
         }:

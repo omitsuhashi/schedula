@@ -30,7 +30,7 @@ def objective_quality(response):
         if item["code"] == "OBJECTIVE_BOUND"
     }
     quality = []
-    prefix_proven = True
+    prefix_proven = (response.get("shortage_summary") or {}).get("proven_minimal", True)
     for index, objective in enumerate(response["objectives"]):
         facts = bounds.get(f"/objectives/{index}", {})
         bound = facts.get("best_bound") if prefix_proven else None
@@ -106,6 +106,7 @@ def measure(path, backend, time_limit_seconds=None):
         "diagnostics": response["diagnostics"],
         "fairness_summary": response.get("fairness_summary"),
         "change_summary": response.get("change_summary"),
+        "shortage_summary": response.get("shortage_summary"),
         "diagnosis_result": response.get("diagnosis_result"),
         "search_stats": search_stats,
         "assignments": len(response["solution"]["assignments"]) if response["solution"] else 0,
@@ -138,7 +139,7 @@ def summarize(measurements, workers):
         verified = [
             item
             for item in rows
-            if item["status"] in {"OPTIMAL", "FEASIBLE"}
+            if item["status"] in {"OPTIMAL", "FEASIBLE", "PARTIAL"}
             and item["verification"]["performed"]
             and item["verification"]["valid"]
         ]

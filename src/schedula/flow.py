@@ -23,6 +23,8 @@ class FlowResult:
     diagnostics: tuple = ()
     search_elapsed_seconds: float = 0.0
     preparation_elapsed_seconds: float = 0.0
+    shortage_person_minutes: int | None = None
+    shortage_proven_minimal: bool = False
 
 
 def add_edge(graph, source, target, capacity, cost):
@@ -55,7 +57,7 @@ def prepare(problem):
                     arcs.append((employee, role, edge))
         for role_node, role in enumerate(roles, len(employees) + 1):
             qualified = sum(role in problem.qualified[employee] for employee in employees)
-            if qualified < demand[role]:
+            if qualified < demand[role] and problem.request["schema_version"] != "0.3":
                 return [], diagnostic(
                     "INSUFFICIENT_QUALIFIED_EMPLOYEES",
                     "この役割の勤務可能な有資格者が不足しています。",
@@ -82,7 +84,7 @@ def augment(graph, required, deadline):
         queue = [(0, 0)]
         while queue:
             if time.monotonic() >= deadline:
-                return "UNKNOWN", 0
+                return "UNKNOWN", total
             distance, node = heapq.heappop(queue)
             if distance != distances[node]:
                 continue
@@ -95,7 +97,7 @@ def augment(graph, required, deadline):
                     parents[edge.target] = node, index
                     heapq.heappush(queue, (candidate, edge.target))
         if parents[sink] is None:
-            return "INFEASIBLE", 0
+            return "INFEASIBLE", total
         for node, distance in enumerate(distances):
             if distance != math.inf:
                 potentials[node] += distance
@@ -147,9 +149,11 @@ def run(problem):
     deadline = start + problem.request["solver"]["time_limit_seconds"]
     assignments = {}
     cost = 0
+    partial = problem.request["schema_version"] == "0.3"
+    completed = True
     for slot, graph, arcs, required in networks:
         status, slot_cost = augment(graph, required, deadline)
-        if status != "OPTIMAL":
+        if status != "OPTIMAL" and not partial:
             code = "TIME_LIMIT" if status == "UNKNOWN" else "COMPETING_ROLE_DEMAND"
             message = (
                 "探索予算内に完全な解を得られませんでした。"
@@ -167,11 +171,23 @@ def run(problem):
         for employee, role, edge in arcs:
             if edge.capacity == 0:
                 assignments.setdefault(employee, []).append((slot, role))
+        if status == "UNKNOWN":
+            completed = False
+            break
+    shortage = (
+        sum(sum(d.values()) for d in problem.demand)
+        - sum(len(slots) for slots in assignments.values())
+    ) * problem.grid.slot_minutes
     return FlowResult(
-        "OPTIMAL",
+        "OPTIMAL" if completed else "FEASIBLE",
         make_solution(problem.grid, assignments),
         (cost,) if problem.request["objectives"] else (),
-        (True,) if problem.request["objectives"] else (),
+        (completed,) if problem.request["objectives"] else (),
+        diagnostics=()
+        if completed
+        else (diagnostic("TIME_LIMIT", "探索予算内の担当配置を返します。"),),
         search_elapsed_seconds=time.monotonic() - start,
         preparation_elapsed_seconds=preparation_elapsed,
+        shortage_person_minutes=shortage if partial else None,
+        shortage_proven_minimal=completed,
     )

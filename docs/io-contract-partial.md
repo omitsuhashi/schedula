@@ -7,14 +7,10 @@
 変更は明示した `schema_version: "0.3"` に限り、0.1・0.2のSchema・需要の意味・結果状態は変えない。
 JSON Schemaの正本は `src/schedula/schemas/0.3/` に置く。
 
-[Issue #35](https://github.com/omitsuhashi/schedula/issues/35)の実装範囲はSchemaの読み取り、入力の意味検証、
-応答内の状態・数値・証明順序の整合性である。応答例は契約検証用で、0.3ソルバーの計算結果ではない。
-元入力と配置から不足を再計算する独立検証は [#36](https://github.com/omitsuhashi/schedula/issues/36)、
-不足を最小化する探索は [#37](https://github.com/omitsuhashi/schedula/issues/37)で導入する。
-その間、`solve` は0.3入力を意味検証した後、`BACKEND_UNAVAILABLE` /
-`PARTIAL_PLANNING_UNAVAILABLE`、`solver.backend: "none"` を返す。
-入力不正は従来どおり `INVALID_INPUT`。OR-Toolsの導入だけではこの制限は解消しない。
-旧ソルバーの完全充足問題を解いて0.3の不可能性を誤って主張しないための一時的な境界である。
+契約検証に加え、元入力から不足を再計算する独立検証、最小費用流・CP-SATの不足最小化、
+CLI・ローカルデモを実装している。[不足付き担当配置](../examples/partial_assignment.json)と
+[不足付き勤務計画](../examples/partial_roster.json)を同じAPI・CLIで実行できる。
+実測・合成応答テスト・未確認事項は[検証記録](evaluations/partial-plans.md)で区別する。
 
 ```sh
 uv run --locked python -m schedula schema request --schema-version 0.3
@@ -116,9 +112,19 @@ CLIはJSONを標準出力に出し、`OPTIMAL` / `FEASIBLE` は終了コード0�
 Schemaはフィールド・型・状態によるnull/空配列・不足の正負・証明の前提を検証する。
 `validate_response(result)` はさらに不足一覧内の算術と区間長、合計、目的の証明順序を検証する。
 入力との照合なしでは、需要IDや配置の正しさ、元の需要をすべて網羅したかは確認できない。
-これらは #36 の独立検証で元入力と配置から再計算する。#35時点の `verify_solution` は不足を含む計画を
-検証成功にしない。`validate_response(result, request)` も `PARTIAL` なら
-`PARTIAL_VERIFICATION_UNAVAILABLE` として拒否し、完全な計画だけを照合する。
+`verify_plan(problem, solution)` は元入力と返却配置から、違反・目的値・不足一覧と合計を返す。
+`verify_solution(problem, solution)` は同じ検証経路から従来どおり違反・目的値を返す。
+`validate_response(result, request)` は再計算した不足・目的値・公平性/変更集計を応答と照合する。
+基準計画の検証には `require_complete=True` を指定し、0.3でも需要不足を違反として拒否する。
+ソルバーの不足量と再計算値が一致しない場合も `INTERNAL_ERROR` にして計画を公開しない。
+
+最小費用流は時間枠ごとに最大流を求め、その流量の範囲で費用を最小化する。
+不足する時間枠で打ち切らず、巨大な罰金や架空の従業員を使わない。
+CP-SATは各需要枠に非負の不足変数を置き、配置人数＋不足人数＝必要人数とする。
+既存の辞書式探索の先頭に不足人分を置き、証明済みの値だけ固定する。
+両方式とも全目的で一つの探索予算を共有し、別予算で完全充足の再探索は行わない。
+時間切れの最小費用流も、それまでの配置と残りの不足を独立検証して返す。
+CP-SATが計画を取得できていない場合は `UNKNOWN` を維持し、空の配置を代用しない。
 
 ## 基準計画と診断
 
@@ -141,12 +147,12 @@ Schemaはフィールド・型・状態によるnull/空配列・不足の正負
 変更案として掲載するのは変更後の完全な `OPTIMAL` / `FEASIBLE` の計画だけとし、
 未完成の計画を変更案の成功として掲載しない。
 
-## 再実行と後続作業
+## 再実行
 
 ```sh
-uv run --locked --extra cp-sat pytest -q tests/test_partial_contract.py tests/test_schema_encoding.py
+uv run --locked --extra cp-sat pytest -q tests/test_partial_contract.py tests/test_partial_plans.py tests/test_schema_encoding.py
 ```
 
 テストは全状態の合成応答、状態・数値・証明の矛盾、旧版境界、拡張入力の継承、完全な基準計画のみの受理、
-PARTIAL時の診断非適用、探索導入前の実行停止を確認する。Schemaはwheelにも同梱する。
-#36で不足の独立検証を導入し、#37で実行停止を解除する。#38でデモ表示、#39で利用手順と結合検証を完成させる。
+不足の改ざん、必須条件違反、小規模全探索、両方式の共通評価値、制御した時間切れ、PARTIAL時の診断非適用を確認する。
+Schemaと両方式の実装をwheelにも同梱し、OR-Toolsなしの最小費用流と依存不足も隔離環境で検証する。

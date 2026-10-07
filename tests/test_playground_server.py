@@ -47,7 +47,14 @@ def test_http_scenarios_match_library(http_server, scenario):
         assert status == 200
         assert_response(result, step["expected"]["status"])
         direct = solve(request)
-        for key in ("request_id", "status", "solution", "objectives", "verification"):
+        for key in (
+            "request_id",
+            "status",
+            "solution",
+            "objectives",
+            "verification",
+            "shortage_summary",
+        ):
             assert result[key] == direct[key]
 
 
@@ -73,6 +80,29 @@ def test_http_matches_cli_and_only_serves_allowlist(http_server):
     assert call(http_server, BASELINE, method="PUT")[0] == 405
     assert call(http_server, BASELINE, method="CUSTOM")[1]["error"]["code"] == "METHOD_NOT_ALLOWED"
     assert call(http_server, BASELINE, path="/elsewhere")[0] == 404
+
+
+def test_partial_http_cli_and_library_agree(http_server):
+    _, request = list(scenario_requests(SCENARIOS[1]))[1]
+    status, result = call(http_server, request)
+    cli = subprocess.run(
+        [sys.executable, "-m", "schedula", "solve", "-"],
+        input=json.dumps(request),
+        capture_output=True,
+        text=True,
+    )
+    assert status == 200 and cli.returncode == 2 and cli.stderr == ""
+    assert_response(result, "PARTIAL")
+    for other in (solve(request), json.loads(cli.stdout)):
+        for key in (
+            "request_id",
+            "status",
+            "solution",
+            "objectives",
+            "verification",
+            "shortage_summary",
+        ):
+            assert result[key] == other[key]
 
 
 @pytest.mark.parametrize(
@@ -315,6 +345,11 @@ def test_json_sample_100_people_30_days(http_server, monkeypatch, standby):
             verification={"performed": True, "valid": True, "violations": []},
         )
         replay.update(
+            schema_version=request["schema_version"],
+            fairness_summary=None,
+            change_summary=None,
+            diagnosis_result=None,
+            shortage_summary={"total_person_minutes": 0, "proven_minimal": True, "shortages": []},
             solution=solution,
             objectives=[
                 {
