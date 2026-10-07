@@ -115,6 +115,57 @@ async function reviewRegressions(page, url) {
   await page.goto(url);
 }
 
+async function largeShortageRendering(page) {
+  // 描画上限の合成データ。実ソルバーの不足集計や応答受理を検証するものではない。
+  assert.equal(await page.evaluate(() => node("div", "", {},
+    Array.from({length: 150000}, () => document.createTextNode(""))).childNodes.length), 150000);
+  const expected = await page.evaluate(() => {
+    jsonPair = structuredClone(jsonPair);
+    jsonPair.input.planning_window.end = new Date(Date.parse(jsonPair.input.planning_window.end) + 86400000).toISOString();
+    const summary = jsonPair.response.shortage_summary;
+    const item = summary.shortages[0];
+    summary.shortages = Array.from({length: 150000}, (_, index) => ({...item, demand_id: `render_${index}`}));
+    summary.total_person_minutes = 150000 * item.missing_people * (Date.parse(item.interval.end) - Date.parse(item.interval.start)) / 60000;
+    summary.proven_minimal = false;
+    jsonPair.response.objectives.forEach(objective => { objective.proven_optimal = false; });
+    renderJSONResult();
+    return {total: summary.total_person_minutes, date: jsonSlots(jsonPair.input).at(-1).date,
+      solution: jsonPair.response.solution};
+  });
+  const output = page.locator("#json-output");
+  const shortages = output.getByRole("region", {name: "不足の一覧", exact: true});
+  const pages = output.getByRole("combobox", {name: "不足一覧のページ", exact: true});
+  assert.equal(await shortages.locator("tbody tr").count(), 100);
+  assert.ok((await shortages.locator("caption").innerText()).includes("全150000件中1〜100件"));
+  assert.ok((await output.locator("p").first().innerText()).includes(`不足合計：${expected.total}人分`));
+  await pages.selectOption("1499");
+  assert.equal(await shortages.locator("tbody tr").count(), 100);
+  assert.equal(await shortages.locator("tbody th").last().innerText(), "render_149999");
+  await pages.selectOption("0");
+  await pages.focus();
+  await page.keyboard.press("2");
+  await page.keyboard.press("Enter");
+  assert.ok((await shortages.locator("caption").innerText()).includes("101〜200件"));
+  await page.locator("#json-day").selectOption(expected.date);
+  assert.ok((await output.getByRole("region", {name: "JSON の担当配置表", exact: true}).locator("caption").innerText()).includes(expected.date));
+  assert.equal(await output.locator("table").count(), 3);
+  const retained = await page.evaluate(() => {
+    const detail = JSON.parse(document.querySelector("#json-output > details pre").textContent);
+    return {count: jsonPair.response.shortage_summary.shortages.length,
+      detailCount: detail.response.shortage_summary.shortages.length,
+      last: detail.response.shortage_summary.shortages.at(-1).demand_id,
+      solution: jsonPair.response.solution};
+  });
+  assert.equal(retained.count, 150000);
+  assert.equal(retained.detailCount, 150000);
+  assert.equal(retained.last, "render_149999");
+  assert.deepEqual(retained.solution, expected.solution);
+  assert.ok((await page.locator("#json-status").innerText()).includes("PARTIAL"));
+  assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  report.response_samples.push({shortage_rendering: "合成データ・実ブラウザー", count: retained.count,
+    detail_count: retained.detailCount, visible_rows: 100, selected_date: expected.date});
+}
+
 async function jsonInputChecks(page) {
   const waitJSON = text => page.waitForFunction(value =>
     document.getElementById("json-status").textContent.includes(value) && !busy,
@@ -162,6 +213,7 @@ async function jsonInputChecks(page) {
     assert.deepEqual(await page.evaluate(() => jsonPair.input), JSON.parse(input));
     assert.equal(await page.locator("#json-output table").count(), ["infeasible", "invalid-input"].includes(name) ? 0 : name.startsWith("partial_") ? 3 : 2);
   }
+  await largeShortageRendering(page);
   // 実ソルバーの結果を変更した表示サンプル。探索の最適性の実測ではない。
   const request = {...JSON.parse(readFileSync('examples/assignment.json', 'utf8')), schema_version: '0.3'};
   for (const state of ['FEASIBLE', 'PARTIAL']) {

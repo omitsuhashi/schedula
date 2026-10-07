@@ -23,7 +23,7 @@ function node(tag, text = "", attributes = {}, children = []) {
   const result = document.createElement(tag);
   result.textContent = text;
   for (const [key, value] of Object.entries(attributes)) result.setAttribute(key, value);
-  result.append(...children);
+  for (const child of children) result.append(child);
   return result;
 }
 
@@ -165,14 +165,29 @@ function renderShortages(pair) {
   const roles = new Map(pair.input.roles.map(role => [role.id, role.label || role.id]));
   const zone = pair.input.planning_window.timezone;
   const dateTime = new Intl.DateTimeFormat("ja-JP", {timeZone: zone, month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23"});
-  return node("div", "", {}, [
+  const result = node("div", "", {}, [
     node("p", `不足合計：${summary.total_person_minutes}人分 · ${summary.proven_minimal ? "不足最小性：証明済み（追加従業員数を示す値ではありません）" : "不足最小性：未証明。埋められないことが確定したわけではありません。"}`),
-    ...(summary.shortages.length ? [scroll("不足の一覧", table("元の必要人数と配置人数・不足人数", ["需要ID", "役割", "時間帯", "必要人数", "配置人数", "不足人数"], summary.shortages.map(item => node("tr", "", {}, [
+  ]);
+  if (!summary.shortages.length) return result;
+  const pageSize = 100;
+  const select = node("select", "", {"aria-label": "不足一覧のページ"},
+    Array.from({length: Math.ceil(summary.shortages.length / pageSize)}, (_, index) =>
+      node("option", `${index + 1}ページ`, {value: index})));
+  const list = node("div");
+  const render = () => {
+    const first = Number(select.value) * pageSize;
+    const last = Math.min(first + pageSize, summary.shortages.length);
+    list.replaceChildren(scroll("不足の一覧", table(`元の必要人数と配置人数・不足人数 · 全${summary.shortages.length}件中${first + 1}〜${last}件`, ["需要ID", "役割", "時間帯", "必要人数", "配置人数", "不足人数"], summary.shortages.slice(first, last).map(item => node("tr", "", {}, [
       node("th", item.demand_id, {scope: "row"}), node("td", roles.get(item.role_id)),
       node("td", `${dateTime.format(Date.parse(item.interval.start))}〜${dateTime.format(Date.parse(item.interval.end))}`),
       node("td", `${item.required_people}人`), node("td", `${item.assigned_people}人`), node("td", `不足${item.missing_people}人`, {class: "shortage"}),
-    ]))))] : []),
-  ]);
+    ])))));
+  };
+  select.addEventListener("change", render);
+  if (summary.shortages.length > pageSize) result.append(node("label", "不足一覧のページ ", {class: "toolbar"}, [select]));
+  result.append(list);
+  render();
+  return result;
 }
 
 function details(label, value) {
