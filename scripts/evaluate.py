@@ -111,6 +111,7 @@ def measure(path, backend, time_limit_seconds=None):
         "diagnostics": response["diagnostics"],
         "fairness_summary": response.get("fairness_summary"),
         "change_summary": response.get("change_summary"),
+        "continuity_summary": response.get("continuity_summary"),
         "shortage_summary": response.get("shortage_summary"),
         "diagnosis_result": response.get("diagnosis_result"),
         "search_stats": search_stats,

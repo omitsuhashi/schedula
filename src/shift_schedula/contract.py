@@ -251,6 +251,15 @@ def validate_request(request):
             for i, row in enumerate(value["employees"]):
                 if isinstance(row, dict) and (
                     not {"before_context", "actual_shifts", "committed_shifts"} <= row.keys()
+                    or (
+                        isinstance(row.get("before_context"), dict)
+                        and not {
+                            "last_shift_end",
+                            "last_work_day",
+                            "consecutive_work_days_before_window",
+                        }
+                        <= row["before_context"].keys()
+                    )
                     or row.get("past_complete") is not True
                     or row.get("commitments_complete") is not True
                 ):

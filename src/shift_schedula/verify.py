@@ -316,6 +316,8 @@ def verify_plan(problem, solution, *, require_complete=False):
     except RecursionError:
         return [diagnostic("NON_JSON_VALUE", "解の階層が深すぎます。")], (), None
     violations = schema_errors("solution", solution, problem.request["schema_version"])
+    if violations:
+        return violations, (), None
     if not problem.request.get("continuity") and any(
         "committed_shift_id" in s for s in solution["shifts"]
     ):

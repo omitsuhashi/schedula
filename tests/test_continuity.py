@@ -629,3 +629,28 @@ def test_verification_rejects_committed_reference_without_continuity():
         "consecutive_work_days_before_window": 0,
     }
     assert verify(data, out)["status"] == "INVALID_PLAN"
+
+
+@pytest.mark.parametrize("out", [None, {}, {"shifts": [42], "assignments": []}])
+def test_malformed_solution_is_invalid_plan(out):
+    assert verify(example(), out)["status"] == "INVALID_PLAN"
+
+
+def test_missing_anchor_fields_and_pre_context_aggregation_are_rejected():
+    data = example("week")
+    row(data)["before_context"] = {}
+    assert validate(data)["diagnostics"][0]["code"] == "INCOMPLETE_HISTORY"
+    data = example("week")
+    data["constraints"][0]["interval"]["start"] = stamp("10-04")
+    assert validate(data)["diagnostics"][0]["code"] == "INCOMPLETE_HISTORY"
+    # 過去の11分休憩と終了端を現在の30分粒度に丸めない。
+    data = example("week")
+    row(data)["actual_shifts"][0]["segments"] = [
+        segment(
+            stamp("10-05", "09:01"),
+            stamp("10-05", "17:17"),
+            [(stamp("10-05", "12:02"), stamp("10-05", "12:13"))],
+        )
+    ]
+    checked = solve(data)
+    assert checked["continuity_summary"]["employees"][0]["historical_minutes"] == 965
