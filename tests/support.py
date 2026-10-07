@@ -1,4 +1,4 @@
-from schedula.contract import schema_errors
+from shift_schedula.contract import schema_errors
 
 
 def assert_response(result, status):

@@ -1,5 +1,5 @@
 [project]
-name = "schedula"
+name = "shift-schedula"
 version = "0.1.4"
 readme = "README.md"
 license = "MIT"
@@ -30,7 +30,7 @@ where = ["src"]
 namespaces = false
 
 [tool.setuptools.package-data]
-schedula = ["schemas/*/*.json"]
+shift_schedula = ["schemas/*/*.json"]
 
 [tool.ruff]
 target-version = "py314"

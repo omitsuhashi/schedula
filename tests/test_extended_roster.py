@@ -11,9 +11,9 @@ from zoneinfo import ZoneInfo
 
 import pytest
 
-from schedula import cp_sat, solve
-from schedula.model import normalize
-from schedula.verify import verify_solution
+from shift_schedula import cp_sat, solve
+from shift_schedula.model import normalize
+from shift_schedula.verify import verify_solution
 from tests.roster_support import demand, interval, request, rule, stamp
 from tests.support import assert_response
 
@@ -60,7 +60,7 @@ def test_extended_examples_api_and_cli(name):
     assert verify_solution(normalize(data), result["solution"]) == ([], (420,))
     assert data == original
     process = subprocess.run(
-        [sys.executable, "-m", "schedula", "solve", str(ROOT / "examples" / name)],
+        [sys.executable, "-m", "shift_schedula", "solve", str(ROOT / "examples" / name)],
         capture_output=True,
         text=True,
     )

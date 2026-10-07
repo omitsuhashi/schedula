@@ -52,9 +52,9 @@ def objective_quality(response):
 
 def measure(path, backend, time_limit_seconds=None):
     start = time.perf_counter()
-    from schedula import solve
-    from schedula.contract import InvalidInput, load_json
-    from schedula.model import normalize
+    from shift_schedula import solve
+    from shift_schedula.contract import InvalidInput, load_json
+    from shift_schedula.model import normalize
 
     imported = time.perf_counter()
     raw = path.read_bytes()
@@ -321,7 +321,7 @@ def main():
     commit = subprocess.check_output(
         ["git", "rev-parse", args.source_ref or "HEAD"], cwd=root, text=True
     ).strip()
-    with TemporaryDirectory(prefix="schedula-evaluation-") as directory:
+    with TemporaryDirectory(prefix="shift_schedula-evaluation-") as directory:
         snapshot = Path(directory)
         if args.source_ref and args.source_directory is None:
             archive = subprocess.check_output(
@@ -365,7 +365,7 @@ def main():
             ],
         }
         if args.source_ref and (
-            source["package_version"] != version("schedula")
+            source["package_version"] != version("shift-schedula")
             or source["uv_lock_sha256"]
             != hashlib.sha256((root / "uv.lock").read_bytes()).hexdigest()
         ):

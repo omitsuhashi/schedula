@@ -9,7 +9,7 @@ from .engine import response, validate_response
 
 
 def main():
-    parser = argparse.ArgumentParser(prog="python -m schedula")
+    parser = argparse.ArgumentParser(prog="python -m shift_schedula")
     commands = parser.add_subparsers(dest="command", required=True)
     solve_parser = commands.add_parser("solve")
     solve_parser.add_argument("input_file")

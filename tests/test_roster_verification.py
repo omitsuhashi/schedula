@@ -2,9 +2,9 @@ import copy
 
 import pytest
 
-from schedula import cp_sat, solve
-from schedula.model import normalize
-from schedula.verify import verify_solution
+from shift_schedula import cp_sat, solve
+from shift_schedula.model import normalize
+from shift_schedula.verify import verify_solution
 from tests.roster_support import candidate, demand, interval, request, rule, stamp, template
 from tests.support import assert_response
 

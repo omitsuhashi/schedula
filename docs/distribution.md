@@ -14,7 +14,7 @@
 `docs/reference/` の原本・ZIP由来のSchemaと例・研究資料はMITの対象に含めない。
 無料配布物へ自動的に含めず、公開前にはGit履歴を含めた公開対象を確認する。
 
-wheelには `src/schedula/` のコードと実行Schema、README、LICENSE、
+wheelには `src/shift_schedula/` のコードと実行Schema、README、LICENSE、
 [依存表示](../THIRD_PARTY_NOTICES.md)を含める。参照資料・テスト・実在従業員データは含めない。
 デモ・利用例はソース配布の対象であり、wheelにWeb管理画面やその運用が入るわけではない。
 各依存は独自ライセンスを維持する。表示はlock済み実行依存の配布元wheelから取得し、
@@ -36,6 +36,12 @@ OR-ToolsはApache-2.0で、任意の `cp-sat` extraとして導入する。
 
 ## 固定版での導入
 
+配布名は `shift-schedula`、Python package は `shift_schedula`、CLI は
+`python -m shift_schedula` とする。GitHubのリポジトリ名は `omitsuhashi/schedula` を維持する。
+既存の別作者の [schedula](https://pypi.org/project/schedula/) と同居できるよう、
+`schedula` 名の互換packageは同梱しない。JSON契約版、業務ID、既存Schemaの
+`urn:schedula:...` は保存済み入力との互換性のため維持する。
+
 現在はリポジトリが非公開で、PyPIには公開していない。
 アクセスできる利用者はcloneし、READMEの手順で `uv sync --locked --extra cp-sat` を実行する。
 対応はCPython 3.14、CIのLinuxと実測したmacOS ARM64。Windowsの実動作は未検証。
@@ -44,11 +50,11 @@ OR-ToolsはApache-2.0で、任意の `cp-sat` extraとして導入する。
 ```sh
 uv build --wheel
 uv export --locked --extra cp-sat --no-dev --no-emit-project --output-file runtime-requirements.txt
-sha256sum dist/schedula-0.1.4-py3-none-any.whl
+sha256sum dist/shift_schedula-0.1.4-py3-none-any.whl
 uv init --python 3.14 my-scheduler
 cd my-scheduler
-uv add --constraints ../runtime-requirements.txt '../dist/schedula-0.1.4-py3-none-any.whl[cp-sat]'
-uv run python -c 'from schedula import solve, verify, make_baseline, get_schema; print(get_schema("request", "0.4")["$id"])'
+uv add --constraints ../runtime-requirements.txt '../dist/shift_schedula-0.1.4-py3-none-any.whl[cp-sat]'
+uv run python -c 'from shift_schedula import solve, verify, make_baseline, get_schema; print(get_schema("request", "0.4")["$id"])'
 ```
 
 `dist/` と依存一覧はエンジン側で作った固定成果物を配布する。
@@ -58,6 +64,28 @@ wheelの取得元を差し替えた場合はパスも明示して変更する。
 `schema_version` とエンジンの配布版は別で、0.1.4のwheelは契約0.1〜0.4を同梱する。
 新しい業務ルールは新契約版へ追加し、旧版の意味を黙って変更しない。
 候補件数上限の撤廃は受理範囲の拡大であり、保存済みSchemaは再取得する。
+
+## 旧ローカルwheelからの移行
+
+自身のプロジェクトがこのリポジトリの旧 `schedula-0.1.4` wheelを依存に登録している場合は、
+その依存を新wheelへ置き換える。別作者のPyPI版 `schedula` を使う依存は維持できる。
+旧wheelと新wheelは別配布なので、通常の同名パッケージ更新では置き換わらない。
+
+```sh
+uv remove schedula
+uv add '../dist/shift_schedula-0.1.4-py3-none-any.whl[cp-sat]'
+uv run python -c 'from shift_schedula import solve, verify, make_baseline, get_schema; print(get_schema("request", "0.4")["$id"])'
+```
+
+コードの `from schedula ...` / `import schedula` を `shift_schedula` へ、
+CLIの `python -m schedula` を `python -m shift_schedula` へ変更する。
+保存済みJSONの名前やIDは変更しない。リポジトリの開発環境は更新後の
+`uv sync --locked --extra cp-sat` で旧editable配布を置き換える。
+過去の評価記録と参照資料は、実行時の識別子を保持している。
+
+PyPIは配布名のハイフン・アンダースコア・ピリオドを同一視する。
+公開直前に正規化名 `shift-schedula` の登録状況と公開権限を確認する。
+名称移行とローカルwheelの成功は、PyPI公開や名前の予約を意味しない。
 
 ## 問い合わせ・セキュリティ窓口
 

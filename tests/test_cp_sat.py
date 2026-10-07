@@ -12,9 +12,9 @@ import pytest
 from ortools import __version__ as ortools_version
 from ortools.sat.python import cp_model
 
-from schedula import cp_sat, flow, solve
-from schedula.model import normalize
-from schedula.verify import verify_solution
+from shift_schedula import cp_sat, flow, solve
+from shift_schedula.model import normalize
+from shift_schedula.verify import verify_solution
 from tests.support import assert_response
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -478,7 +478,13 @@ def test_linked_optimum_matches_independent_exhaustive_search(assignment_request
 
 def test_cp_sat_cli_json_only():
     result = subprocess.run(
-        [sys.executable, "-m", "schedula", "solve", str(ROOT / "examples/linked_assignment.json")],
+        [
+            sys.executable,
+            "-m",
+            "shift_schedula",
+            "solve",
+            str(ROOT / "examples/linked_assignment.json"),
+        ],
         capture_output=True,
         text=True,
     )
@@ -510,19 +516,19 @@ def test_wheel_without_ortools_reports_unavailable_and_preserves_flow(tmp_path):
     script = """
 import importlib.util, json, pathlib, subprocess, sys
 assert importlib.util.find_spec('ortools') is None
-import schedula
-from schedula import get_schema, verify, make_baseline
+import shift_schedula
+from shift_schedula import get_schema, verify, make_baseline
 from jsonschema import Draft202012Validator
 def schema_errors(kind, value):
     return list(Draft202012Validator(get_schema(kind, value['schema_version'])).iter_errors(value))
 root = pathlib.Path(sys.argv[1])
-assert str(root) not in schedula.__file__
+assert str(root) not in shift_schedula.__file__
 request = json.loads((root / 'examples/assignment.json').read_text(encoding='utf-8'))
-result = schedula.solve(request)
+result = shift_schedula.solve(request)
 assert result['status'] == 'OPTIMAL' and result['verification']['valid'] is True
 assert result['solver']['backend'] == 'min_cost_flow' and not schema_errors('response', result)
 partial = json.loads((root / 'examples/partial_assignment.json').read_text(encoding='utf-8'))
-result = schedula.solve(partial)
+result = shift_schedula.solve(partial)
 assert result['status'] == 'PARTIAL' and result['verification']['valid']
 assert result['shortage_summary']['total_person_minutes'] == 60
 assert not schema_errors('response', result)
@@ -530,13 +536,13 @@ for example in ['linked_assignment.json', 'roster.json', 'partial_roster.json']:
     request = json.loads((root / 'examples' / example).read_text(encoding='utf-8'))
     for backend in ['auto', 'cp_sat']:
         request['solver']['backend'] = backend
-        result = schedula.solve(request)
+        result = shift_schedula.solve(request)
         assert result['status'] == 'BACKEND_UNAVAILABLE' and result['solution'] is None
         assert result['solver']['backend'] == 'cp_sat' and not schema_errors('response', result)
     request['solver']['backend'] = 'min_cost_flow'
-    assert schedula.solve(request)['status'] == 'INVALID_INPUT'
+    assert shift_schedula.solve(request)['status'] == 'INVALID_INPUT'
 cli = subprocess.run(
-    [sys.executable, '-I', '-m', 'schedula', 'solve',
+    [sys.executable, '-I', '-m', 'shift_schedula', 'solve',
      str(root / 'examples/linked_assignment.json')], capture_output=True, text=True,
 )
 assert cli.returncode == 2 and cli.stderr == ''
@@ -564,7 +570,7 @@ for index in range(3):
     request = {**request, 'baseline': json.loads(json.dumps(snapshot)),
                'replan_mode':'preserve_assigned'}
     assert verify(request, saved)['status'] == 'VALID'
-assert schedula.solve(request)['status'] == 'BACKEND_UNAVAILABLE'
+assert shift_schedula.solve(request)['status'] == 'BACKEND_UNAVAILABLE'
 for filename in ('overnight.json', 'split_roster.json'):
     request = json.loads((root / 'examples' / filename).read_text())
     candidate = request['shift_candidates'][0]

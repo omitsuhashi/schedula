@@ -8,11 +8,11 @@ from pathlib import Path
 
 import pytest
 
-from schedula import diagnosis, solve
-from schedula.contract import InvalidInput, get_schema, schema_errors
-from schedula.engine import response, validate_response
-from schedula.model import normalize
-from schedula.verify import verify_solution
+from shift_schedula import diagnosis, solve
+from shift_schedula.contract import InvalidInput, get_schema, schema_errors
+from shift_schedula.engine import response, validate_response
+from shift_schedula.model import normalize
+from shift_schedula.verify import verify_solution
 from tests.test_extensions import baseline
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -307,7 +307,7 @@ def test_full_response_with_original_request_and_legacy_boundaries(assignment_re
 @pytest.mark.parametrize("kind", ["request", "response"])
 def test_cli_reads_contract_three(kind):
     result = subprocess.run(
-        [sys.executable, "-m", "schedula", "schema", kind, "--schema-version", "0.3"],
+        [sys.executable, "-m", "shift_schedula", "schema", kind, "--schema-version", "0.3"],
         capture_output=True,
         text=True,
     )

@@ -413,7 +413,7 @@ wheels = [
 ]
 
 [[package]]
-name = "schedula"
+name = "shift-schedula"
 version = "0.1.4"
 source = { editable = "." }
 dependencies = [

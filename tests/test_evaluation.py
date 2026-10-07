@@ -41,7 +41,7 @@ def test_evaluation_records_verified_result_and_process_measurements(tmp_path):
     measurement, roster = report["measurements"]
     assert (
         measurement["solver_response"]["engine_version"]
-        == report["environment"]["packages"]["schedula"]
+        == report["environment"]["packages"]["shift-schedula"]
     )
     assert measurement["solver_request"]["backend"] == "cp_sat"
     assert measurement["solver_response"]["backend"] == "cp_sat"
@@ -204,7 +204,7 @@ def test_external_source_directory_is_used_and_identified(tmp_path):
     shutil.copytree(ROOT / "src", variant / "src")
     for name in ["uv.lock", "pyproject.toml"]:
         shutil.copyfile(ROOT / name, variant / name)
-    with (variant / "src/schedula/__init__.py").open("a") as file:
+    with (variant / "src/shift_schedula/__init__.py").open("a") as file:
         file.write('\nraise RuntimeError("external tree test")\n')
     report = run_evaluation(
         tmp_path,

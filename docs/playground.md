@@ -136,7 +136,7 @@ API 公開、変更最小化のフォーム、認証は対象外とする。JSON
 入力編集時は比較元・結果の有無にかかわらず共通の検証を行い、修正済みのカスタムエラーを解除する。
 
 1. ブラウザーは標準の入力検証と欄間チェックで修正位置を示す。サーバー検証の代わりにはしない。
-2. ローカル入口は JSON の厳密な読み取りに `schedula.contract.load_json` を使い、重複キー・非有限数を拒否する。
+2. ローカル入口は JSON の厳密な読み取りに `shift_schedula.contract.load_json` を使い、重複キー・非有限数を拒否する。
    固定値、全 ID 集合と件数、18需要、名称長、技能・時間・人数の範囲をサーバーでも検証する。
    契約上は正しくてもデモ範囲外の入力は `DEMO_INPUT_OUT_OF_RANGE` と対象 `json_pointer` で拒否する。
 3. 範囲内の Request はそのまま `solve` に渡し、既存の Schema・参照・時間・担当資格の意味検証、独立結果検証を使う。
@@ -239,7 +239,7 @@ Ruff lint・format、`bash -n scripts/deploy`、`git diff --check` も成功し�
 
 ```sh
 uv run --locked --extra cp-sat pytest -q tests/test_playground_scenarios.py
-uv run --locked python -m schedula solve examples/playground/lunch.json
+uv run --locked python -m shift_schedula solve examples/playground/lunch.json
 ```
 
 | Issue | 引き継ぐ内容・残る検証 |

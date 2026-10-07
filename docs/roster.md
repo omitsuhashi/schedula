@@ -8,11 +8,11 @@ schedula 0.1.3 の `roster` は、出退勤・休憩を持つ有限の勤務候�
 
 ```sh
 uv sync --locked --extra cp-sat
-uv run --locked --extra cp-sat python -m schedula solve examples/roster.json
-uv run --locked --extra cp-sat python -m schedula solve - < examples/roster.json
+uv run --locked --extra cp-sat python -m shift_schedula solve examples/roster.json
+uv run --locked --extra cp-sat python -m shift_schedula solve - < examples/roster.json
 ```
 
-ライブラリも `from schedula import solve` の同じ入口を使用する。
+ライブラリも `from shift_schedula import solve` の同じ入口を使用する。
 [架空の飲食店の例](../examples/roster.json)は4人・2日・30分枠で、
 32候補から8勤務を選び、調理・ホール・皿洗いの厳密な需要を満たす。
 選好ペナルティ60・勤務量2640分・担当切替0回の検証済み `OPTIMAL` を返す。
@@ -118,7 +118,7 @@ JSON 表現の SHA-256 から生成する。入力配列の順序を変えても
 固定部分、休憩、勤務量上限、休息、連勤は必須条件のままである。
 
 ```sh
-uv run --locked --extra cp-sat python -m schedula solve examples/partial_roster.json > result.json
+uv run --locked --extra cp-sat python -m shift_schedula solve examples/partial_roster.json > result.json
 ```
 
 `PARTIAL`、不足合計30人分、勤務量90分、最小性証明済み、CLI終了コード2となる。

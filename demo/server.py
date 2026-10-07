@@ -7,8 +7,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from threading import Lock
 
-from schedula import solve
-from schedula.contract import InvalidInput, load_json
+from shift_schedula import solve
+from shift_schedula.contract import InvalidInput, load_json
 
 ROOT = Path(__file__).resolve().parents[1]
 SAMPLES = ROOT / "examples" / "playground"

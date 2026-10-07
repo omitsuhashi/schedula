@@ -2,11 +2,11 @@ import copy
 
 import pytest
 
-from schedula import flow, solve
-from schedula.contract import InvalidInput, schema_errors
-from schedula.engine import validate_response
-from schedula.model import normalize
-from schedula.verify import verify_solution
+from shift_schedula import flow, solve
+from shift_schedula.contract import InvalidInput, schema_errors
+from shift_schedula.engine import validate_response
+from shift_schedula.model import normalize
+from shift_schedula.verify import verify_solution
 from tests.support import assert_response
 
 

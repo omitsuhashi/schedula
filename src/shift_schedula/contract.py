@@ -198,7 +198,7 @@ def get_schema(kind, schema_version="0.1"):
             "allOf": rules,
         }
     return json.loads(
-        files("schedula")
+        files("shift_schedula")
         .joinpath(f"schemas/{schema_version}/{kind}.schema.json")
         .read_text(encoding="utf-8")
     )

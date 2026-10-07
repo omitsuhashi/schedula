@@ -28,7 +28,7 @@ def response(
         "status": status,
         "solver": {
             "backend": backend,
-            "engine_version": version("schedula"),
+            "engine_version": version("shift-schedula"),
             "library_version": library_version,
             "selection_reason": selection_reason,
         },

@@ -23,14 +23,14 @@ LLM 用の RequestDraft は実行契約と別に定義する。
 
 | 対象 | 決定 |
 | --- | --- |
-| Request Schema | `src/schedula/schemas/0.1/request.schema.json`、`$id: urn:schedula:request:0.1` |
-| Response Schema | `src/schedula/schemas/0.1/response.schema.json`、`$id: urn:schedula:response:0.1` |
+| Request Schema | `src/shift_schedula/schemas/0.1/request.schema.json`、`$id: urn:schedula:request:0.1` |
+| Response Schema | `src/shift_schedula/schemas/0.1/response.schema.json`、`$id: urn:schedula:response:0.1` |
 | JSON Schema dialect | 両方に `$schema: https://json-schema.org/draft/2020-12/schema` を明示する |
 | 入出力の契約版 | `schema_version: "0.1"`。パッケージ版・`solver.engine_version` と区別する |
 | 配布単位 | Request / Response を対にして wheel に同梱する。版別 Schema が構造の正本 |
-| プログラムの入口 | `from schedula import solve`、`solve(request: dict) -> dict` |
-| CLI の入口 | `python -m schedula solve <入力ファイル>`。UTF-8 JSON、`-` は標準入力 |
-| Schema の取得 | `python -m schedula schema request` / `response`。初期版は0.1を返す |
+| プログラムの入口 | `from shift_schedula import solve`、`solve(request: dict) -> dict` |
+| CLI の入口 | `python -m shift_schedula solve <入力ファイル>`。UTF-8 JSON、`-` は標準入力 |
+| Schema の取得 | `python -m shift_schedula schema request` / `response`。初期版は0.1を返す |
 
 これらのファイルと入口は Issue #6、担当時間・担当切替と CP-SAT は Issue #7、
 勤務計画・テンプレート・計画前履歴は Issue #8 で実装した。
@@ -38,7 +38,7 @@ LLM 用の RequestDraft は実行契約と別に定義する。
 [担当配置の利用手順](assignment.md)・[勤務計画の利用手順](roster.md)を参照する。
 Issue #10 で [README](../README.md) の入力作成・状態別の扱い、CI の継続検証、
 wheel の隔離導入と [架空入力の実行評価](evaluations/runtime.md)を整備した。
-`src/schedula/` を `setuptools.build_meta` でパッケージ化し、版別 JSON を package data に含める。
+`src/shift_schedula/` を `setuptools.build_meta` でパッケージ化し、版別 JSON を package data に含める。
 参照コードのライセンス未選定を踏まえ、保存済み原本を直接編集・コピーせず、
 本書の業務仕様から schedula 用の Schema・例・コード・テストを作成する。
 
@@ -296,7 +296,7 @@ CLI は JSON だけを標準出力へ出し、解があれば終了コード0、
 これらは ZIP の入口であり、現在の schedula で実行できるコマンドではない。
 実行環境は [参照 ZIP の評価手順](python-setup.md#参照-zip-を評価する場合)に従う。
 現在の schedula の利用例は
-`uv run --locked python -m schedula solve <入力ファイル>`。
+`uv run --locked python -m shift_schedula solve <入力ファイル>`。
 CP-SAT を使う場合は `--extra cp-sat` を指定する。標準出力は JSON のみとし、
 結果検証に成功した `OPTIMAL` / `FEASIBLE` は0、それ以外の結果状態は2とする。
 引数の誤りなど CLI の使用法エラーは標準エラーへ表示し、終了コード2とする。

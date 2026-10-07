@@ -2,14 +2,14 @@ from unittest.mock import Mock
 
 import pytest
 
-from schedula import contract
+from shift_schedula import contract
 
 
 @pytest.mark.parametrize("kind", ["request", "response"])
 @pytest.mark.parametrize("schema_version", ["0.1", "0.2", "0.3", "0.4"])
 def test_schema_reading_with_cp932_default(kind, schema_version, monkeypatch):
     schema_bytes = (
-        contract.files("schedula")
+        contract.files("shift_schedula")
         .joinpath(f"schemas/{schema_version}/{kind}.schema.json")
         .read_bytes()
     )

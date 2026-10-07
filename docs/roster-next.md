@@ -10,11 +10,11 @@
 
 ```sh
 uv sync --locked --extra cp-sat
-uv run --locked --extra cp-sat python -m schedula solve examples/overnight.json
-uv run --locked --extra cp-sat python -m schedula solve examples/split_roster.json
+uv run --locked --extra cp-sat python -m shift_schedula solve examples/overnight.json
+uv run --locked --extra cp-sat python -m shift_schedula solve examples/split_roster.json
 ```
 
-ライブラリは `from schedula import solve`、`solve(request)` を使う。
+ライブラリは `from shift_schedula import solve`、`solve(request)` を使う。
 Request の `schema_version` を0.2にし、各候補の `segments` に `interval` と `breaks` を指定する。
 返却勤務も `segments` を持ち、最初の区間が開始するローカル日付を `work_day` に返す。
 候補IDが同じでも入力区間と返却区間が違う解は独立検証で遮断する。

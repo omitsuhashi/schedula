@@ -5,7 +5,7 @@
 明示的な `min_cost_flow` への追加診断は `INVALID_INPUT`。未要求の最小費用流の不足診断は継続する。
 
 ```sh
-uv run --locked --extra cp-sat python -m schedula solve examples/diagnosis.json
+uv run --locked --extra cp-sat python -m shift_schedula solve examples/diagnosis.json
 ```
 
 この例は有資格者Alice一人に2人の需要を要求するため、元結果は `INFEASIBLE`、

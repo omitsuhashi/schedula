@@ -4,9 +4,9 @@ import math
 
 import pytest
 
-from schedula import model, solve
-from schedula.contract import InvalidInput, load_json, schema_errors
-from schedula.model import normalize
+from shift_schedula import model, solve
+from shift_schedula.contract import InvalidInput, load_json, schema_errors
+from shift_schedula.model import normalize
 from tests.support import assert_response
 
 

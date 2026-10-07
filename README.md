@@ -1,5 +1,8 @@
 # schedula
 
+Python の配布名は `shift-schedula`、import 名は `shift_schedula` です。
+旧ローカルwheelからの移行は[配布方針](docs/distribution.md#旧ローカルwheelからの移行)を参照してください。
+
 技能・勤務可能時間・役割別需要・業務ルールから、担当配置（`assignment`）と
 出退勤・休憩を含む勤務計画（`roster`）の検証済み解を求める Python ライブラリと CLI です。
 JSON 契約0.1〜0.4に対応し、独立した配置は最小費用流、
@@ -20,9 +23,9 @@ git clone https://github.com/omitsuhashi/schedula.git
 cd schedula
 uv python install
 uv sync --locked --extra cp-sat
-uv run --locked --extra cp-sat python -m schedula solve examples/assignment.json
-uv run --locked --extra cp-sat python -m schedula solve examples/linked_assignment.json
-uv run --locked --extra cp-sat python -m schedula solve examples/roster.json
+uv run --locked --extra cp-sat python -m shift_schedula solve examples/assignment.json
+uv run --locked --extra cp-sat python -m shift_schedula solve examples/linked_assignment.json
+uv run --locked --extra cp-sat python -m shift_schedula solve examples/roster.json
 ```
 
 全例が `OPTIMAL`、`verification.performed: true` / `valid: true`、終了コード0を返します。
@@ -36,9 +39,9 @@ CP-SAT が必要な入力を依存なしで解くと `BACKEND_UNAVAILABLE` に�
 標準入力と Schema の取得も同じ CLI で実行できます。
 
 ```sh
-uv run --locked --extra cp-sat python -m schedula solve - < examples/assignment.json
-uv run --locked --extra cp-sat python -m schedula schema request
-uv run --locked --extra cp-sat python -m schedula schema response
+uv run --locked --extra cp-sat python -m shift_schedula solve - < examples/assignment.json
+uv run --locked --extra cp-sat python -m shift_schedula schema request
+uv run --locked --extra cp-sat python -m shift_schedula schema response
 ```
 
 ## ブラウザーで担当配置を試す
@@ -85,8 +88,8 @@ uv run --locked --extra cp-sat python demo/server.py
 ## 不足を伴う計画を出力する
 
 ```sh
-uv run --locked python -m schedula solve examples/partial_assignment.json > partial-assignment-result.json
-uv run --locked --extra cp-sat python -m schedula solve examples/partial_roster.json > partial-roster-result.json
+uv run --locked python -m shift_schedula solve examples/partial_assignment.json > partial-assignment-result.json
+uv run --locked --extra cp-sat python -m shift_schedula solve examples/partial_roster.json > partial-roster-result.json
 ```
 
 どちらも `PARTIAL`、独立検証成功、終了コード2でJSONを保存します。
@@ -104,10 +107,10 @@ uv run --locked --extra cp-sat python -m schedula solve examples/partial_roster.
 同じ需要・業務条件・共通目的で方式ごとに `solve` を呼び、各案の不足・目的値・変更量と証明を比較します。
 
 ```sh
-uv run --locked --extra cp-sat python -m schedula solve examples/roster_conditions.json
-uv run --locked --extra cp-sat python -m schedula solve examples/partial_replan_preserve_assigned.json
-uv run --locked --extra cp-sat python -m schedula solve examples/partial_replan_rebuild.json
-uv run --locked python -m schedula verify examples/roster_conditions.json examples/roster_conditions.solution.json
+uv run --locked --extra cp-sat python -m shift_schedula solve examples/roster_conditions.json
+uv run --locked --extra cp-sat python -m shift_schedula solve examples/partial_replan_preserve_assigned.json
+uv run --locked --extra cp-sat python -m shift_schedula solve examples/partial_replan_rebuild.json
+uv run --locked python -m shift_schedula verify examples/roster_conditions.json examples/roster_conditions.solution.json
 ```
 
 上下限・希望例の目的は `[0, 180]`。再計画例の固定案は不足30人分・`PARTIAL`・終了コード2、
@@ -154,7 +157,7 @@ ID は種類ごとに一意にし、参照先を登録します。不要な配�
 ```
 
 ```sh
-uv run --locked --extra cp-sat python -m schedula solve request.json
+uv run --locked --extra cp-sat python -m shift_schedula solve request.json
 ```
 
 結果の `solution.assignments` で Aさんの11:00〜12:00の調理担当、
@@ -175,12 +178,12 @@ uv run --locked --extra cp-sat python -m schedula solve request.json
 勤務日・目標勤務量・変更単位は明示し、固定は必須条件として保持します。
 
 ```sh
-uv run --locked --extra cp-sat python -m schedula solve examples/overnight.json
-uv run --locked --extra cp-sat python -m schedula solve examples/split_roster.json
-uv run --locked --extra cp-sat python -m schedula solve examples/fairness.json
-uv run --locked --extra cp-sat python -m schedula solve examples/replan.json
-uv run --locked --extra cp-sat python -m schedula solve examples/diagnosis.json
-uv run --locked --extra cp-sat python -m schedula schema request --schema-version 0.2
+uv run --locked --extra cp-sat python -m shift_schedula solve examples/overnight.json
+uv run --locked --extra cp-sat python -m shift_schedula solve examples/split_roster.json
+uv run --locked --extra cp-sat python -m shift_schedula solve examples/fairness.json
+uv run --locked --extra cp-sat python -m shift_schedula solve examples/replan.json
+uv run --locked --extra cp-sat python -m shift_schedula solve examples/diagnosis.json
+uv run --locked --extra cp-sat python -m shift_schedula schema request --schema-version 0.2
 ```
 
 診断例は元条件の `INFEASIBLE` と終了コード2を維持し、許可した人数変更後の検証済み解を別に返します。
@@ -195,7 +198,7 @@ uv run --locked --extra cp-sat python -m schedula schema request --schema-versio
 uv run --locked --extra cp-sat python - <<'PY'
 import json
 from pathlib import Path
-from schedula import solve
+from shift_schedula import solve
 
 for filename in ["assignment.json", "roster.json", "infeasible.json", "invalid-input.json"]:
     request = json.loads(Path("examples", filename).read_text(encoding="utf-8"))
@@ -233,8 +236,8 @@ PY
 次の2例は意図的に終了コード2となります。
 
 ```sh
-uv run --locked --extra cp-sat python -m schedula solve examples/infeasible.json
-uv run --locked --extra cp-sat python -m schedula solve examples/invalid-input.json
+uv run --locked --extra cp-sat python -m shift_schedula solve examples/infeasible.json
+uv run --locked --extra cp-sat python -m shift_schedula solve examples/invalid-input.json
 ```
 
 前者は勤務可能な従業員がいないため `INFEASIBLE` / `INSUFFICIENT_QUALIFIED_EMPLOYEES`、

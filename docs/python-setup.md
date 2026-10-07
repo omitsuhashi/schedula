@@ -28,7 +28,7 @@ uv は **0.12.23** を使用する。直接インストールした uv は `uv s
 `.venv/` とツールのキャッシュは Git の対象外である。
 独立した `assignment` と、担当時間・担当切替を扱う CP-SAT の実行コードを導入した。
 勤務候補と担当配置を同時に決める `roster` も CP-SAT で実行できる。
-パッケージは `src/schedula/` に置き、
+パッケージは `src/shift_schedula/` に置き、
 setuptools で版別 Schema を同梱する。利用・ビルドは [担当配置の手順](assignment.md)・
 [勤務計画の手順](roster.md)を参照する。
 最小費用流だけを利用する場合は `uv sync --locked` / `uv run --locked ...` で実行でき、
