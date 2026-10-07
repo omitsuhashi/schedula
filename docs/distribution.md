@@ -44,7 +44,9 @@ OR-ToolsはApache-2.0で、任意の `cp-sat` extraとして導入する。
 
 現在はリポジトリが非公開で、PyPIには公開していない。
 アクセスできる利用者はcloneし、READMEの手順で `uv sync --locked --extra cp-sat` を実行する。
-対応はCPython 3.14、CIのLinuxと実測したmacOS ARM64。Windowsの実動作は未検証。
+配布のPython要件は `>=3.14`。実測した対応は通常のCPython 3.14、CIのLinuxとmacOS ARM64。
+2026-10-07時点の最新安定版も3.14.8であり、新しい安定版・free-threaded・他実装は未検証。
+Windowsの実動作は未検証。CP-SATは対象環境のOR-Tools wheelが必要となる。
 最小費用流と保存済み勤務計画の独立検証にはOR-Toolsが不要。
 
 ```sh

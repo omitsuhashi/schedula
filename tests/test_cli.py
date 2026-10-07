@@ -122,6 +122,7 @@ def test_wheel_installs_and_runs_library_and_cli_in_clean_environment(tmp_path, 
         (metadata,) = [name for name in archive.namelist() if name.endswith(".dist-info/METADATA")]
         assert metadata.startswith("shift_schedula-")
         assert b"Name: shift-schedula\n" in archive.read(metadata)
+        assert b"Requires-Python: >=3.14\n" in archive.read(metadata)
         assert any(name.endswith("/licenses/LICENSE") for name in archive.namelist())
         assert any(name.endswith("/licenses/THIRD_PARTY_NOTICES.md") for name in archive.namelist())
         assert not any("reference/" in name or "tests/" in name for name in archive.namelist())

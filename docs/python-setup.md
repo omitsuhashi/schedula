@@ -12,8 +12,13 @@ uv 自体の導入は [公式のインストール手順](https://docs.astral.sh
 [OR-Tools 9.15.6755](https://pypi.org/project/ortools/9.15.6755/)の Python 3.14 用 wheel と、
 [jsonschema 4.26.0](https://pypi.org/project/jsonschema/4.26.0/)の対応を確認した。
 macOS ARM64 で実際に依存をインストールして動作を確認した。
-Python 3.15 用の OR-Tools wheel は確認できていないため、対応範囲は `>=3.14,<3.15` とする。
-`.python-version` に `3.14.8` を固定し、ローカルと CI で同じ Python を使用する。
+配布の最低要件は `>=3.14` とし、上限で将来版のインストールを一律に禁止しない。
+2026-10-07 の公式配布一覧では最新安定版も 3.14.8、3.15 は pre-release だったため、
+最低版と最新安定版の CI を重複させない。通常の CPython 3.14 で base と `cp-sat` extra の
+隔離導入を検証する。3.15 以降・free-threaded・他の Python 実装は未検証であり、
+特に CP-SAT は対象 Python・OS の OR-Tools wheel が必要となる。
+`.python-version` は開発用の `3.14.8` を維持し、利用者向けの許容範囲とは分ける。
+新しい安定版が出たら base/extra を別々に測定し、依存が未対応なら結果と制限を課題に記録する。
 uv は **0.12.23** を使用する。直接インストールした uv は `uv self update 0.12.23` で更新できる。
 
 | 用途 | パッケージ | 設定 |

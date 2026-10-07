@@ -17,6 +17,7 @@ jobs:
           version: "0.12.23"
           enable-cache: true
       - name: Sync Python environment
+        # 最低対応版と最新安定版はともに3.14（2026-10-07確認）。次の安定版で検証を追加する。
         run: uv sync --locked --extra cp-sat
       - name: Validate Ruff hooks
         run: uv run --locked --extra cp-sat pre-commit run --all-files --show-diff-on-failure
