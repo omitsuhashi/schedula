@@ -29,21 +29,27 @@ def validate_options(request):
             path = f"/diagnosis/allowed_changes/{index}/edits/{j}"
             target = edit["json_pointer"]
             match = re.fullmatch(
-                r"/(demand|constraints)/(0|[1-9][0-9]*)/(required_people|limit_minutes|limit_days|limit_count|min_minutes|max_minutes)",
+                r"/(demand|constraints)/(0|[1-9][0-9]*)/(required_people|minimum_people|limit_minutes|limit_days|limit_count|min_minutes|max_minutes)",
                 target,
             )
             if match is None or target in seen:
                 reject(
                     "UNSUPPORTED_DIAGNOSIS_EDIT",
-                    "存在する需要人数・必須ルールの上限だけを重複なしで編集します。",
+                    "需要人数・対応済み必須ルールの整数項目だけを重複なしで編集します。",
                     path,
                 )
             name, number, field = match.groups()
             number = int(number)
+            minimum_edit = (
+                name == "demand"
+                and field == "minimum_people"
+                and request["schema_version"] == "0.12"
+            )
             if (
                 number >= len(request[name])
-                or field not in request[name][number]
-                or (name == "demand") != (field == "required_people")
+                or (field not in request[name][number] and not minimum_edit)
+                or (name == "demand") != (field in {"required_people", "minimum_people"})
+                or (field == "minimum_people" and not minimum_edit)
             ):
                 reject(
                     "UNSUPPORTED_DIAGNOSIS_EDIT", "編集先が対応済みの入力項目ではありません。", path
@@ -76,7 +82,7 @@ def conditions(request):
     add(
         "DEMAND_LIMIT_AND_SINGLE_ASSIGNMENT"
         if request["schema_version"]
-        in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"}
+        in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"}
         else "EXACT_DEMAND_AND_SINGLE_ASSIGNMENT",
         "/problem_type",
     )
@@ -428,7 +434,7 @@ def diagnose(request, status, solve, *, problem=None, num_workers=2):
         if time.monotonic() >= deadline:
             result["status"] = "TIME_LIMIT"
         else:
-            if request["schema_version"] in {"0.8", "0.9", "0.10", "0.11"}:
+            if request["schema_version"] in {"0.8", "0.9", "0.10", "0.11", "0.12"}:
                 groups, background = condition_groups(request)
                 if config.get("conflict_refinement"):
                     refine(
@@ -483,7 +489,12 @@ def diagnose(request, status, solve, *, problem=None, num_workers=2):
                     )
                 )
                 break
-            if response["status"] in {"OPTIMAL", "FEASIBLE"} and response["verification"]["valid"]:
+            accepted = (
+                {"OPTIMAL", "FEASIBLE", "PARTIAL"}
+                if request["schema_version"] == "0.12"
+                else {"OPTIMAL", "FEASIBLE"}
+            )
+            if response["status"] in accepted and response["verification"]["valid"]:
                 validate_response(response, modified)
                 if time.monotonic() > deadline:
                     result["status"] = "TIME_LIMIT"
@@ -578,7 +589,7 @@ def validate_result(request, response):
             fail()
         return errors
     if result["conflict"] is not None:
-        if request["schema_version"] in {"0.8", "0.9", "0.10", "0.11"}:
+        if request["schema_version"] in {"0.8", "0.9", "0.10", "0.11", "0.12"}:
             if not valid_group_conflict(
                 request, result["conflict"], failed=result["status"] == "ERROR"
             ):

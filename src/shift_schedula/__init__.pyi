@@ -7,6 +7,7 @@ from .types import (
     ExtendedSolution,
     Request010,
     Request011,
+    Request012,
     Request04,
     Request05,
     Request06,
@@ -52,7 +53,8 @@ def make_baseline(
     | Request08
     | Request09
     | Request010
-    | Request011,
+    | Request011
+    | Request012,
     solution: ExtendedSolution | ContinuitySolution,
     plan_id: str,
 ) -> Baseline: ...

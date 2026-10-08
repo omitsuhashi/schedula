@@ -5,7 +5,7 @@ Python の配布名は `shift-schedula`、import 名は `shift_schedula` です�
 
 技能・勤務可能時間・役割別需要・業務ルールから、担当配置（`assignment`）と
 出退勤・休憩を含む勤務計画（`roster`）の検証済み解を求める Python ライブラリと CLI です。
-JSON 契約0.1〜0.11に対応し、独立した配置は最小費用流、
+JSON 契約0.1〜0.12に対応し、独立した配置は最小費用流、
 担当時間・担当切替を含む配置と勤務計画は CP-SAT を使用します。
 
 独自コード・文書・デモは[MIT](LICENSE)で、自力導入・組み込み・商用利用ができます。
@@ -73,7 +73,7 @@ uv run --locked python demo/server.py
 再実行コマンドと検証結果は[デモの検証記録](docs/evaluations/playground.md)を参照してください。
 
 画面上部の「JSON で担当配置・勤務計画を計算する」を開くと、JSON の貼り付け・
-UTF-8 ファイルの読み込み（2 MiBまで）から、契約0.1〜0.11の入力を実行できます。
+UTF-8 ファイルの読み込み（2 MiBまで）から、契約0.1〜0.12の入力を実行できます。
 「100人・30日・30分刻みの勤務計画」を選び、「サンプルを読み込む」→「JSON で計算」を押します。
 結果の日付を選ぶと、100人分の担当・休憩・待機・勤務なしと役割別の需要充足を確認できます。
 
@@ -131,6 +131,15 @@ uv run --locked python -m shift_schedula verify examples/roster_conditions.json 
 合成入力の実測は[結合・規模評価](docs/evaluations/roster-conditions.md)を参照してください。
 
 ## 入力を作る
+
+需要の必須最低人数は[契約0.12](docs/io-contract-minimum-demand.md)で指定できます。
+`required_people: 3` / `minimum_people: 1` は最低1人を必須にし、残る不足を返します。
+`priority` は不足総量が同じ計画の比較順であり、必須充足の代用にはなりません。
+
+```sh
+uv run --locked --extra cp-sat python -m shift_schedula solve examples/minimum_assignment.json
+uv run --locked --extra cp-sat python -m shift_schedula solve examples/minimum_roster.json
+```
 
 勤務日数と完全休日数の上下限は[契約0.11](docs/io-contract-day-counts.md)で指定できます。
 夜勤の開始日と、休憩を含む原勤務区間が占有する暦日を別々に数えます。
@@ -246,7 +255,7 @@ PY
 | --- | --- | --- |
 | `OPTIMAL` | 検証成功を確認して解を採用する。指定した条件・候補・粒度・目的の範囲で最適 | 0 |
 | `FEASIBLE` | 検証成功と未証明の目的を確認し、採用または探索予算を増やして再計算する | 0 |
-| `PARTIAL` | 契約0.3〜0.11の未完成の計画。不足一覧・合計人分・`proven_minimal` を読み、需要充足と検証成功を区別する | 2 |
+| `PARTIAL` | 契約0.3〜0.12の未完成の計画。不足一覧・合計人分・`proven_minimal` を読み、需要充足と検証成功を区別する | 2 |
 | `INFEASIBLE` | 必須条件を満たす解がないと証明された。0.3では需要不足を許容しても計画を作れない。診断を確認する | 2 |
 | `UNKNOWN` | 解も不可能性の証明もない。予算や問題規模を見直す | 2 |
 | `INVALID_INPUT` | `code` / `json_pointer` / `related_ids` / `facts` を基に入力を修正する | 2 |
@@ -254,7 +263,8 @@ PY
 | `INTERNAL_ERROR` | 解を採用せず、入力・エンジン版・診断を保存して調査する | 2 |
 
 解を返すのは独立検証に成功した `OPTIMAL` / `FEASIBLE` / `PARTIAL` だけです。
-0.1・0.2は完全充足を求め、0.3〜0.11だけが元需要を保持した不足付き計画を許容します。
+0.1・0.2は完全充足を求め、0.3〜0.12が元需要を保持した不足付き計画を許容します。
+0.12の明示した最低人数は必須であり、その不足はPARTIALとして許容しません。
 それ以外は `solution: null` / `objectives: []`。終了コード2だけでは状態を区別できません。
 `message` は補助説明で、プログラムでは `status` と診断の `code` で分岐します。
 次の2例は意図的に終了コード2となります。
@@ -332,6 +342,7 @@ Git には採用判断で使う入力・条件・集計・失敗を含む生デ�
 | [再計画・勤務量・希望日時の契約0.4](docs/io-contract-replanning.md) | 新条件、基準スナップショット、公開検証API/CLIと移行 |
 | [重複期間の基準比較・固定再計画の契約0.7](docs/io-contract-overlap.md) | 元の基準を保持した移動期間の比較・固定・変更集計 |
 | [継続計画・診断・費用・夜勤休日評価の設計案](docs/planning-extensions.md) | Issue #67〜#70の仕様案、数値例、検証計画、実装の依存関係。継続計画・重複期間の再計画・矛盾縮小は実装済み |
+| [必須最低人数の契約0.12](docs/io-contract-minimum-demand.md) | 必須の需要下限と元需要の不足許容、診断・独立検証 |
 | [勤務日数・完全休日数の契約0.11](docs/io-contract-day-counts.md) | 期間別の日数上下限、確認済み実績、原勤務区間と独立集計 |
 | [履歴を含む夜勤休日評価の契約0.10](docs/io-contract-duty-continuity.md) | 確認済み実績・確定勤務と指定区間の目標偏差の接続 |
 | [不足を伴う計画の契約0.3](docs/io-contract-partial.md) | 元需要を保持した不足集計・独立検証・両ソルバー・CLI・デモと証明範囲 |

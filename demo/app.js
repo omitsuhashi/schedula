@@ -7,7 +7,7 @@ const range = interval => `${time(interval.start)}〜${time(interval.end)}`;
 const stateText = {
   OPTIMAL: "条件を満たす配置です。",
   FEASIBLE: "条件を満たします。最適性は未証明です。",
-  PARTIAL: "必須枠に不足があります。未完成の担当配置を出力しました。",
+  PARTIAL: "必要人数に不足があります。未完成の担当配置を出力しました。",
   INFEASIBLE: "この条件を満たす配置はありません。条件を見直してください。",
   UNKNOWN: "探索予算内に結果が確定しませんでした。再計算できます。",
   INVALID_INPUT: "入力不備があります。診断の欄を修正してください。",
@@ -156,13 +156,15 @@ function coverageCell(assigned, required) {
 }
 
 function verificationText(result) {
-  return result.status === "PARTIAL" ? "独立検証：不足集計・需要以外の必須条件を確認済み" : "独立検証：成功";
+  if (result.status !== "PARTIAL") return "独立検証：成功";
+  return result.schema_version === "0.12" ? "独立検証：不足集計・最低人数を含む必須条件を確認済み" : "独立検証：不足集計・需要以外の必須条件を確認済み";
 }
 
 function renderShortages(pair) {
   const summary = pair.response.shortage_summary;
   if (!summary) return node("span");
   const roles = new Map(pair.input.roles.map(role => [role.id, role.label || role.id]));
+  const hasMinimum = pair.input.schema_version === "0.12";
   const zone = pair.input.planning_window.timezone;
   const dateTime = new Intl.DateTimeFormat("ja-JP", {timeZone: zone, month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZoneName: "shortOffset"});
   const result = node("div", "", {}, [
@@ -179,10 +181,10 @@ function renderShortages(pair) {
   const render = () => {
     const first = Number(select.value) * pageSize;
     const last = Math.min(first + pageSize, summary.shortages.length);
-    list.replaceChildren(scroll("不足の一覧", table(`元の必要人数と配置人数・不足人数 · 全${summary.shortages.length}件中${first + 1}〜${last}件`, ["需要ID", "役割", "時間帯", "必要人数", "配置人数", "不足人数"], summary.shortages.slice(first, last).map(item => node("tr", "", {}, [
+    list.replaceChildren(scroll("不足の一覧", table(`元の必要人数と配置人数・不足人数 · 全${summary.shortages.length}件中${first + 1}〜${last}件`, ["需要ID", "役割", "時間帯", "必要人数", ...(hasMinimum ? ["最低人数"] : []), "配置人数", "不足人数"], summary.shortages.slice(first, last).map(item => node("tr", "", {}, [
       node("th", item.demand_id, {scope: "row"}), node("td", roles.get(item.role_id)),
       node("td", `${dateTime.format(Date.parse(item.interval.start))}〜${dateTime.format(Date.parse(item.interval.end))}`),
-      node("td", `${item.required_people}人`), node("td", `${item.assigned_people}人`), node("td", `不足${item.missing_people}人`, {class: "shortage"}),
+      node("td", `${item.required_people}人`), ...(hasMinimum ? [node("td", `${item.minimum_people}人`)] : []), node("td", `${item.assigned_people}人`), node("td", `不足${item.missing_people}人`, {class: "shortage"}),
     ])))));
   };
   select.addEventListener("change", render);
@@ -328,10 +330,10 @@ function acceptResponse(response, request, requestBoundaries = boundaries) {
   if (success && !response.solution.assignments.every(item => item && request.employees.some(employee => employee.id === item.employee_id) &&
       request.roles.some(role => role.id === item.role_id) && requestBoundaries.some(value => Date.parse(value) === Date.parse(item.interval?.start)) &&
       requestBoundaries.some(value => Date.parse(value) === Date.parse(item.interval?.end)) && Date.parse(item.interval.start) < Date.parse(item.interval.end))) throw new Error("担当配置の参照または日時が不正です。");
-  if (!success && request.schema_version === "0.11" && response.day_count_summary !== null) throw new Error("計画がない応答に日数集計があります。");
-  const hasPriority = ["0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"].includes(request.schema_version);
-  if (["0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"].includes(request.schema_version)) {
-    if (!success && ["0.9", "0.10", "0.11"].includes(request.schema_version) && (response.cost_summary !== null || response.duty_balance_summary !== null)) throw new Error("計画がない応答に費用・指定区間の集計があります。");
+  if (!success && ["0.11", "0.12"].includes(request.schema_version) && response.day_count_summary !== null) throw new Error("計画がない応答に日数集計があります。");
+  const hasPriority = ["0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"].includes(request.schema_version);
+  if (["0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"].includes(request.schema_version)) {
+    if (!success && ["0.9", "0.10", "0.11", "0.12"].includes(request.schema_version) && (response.cost_summary !== null || response.duty_balance_summary !== null)) throw new Error("計画がない応答に費用・指定区間の集計があります。");
     if (!success) { if (hasPriority && response.priority_summary !== null) throw new Error("計画がない応答にpriority集計があります。"); if (response.shortage_summary !== null) throw new Error("計画がない応答に不足集計があります。"); return; }
     const summary = response.shortage_summary;
     if (!summary || typeof summary.proven_minimal !== "boolean" || !Number.isSafeInteger(summary.total_person_minutes) || !Array.isArray(summary.shortages)) throw new Error("不足集計が不正です。");
@@ -352,6 +354,8 @@ function acceptResponse(response, request, requestBoundaries = boundaries) {
       let run = null;
       for (let i = positions.get(Date.parse(demand.interval.start)); i < positions.get(Date.parse(demand.interval.end)); i++) {
         const assigned = counts.get(`${demand.role_id}/${i}`) || 0, missing = demand.required_people - assigned;
+        const minimum = request.schema_version === "0.12" ? demand.minimum_people ?? 0 : 0;
+        if (assigned < minimum) throw new Error("応答が必須の最低人数を満たしていません。");
         if (missing < 0) throw new Error("応答に過剰配置があります。");
         counts.delete(`${demand.role_id}/${i}`);
         if (missing <= 0) { run = null; continue; }
@@ -359,11 +363,12 @@ function acceptResponse(response, request, requestBoundaries = boundaries) {
         if (run && run.end === grid[i] && run.assigned_people === assigned) run.end = grid[i + 1];
         else {
           run = {demand_id: demand.id, role_id: demand.role_id, start: grid[i], end: grid[i + 1], required_people: demand.required_people, assigned_people: assigned, missing_people: missing};
+          if (request.schema_version === "0.12") run.minimum_people = minimum;
           expected.push(run);
         }
       }
     }
-    const actual = summary.shortages.map(item => ({demand_id: item.demand_id, role_id: item.role_id, start: Date.parse(item.interval?.start), end: Date.parse(item.interval?.end), required_people: item.required_people, assigned_people: item.assigned_people, missing_people: item.missing_people}));
+    const actual = summary.shortages.map(item => ({demand_id: item.demand_id, role_id: item.role_id, start: Date.parse(item.interval?.start), end: Date.parse(item.interval?.end), required_people: item.required_people, assigned_people: item.assigned_people, missing_people: item.missing_people, ...(request.schema_version === "0.12" ? {minimum_people: item.minimum_people} : {})}));
     const proofs = response.objectives.map(item => item.proven_optimal);
     if (hasPriority) {
       const groups = response.priority_summary?.groups;
@@ -593,13 +598,13 @@ async function calculateJSON() {
     ]);
     if (token !== generation) return;
     const input = JSON.parse(text);
-    const expected = {...input, schema_version: ["0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"].includes(input?.schema_version) ? input.schema_version : "0.1", request_id: typeof input?.request_id === "string" ? input.request_id : null};
+    const expected = {...input, schema_version: ["0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"].includes(input?.schema_version) ? input.schema_version : "0.1", request_id: typeof input?.request_id === "string" ? input.request_id : null};
     const requestBoundaries = ["OPTIMAL", "FEASIBLE", "PARTIAL"].includes(result.status) ?
       [input.planning_window.start, ...jsonSlots(input).map(slot => new Date(slot.end).toISOString())] : [];
     acceptResponse(result, expected, requestBoundaries);
     jsonPair = {input, response: result};
     renderJSONResult();
-    $("json-status").textContent = `${result.status === "PARTIAL" && input.problem_type === "roster" ? "必須枠に不足があります。未完成の勤務計画を出力しました。" : stateText[result.status]} · ${result.status}`;
+    $("json-status").textContent = `${result.status === "PARTIAL" && input.problem_type === "roster" ? "必要人数に不足があります。未完成の勤務計画を出力しました。" : stateText[result.status]} · ${result.status}`;
   } catch (error) {
     if (token !== generation) return;
     controller.abort();

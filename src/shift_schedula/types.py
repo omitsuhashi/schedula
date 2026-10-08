@@ -3,7 +3,7 @@
 from typing import Literal, NotRequired, TypedDict
 
 type SchemaVersion = Literal[
-    "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"
+    "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"
 ]
 type JSONValue = None | bool | int | float | str | list[JSONValue] | dict[str, JSONValue]
 type FailureStatus = Literal[
@@ -71,6 +71,10 @@ class Demand(TypedDict):
 
 class PriorityDemand(Demand):
     priority: NotRequired[int]
+
+
+class MinimumDemand(PriorityDemand):
+    minimum_people: NotRequired[int]
 
 
 class Segment(TypedDict):
@@ -417,7 +421,6 @@ class MetricsRequestFields(TypedDict):
     skills: list[Skill]
     roles: list[Role]
     solver: SolverOptions
-    demand: list[PriorityDemand]
     preferences: list[AvoidRole | WorkPreference]
     replan_mode: NotRequired[Literal["preserve_assigned", "rebuild"]]
     continuity: NotRequired[Continuity]
@@ -435,16 +438,25 @@ class MetricsRequestFields(TypedDict):
 
 class Request09(MetricsRequestFields):
     schema_version: Literal["0.9"]
+    demand: list[PriorityDemand]
     constraints: list[Constraint04]
 
 
 class Request010(MetricsRequestFields):
     schema_version: Literal["0.10"]
+    demand: list[PriorityDemand]
     constraints: list[Constraint04]
 
 
 class Request011(MetricsRequestFields):
     schema_version: Literal["0.11"]
+    demand: list[PriorityDemand]
+    constraints: list[Constraint011]
+
+
+class Request012(MetricsRequestFields):
+    schema_version: Literal["0.12"]
+    demand: list[MinimumDemand]
     constraints: list[Constraint011]
 
 
@@ -460,6 +472,7 @@ type Request = (
     | Request09
     | Request010
     | Request011
+    | Request012
 )
 
 
@@ -619,6 +632,7 @@ class Shortage(TypedDict):
     required_people: int
     assigned_people: int
     missing_people: int
+    minimum_people: NotRequired[int]
 
 
 class ShortageSummary(TypedDict):
@@ -909,6 +923,24 @@ class Response011Failure(Response09Fields):
     day_count_summary: None
 
 
+class Response012Success(Response09Fields):
+    schema_version: Literal["0.12"]
+    status: Literal["OPTIMAL", "FEASIBLE", "PARTIAL"]
+    solution: ContinuitySolution
+    continuity_summary: ContinuitySummary | None
+    priority_summary: PrioritySummary
+    day_count_summary: list[DayCountSummary] | None
+
+
+class Response012Failure(Response09Fields):
+    schema_version: Literal["0.12"]
+    status: FailureStatus
+    solution: None
+    continuity_summary: None
+    priority_summary: None
+    day_count_summary: None
+
+
 type Response = (
     Response01Success
     | Response01Failure
@@ -932,6 +964,8 @@ type Response = (
     | Response010Failure
     | Response011Success
     | Response011Failure
+    | Response012Success
+    | Response012Failure
 )
 
 
