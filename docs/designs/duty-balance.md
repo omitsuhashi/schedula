@@ -1,6 +1,8 @@
 # 夜勤と休日の勤務分数の偏りを評価する契約案
 
-[#70](https://github.com/omitsuhashi/schedula/issues/70)の仕様案。
+[#70](https://github.com/omitsuhashi/schedula/issues/70)の採用仕様。
+計画内の評価を[#78](https://github.com/omitsuhashi/schedula/issues/78)で[契約0.9](../io-contract-roster-metrics.md)へ実装した。
+履歴を含む評価は#79の別契約で扱う。
 利用側が指定した区間に重なる勤務分数を集計し、従業員ごとの明示目標との差を評価する。
 既存の `fairness_deviation_minutes` は計画全体の勤務量の尺度として維持する。
 
@@ -39,7 +41,7 @@ labelは表示用で分岐に使用しない。夜勤/休日という予約語�
 }
 ```
 
-このJSONは新項目の形を示す部分例で、現行Schemaへの入力例ではない。
+このJSONは契約0.9の部分例。完全な実行入力は[夜勤評価例](../../examples/duty_balance.json)を参照する。
 評価期間は初回ではW内の正の半開区間。各intervalはその評価期間内に収め、粒度へ揃える。
 intervalの和集合を集計し、同一評価内の重複・隣接・同一区間の再掲は併合して二重計上しない。
 異なる評価間の重複は許し、それぞれ別目的として評価する。

@@ -55,10 +55,12 @@ def verify(request: dict, solution: dict) -> dict:
         "diagnostics": [],
         "stats": {"elapsed_seconds": 0.0},
     }
-    if result["schema_version"] in {"0.5", "0.6", "0.7", "0.8"}:
+    if result["schema_version"] in {"0.5", "0.6", "0.7", "0.8", "0.9"}:
         result["priority_summary"] = None
-    if result["schema_version"] in {"0.6", "0.7", "0.8"}:
+    if result["schema_version"] in {"0.6", "0.7", "0.8", "0.9"}:
         result["continuity_summary"] = None
+    if result["schema_version"] == "0.9":
+        result.update(cost_summary=None, duty_balance_summary=None)
     try:
         problem = normalize(request)
         violations, values, shortage = verify_plan(problem, solution)
@@ -83,7 +85,7 @@ def verify(request: dict, solution: dict) -> dict:
             ]
             _, _, summaries = evaluate(problem, solution)
             result.update(summaries)
-            if request["schema_version"] in {"0.5", "0.6", "0.7", "0.8"}:
+            if request["schema_version"] in {"0.5", "0.6", "0.7", "0.8", "0.9"}:
                 result["priority_summary"] = priority_summary(request, shortage)
     except InvalidInput as error:
         result["diagnostics"] = error.diagnostics
@@ -107,10 +109,15 @@ def verify(request: dict, solution: dict) -> dict:
             verification={"performed": False, "valid": None, "violations": []},
             diagnostics=[diagnostic("INTERNAL_ERROR", "独立検証の処理に失敗しました。")],
         )
-    if result["schema_version"] in {"0.6", "0.7", "0.8"} and result["status"] == "INTERNAL_ERROR":
+    if (
+        result["schema_version"] in {"0.6", "0.7", "0.8", "0.9"}
+        and result["status"] == "INTERNAL_ERROR"
+    ):
         result["continuity_summary"] = None
+    if result["schema_version"] == "0.9" and result["status"] == "INTERNAL_ERROR":
+        result.update(cost_summary=None, duty_balance_summary=None)
     result["stats"]["elapsed_seconds"] = time.perf_counter() - started
-    if result["schema_version"] in {"0.5", "0.6", "0.7", "0.8"} and result["status"] not in {
+    if result["schema_version"] in {"0.5", "0.6", "0.7", "0.8", "0.9"} and result["status"] not in {
         "VALID",
         "PARTIAL",
     }:
@@ -134,7 +141,7 @@ def verify_shifts(request, grid, shifts, fail, active_groups=None):
     coverage, breaks = defaultdict(set), defaultdict(set)
     selected = defaultdict(list)
     scheduled = Counter()
-    extended = request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8"}
+    extended = request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9"}
     for index, shift in enumerate(shifts):
         path = f"/shifts/{index}"
         identifier, employee = shift["candidate_id"], shift["employee_id"]
@@ -485,7 +492,7 @@ def verify_plan(problem, solution, *, require_complete=False, active_groups=None
         if assigned > required or (
             assigned < required
             and (
-                request["schema_version"] not in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8"}
+                request["schema_version"] not in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9"}
                 or require_complete
             )
         ):
@@ -547,14 +554,16 @@ def verify_plan(problem, solution, *, require_complete=False, active_groups=None
         "role_switches": sum(switches.values()),
         "scheduled_minutes": sum(scheduled.values()),
     }
-    if request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8"}:
+    if request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9"}:
         from .extensions import evaluate
 
         extension_violations, extension_metrics, _ = evaluate(problem, solution)
         violations.extend(extension_violations)
         metrics.update(extension_metrics)
+    from .model import objective_key
+
     return (
         violations[:1000],
-        tuple(metrics[o["metric"]] for o in request["objectives"]),
+        tuple(metrics[objective_key(o)] for o in request["objectives"]),
         {"total_person_minutes": total, "shortages": shortages},
     )

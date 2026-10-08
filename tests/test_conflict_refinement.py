@@ -400,7 +400,7 @@ def test_response_rejects_tampered_references_and_proof_records(field):
         validate_response(result, data)
 
 
-@pytest.mark.parametrize("version", [v for v in SCHEMA_VERSIONS if v != "0.8"])
+@pytest.mark.parametrize("version", [v for v in SCHEMA_VERSIONS if v not in {"0.8", "0.9"}])
 def test_new_request_and_response_fields_rejected_by_old_versions(version):
     data = example()
     data["schema_version"] = version

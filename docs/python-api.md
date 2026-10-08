@@ -10,7 +10,7 @@ JSONのdict/list境界を維持する。公開型は標準 `typing` の `TypedDi
 | `solve(request: Request, *, num_workers: int = 2) -> Response` | 求解と独立検証 | 入力不備・依存不足・内部障害を既存Responseの状態で返す |
 | `verify(request: Request, solution: Solution) -> Verification` | 保存・編集した解の独立検証。最適性は認定しない | `VALID` / `PARTIAL` / `INVALID_INPUT` / `INVALID_PLAN` / `INTERNAL_ERROR` |
 | `get_schema(kind, schema_version="0.1")` | `request` / `response` / `solution` / `verification` のSchema | 未知の種類・版は `ValueError` |
-| `make_baseline(request: Request04 \| Request05 \| Request06 \| Request07 \| Request08, solution: ExtendedSolution \| ContinuitySolution, plan_id: str) -> Baseline` | 契約0.4〜0.8のrosterから検証済み基準計画を作る | 入力・解の不備は `InvalidInput`。環境・内部例外は呼び出し側で扱う |
+| `make_baseline(request: Request04 \| Request05 \| Request06 \| Request07 \| Request08 \| Request09, solution: ExtendedSolution \| ContinuitySolution, plan_id: str) -> Baseline` | 契約0.4〜0.9のrosterから検証済み基準計画を作る | 入力・解の不備は `InvalidInput`。環境・内部例外は呼び出し側で扱う |
 
 `InvalidInput` は `ValueError` の派生で、`diagnostics` に既存形式の診断配列を持つ。
 公開関数は入力を書き換えない。make_baselineは返すスナップショットをコピーして作る。
@@ -41,9 +41,10 @@ else:
 
 ## 型付きの利用と状態分岐
 
-`Request` は `Request01` / `Request02` / `Request03` / `Request04` / `Request05` / `Request06` / `Request07` / `Request08` のunion。
+`Request` は `Request01` / `Request02` / `Request03` / `Request04` / `Request05` / `Request06` / `Request07` / `Request08` / `Request09` のunion。
 [契約0.6](io-contract-continuity.md)は実績・確定勤務と独立集計を扱い、移動Wの比較・固定は[契約0.7](io-contract-overlap.md)で扱います。
 [契約0.8](diagnosis.md#契約08の条件グループ縮小)の `DiagnosisOptions08` と `Conflict08` は条件グループの縮小と証明範囲を扱う。
+[契約0.9](io-contract-roster-metrics.md)の `Costs` / `CostObjective` / `DutyBalance` / `DutyObjective` は勤務費用と指定区間の目標偏差を扱う。
 各版の構築用型と入れ子の型は `shift_schedula.types` にある。
 `schema_version` で契約版、`Response.status` で成功と失敗を分岐できる。
 `PARTIAL` は0.3以降だけに存在し、成功状態では `solution` の内容を型付きで参照できる。

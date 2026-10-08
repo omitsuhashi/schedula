@@ -9,6 +9,7 @@ CLI の `schema request --schema-version 0.2` で新しい Schema を取得で�
 ## 基準と変更の扱い
 
 継続計画の実績・確定勤務は[契約0.6](io-contract-continuity.md)を参照する。
+勤務費用・計画内の夜勤休日の目標偏差は[契約0.9](io-contract-roster-metrics.md)を参照する。
 
 初期設計の基準は SkillShift Starter の `schema_version: "0.1"`。
 [Request Schema](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/reference/skillshift-starter-0.1/skillshift/schemas/request.schema.json)と

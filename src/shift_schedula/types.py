@@ -2,7 +2,7 @@
 
 from typing import Literal, NotRequired, TypedDict
 
-type SchemaVersion = Literal["0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8"]
+type SchemaVersion = Literal["0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9"]
 type JSONValue = None | bool | int | float | str | list[JSONValue] | dict[str, JSONValue]
 type FailureStatus = Literal[
     "INFEASIBLE", "UNKNOWN", "INVALID_INPUT", "BACKEND_UNAVAILABLE", "INTERNAL_ERROR"
@@ -183,6 +183,28 @@ class Objective(TypedDict):
     ]
 
 
+class CostObjective(TypedDict):
+    id: str
+    metric: Literal["scheduled_cost"]
+
+
+class DutyObjective(TypedDict):
+    id: str
+    metric: Literal["duty_deviation_minutes"]
+    duty_id: str
+
+
+class EmployeeRate(TypedDict):
+    employee_id: str
+    units_per_minute: int
+
+
+class Costs(TypedDict):
+    currency: str
+    units_per_currency: int
+    employee_rates: list[EmployeeRate]
+
+
 class SolverOptions(TypedDict):
     backend: Literal["auto", "min_cost_flow", "cp_sat"]
     time_limit_seconds: float
@@ -197,6 +219,12 @@ class EmployeeTarget(TypedDict):
 class Fairness(TypedDict):
     evaluation_period: Interval
     employee_targets: list[EmployeeTarget]
+
+
+class DutyBalance(Fairness):
+    id: str
+    label: str
+    intervals: list[Interval]
 
 
 class FixedPart(TypedDict):
@@ -367,8 +395,46 @@ class Request08(RequestFields):
     diagnosis: NotRequired[DiagnosisOptions08]
 
 
+class PlanningWindow09(Interval):
+    timezone: str
+    slot_minutes: Literal[1, 5, 10, 15, 20, 30, 60]
+
+
+class Request09(TypedDict):
+    schema_version: Literal["0.9"]
+    request_id: str
+    problem_type: Literal["assignment", "roster"]
+    planning_window: PlanningWindow09
+    skills: list[Skill]
+    roles: list[Role]
+    solver: SolverOptions
+    demand: list[PriorityDemand]
+    constraints: list[Constraint04]
+    preferences: list[AvoidRole | WorkPreference]
+    replan_mode: NotRequired[Literal["preserve_assigned", "rebuild"]]
+    continuity: NotRequired[Continuity]
+    employees: list[Employee]
+    shift_candidates: list[ShiftCandidate]
+    shift_templates: NotRequired[list[ShiftTemplate]]
+    objectives: list[Objective | CostObjective | DutyObjective]
+    fairness: NotRequired[Fairness]
+    baseline: NotRequired[Baseline]
+    fixed_parts: NotRequired[list[FixedPart]]
+    diagnosis: NotRequired[DiagnosisOptions08]
+    costs: NotRequired[Costs]
+    duty_balance: NotRequired[list[DutyBalance]]
+
+
 type Request = (
-    Request01 | Request02 | Request03 | Request04 | Request05 | Request06 | Request07 | Request08
+    Request01
+    | Request02
+    | Request03
+    | Request04
+    | Request05
+    | Request06
+    | Request07
+    | Request08
+    | Request09
 )
 
 
@@ -466,6 +532,37 @@ class ObjectiveValue(TypedDict):
     metric: str
     value: int
     proven_optimal: bool
+    duty_id: NotRequired[str]
+
+
+class EmployeeCost(EmployeeRate):
+    scheduled_minutes: int
+    cost_units: int
+
+
+class CostSummary(TypedDict):
+    currency: str
+    units_per_currency: int
+    evaluation_period: Interval
+    total_units: int
+    employees: list[EmployeeCost]
+
+
+class EmployeeDuty(EmployeeTarget):
+    actual_minutes: int
+    deviation_minutes: int
+
+
+class DutyBalanceSummary(TypedDict):
+    duty_id: str
+    label: str
+    evaluation_period: Interval
+    intervals: list[Interval]
+    unit: Literal["minutes"]
+    scale: Literal["absolute_deviation"]
+    normalized: Literal[False]
+    total_deviation_minutes: int
+    employees: list[EmployeeDuty]
 
 
 class EmployeeFairness(EmployeeTarget):
@@ -716,6 +813,27 @@ class Response08Failure(Response08Fields):
     priority_summary: None
 
 
+class Response09Fields(Response08Fields):
+    cost_summary: CostSummary | None
+    duty_balance_summary: list[DutyBalanceSummary] | None
+
+
+class Response09Success(Response09Fields):
+    schema_version: Literal["0.9"]
+    status: Literal["OPTIMAL", "FEASIBLE", "PARTIAL"]
+    solution: ContinuitySolution
+    continuity_summary: ContinuitySummary | None
+    priority_summary: PrioritySummary
+
+
+class Response09Failure(Response09Fields):
+    schema_version: Literal["0.9"]
+    status: FailureStatus
+    solution: None
+    continuity_summary: None
+    priority_summary: None
+
+
 type Response = (
     Response01Success
     | Response01Failure
@@ -733,10 +851,14 @@ type Response = (
     | Response07Failure
     | Response08Success
     | Response08Failure
+    | Response09Success
+    | Response09Failure
 )
 
 
 class Verification(TypedDict):
+    cost_summary: NotRequired[CostSummary | None]
+    duty_balance_summary: NotRequired[list[DutyBalanceSummary] | None]
     priority_summary: NotRequired[PrioritySummary | None]
     continuity_summary: NotRequired[ContinuitySummary | None]
     schema_version: SchemaVersion
