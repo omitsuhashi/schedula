@@ -34,3 +34,35 @@ PLAYWRIGHT_MODULE_PATH=/private/tmp/schedula-playwright-20261008/node_modules/pl
 
 指導人数の容量・担当役割・職位推定は対象外。勤務時刻は有限候補で入力し、休憩を待機へ置換しない。
 代表例は架空入力であり、実店舗や100人30日の性能保証ではない。
+
+## 実行結果
+
+新機能55テストが成功した。3条件設定の候補部分集合24通りを独立した時間比較と
+公開verify・選択を日数で固定したsolveで照合した。指導者交代・同時休憩・最低2人・
+共有指導者・相互条件・分割空白・確定勤務・基準固定・不足・診断縮小を含む。
+DSTの秋の25時間の日ではオフセットを保持し、勤務360分の完全な計画を独立検証した。
+診断では必要人数と同時勤務禁止をそれぞれ1グループとして除去・再確認した。
+
+関連351テスト、公開型を含む56テスト、版継承の回帰185テストが成功した。
+全回帰を開始した後、0.14で継承する0.8〜0.10の機能を拒否対象に含める期待値の更新漏れを
+3ファイルで修正した。修正箇所は185テストで再確認した。実装の受理範囲や旧版の意味は変えていない。
+
+Chromiumでは同時勤務サンプルの実計算、待機勤務・必須最低人数・PARTIALの不足表示と
+集合交差の入力不備表示が成功した。既存3シナリオ、100人30日、キーボード、狭い画面、
+応答失効も成功した。結果は手元の`test-results/playground-browser.json`に保存した。
+Ruff hooks、Node構文、bash構文、git diff --checkが成功した。
+旧0.1〜0.13の26 Schemaファイルは基点commitの原bytesと一致し、uv.lockは変更していない。
+
+## 代表例の反復
+
+commit `1094de3c29c807bad9042ee5925cdd42ef0bf786`のgit archiveで、同じ入力を3つの
+新規Pythonプロセスから実行した。全回でPARTIAL、不足120人分、勤務240分、
+不足最小性・勤務量最適性の証明と独立検証が成功した。
+Request全体の中央値0.374秒、最大0.397秒、最大RSS108.34 MiBだった。
+全回帰と並行実行した参考値であり、他条件との性能比較には用いない。
+生データは`docs/evaluations/results/coworkers-20261008-cold.json`。
+source SHA、lock SHA、依存版、入力SHA、準備・探索・検証の時間と全試行を保持する。
+
+```sh
+uv run --locked --extra cp-sat python scripts/evaluate.py examples/coworkers.json --repeat 3 --mode cold --source-ref 1094de3 --output test-results/coworkers-cold.json
+```

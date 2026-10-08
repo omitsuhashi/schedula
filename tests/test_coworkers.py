@@ -482,3 +482,29 @@ def test_fall_dst_handoff_counts_actual_time_and_preserves_offsets():
     assert_response(result, "OPTIMAL")
     assert result["objectives"][0]["value"] == 360
     assert verify(data, result["solution"])["status"] == "VALID"
+
+
+def test_incompatible_relation_is_one_refined_condition_group():
+    data = example()
+    data["constraints"][0]["minimum_people"] = 2
+    for c in data["shift_candidates"][1:]:
+        c["segments"] = copy.deepcopy(data["shift_candidates"][0]["segments"])
+    data["diagnosis"] = {
+        "time_limit_seconds": 5,
+        "max_suggestions": 0,
+        "allowed_changes": [],
+        "conflict_refinement": {"time_limit_seconds": 4},
+    }
+    result = solve(data)
+    assert_response(result, "INFEASIBLE")
+    conflict = result["diagnosis_result"]["conflict"]
+    assert conflict["minimality"] == "inclusion_minimal"
+    assert {c["group_id"] for c in conflict["conditions"]} == {
+        "/constraints/0",
+        "/constraints/1",
+        "/demand/0",
+    }
+    for index in range(2):
+        trial = copy.deepcopy(data)
+        trial["constraints"].pop(index)
+        assert_response(solve(trial), "PARTIAL")
