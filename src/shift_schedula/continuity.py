@@ -239,7 +239,7 @@ def committed_outputs(request, grid):
     ]
 
 
-def prepare(model, problem):
+def prepare(model, problem, active_groups=None):
     request, grid = problem.request, problem.grid
     duties = list(problem.continuity)
     shifts = {c.id: model.new_bool_var(f"shift_{c.id}") for c in problem.candidates}
@@ -291,6 +291,8 @@ def prepare(model, problem):
             for d in employee_duties
         )
         for i, rule in enumerate(request["constraints"]):
+            if active_groups is not None and f"/constraints/{i}" not in active_groups:
+                continue
             if e not in rule["employee_ids"]:
                 continue
             kind = rule["type"]
@@ -358,7 +360,7 @@ def prepare(model, problem):
     return shifts, coverage, scheduled
 
 
-def verify_shifts(request, grid, shifts, fail):
+def verify_shifts(request, grid, shifts, fail, active_groups=None):
     from .roster import expand_candidates
 
     # 生JSONと返却segmentsから再計算し、Problemの候補・係数・事実表は読まない。
@@ -449,6 +451,8 @@ def verify_shifts(request, grid, shifts, fail):
                     [e],
                 )
         for i, rule in enumerate(request["constraints"]):
+            if active_groups is not None and f"/constraints/{i}" not in active_groups:
+                continue
             if e not in rule["employee_ids"]:
                 continue
             path, kind = f"/constraints/{i}", rule["type"]

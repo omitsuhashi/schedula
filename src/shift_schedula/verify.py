@@ -55,9 +55,9 @@ def verify(request: dict, solution: dict) -> dict:
         "diagnostics": [],
         "stats": {"elapsed_seconds": 0.0},
     }
-    if result["schema_version"] in {"0.5", "0.6", "0.7"}:
+    if result["schema_version"] in {"0.5", "0.6", "0.7", "0.8"}:
         result["priority_summary"] = None
-    if result["schema_version"] in {"0.6", "0.7"}:
+    if result["schema_version"] in {"0.6", "0.7", "0.8"}:
         result["continuity_summary"] = None
     try:
         problem = normalize(request)
@@ -83,7 +83,7 @@ def verify(request: dict, solution: dict) -> dict:
             ]
             _, _, summaries = evaluate(problem, solution)
             result.update(summaries)
-            if request["schema_version"] in {"0.5", "0.6", "0.7"}:
+            if request["schema_version"] in {"0.5", "0.6", "0.7", "0.8"}:
                 result["priority_summary"] = priority_summary(request, shortage)
     except InvalidInput as error:
         result["diagnostics"] = error.diagnostics
@@ -107,10 +107,10 @@ def verify(request: dict, solution: dict) -> dict:
             verification={"performed": False, "valid": None, "violations": []},
             diagnostics=[diagnostic("INTERNAL_ERROR", "独立検証の処理に失敗しました。")],
         )
-    if result["schema_version"] in {"0.6", "0.7"} and result["status"] == "INTERNAL_ERROR":
+    if result["schema_version"] in {"0.6", "0.7", "0.8"} and result["status"] == "INTERNAL_ERROR":
         result["continuity_summary"] = None
     result["stats"]["elapsed_seconds"] = time.perf_counter() - started
-    if result["schema_version"] in {"0.5", "0.6", "0.7"} and result["status"] not in {
+    if result["schema_version"] in {"0.5", "0.6", "0.7", "0.8"} and result["status"] not in {
         "VALID",
         "PARTIAL",
     }:
@@ -121,11 +121,11 @@ def verify(request: dict, solution: dict) -> dict:
     return result
 
 
-def verify_shifts(request, grid, shifts, fail):
+def verify_shifts(request, grid, shifts, fail, active_groups=None):
     if request.get("continuity"):
         from .continuity import verify_shifts as verify_continuity_shifts
 
-        return verify_continuity_shifts(request, grid, shifts, fail)
+        return verify_continuity_shifts(request, grid, shifts, fail, active_groups)
     from .roster import expand_candidates
 
     # 元入力から再展開し、CP-SAT の候補表・選択変数を使わず照合する。
@@ -134,7 +134,7 @@ def verify_shifts(request, grid, shifts, fail):
     coverage, breaks = defaultdict(set), defaultdict(set)
     selected = defaultdict(list)
     scheduled = Counter()
-    extended = request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7"}
+    extended = request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8"}
     for index, shift in enumerate(shifts):
         path = f"/shifts/{index}"
         identifier, employee = shift["candidate_id"], shift["employee_id"]
@@ -218,6 +218,8 @@ def verify_shifts(request, grid, shifts, fail):
     end_day = grid.end.astimezone(grid.timezone).date().toordinal()
     histories = {e["id"]: e["history"] for e in request["employees"]}
     for index, constraint in enumerate(request["constraints"]):
+        if active_groups is not None and f"/constraints/{index}" not in active_groups:
+            continue
         kind = constraint["type"]
         path = f"/constraints/{index}"
         for employee in constraint["employee_ids"]:
@@ -310,7 +312,7 @@ def verify_solution(problem, solution, *, require_complete=False):
     return verify_plan(problem, solution, require_complete=require_complete)[:2]
 
 
-def verify_plan(problem, solution, *, require_complete=False):
+def verify_plan(problem, solution, *, require_complete=False, active_groups=None):
     """元入力と解を照合し、違反・目的値・不足を独立に再計算する。"""
     try:
         check_json(solution)
@@ -341,7 +343,9 @@ def verify_plan(problem, solution, *, require_complete=False):
     request, grid = problem.request, problem.grid
     roster = request["problem_type"] == "roster"
     coverage, breaks, scheduled = (
-        verify_shifts(request, grid, solution["shifts"], fail) if roster else ({}, {}, {})
+        verify_shifts(request, grid, solution["shifts"], fail, active_groups)
+        if roster
+        else ({}, {}, {})
     )
     if not roster and solution["shifts"]:
         fail("UNEXPECTED_SHIFTS", "assignment の勤務結果は空にします。", "/shifts")
@@ -445,6 +449,7 @@ def verify_plan(problem, solution, *, require_complete=False):
                     slot=start,
                 )
     expected = Counter()
+    relaxed = set()
     shortages = []
     total = 0
     for index, demand in enumerate(request["demand"]):
@@ -453,6 +458,8 @@ def verify_plan(problem, solution, *, require_complete=False):
         for slot in range(start, end):
             required = int(demand["required_people"])
             expected[slot, demand["role_id"]] = required
+            if required and active_groups is not None and f"/demand/{index}" not in active_groups:
+                relaxed.add((slot, demand["role_id"]))
             assigned = actual[slot, demand["role_id"]]
             if assigned < required:
                 total += (required - assigned) * grid.slot_minutes
@@ -472,11 +479,13 @@ def verify_plan(problem, solution, *, require_complete=False):
             for a, b, assigned in runs
         )
     for slot, role_id in sorted(expected.keys() | actual.keys()):
+        if (slot, role_id) in relaxed:
+            continue
         required, assigned = expected[slot, role_id], actual[slot, role_id]
         if assigned > required or (
             assigned < required
             and (
-                request["schema_version"] not in {"0.3", "0.4", "0.5", "0.6", "0.7"}
+                request["schema_version"] not in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8"}
                 or require_complete
             )
         ):
@@ -498,6 +507,8 @@ def verify_plan(problem, solution, *, require_complete=False):
         for employee_id, values in assigned_roles.items()
     }
     for index, constraint in enumerate(request["constraints"]):
+        if active_groups is not None and f"/constraints/{index}" not in active_groups:
+            continue
         if constraint["type"] not in {"max_assigned_minutes", "max_role_switches"}:
             continue
         minutes_limit = constraint["type"] == "max_assigned_minutes"
@@ -519,13 +530,24 @@ def verify_plan(problem, solution, *, require_complete=False):
                     actual_value=value,
                     limit=constraint[field],
                 )
+    if active_groups is not None:
+        from .extensions import check_fixed_states, fixed_requirements, states
+
+        work, roles = states(grid, solution, continuity=bool(request.get("continuity")))
+        violations.extend(
+            check_fixed_states(
+                fixed_requirements(problem, active_groups), work, roles, employee_ids=employees
+            )
+        )
+        # 診断証拠の有効性だけを調べ、公開verifyの条件と目的評価は変えない。
+        return violations[:1000], (), None
     # ソルバーの変数・費用から独立して、未探索の目的も同じ解から再計算する。
     metrics = {
         "preference_penalty": penalty,
         "role_switches": sum(switches.values()),
         "scheduled_minutes": sum(scheduled.values()),
     }
-    if request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7"}:
+    if request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8"}:
         from .extensions import evaluate
 
         extension_violations, extension_metrics, _ = evaluate(problem, solution)

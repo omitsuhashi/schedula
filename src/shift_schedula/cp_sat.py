@@ -41,15 +41,19 @@ class SatResult:
 
 
 def priority_stages(request):
-    levels = priority_levels(request) if request["schema_version"] in {"0.5", "0.6", "0.7"} else ()
+    levels = (
+        priority_levels(request)
+        if request["schema_version"] in {"0.5", "0.6", "0.7", "0.8"}
+        else ()
+    )
     return levels if any(levels) else ()
 
 
-def prepare_roster(model, problem):
+def prepare_roster(model, problem, active_groups=None):
     if problem.request.get("continuity"):
         from .continuity import prepare
 
-        return prepare(model, problem)
+        return prepare(model, problem, active_groups)
     grid = problem.grid
     shifts = {c.id: model.new_bool_var(f"shift_{c.id}") for c in problem.candidates}
     by_day, by_employee, coverage = defaultdict(list), defaultdict(list), defaultdict(list)
@@ -61,7 +65,7 @@ def prepare_roster(model, problem):
             coverage[candidate.employee_id, slot].append(variable)
     for variables in by_day.values():
         model.add(sum(variables) <= 1)
-    if problem.request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7"}:
+    if problem.request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8"}:
         for candidates in by_employee.values():
             model.add_no_overlap(
                 model.new_optional_fixed_size_interval_var(
@@ -76,7 +80,9 @@ def prepare_roster(model, problem):
     histories = {e["id"]: e["history"] for e in problem.request["employees"]}
     first_day = grid.start.astimezone(grid.timezone).date().toordinal()
     days = grid.end.astimezone(grid.timezone).date().toordinal() - first_day
-    for constraint in problem.request["constraints"]:
+    for index, constraint in enumerate(problem.request["constraints"]):
+        if active_groups is not None and f"/constraints/{index}" not in active_groups:
+            continue
         kind = constraint["type"]
         for employee in constraint["employee_ids"]:
             if kind == "max_scheduled_minutes":
@@ -132,16 +138,24 @@ def prepare_roster(model, problem):
     return shifts, coverage, scheduled
 
 
-def prepare(problem, cp_model):
+def prepare(problem, cp_model, *, active_groups=None):
     model = cp_model.CpModel()
     roster = problem.request["problem_type"] == "roster"
-    shifts, coverage, scheduled = prepare_roster(model, problem) if roster else ({}, {}, {})
+    shifts, coverage, scheduled = (
+        prepare_roster(model, problem, active_groups) if roster else ({}, {}, {})
+    )
     assignments = {}
     by_employee = defaultdict(list)
     by_slot = defaultdict(list)
     by_role = defaultdict(list)
     shortages = []
     by_priority = defaultdict(list)
+    relaxed = set()
+    if active_groups is not None:
+        for index, item in enumerate(problem.request["demand"]):
+            if f"/demand/{index}" not in active_groups:
+                start, end = problem.grid.interval(item["interval"], f"/demand/{index}/interval")
+                relaxed.update((slot, item["role_id"]) for slot in range(start, end))
     for slot, demand in enumerate(problem.demand):
         for role, count in sorted(demand.items()):
             if not count:
@@ -156,7 +170,10 @@ def prepare(problem, cp_model):
                     by_employee[employee].append(variable)
                     by_slot[employee, slot].append((role, variable))
                     by_role[slot, role].append(variable)
-            if problem.request["schema_version"] in {"0.3", "0.4", "0.5", "0.6", "0.7"}:
+            # 需要行と担当変数は保持し、人数条件だけを省略する。
+            if (slot, role) in relaxed:
+                continue
+            if problem.request["schema_version"] in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8"}:
                 shortage = model.new_int_var(0, count, f"shortage_{slot}_{role}")
                 model.add(sum(by_role[slot, role]) + shortage == count)
                 shortages.append(shortage)
@@ -170,9 +187,13 @@ def prepare(problem, cp_model):
         for key, values in by_slot.items():
             model.add(sum(variable for _, variable in values) <= sum(coverage[key]))
 
-    metrics = {o["metric"] for o in problem.request["objectives"]}
+    metrics = (
+        {o["metric"] for o in problem.request["objectives"]} if active_groups is None else set()
+    )
     switch_employees = set(problem.available) if "role_switches" in metrics else set()
-    for constraint in problem.request["constraints"]:
+    for index, constraint in enumerate(problem.request["constraints"]):
+        if active_groups is not None and f"/constraints/{index}" not in active_groups:
+            continue
         if constraint["type"] == "max_role_switches":
             switch_employees.update(constraint["employee_ids"])
     switches = defaultdict(list)
@@ -197,7 +218,9 @@ def prepare(problem, cp_model):
         model.add(role == next_role).only_enforce_if([active, next_active, switch.Not()])
         switches[employee].append(switch)
 
-    for constraint in problem.request["constraints"]:
+    for index, constraint in enumerate(problem.request["constraints"]):
+        if active_groups is not None and f"/constraints/{index}" not in active_groups:
+            continue
         for employee in constraint["employee_ids"]:
             if constraint["type"] == "max_assigned_minutes":
                 model.add(
@@ -214,7 +237,9 @@ def prepare(problem, cp_model):
         "role_switches": sum(variable for values in switches.values() for variable in values),
         "scheduled_minutes": sum(scheduled.values()),
     }
-    for index, preference in enumerate(problem.request["preferences"]):
+    for index, preference in enumerate(
+        problem.request["preferences"] if active_groups is None else ()
+    ):
         if preference["type"] == "avoid_role":
             continue
         start, end = problem.grid.interval(preference["interval"], f"/preferences/{index}/interval")
@@ -237,12 +262,25 @@ def prepare(problem, cp_model):
                 preference["employee_ids"]
             ) - minutes
         expressions["preference_penalty"] += minutes * int(preference["penalty_per_minute"])
-    if problem.request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7"}:
+    if problem.request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8"}:
         from .extensions import prepare as prepare_extensions
 
-        expressions.update(prepare_extensions(model, problem, assignments, shifts, scheduled))
-    objectives = tuple(expressions[o["metric"]] for o in problem.request["objectives"])
-    if problem.request["schema_version"] in {"0.3", "0.4", "0.5", "0.6", "0.7"}:
+        expressions.update(
+            prepare_extensions(model, problem, assignments, shifts, scheduled, active_groups)
+        )
+    objectives = (
+        tuple(expressions[o["metric"]] for o in problem.request["objectives"])
+        if active_groups is None
+        else ()
+    )
+    if active_groups is None and problem.request["schema_version"] in {
+        "0.3",
+        "0.4",
+        "0.5",
+        "0.6",
+        "0.7",
+        "0.8",
+    }:
         objectives = (
             sum(shortages) * problem.grid.slot_minutes,
             *(
@@ -256,6 +294,48 @@ def prepare(problem, cp_model):
     if model.validate():
         raise RuntimeError("Invalid CP-SAT model")
     return model, assignments, shifts, objectives
+
+
+def extract_solution(problem, solver, variables, shifts):
+    assignments = defaultdict(list)
+    for (employee, slot, role), variable in variables.items():
+        if solver.value(variable):
+            assignments[employee].append((slot, role))
+    solution = make_solution(problem.grid, assignments)
+    solution["shifts"] = [
+        candidate.output(problem.grid)
+        for candidate in problem.candidates
+        if solver.value(shifts[candidate.id])
+    ]
+    if problem.request.get("continuity"):
+        from .continuity import committed_outputs
+
+        solution["shifts"].extend(committed_outputs(problem.request, problem.grid))
+    return solution
+
+
+def check_feasibility(problem, active_groups, deadline, num_workers=2):
+    """診断専用。目的を持たず、構築時間も内包予算から差し引く。"""
+    start = time.monotonic()
+    cp_model, _ = load_backend()
+    model, variables, shifts, _ = prepare(problem, cp_model, active_groups=active_groups)
+    prepared = time.monotonic()
+    remaining = deadline - prepared
+    result = SatResult("UNKNOWN", None, preparation_elapsed_seconds=prepared - start)
+    if remaining <= 0:
+        return result
+    solver = cp_model.CpSolver()
+    solver.parameters.random_seed = int(problem.request["solver"]["seed"])
+    solver.parameters.num_search_workers = num_workers
+    solver.parameters.max_time_in_seconds = remaining
+    status = solver.solve(model)
+    result.search_elapsed_seconds = time.monotonic() - prepared
+    result.status = solver.status_name(status)
+    if status in {cp_model.OPTIMAL, cp_model.FEASIBLE}:
+        result.solution = extract_solution(problem, solver, variables, shifts)
+    elif status not in {cp_model.INFEASIBLE, cp_model.UNKNOWN}:
+        raise RuntimeError("Unexpected diagnostic CP-SAT status")
+    return result
 
 
 def run(problem, cp_model, num_workers=2):
@@ -272,7 +352,7 @@ def run(problem, cp_model, num_workers=2):
     deadline = start + budget
     best = None
     bounds = [None] * len(objectives)
-    partial = problem.request["schema_version"] in {"0.3", "0.4", "0.5", "0.6", "0.7"}
+    partial = problem.request["schema_version"] in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8"}
     prefix = int(partial) + len(priority_stages(problem.request))
     for index, objective in enumerate(objectives or (None,)):
         path = (
@@ -308,7 +388,7 @@ def run(problem, cp_model, num_workers=2):
                     completed_objectives=max(0, index - prefix),
                     **(
                         {"completed_priority_groups": min(prefix - 1, max(0, index - 1))}
-                        if problem.request["schema_version"] in {"0.5", "0.6", "0.7"}
+                        if problem.request["schema_version"] in {"0.5", "0.6", "0.7", "0.8"}
                         else {}
                     ),
                 ),
@@ -328,20 +408,7 @@ def run(problem, cp_model, num_workers=2):
             break
         if status not in {cp_model.OPTIMAL, cp_model.FEASIBLE}:
             raise RuntimeError("Unexpected CP-SAT status")
-        assignments = defaultdict(list)
-        for (employee, slot, role), variable in variables.items():
-            if solver.value(variable):
-                assignments[employee].append((slot, role))
-        solution = make_solution(problem.grid, assignments)
-        solution["shifts"] = [
-            candidate.output(problem.grid)
-            for candidate in problem.candidates
-            if solver.value(shifts[candidate.id])
-        ]
-        if problem.request.get("continuity"):
-            from .continuity import committed_outputs
-
-            solution["shifts"].extend(committed_outputs(problem.request, problem.grid))
+        solution = extract_solution(problem, solver, variables, shifts)
         values = tuple(int(solver.value(expression)) for expression in objectives)
         if best is not None and values[:index] != best.values[:index]:
             raise RuntimeError("Fixed optimal values changed")
@@ -371,7 +438,7 @@ def run(problem, cp_model, num_workers=2):
     best.search_elapsed_seconds = time.monotonic() - start
     best.preparation_elapsed_seconds = preparation_elapsed
     best.objective_bounds = tuple(bounds)
-    if problem.request["schema_version"] in {"0.3", "0.4", "0.5", "0.6", "0.7"}:
+    if problem.request["schema_version"] in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8"}:
         if best.solution is not None:
             best.shortage_person_minutes = best.values[0]
             best.shortage_proven_minimal = best.values[0] == 0 or best.proven_optimal[0]

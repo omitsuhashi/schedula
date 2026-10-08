@@ -28,6 +28,8 @@ def stalled_worker(request, path, num_workers):
             roster.expand_candidates = stall
         case "search":
             engine.cp_sat.run = stall
+        case "refinement":
+            engine.cp_sat.check_feasibility = stall
         case "ipc":
             stall()
     controlled_solve._worker(request, path, num_workers)
@@ -104,9 +106,18 @@ def test_spawn_deadline_cancel_failure_and_independent_calls(assignment_request,
     )
     stages = ["validation", "expansion", "ipc"]
     if importlib.util.find_spec("ortools") is not None:
-        stages.append("search")
+        stages.extend(("search", "refinement"))
     for stage in stages:
-        request = {**roster_request, "test_stage": stage}
+        input_request = (
+            json.loads(
+                (
+                    Path(__file__).resolve().parents[1] / "examples/conflict_refinement.json"
+                ).read_text(encoding="utf-8")
+            )
+            if stage == "refinement"
+            else roster_request
+        )
+        request = {**input_request, "test_stage": stage}
         for cancellation in (False, True):
             cancel = threading.Event()
             # TemporaryDirectoryのパスを観測して、実際に段階へ到達してから止める。

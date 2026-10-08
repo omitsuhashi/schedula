@@ -94,7 +94,7 @@ def validate(problem):
         return
     source = baseline["source_request"]
     if (
-        source.get("schema_version") in {"0.4", "0.5", "0.6", "0.7"}
+        source.get("schema_version") in {"0.4", "0.5", "0.6", "0.7", "0.8"}
         and request["schema_version"] < source["schema_version"]
     ):
         reject(
@@ -108,6 +108,7 @@ def validate(problem):
         "0.5",
         "0.6",
         "0.7",
+        "0.8",
     ):
         reject(
             "UNSUPPORTED_BASELINE_VERSION",
@@ -125,7 +126,7 @@ def validate(problem):
         violations, _ = verify_solution(
             old,
             baseline["source_solution"],
-            require_complete=request["schema_version"] not in {"0.4", "0.5", "0.6", "0.7"},
+            require_complete=request["schema_version"] not in {"0.4", "0.5", "0.6", "0.7", "0.8"},
         )
     except InvalidInput as error:
         raise InvalidInput(
@@ -150,7 +151,7 @@ def validate(problem):
             ]
         )
     overlap_start, overlap_end = max(old.grid.start, grid.start), min(old.grid.end, grid.end)
-    sliding = request["schema_version"] == "0.7"
+    sliding = request["schema_version"] in {"0.7", "0.8"}
     step = timedelta(minutes=grid.slot_minutes)
     if (
         source["problem_type"] != "roster"
@@ -237,17 +238,21 @@ def validate(problem):
     }
 
 
-def fixed_requirements(problem):
+def fixed_requirements(problem, active_groups=None):
     """担当済み枠の自動固定と明示固定を、比較元の絶対状態へ解決する。"""
     baseline = problem.baseline
     if baseline is None:
         return
-    if problem.request.get("replan_mode") == "preserve_assigned":
+    if problem.request.get("replan_mode") == "preserve_assigned" and (
+        active_groups is None or "/replan_mode" in active_groups
+    ):
         for key, role in sorted(baseline["roles"].items()):
             yield key, "work", "work", "/replan_mode", [key[0]]
             yield key, "role", role, "/replan_mode", [key[0], role]
     for index, part in enumerate(problem.request.get("fixed_parts", [])):
         path = f"/fixed_parts/{index}"
+        if active_groups is not None and path not in active_groups:
+            continue
         start, end = problem.grid.interval(part["interval"], path + "/interval")
         for component in part["components"]:
             values = baseline["work"] if component == "work" else baseline["roles"]
@@ -284,10 +289,10 @@ def make_baseline(request: dict, solution: dict, plan_id: str) -> dict:
 
     problem = normalize(request)
     if (
-        request["schema_version"] not in {"0.4", "0.5", "0.6", "0.7"}
+        request["schema_version"] not in {"0.4", "0.5", "0.6", "0.7", "0.8"}
         or request["problem_type"] != "roster"
     ):
-        reject("UNSUPPORTED_CONDITION", "make_baseline は契約0.4〜0.7の roster を受け取ります。")
+        reject("UNSUPPORTED_CONDITION", "make_baseline は契約0.4〜0.8の roster を受け取ります。")
     violations, _, _ = verify_plan(problem, solution)
     if violations:
         raise InvalidInput(violations)
@@ -324,10 +329,10 @@ def make_baseline(request: dict, solution: dict, plan_id: str) -> dict:
     return result
 
 
-def prepare(model, problem, assignments, shifts, scheduled_by_employee):
+def prepare(model, problem, assignments, shifts, scheduled_by_employee, active_groups=None):
     request, grid = problem.request, problem.grid
     expressions = {"fairness_deviation_minutes": 0, "plan_changes": 0}
-    fairness = request.get("fairness")
+    fairness = request.get("fairness") if active_groups is None else None
     if fairness:
         deviations = []
         for target in fairness["employee_targets"]:
@@ -383,8 +388,8 @@ def prepare(model, problem, assignments, shifts, scheduled_by_employee):
         if baseline["comparison_slots"][0] <= key[1] < baseline["comparison_slots"][1]
     ]
     expressions["plan_changes"] = sum(changed_work) + sum(changed_roles)
-    for key, component, expected, _, _ in fixed_requirements(problem):
-        if request["schema_version"] == "0.7" and key[0] not in problem.available:
+    for key, component, expected, _, _ in fixed_requirements(problem, active_groups):
+        if request["schema_version"] in {"0.7", "0.8"} and key[0] not in problem.available:
             model.add(False)
             continue
         match = work_match(key, expected) if component == "work" else role_match(key, expected)
@@ -395,7 +400,7 @@ def prepare(model, problem, assignments, shifts, scheduled_by_employee):
 def evaluate(problem, solution):
     metrics = {"fairness_deviation_minutes": 0, "plan_changes": 0}
     summaries = {"fairness_summary": None, "change_summary": None}
-    if problem.request["schema_version"] in {"0.6", "0.7"}:
+    if problem.request["schema_version"] in {"0.6", "0.7", "0.8"}:
         from .continuity import summary
 
         summaries["continuity_summary"] = (
@@ -449,7 +454,7 @@ def evaluate(problem, solution):
             "role_changes": role_changes,
             "total_changes": work_changes + role_changes,
         }
-        if problem.request["schema_version"] == "0.7":
+        if problem.request["schema_version"] in {"0.7", "0.8"}:
             summaries["change_summary"].update(
                 comparison_interval=problem.grid.output_interval(start, end),
                 slot_minutes=problem.grid.slot_minutes,
@@ -460,7 +465,7 @@ def evaluate(problem, solution):
                 work,
                 roles,
                 employee_ids=problem.available
-                if problem.request["schema_version"] == "0.7"
+                if problem.request["schema_version"] in {"0.7", "0.8"}
                 else None,
             )
         )

@@ -83,7 +83,7 @@ def total_first():
     return data
 
 
-@pytest.mark.parametrize("version", ["0.5", "0.7"])
+@pytest.mark.parametrize("version", ["0.5", "0.7", "0.8"])
 def test_total_shortage_precedes_priority_and_survives_replanning(version):
     data = total_first()
     data["schema_version"] = version
@@ -165,7 +165,7 @@ def test_small_exhaustive_oracle(assignment_request, priorities, employees):
         (("OPTIMAL", "OPTIMAL", "OPTIMAL", "FEASIBLE"), (True, True, True)),
     ],
 )
-@pytest.mark.parametrize("version", ["0.5", "0.7"])
+@pytest.mark.parametrize("version", ["0.5", "0.7", "0.8"])
 def test_time_limit_proves_only_reached_prefix(
     assignment_request, monkeypatch, statuses, proofs, version
 ):

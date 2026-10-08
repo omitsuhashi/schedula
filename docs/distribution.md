@@ -69,7 +69,7 @@ uv run python -c 'from shift_schedula import solve, verify, make_baseline, get_s
 利用側はそのwheel・SHA-256・採用したエンジン版・入出力契約版・自分のlock fileを保存する。
 uv自体の導入は[Pythonセットアップ](python-setup.md)を参照する。
 wheelの取得元を差し替えた場合はパスも明示して変更する。
-`schema_version` とエンジンの配布版は別で、0.1.5のwheelは契約0.1〜0.6を同梱する。
+`schema_version` とエンジンの配布版は別で、本ソースから作る0.1.5のwheelは契約0.1〜0.8を同梱する。
 新しい業務ルールは新契約版へ追加し、旧版の意味を黙って変更しない。
 候補件数上限の撤廃は受理範囲の拡大であり、保存済みSchemaは再取得する。
 
