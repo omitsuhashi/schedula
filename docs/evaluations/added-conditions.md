@@ -30,19 +30,28 @@ Wは9月30日〜11月1日、評価対象は10月1日〜31日の30日。1,536枠�
 候補を一案に事前固定せず、各従業員の日数上限20・完全休日下限10、連続勤務禁止、
 必要同僚・同時勤務禁止・勤務回数目標12を合わせる。月の分数上限9,000と休息660分は既存どおり。
 
-| 入力 | 条件 | 初回の3試行 |
+| 入力 | 条件 | 固定コミットの3試行 |
 | --- | --- | --- |
 | [通常](inputs/combined-100-30-normal.json) | 既存需要へminimum_people=1を追加 | FEASIBLE 3/3、全回独立検証成功、不足0・勤務540,000分 |
-| [不足](inputs/combined-100-30-partial.json) | 元必要人数だけ各100へ増加、最低1を保持 | PARTIAL 3/3、全回独立検証成功。不足・最適性の未証明を保持 |
+| [不足](inputs/combined-100-30-partial.json) | 元必要人数だけ各100へ増加、最低1を保持 | PARTIAL 3/3、全回独立検証成功。不足2,211,750人分・勤務668,250分、最適性は未証明 |
 | [必須矛盾](inputs/combined-100-30-conflict.json) | 調理1需要のminimum_people=100、資格者は50人 | INFEASIBLE 3/3、解・集計なし |
 | [探索打切り](inputs/combined-100-30-timeout.json) | 通常と同じ条件、探索予算0.000001秒 | UNKNOWN 3/3、解・集計なし |
 
-初回は通常の総処理32.78〜32.84秒・RSS973〜1,007 MiB、不足33.13〜33.28秒・
-RSS1,402〜1,440 MiBだった。通常・不足とも探索に30秒を使い、準備は約0.8秒、
+測定対象はcommit `9145f71bec1af50646726acb417d19808536e05c`を`git archive`で取り出したコードで、
+Python 3.14.8・OR-Tools 9.15.6755・macOS 26.7.1 arm64を用いた。パッケージ版は0.1.5のまま、
+JSON契約だけ0.15を追加する。依存版・入力SHA・ソースSHA・各試行の結果は
+`docs/evaluations/results/added-conditions-20261008-fixed.json`へ全15試行を保存した。
+測定後の修正は`make_baseline`の公開型宣言で、求解・独立検証の実装は同じである。
+
+通常の総処理32.88〜32.97秒・RSS959〜964 MiB、不足33.17〜33.27秒・
+RSS1,409〜1,477 MiBだった。必須矛盾は1.29〜1.39秒・約228 MiB、探索打切りは
+1.42〜1.50秒・約253 MiBで、どちらも解なしである。通常・不足とも探索に30秒を使い、準備は約0.8秒、
 独立検証は約0.5〜0.6秒である。総処理には入力検証・依存読み込み・結果検証も含む。
-回数偏差は到達した計画の値であり、上位の勤務分数が未証明なので回数の最適化まで到達していない。
+回数偏差は通常444/424/414、不足は全回309だった。到達した計画の値であり、
+上位の勤務分数が未証明なので回数の最適化まで到達していない。
 不足最小性や全目的の最適性をこの規模で保証しない。
-初回の全12試行と環境・入力SHA・ソースSHAは`docs/evaluations/results/added-conditions-20261008-initial.json`に保存する。測定生データはGitに保持し、sdistには含めない。
+固定前の初回全12試行も`docs/evaluations/results/added-conditions-20261008-initial.json`に保持する。
+初回も通常・不足は各3回独立検証成功だった。測定生データはGitに保持し、sdistには含めない。
 
 ```sh
 uv run --locked --extra cp-sat python scripts/evaluate.py \
@@ -50,7 +59,9 @@ uv run --locked --extra cp-sat python scripts/evaluate.py \
   docs/evaluations/inputs/combined-100-30-partial.json \
   docs/evaluations/inputs/combined-100-30-conflict.json \
   docs/evaluations/inputs/combined-100-30-timeout.json \
-  --repeat 3 --timeout-seconds 180 --output test-results/added-conditions.json
+  docs/evaluations/inputs/combined-legacy-010.json \
+  --repeat 3 --source-ref 9145f71 --timeout-seconds 180 \
+  --output test-results/added-conditions.json
 ```
 
 冷起動はOSのファイルキャッシュを消さない新規Pythonプロセスであり、2 workersを用いる。
@@ -63,8 +74,11 @@ uv run --locked --extra cp-sat python scripts/evaluate.py \
 
 追加条件を持たない[0.10比較入力](inputs/combined-legacy-010.json)を基点main
 `9ff6fccf56d8c7a7600057f0bebb614f89c928ca`で3回測定し、全回FEASIBLE・独立検証成功・
-勤務540,000分を得た。受理・状態・尺度・独立検証を現行実装と比較する。同率解の配置順は比較しない。
+勤務540,000分を得た。現行の固定コミットも全3回で同じ状態・尺度・独立検証成功だった。
+旧実装は総処理32.35〜32.87秒・RSS976〜1,010 MiB、現行は32.26〜32.35秒・
+RSS1,023〜1,031 MiBで、単一環境・3試行から速度差を一般化しない。同率解の配置順は比較しない。
 旧実装の測定は`docs/evaluations/results/added-conditions-20261008-legacy-before.json`に保存する。
+固定前の現行比較は`docs/evaluations/results/added-conditions-20261008-legacy-after.json`に保持する。
 
 ```sh
 uv run --locked --extra cp-sat pytest -q -ra --junitxml=test-results/pytest.xml
@@ -76,10 +90,17 @@ PLAYWRIGHT_MODULE_PATH=/path/to/playwright node tests/playground-browser.cjs
 Chromiumでは0.11〜0.15の実エンジン実行、回数表示、bool目標・改ざん集計の拒否、
 新サンプル選択と携帯幅の表示を確認する。
 
+ローカル全体試行は1,840 testsと6 subtestsが成功し、隔離wheelの型検証1件が失敗した。
+`make_baseline`の型宣言に`Request015`を追加し、同じ隔離wheel・OR-Toolsなしの実行・
+mypy利用者コードのテストが成功した。後から追加した目的順3件を含む結合16 tests、回数43 tests、
+pre-commit全ファイルとChromiumも成功した。最終コミットの全体CI・配布検証結果は
+[PR #103](https://github.com/omitsuhashi/schedula/pull/103)のチェックと#85の受け入れコメントに記録する。
+
 初回のサンドボックス実行はHTTP待受・uvキャッシュへのアクセスで失敗し、必要権限下で再実行した。
 追加テストの初回にはテスト入力の重複ID、縮小した文脈より長いavailability、診断codeの期待値、
 fairnessヘルパーが目的列を置換することによる46件の数え誤りがあり、入力と期待値を修正した。
-ブラウザー初回は長いサンプル名によって携帯幅がはみ出したため、selectの最大幅を100%にして再確認する。
+最初の全体再実行では縮小した文脈の入力と、作成途中の文書をsdistに含めたタイミングでも失敗した。
+ブラウザー初回は長いサンプル名によって携帯幅がはみ出したため、selectの最大幅を100%にして再確認し成功した。
 この修正履歴を成功した試行だけに置き換えない。
 
 ## 採用範囲と残る制限
