@@ -5,7 +5,7 @@ Python の配布名は `shift-schedula`、import 名は `shift_schedula` です�
 
 技能・勤務可能時間・役割別需要・業務ルールから、担当配置（`assignment`）と
 出退勤・休憩を含む勤務計画（`roster`）の検証済み解を求める Python ライブラリと CLI です。
-JSON 契約0.1〜0.14に対応し、独立した配置は最小費用流、
+JSON 契約0.1〜0.15に対応し、独立した配置は最小費用流、
 担当時間・担当切替を含む配置と勤務計画は CP-SAT を使用します。
 
 独自コード・文書・デモは[MIT](LICENSE)で、自力導入・組み込み・商用利用ができます。
@@ -73,7 +73,7 @@ uv run --locked python demo/server.py
 再実行コマンドと検証結果は[デモの検証記録](docs/evaluations/playground.md)を参照してください。
 
 画面上部の「JSON で担当配置・勤務計画を計算する」を開くと、JSON の貼り付け・
-UTF-8 ファイルの読み込み（2 MiBまで）から、契約0.1〜0.14の入力を実行できます。
+UTF-8 ファイルの読み込み（2 MiBまで）から、契約0.1〜0.15の入力を実行できます。
 「100人・30日・30分刻みの勤務計画」を選び、「サンプルを読み込む」→「JSON で計算」を押します。
 結果の日付を選ぶと、100人分の担当・休憩・待機・勤務なしと役割別の需要充足を確認できます。
 
@@ -135,6 +135,24 @@ uv run --locked python -m shift_schedula verify examples/roster_conditions.json 
 連続休日・夜勤後の休み・禁止する勤務の並び・週末交代は[契約0.13](docs/io-contract-shift-patterns.md)で指定できます。
 [入力例](examples/shift_patterns.json)は、必須最低人数を守って不足30人分・勤務780分のPARTIALを返します。
 新人と指導者の同時勤務・従業員間の同時勤務禁止は[契約0.14](docs/io-contract-coworkers.md)で指定できます。
+夜勤・休日等の勤務回数は[契約0.15](docs/io-contract-shift-counts.md)で明示目標へ近づけられます。
+[履歴付き夜勤回数](examples/shift_count_balance.json)、[休憩交代と全5機能](examples/combined_conditions.json)、
+[週の勤務日数と月の完全休日](examples/combined_month.json)をそのまま実行できます。
+
+| 機能 | 入力 | 対応版 | 意味 |
+| --- | --- | --- | --- |
+| 勤務日数・完全休日数の必須上下限 | `work_days_bounds` / `days_off_bounds` | 0.11以降 | 開始日の日数と、原区間が一度も触れない完全休日を別に制限 |
+| 需要の必須最低人数 | `minimum_people` | 0.12以降 | 元の`required_people`を保持し、明示下限を守る範囲で不足を許容 |
+| 分類・勤務パターン | `shift_categories`と4種類の必須ルール | 0.13以降 | 連続休日・勤務後の休み・禁止する並び・明示日群を判定 |
+| 同時勤務の必要・禁止 | `required_coworkers` / `incompatible_employees` | 0.14以降 | 待機を含み休憩・分割間の非勤務を除く各勤務枠で判定 |
+| 勤務回数の明示目標 | `shift_count_balance` / `shift_count_deviation` | 0.15 | 原勤務1件を開始日時で1回と数え、目標との絶対偏差を評価 |
+
+8時間の1勤務と4時間の2勤務は、勤務分数が同じでも勤務日数・回数が異なります。
+夜勤明けの朝に原勤務が残る日は完全休日ではありません。
+`required_people`は元の必要人数、`minimum_people`は必須の下限であり、priorityや回数目標は代用になりません。
+入力→求解→不足・評価の確認→手修正の検証→基準保存→再計画の手順は
+[契約0.15の利用例](docs/io-contract-shift-counts.md#入力から再計画まで)、結果と性能の制限は
+[結合・規模評価](docs/evaluations/added-conditions.md)を参照してください。
 
 需要の必須最低人数は[契約0.12](docs/io-contract-minimum-demand.md)で指定できます。
 `required_people: 3` / `minimum_people: 1` は最低1人を必須にし、残る不足を返します。
@@ -260,7 +278,7 @@ PY
 | --- | --- | --- |
 | `OPTIMAL` | 検証成功を確認して解を採用する。指定した条件・候補・粒度・目的の範囲で最適 | 0 |
 | `FEASIBLE` | 検証成功と未証明の目的を確認し、採用または探索予算を増やして再計算する | 0 |
-| `PARTIAL` | 契約0.3〜0.14の未完成の計画。不足一覧・合計人分・`proven_minimal` を読み、需要充足と検証成功を区別する | 2 |
+| `PARTIAL` | 契約0.3〜0.15の未完成の計画。不足一覧・合計人分・`proven_minimal` を読み、需要充足と検証成功を区別する | 2 |
 | `INFEASIBLE` | 必須条件を満たす解がないと証明された。0.3では需要不足を許容しても計画を作れない。診断を確認する | 2 |
 | `UNKNOWN` | 解も不可能性の証明もない。予算や問題規模を見直す | 2 |
 | `INVALID_INPUT` | `code` / `json_pointer` / `related_ids` / `facts` を基に入力を修正する | 2 |
@@ -268,7 +286,7 @@ PY
 | `INTERNAL_ERROR` | 解を採用せず、入力・エンジン版・診断を保存して調査する | 2 |
 
 解を返すのは独立検証に成功した `OPTIMAL` / `FEASIBLE` / `PARTIAL` だけです。
-0.1・0.2は完全充足を求め、0.3〜0.14が元需要を保持した不足付き計画を許容します。
+0.1・0.2は完全充足を求め、0.3〜0.15が元需要を保持した不足付き計画を許容します。
 0.12の明示した最低人数は必須であり、その不足はPARTIALとして許容しません。
 それ以外は `solution: null` / `objectives: []`。終了コード2だけでは状態を区別できません。
 `message` は補助説明で、プログラムでは `status` と診断の `code` で分岐します。
@@ -349,6 +367,7 @@ Git には採用判断で使う入力・条件・集計・失敗を含む生デ�
 | [継続計画・診断・費用・夜勤休日評価の設計案](docs/planning-extensions.md) | Issue #67〜#70の仕様案、数値例、検証計画、実装の依存関係。継続計画・重複期間の再計画・矛盾縮小は実装済み |
 | [勤務分類・勤務パターンの契約0.13](docs/io-contract-shift-patterns.md) | 原勤務の分類、連続休日・夜勤後の休み・禁止する並び・日群と境界 |
 | [同時勤務条件の契約0.14](docs/io-contract-coworkers.md) | 必要同僚人数、同時勤務禁止、休憩・待機・確定勤務と独立検証 |
+| [勤務回数の契約0.15](docs/io-contract-shift-counts.md) | 原勤務の開始日時で数える明示目標・履歴・分類・分数との違い |
 | [必須最低人数の契約0.12](docs/io-contract-minimum-demand.md) | 必須の需要下限と元需要の不足許容、診断・独立検証 |
 | [勤務日数・完全休日数の契約0.11](docs/io-contract-day-counts.md) | 期間別の日数上下限、確認済み実績、原勤務区間と独立集計 |
 | [履歴を含む夜勤休日評価の契約0.10](docs/io-contract-duty-continuity.md) | 確認済み実績・確定勤務と指定区間の目標偏差の接続 |

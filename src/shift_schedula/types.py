@@ -17,6 +17,7 @@ type SchemaVersion = Literal[
     "0.12",
     "0.13",
     "0.14",
+    "0.15",
 ]
 type JSONValue = None | bool | int | float | str | list[JSONValue] | dict[str, JSONValue]
 type FailureStatus = Literal[
@@ -285,6 +286,25 @@ class DutyObjective(TypedDict):
     duty_id: str
 
 
+class ShiftCountObjective(TypedDict):
+    id: str
+    metric: Literal["shift_count_deviation"]
+    balance_id: str
+
+
+class EmployeeCountTarget(TypedDict):
+    employee_id: str
+    target_count: int
+
+
+class ShiftCountBalance(TypedDict):
+    id: str
+    label: str
+    evaluation_period: Interval
+    category_id: NotRequired[str]
+    employee_targets: list[EmployeeCountTarget]
+
+
 class EmployeeRate(TypedDict):
     employee_id: str
     units_per_minute: int
@@ -491,7 +511,7 @@ class PlanningWindow09(Interval):
     slot_minutes: Literal[1, 5, 10, 15, 20, 30, 60]
 
 
-class MetricsRequestFields(TypedDict):
+class RosterRequestFields(TypedDict):
     request_id: str
     problem_type: Literal["assignment", "roster"]
     planning_window: PlanningWindow09
@@ -504,13 +524,16 @@ class MetricsRequestFields(TypedDict):
     employees: list[Employee]
     shift_candidates: list[ShiftCandidate]
     shift_templates: NotRequired[list[ShiftTemplate]]
-    objectives: list[Objective | CostObjective | DutyObjective]
     fairness: NotRequired[Fairness]
     baseline: NotRequired[Baseline]
     fixed_parts: NotRequired[list[FixedPart]]
     diagnosis: NotRequired[DiagnosisOptions08]
     costs: NotRequired[Costs]
     duty_balance: NotRequired[list[DutyBalance]]
+
+
+class MetricsRequestFields(RosterRequestFields):
+    objectives: list[Objective | CostObjective | DutyObjective]
 
 
 class Request09(MetricsRequestFields):
@@ -552,6 +575,15 @@ class Request014(MetricsRequestFields):
     shift_categories: NotRequired[list[ShiftCategory]]
 
 
+class Request015(RosterRequestFields):
+    schema_version: Literal["0.15"]
+    demand: list[MinimumDemand]
+    constraints: list[Constraint014]
+    objectives: list[Objective | CostObjective | DutyObjective | ShiftCountObjective]
+    shift_categories: NotRequired[list[ShiftCategory]]
+    shift_count_balance: NotRequired[list[ShiftCountBalance]]
+
+
 type Request = (
     Request01
     | Request02
@@ -567,6 +599,7 @@ type Request = (
     | Request012
     | Request013
     | Request014
+    | Request015
 )
 
 
@@ -665,6 +698,7 @@ class ObjectiveValue(TypedDict):
     value: int
     proven_optimal: bool
     duty_id: NotRequired[str]
+    balance_id: NotRequired[str]
 
 
 class EmployeeCost(EmployeeRate):
@@ -695,6 +729,23 @@ class DutyBalanceSummary(TypedDict):
     normalized: Literal[False]
     total_deviation_minutes: int
     employees: list[EmployeeDuty]
+
+
+class EmployeeShiftCount(EmployeeCountTarget):
+    actual_count: int
+    deviation_count: int
+
+
+class ShiftCountBalanceSummary(TypedDict):
+    id: str
+    label: str
+    evaluation_period: Interval
+    category_id: NotRequired[str]
+    unit: Literal["shifts"]
+    scale: Literal["absolute_deviation"]
+    normalized: Literal[False]
+    total_deviation_count: int
+    employees: list[EmployeeShiftCount]
 
 
 class EmployeeFairness(EmployeeTarget):
@@ -1071,6 +1122,26 @@ class Response014Failure(Response09Fields):
     day_count_summary: None
 
 
+class Response015Success(Response09Fields):
+    schema_version: Literal["0.15"]
+    status: Literal["OPTIMAL", "FEASIBLE", "PARTIAL"]
+    solution: ContinuitySolution
+    continuity_summary: ContinuitySummary | None
+    priority_summary: PrioritySummary
+    day_count_summary: list[DayCountSummary] | None
+    shift_count_balance_summary: list[ShiftCountBalanceSummary] | None
+
+
+class Response015Failure(Response09Fields):
+    schema_version: Literal["0.15"]
+    status: FailureStatus
+    solution: None
+    continuity_summary: None
+    priority_summary: None
+    day_count_summary: None
+    shift_count_balance_summary: None
+
+
 type Response = (
     Response01Success
     | Response01Failure
@@ -1100,10 +1171,13 @@ type Response = (
     | Response013Failure
     | Response014Success
     | Response014Failure
+    | Response015Success
+    | Response015Failure
 )
 
 
 class Verification(TypedDict):
+    shift_count_balance_summary: NotRequired[list[ShiftCountBalanceSummary] | None]
     day_count_summary: NotRequired[list[DayCountSummary] | None]
     cost_summary: NotRequired[CostSummary | None]
     duty_balance_summary: NotRequired[list[DutyBalanceSummary] | None]

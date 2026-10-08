@@ -64,6 +64,7 @@ def test_public_types_match_version_fields_and_literals():
             "0.12",
             "0.13",
             "0.14",
+            "0.15",
         ),
         (
             types.Request01,
@@ -80,6 +81,7 @@ def test_public_types_match_version_fields_and_literals():
             types.Request012,
             types.Request013,
             types.Request014,
+            types.Request015,
         ),
         strict=True,
     ):
@@ -102,6 +104,7 @@ def test_public_types_match_version_fields_and_literals():
         "0.12",
         "0.13",
         "0.14",
+        "0.15",
     }
     assert "PARTIAL" not in get_args(get_type_hints(types.Response01Success)["status"])
     assert "PARTIAL" in get_args(get_type_hints(types.Response04Success)["status"])
@@ -304,6 +307,36 @@ def test_installed_wheel_types_check_consumer_and_reject_typos(tmp_path):
         encoding="utf-8",
     )
     run(str(python), "-m", "mypy", "--strict", str(coworkers_consumer))
+    count_request = json.loads((ROOT / "examples/shift_count_balance.json").read_text())
+    count_solution = solve(count_request)["solution"]
+    run(
+        str(python),
+        "-I",
+        "-c",
+        "import importlib.util, json, sys; from shift_schedula import verify, make_baseline; "
+        "assert importlib.util.find_spec('ortools') is None; "
+        "request, solution = map(json.loads, sys.argv[1:]); "
+        "result = verify(request, solution); assert result['status'] == 'VALID'; "
+        "assert result['shift_count_balance_summary'][0]['total_deviation_count'] == 0; "
+        "assert all(not o['proven_optimal'] for o in result['objectives']); "
+        "assert make_baseline(request, solution, 'saved')['source_request']['shift_count_balance'] "
+        "== request['shift_count_balance']",
+        json.dumps(count_request),
+        json.dumps(count_solution),
+    )
+    count_consumer = tmp_path / "count_consumer.py"
+    count_consumer.write_text(
+        coworkers_consumer.read_text()
+        .replace("Request014", "Request015")
+        .replace('"0.14"', '"0.15"')
+        + '        request["shift_count_balance"] = [{"id": "nights", "label": "夜勤回数", '
+        '"evaluation_period": {"start": "", "end": ""}, "category_id": "night", '
+        '"employee_targets": [{"employee_id": "alice", "target_count": 1}]}]\n'
+        + '        request["objectives"].append({"id": "count", '
+        '"metric": "shift_count_deviation", "balance_id": "nights"})\n',
+        encoding="utf-8",
+    )
+    run(str(python), "-m", "mypy", "--strict", str(count_consumer))
     invalid = tmp_path / "invalid_consumer.py"
     invalid.write_text(
         "from shift_schedula import Response\n"

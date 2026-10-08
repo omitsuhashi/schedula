@@ -521,7 +521,11 @@ def test_unproven_higher_objectives_do_not_claim_cost_or_duty_optimality(monkeyp
 
 @pytest.mark.parametrize(
     "version",
-    [v for v in SCHEMA_VERSIONS if v not in {"0.9", "0.10", "0.11", "0.12", "0.13", "0.14"}],
+    [
+        v
+        for v in SCHEMA_VERSIONS
+        if v not in {"0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"}
+    ],
 )
 def test_old_versions_reject_new_fields_and_objectives(version):
     data = cost_request()

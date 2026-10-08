@@ -105,6 +105,7 @@ def validate(problem):
         "0.12",
         "0.13",
         "0.14",
+        "0.15",
     } and tuple(map(int, request["schema_version"].split("."))) < tuple(
         map(int, source["schema_version"].split("."))
     ):
@@ -155,6 +156,7 @@ def validate(problem):
                 "0.12",
                 "0.13",
                 "0.14",
+                "0.15",
             },
         )
     except InvalidInput as error:
@@ -189,6 +191,7 @@ def validate(problem):
         "0.12",
         "0.13",
         "0.14",
+        "0.15",
     }
     step = timedelta(minutes=grid.slot_minutes)
     if (
@@ -328,10 +331,23 @@ def make_baseline(request: dict, solution: dict, plan_id: str) -> dict:
     problem = normalize(request)
     if (
         request["schema_version"]
-        not in {"0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14"}
+        not in {
+            "0.4",
+            "0.5",
+            "0.6",
+            "0.7",
+            "0.8",
+            "0.9",
+            "0.10",
+            "0.11",
+            "0.12",
+            "0.13",
+            "0.14",
+            "0.15",
+        }
         or request["problem_type"] != "roster"
     ):
-        reject("UNSUPPORTED_CONDITION", "make_baseline は契約0.4〜0.14の roster を受け取ります。")
+        reject("UNSUPPORTED_CONDITION", "make_baseline は契約0.4〜0.15の roster を受け取ります。")
     violations, _, _ = verify_plan(problem, solution)
     if violations:
         raise InvalidInput(violations)
@@ -371,8 +387,12 @@ def make_baseline(request: dict, solution: dict, plan_id: str) -> dict:
 def prepare(model, problem, assignments, shifts, scheduled_by_employee, active_groups=None):
     request, grid = problem.request, problem.grid
     expressions = {"fairness_deviation_minutes": 0, "plan_changes": 0}
+    if request["schema_version"] == "0.15" and active_groups is None:
+        from .shift_counts import prepare as prepare_counts
+
+        expressions.update(prepare_counts(model, problem, shifts))
     if (
-        request["schema_version"] in {"0.9", "0.10", "0.11", "0.12", "0.13", "0.14"}
+        request["schema_version"] in {"0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"}
         and active_groups is None
     ):
         from .roster_metrics import prepare as prepare_metrics
@@ -437,7 +457,7 @@ def prepare(model, problem, assignments, shifts, scheduled_by_employee, active_g
     for key, component, expected, _, _ in fixed_requirements(problem, active_groups):
         if (
             request["schema_version"]
-            in {"0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14"}
+            in {"0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"}
             and key[0] not in problem.available
         ):
             model.add(False)
@@ -450,13 +470,19 @@ def prepare(model, problem, assignments, shifts, scheduled_by_employee, active_g
 def evaluate(problem, solution):
     metrics = {"fairness_deviation_minutes": 0, "plan_changes": 0}
     summaries = {"fairness_summary": None, "change_summary": None}
-    if problem.request["schema_version"] in {"0.11", "0.12", "0.13", "0.14"}:
+    if problem.request["schema_version"] == "0.15":
+        from .shift_counts import evaluate as evaluate_counts
+
+        extra_metrics, extra_summaries = evaluate_counts(problem.request, problem.grid, solution)
+        metrics.update(extra_metrics)
+        summaries.update(extra_summaries)
+    if problem.request["schema_version"] in {"0.11", "0.12", "0.13", "0.14", "0.15"}:
         from .day_counts import evaluate as evaluate_day_counts
 
         summaries["day_count_summary"] = evaluate_day_counts(
             problem.request, problem.grid, solution
         )
-    if problem.request["schema_version"] in {"0.9", "0.10", "0.11", "0.12", "0.13", "0.14"}:
+    if problem.request["schema_version"] in {"0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"}:
         from .roster_metrics import evaluate as evaluate_metrics
 
         extra_metrics, extra_summaries = evaluate_metrics(problem.request, problem.grid, solution)
@@ -472,6 +498,7 @@ def evaluate(problem, solution):
         "0.12",
         "0.13",
         "0.14",
+        "0.15",
     }:
         from .continuity import summary
 
@@ -535,6 +562,7 @@ def evaluate(problem, solution):
             "0.12",
             "0.13",
             "0.14",
+            "0.15",
         }:
             summaries["change_summary"].update(
                 comparison_interval=problem.grid.output_interval(start, end),
@@ -547,7 +575,7 @@ def evaluate(problem, solution):
                 roles,
                 employee_ids=problem.available
                 if problem.request["schema_version"]
-                in {"0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14"}
+                in {"0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"}
                 else None,
             )
         )

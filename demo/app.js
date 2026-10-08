@@ -157,14 +157,14 @@ function coverageCell(assigned, required) {
 
 function verificationText(result) {
   if (result.status !== "PARTIAL") return "独立検証：成功";
-  return ["0.12", "0.13", "0.14"].includes(result.schema_version) ? "独立検証：不足集計・最低人数を含む必須条件を確認済み" : "独立検証：不足集計・需要以外の必須条件を確認済み";
+  return ["0.12", "0.13", "0.14", "0.15"].includes(result.schema_version) ? "独立検証：不足集計・最低人数を含む必須条件を確認済み" : "独立検証：不足集計・需要以外の必須条件を確認済み";
 }
 
 function renderShortages(pair) {
   const summary = pair.response.shortage_summary;
   if (!summary) return node("span");
   const roles = new Map(pair.input.roles.map(role => [role.id, role.label || role.id]));
-  const hasMinimum = ["0.12", "0.13", "0.14"].includes(pair.input.schema_version);
+  const hasMinimum = ["0.12", "0.13", "0.14", "0.15"].includes(pair.input.schema_version);
   const zone = pair.input.planning_window.timezone;
   const dateTime = new Intl.DateTimeFormat("ja-JP", {timeZone: zone, month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZoneName: "shortOffset"});
   const result = node("div", "", {}, [
@@ -326,14 +326,26 @@ function acceptResponse(response, request, requestBoundaries = boundaries) {
   if (success ? !validPair({input: request, response}) || !Array.isArray(response.solution.assignments) : response.solution !== null || response.objectives.length !== 0 || response.verification.valid === true) throw new Error("応答の状態と解・独立検証が一致しません。");
   if (!response.diagnostics.every(item => item && typeof item.code === "string" && typeof item.message === "string") ||
       !response.objectives.every(item => item && typeof item.proven_optimal === "boolean" && Number.isFinite(item.value))) throw new Error("応答の診断または評価値が不正です。");
-  if (success && (response.objectives.length !== request.objectives.length || response.objectives.some((item, i) => item.id !== request.objectives[i].id || item.metric !== request.objectives[i].metric || item.duty_id !== request.objectives[i].duty_id))) throw new Error("応答の目的が入力と一致しません。");
+  if (success && (response.objectives.length !== request.objectives.length || response.objectives.some((item, i) => item.id !== request.objectives[i].id || item.metric !== request.objectives[i].metric || item.duty_id !== request.objectives[i].duty_id || item.balance_id !== request.objectives[i].balance_id))) throw new Error("応答の目的が入力と一致しません。");
+  if (request.schema_version === "0.15") {
+    const definitions = request.shift_count_balance || [], summaries = response.shift_count_balance_summary;
+    if (!success || !definitions.length) {
+      if (summaries !== null) throw new Error("対象外の応答に勤務回数集計があります。");
+    } else if (!Array.isArray(summaries) || summaries.length !== definitions.length || summaries.some((s, i) =>
+      s.id !== definitions[i].id || s.category_id !== definitions[i].category_id || s.unit !== "shifts" || s.scale !== "absolute_deviation" || s.normalized !== false ||
+      !Array.isArray(s.employees) || s.employees.length !== definitions[i].employee_targets.length || s.employees.some((e, j) =>
+        e.employee_id !== definitions[i].employee_targets[j].employee_id || e.target_count !== definitions[i].employee_targets[j].target_count ||
+        !Number.isSafeInteger(e.actual_count) || e.actual_count < 0 || e.deviation_count !== Math.abs(e.actual_count - e.target_count)) ||
+      s.total_deviation_count !== s.employees.reduce((total, e) => total + e.deviation_count, 0) ||
+      response.objectives.find(o => o.balance_id === s.id)?.value !== s.total_deviation_count)) throw new Error("勤務回数集計が入力・目的と一致しません。");
+  }
   if (success && !response.solution.assignments.every(item => item && request.employees.some(employee => employee.id === item.employee_id) &&
       request.roles.some(role => role.id === item.role_id) && requestBoundaries.some(value => Date.parse(value) === Date.parse(item.interval?.start)) &&
       requestBoundaries.some(value => Date.parse(value) === Date.parse(item.interval?.end)) && Date.parse(item.interval.start) < Date.parse(item.interval.end))) throw new Error("担当配置の参照または日時が不正です。");
-  if (!success && ["0.11", "0.12", "0.13", "0.14"].includes(request.schema_version) && response.day_count_summary !== null) throw new Error("計画がない応答に日数集計があります。");
-  const hasPriority = ["0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14"].includes(request.schema_version);
-  if (["0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14"].includes(request.schema_version)) {
-    if (!success && ["0.9", "0.10", "0.11", "0.12", "0.13", "0.14"].includes(request.schema_version) && (response.cost_summary !== null || response.duty_balance_summary !== null)) throw new Error("計画がない応答に費用・指定区間の集計があります。");
+  if (!success && ["0.11", "0.12", "0.13", "0.14", "0.15"].includes(request.schema_version) && response.day_count_summary !== null) throw new Error("計画がない応答に日数集計があります。");
+  const hasPriority = ["0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"].includes(request.schema_version);
+  if (["0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"].includes(request.schema_version)) {
+    if (!success && ["0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"].includes(request.schema_version) && (response.cost_summary !== null || response.duty_balance_summary !== null)) throw new Error("計画がない応答に費用・指定区間の集計があります。");
     if (!success) { if (hasPriority && response.priority_summary !== null) throw new Error("計画がない応答にpriority集計があります。"); if (response.shortage_summary !== null) throw new Error("計画がない応答に不足集計があります。"); return; }
     const summary = response.shortage_summary;
     if (!summary || typeof summary.proven_minimal !== "boolean" || !Number.isSafeInteger(summary.total_person_minutes) || !Array.isArray(summary.shortages)) throw new Error("不足集計が不正です。");
@@ -354,7 +366,7 @@ function acceptResponse(response, request, requestBoundaries = boundaries) {
       let run = null;
       for (let i = positions.get(Date.parse(demand.interval.start)); i < positions.get(Date.parse(demand.interval.end)); i++) {
         const assigned = counts.get(`${demand.role_id}/${i}`) || 0, missing = demand.required_people - assigned;
-        const minimum = ["0.12", "0.13", "0.14"].includes(request.schema_version) ? demand.minimum_people ?? 0 : 0;
+        const minimum = ["0.12", "0.13", "0.14", "0.15"].includes(request.schema_version) ? demand.minimum_people ?? 0 : 0;
         if (assigned < minimum) throw new Error("応答が必須の最低人数を満たしていません。");
         if (missing < 0) throw new Error("応答に過剰配置があります。");
         counts.delete(`${demand.role_id}/${i}`);
@@ -363,12 +375,12 @@ function acceptResponse(response, request, requestBoundaries = boundaries) {
         if (run && run.end === grid[i] && run.assigned_people === assigned) run.end = grid[i + 1];
         else {
           run = {demand_id: demand.id, role_id: demand.role_id, start: grid[i], end: grid[i + 1], required_people: demand.required_people, assigned_people: assigned, missing_people: missing};
-          if (["0.12", "0.13", "0.14"].includes(request.schema_version)) run.minimum_people = minimum;
+          if (["0.12", "0.13", "0.14", "0.15"].includes(request.schema_version)) run.minimum_people = minimum;
           expected.push(run);
         }
       }
     }
-    const actual = summary.shortages.map(item => ({demand_id: item.demand_id, role_id: item.role_id, start: Date.parse(item.interval?.start), end: Date.parse(item.interval?.end), required_people: item.required_people, assigned_people: item.assigned_people, missing_people: item.missing_people, ...(["0.12", "0.13", "0.14"].includes(request.schema_version) ? {minimum_people: item.minimum_people} : {})}));
+    const actual = summary.shortages.map(item => ({demand_id: item.demand_id, role_id: item.role_id, start: Date.parse(item.interval?.start), end: Date.parse(item.interval?.end), required_people: item.required_people, assigned_people: item.assigned_people, missing_people: item.missing_people, ...(["0.12", "0.13", "0.14", "0.15"].includes(request.schema_version) ? {minimum_people: item.minimum_people} : {})}));
     const proofs = response.objectives.map(item => item.proven_optimal);
     if (hasPriority) {
       const groups = response.priority_summary?.groups;
@@ -558,6 +570,9 @@ function renderJSONResult() {
     for (const summary of result.day_count_summary || []) {
       area.append(node("p", `${summary.constraint_id} (${summary.interval.start}〜${summary.interval.end})：${summary.employees.map(e => `${e.employee_id} 勤務${e.work_days}日・占有${e.occupied_days}日・完全休日${e.days_off}日`).join(" / ")}`));
     }
+    for (const summary of result.shift_count_balance_summary || []) {
+      area.append(node("p", `${summary.label} (${summary.evaluation_period.start}〜${summary.evaluation_period.end})：偏差合計${summary.total_deviation_count}回 / ${summary.employees.map(e => `${e.employee_id} 目標${e.target_count}回・実際${e.actual_count}回・偏差${e.deviation_count}回`).join(" / ")}`));
+    }
     const grid = jsonSlots(pair.input);
     area.append(node("p", `${pair.input.employees.length}人 · ${new Set(grid.map(slot => slot.date)).size}日 · ${pair.input.planning_window.slot_minutes}分刻み · ${grid.length}時間枠 · ${verificationText(result)} · 総処理時間 ${result.stats.elapsed_seconds.toFixed(2)}秒`));
     const select = node("select", "", {id: "json-day"});
@@ -602,7 +617,7 @@ async function calculateJSON() {
     ]);
     if (token !== generation) return;
     const input = JSON.parse(text);
-    const expected = {...input, schema_version: ["0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14"].includes(input?.schema_version) ? input.schema_version : "0.1", request_id: typeof input?.request_id === "string" ? input.request_id : null};
+    const expected = {...input, schema_version: ["0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"].includes(input?.schema_version) ? input.schema_version : "0.1", request_id: typeof input?.request_id === "string" ? input.request_id : null};
     const requestBoundaries = ["OPTIMAL", "FEASIBLE", "PARTIAL"].includes(result.status) ?
       [input.planning_window.start, ...jsonSlots(input).map(slot => new Date(slot.end).toISOString())] : [];
     acceptResponse(result, expected, requestBoundaries);
