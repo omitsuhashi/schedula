@@ -1,0 +1,114 @@
+{
+  "schema_version": "0.12",
+  "request_id": "minimum_conflict",
+  "problem_type": "roster",
+  "planning_window": {
+    "start": "2026-10-05T00:00:00+09:00",
+    "end": "2026-10-06T00:00:00+09:00",
+    "timezone": "Asia/Tokyo",
+    "slot_minutes": 30
+  },
+  "skills": [],
+  "roles": [
+    {
+      "id": "kitchen",
+      "label": "kitchen",
+      "required_skills": []
+    },
+    {
+      "id": "hall",
+      "label": "hall",
+      "required_skills": []
+    }
+  ],
+  "employees": [
+    {
+      "id": "alice",
+      "label": "alice",
+      "skills": [],
+      "availability": [],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "bob",
+      "label": "bob",
+      "skills": [],
+      "availability": [],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    }
+  ],
+  "demand": [
+    {
+      "id": "need_0_600_kitchen",
+      "role_id": "kitchen",
+      "interval": {
+        "start": "2026-10-05T10:00:00+09:00",
+        "end": "2026-10-05T10:30:00+09:00"
+      },
+      "required_people": 3,
+      "minimum_people": 1
+    }
+  ],
+  "shift_candidates": [],
+  "constraints": [],
+  "preferences": [],
+  "objectives": [
+    {
+      "id": "work",
+      "metric": "scheduled_minutes"
+    }
+  ],
+  "solver": {
+    "backend": "auto",
+    "time_limit_seconds": 10,
+    "seed": 0
+  },
+  "diagnosis": {
+    "time_limit_seconds": 10,
+    "max_suggestions": 3,
+    "conflict_refinement": {
+      "time_limit_seconds": 5
+    },
+    "allowed_changes": [
+      {
+        "id": "upper_only",
+        "edits": [
+          {
+            "json_pointer": "/demand/0/required_people",
+            "value": 0
+          }
+        ]
+      },
+      {
+        "id": "lower_only",
+        "edits": [
+          {
+            "json_pointer": "/demand/0/minimum_people",
+            "value": 0
+          }
+        ]
+      },
+      {
+        "id": "both",
+        "edits": [
+          {
+            "json_pointer": "/demand/0/required_people",
+            "value": 0
+          },
+          {
+            "json_pointer": "/demand/0/minimum_people",
+            "value": 0
+          }
+        ]
+      }
+    ]
+  }
+}

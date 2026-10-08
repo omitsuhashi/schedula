@@ -472,7 +472,7 @@ def test_verification_has_no_solver_call_or_proofs(version, monkeypatch, assignm
     checked = verify(data, {"assignments": [], "shifts": []})
     assert checked["status"] == (
         "PARTIAL"
-        if version in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"}
+        if version in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"}
         else "INVALID_PLAN"
     )
 

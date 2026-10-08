@@ -1,0 +1,3738 @@
+{
+  "measured_at": "2026-10-08T04:56:59.876700+00:00",
+  "command": [
+    "scripts/evaluate.py",
+    "examples/minimum_assignment.json",
+    "examples/minimum_roster.json",
+    "examples/minimum_conflict.json",
+    "--source-ref",
+    "HEAD",
+    "--repeat",
+    "3",
+    "--mode",
+    "warm",
+    "--backend",
+    "auto",
+    "--output",
+    "docs/evaluations/results/2026-10-08-minimum-demand.json"
+  ],
+  "source": {
+    "commit": "4b9a7501c457fa49801a3a80d1900458daf9a759",
+    "dirty": false,
+    "snapshot": "git_archive",
+    "source_directory": null,
+    "source_tree_sha256": "34b3f65380b09009d9724f9fe8f682a5dab2cfe5e6013b4e5a2aae8591ee7868",
+    "runner_sha256": "a9ddb34746ce7109b777f6dbfaa8f88f7c335beb37589529e224eb6b72d2cc45",
+    "uv_lock_sha256": "b848a99532d8d329e6b18c35257ec158ff829b111fe0b98a3381904cb7703cd7",
+    "package_version": "0.1.5"
+  },
+  "conditions": {
+    "mode": "warm",
+    "repeat": 3,
+    "processes": 1,
+    "worker_processes_started": 3,
+    "worker_timeout_seconds": 60,
+    "time_limit_seconds_override": null,
+    "quantile_method": "nearest_rank",
+    "cold_definition": "新規 Python プロセス。OS のファイルキャッシュは消去しない。"
+  },
+  "environment": {
+    "platform": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "cpu_count": 8,
+    "python": "3.14.8 (main, Oct  3 2026, 00:54:40) [Clang 22.1.3 ]",
+    "uv": "uv 0.12.23 (46b84fd0b 2026-10-03 aarch64-apple-darwin)",
+    "packages": {
+      "PyYAML": "6.0.3",
+      "Pygments": "2.21.0",
+      "absl-py": "2.5.0",
+      "ast_serialize": "0.12.1",
+      "attrs": "26.1.0",
+      "cfgv": "3.5.0",
+      "distlib": "0.4.3",
+      "filelock": "4.0.10",
+      "identify": "2.6.20",
+      "immutabledict": "4.3.1",
+      "iniconfig": "2.3.0",
+      "jsonschema": "4.26.0",
+      "jsonschema-specifications": "2025.9.1",
+      "librt": "0.16.0",
+      "mypy": "2.4.0",
+      "mypy_extensions": "1.1.0",
+      "nodeenv": "1.11.0",
+      "numpy": "2.5.3",
+      "ortools": "9.15.6755",
+      "packaging": "26.3",
+      "pandas": "3.0.6",
+      "pathspec": "1.1.1",
+      "platformdirs": "4.12.3",
+      "pluggy": "1.6.0",
+      "pre_commit": "4.6.2",
+      "protobuf": "6.33.6",
+      "pytest": "9.1.1",
+      "python-dateutil": "2.9.0.post0",
+      "python-discovery": "1.6.1",
+      "referencing": "0.37.0",
+      "rpds-py": "2026.6.3",
+      "ruff": "0.16.10",
+      "shift-schedula": "0.1.5",
+      "six": "1.17.0",
+      "typing_extensions": "4.16.0",
+      "tzdata": "2026.5",
+      "virtualenv": "21.14.5"
+    }
+  },
+  "measurements": [
+    {
+      "input_file": "examples/minimum_assignment.json",
+      "input_sha256": "48ba77f7386f57c0f7773193bcb2c72d378cdc581d5d5a47b5de089d8f3d33ae",
+      "problem_type": "assignment",
+      "employees": 2,
+      "roles": 2,
+      "days": 1.0,
+      "slot_minutes": 30,
+      "slots": 48,
+      "candidates": 0,
+      "objective_order": [],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.5",
+        "library_version": "9.15.6755",
+        "selection_reason": "MANDATORY_DEMAND"
+      },
+      "schema_version": "0.12",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "PARTIAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [],
+      "objective_quality": [],
+      "diagnostics": [
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 10
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.0034845410264097154
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.04701512499013916
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.21010562498122454
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.00038895796751603484
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.01194979198044166
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 0.0
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.04701087501598522
+            }
+          ]
+        },
+        {
+          "code": "SHORTAGE_BOUND",
+          "message": "不足合計人分の探索下限です。",
+          "json_pointer": "/shortage_summary",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 30.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": null,
+      "day_count_summary": null,
+      "cost_summary": null,
+      "duty_balance_summary": null,
+      "shortage_summary": {
+        "total_person_minutes": 30,
+        "shortages": [
+          {
+            "demand_id": "need_0_600_kitchen",
+            "role_id": "kitchen",
+            "interval": {
+              "start": "2026-10-05T10:00:00+09:00",
+              "end": "2026-10-05T10:30:00+09:00"
+            },
+            "required_people": 3,
+            "assigned_people": 2,
+            "missing_people": 1,
+            "minimum_people": 1
+          }
+        ],
+        "proven_minimal": true
+      },
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 10,
+        "search_elapsed_seconds": 0.0034845410264097154,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.04701512499013916,
+        "backend_loading_elapsed_seconds": 0.21010562498122454,
+        "preparation_elapsed_seconds": 0.00038895796751603484,
+        "verification_elapsed_seconds": 0.01194979198044166,
+        "candidate_expansion_elapsed_seconds": 0.0,
+        "input_validation_elapsed_seconds": 0.04701087501598522
+      },
+      "assignments": 2,
+      "shifts": 0,
+      "import_seconds": 0.05197675002273172,
+      "input_seconds": 0.0001135829952545464,
+      "elapsed_seconds": 0.31413966696709394,
+      "request_elapsed_seconds": 0.3662299999850802,
+      "engine_elapsed_seconds": 0.31413537496700883,
+      "metadata_seconds": 0.0003625410026870668,
+      "peak_rss_mib": 107.59375,
+      "group": 1,
+      "iteration": 1,
+      "mode": "warm",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "examples/minimum_assignment.json",
+      "input_sha256": "48ba77f7386f57c0f7773193bcb2c72d378cdc581d5d5a47b5de089d8f3d33ae",
+      "problem_type": "assignment",
+      "employees": 2,
+      "roles": 2,
+      "days": 1.0,
+      "slot_minutes": 30,
+      "slots": 48,
+      "candidates": 0,
+      "objective_order": [],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.5",
+        "library_version": "9.15.6755",
+        "selection_reason": "MANDATORY_DEMAND"
+      },
+      "schema_version": "0.12",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "PARTIAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [],
+      "objective_quality": [],
+      "diagnostics": [
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 10
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.0020452910102903843
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.0003186250105500221
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 3.957946319133043e-06
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.0004250410129316151
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.0007367910002358258
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 0.0
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.0003155420417897403
+            }
+          ]
+        },
+        {
+          "code": "SHORTAGE_BOUND",
+          "message": "不足合計人分の探索下限です。",
+          "json_pointer": "/shortage_summary",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 30.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": null,
+      "day_count_summary": null,
+      "cost_summary": null,
+      "duty_balance_summary": null,
+      "shortage_summary": {
+        "total_person_minutes": 30,
+        "shortages": [
+          {
+            "demand_id": "need_0_600_kitchen",
+            "role_id": "kitchen",
+            "interval": {
+              "start": "2026-10-05T10:00:00+09:00",
+              "end": "2026-10-05T10:30:00+09:00"
+            },
+            "required_people": 3,
+            "assigned_people": 2,
+            "missing_people": 1,
+            "minimum_people": 1
+          }
+        ],
+        "proven_minimal": true
+      },
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 10,
+        "search_elapsed_seconds": 0.0020452910102903843,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.0003186250105500221,
+        "backend_loading_elapsed_seconds": 3.957946319133043e-06,
+        "preparation_elapsed_seconds": 0.0004250410129316151,
+        "verification_elapsed_seconds": 0.0007367910002358258,
+        "candidate_expansion_elapsed_seconds": 0.0,
+        "input_validation_elapsed_seconds": 0.0003155420417897403
+      },
+      "assignments": 2,
+      "shifts": 0,
+      "import_seconds": 9.125040378421545e-06,
+      "input_seconds": 0.00011445797281339765,
+      "elapsed_seconds": 0.004910250019747764,
+      "request_elapsed_seconds": 0.005033833032939583,
+      "engine_elapsed_seconds": 0.004906749993097037,
+      "metadata_seconds": 0.00032824999652802944,
+      "peak_rss_mib": 107.8125,
+      "group": 1,
+      "iteration": 2,
+      "mode": "warm",
+      "execution": "continued"
+    },
+    {
+      "input_file": "examples/minimum_assignment.json",
+      "input_sha256": "48ba77f7386f57c0f7773193bcb2c72d378cdc581d5d5a47b5de089d8f3d33ae",
+      "problem_type": "assignment",
+      "employees": 2,
+      "roles": 2,
+      "days": 1.0,
+      "slot_minutes": 30,
+      "slots": 48,
+      "candidates": 0,
+      "objective_order": [],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.5",
+        "library_version": "9.15.6755",
+        "selection_reason": "MANDATORY_DEMAND"
+      },
+      "schema_version": "0.12",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "PARTIAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [],
+      "objective_quality": [],
+      "diagnostics": [
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 10
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.0018961660098284483
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.0003064170014113188
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 2.541986759752035e-06
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.00020766601664945483
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.0005965420277789235
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 0.0
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.0003042499884031713
+            }
+          ]
+        },
+        {
+          "code": "SHORTAGE_BOUND",
+          "message": "不足合計人分の探索下限です。",
+          "json_pointer": "/shortage_summary",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 30.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": null,
+      "day_count_summary": null,
+      "cost_summary": null,
+      "duty_balance_summary": null,
+      "shortage_summary": {
+        "total_person_minutes": 30,
+        "shortages": [
+          {
+            "demand_id": "need_0_600_kitchen",
+            "role_id": "kitchen",
+            "interval": {
+              "start": "2026-10-05T10:00:00+09:00",
+              "end": "2026-10-05T10:30:00+09:00"
+            },
+            "required_people": 3,
+            "assigned_people": 2,
+            "missing_people": 1,
+            "minimum_people": 1
+          }
+        ],
+        "proven_minimal": true
+      },
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 10,
+        "search_elapsed_seconds": 0.0018961660098284483,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.0003064170014113188,
+        "backend_loading_elapsed_seconds": 2.541986759752035e-06,
+        "preparation_elapsed_seconds": 0.00020766601664945483,
+        "verification_elapsed_seconds": 0.0005965420277789235,
+        "candidate_expansion_elapsed_seconds": 0.0,
+        "input_validation_elapsed_seconds": 0.0003042499884031713
+      },
+      "assignments": 2,
+      "shifts": 0,
+      "import_seconds": 5.832989700138569e-06,
+      "input_seconds": 9.045802289620042e-05,
+      "elapsed_seconds": 0.004454416979569942,
+      "request_elapsed_seconds": 0.004550707992166281,
+      "engine_elapsed_seconds": 0.004450874985195696,
+      "metadata_seconds": 0.0003513330011628568,
+      "peak_rss_mib": 107.84375,
+      "group": 1,
+      "iteration": 3,
+      "mode": "warm",
+      "execution": "continued"
+    },
+    {
+      "input_file": "examples/minimum_roster.json",
+      "input_sha256": "8896c4b139cd2ba4d305110888038e78212dbfd3f7acdc48ef6a3e5c461f4f96",
+      "problem_type": "roster",
+      "employees": 2,
+      "roles": 2,
+      "days": 1.0,
+      "slot_minutes": 30,
+      "slots": 48,
+      "candidates": 2,
+      "objective_order": [
+        "scheduled_minutes"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.5",
+        "library_version": "9.15.6755",
+        "selection_reason": "MANDATORY_DEMAND"
+      },
+      "schema_version": "0.12",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "PARTIAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 180,
+          "proven_optimal": true
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 180,
+          "proven_optimal": true,
+          "best_bound": 180.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 10
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.0054246250074356794
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.03951974998926744
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.20622724998975173
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.00045604200568050146
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.012428375019226223
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 5.458400119096041e-05
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.03946145699592307
+            }
+          ]
+        },
+        {
+          "code": "SHORTAGE_BOUND",
+          "message": "不足合計人分の探索下限です。",
+          "json_pointer": "/shortage_summary",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 30.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "work"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 180.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": null,
+      "day_count_summary": null,
+      "cost_summary": null,
+      "duty_balance_summary": null,
+      "shortage_summary": {
+        "total_person_minutes": 30,
+        "shortages": [
+          {
+            "demand_id": "need_0_600_kitchen",
+            "role_id": "kitchen",
+            "interval": {
+              "start": "2026-10-05T10:00:00+09:00",
+              "end": "2026-10-05T10:30:00+09:00"
+            },
+            "required_people": 3,
+            "assigned_people": 2,
+            "missing_people": 1,
+            "minimum_people": 1
+          }
+        ],
+        "proven_minimal": true
+      },
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 10,
+        "search_elapsed_seconds": 0.0054246250074356794,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.03951974998926744,
+        "backend_loading_elapsed_seconds": 0.20622724998975173,
+        "preparation_elapsed_seconds": 0.00045604200568050146,
+        "verification_elapsed_seconds": 0.012428375019226223,
+        "candidate_expansion_elapsed_seconds": 5.458400119096041e-05,
+        "input_validation_elapsed_seconds": 0.03946145699592307
+      },
+      "assignments": 2,
+      "shifts": 2,
+      "import_seconds": 0.029808958992362022,
+      "input_seconds": 0.00014479103265330195,
+      "elapsed_seconds": 0.30548241699580103,
+      "request_elapsed_seconds": 0.33543616702081636,
+      "engine_elapsed_seconds": 0.30547766597010195,
+      "metadata_seconds": 0.0005509170005097985,
+      "peak_rss_mib": 106.640625,
+      "group": 1,
+      "iteration": 1,
+      "mode": "warm",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "examples/minimum_roster.json",
+      "input_sha256": "8896c4b139cd2ba4d305110888038e78212dbfd3f7acdc48ef6a3e5c461f4f96",
+      "problem_type": "roster",
+      "employees": 2,
+      "roles": 2,
+      "days": 1.0,
+      "slot_minutes": 30,
+      "slots": 48,
+      "candidates": 2,
+      "objective_order": [
+        "scheduled_minutes"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.5",
+        "library_version": "9.15.6755",
+        "selection_reason": "MANDATORY_DEMAND"
+      },
+      "schema_version": "0.12",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "PARTIAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 180,
+          "proven_optimal": true
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 180,
+          "proven_optimal": true,
+          "best_bound": 180.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 10
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.003840582969132811
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.0005052500055171549
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 4.041008651256561e-06
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.00043345900485292077
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.0008579579880461097
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 3.095902502536774e-05
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.0004713329253718257
+            }
+          ]
+        },
+        {
+          "code": "SHORTAGE_BOUND",
+          "message": "不足合計人分の探索下限です。",
+          "json_pointer": "/shortage_summary",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 30.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "work"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 180.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": null,
+      "day_count_summary": null,
+      "cost_summary": null,
+      "duty_balance_summary": null,
+      "shortage_summary": {
+        "total_person_minutes": 30,
+        "shortages": [
+          {
+            "demand_id": "need_0_600_kitchen",
+            "role_id": "kitchen",
+            "interval": {
+              "start": "2026-10-05T10:00:00+09:00",
+              "end": "2026-10-05T10:30:00+09:00"
+            },
+            "required_people": 3,
+            "assigned_people": 2,
+            "missing_people": 1,
+            "minimum_people": 1
+          }
+        ],
+        "proven_minimal": true
+      },
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 10,
+        "search_elapsed_seconds": 0.003840582969132811,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.0005052500055171549,
+        "backend_loading_elapsed_seconds": 4.041008651256561e-06,
+        "preparation_elapsed_seconds": 0.00043345900485292077,
+        "verification_elapsed_seconds": 0.0008579579880461097,
+        "candidate_expansion_elapsed_seconds": 3.095902502536774e-05,
+        "input_validation_elapsed_seconds": 0.0004713329253718257
+      },
+      "assignments": 2,
+      "shifts": 2,
+      "import_seconds": 8.083006832748652e-06,
+      "input_seconds": 0.0001229170011356473,
+      "elapsed_seconds": 0.007760624983347952,
+      "request_elapsed_seconds": 0.007891624991316348,
+      "engine_elapsed_seconds": 0.007756999984849244,
+      "metadata_seconds": 0.0005539580015465617,
+      "peak_rss_mib": 106.78125,
+      "group": 1,
+      "iteration": 2,
+      "mode": "warm",
+      "execution": "continued"
+    },
+    {
+      "input_file": "examples/minimum_roster.json",
+      "input_sha256": "8896c4b139cd2ba4d305110888038e78212dbfd3f7acdc48ef6a3e5c461f4f96",
+      "problem_type": "roster",
+      "employees": 2,
+      "roles": 2,
+      "days": 1.0,
+      "slot_minutes": 30,
+      "slots": 48,
+      "candidates": 2,
+      "objective_order": [
+        "scheduled_minutes"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.5",
+        "library_version": "9.15.6755",
+        "selection_reason": "MANDATORY_DEMAND"
+      },
+      "schema_version": "0.12",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "PARTIAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 180,
+          "proven_optimal": true
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 180,
+          "proven_optimal": true,
+          "best_bound": 180.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 10
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.00223966600606218
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.0005344999954104424
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 2.333021257072687e-06
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.00025516696041449904
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.0008231670362874866
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 3.162503708153963e-05
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.0005003339610993862
+            }
+          ]
+        },
+        {
+          "code": "SHORTAGE_BOUND",
+          "message": "不足合計人分の探索下限です。",
+          "json_pointer": "/shortage_summary",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 30.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "work"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 180.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": null,
+      "day_count_summary": null,
+      "cost_summary": null,
+      "duty_balance_summary": null,
+      "shortage_summary": {
+        "total_person_minutes": 30,
+        "shortages": [
+          {
+            "demand_id": "need_0_600_kitchen",
+            "role_id": "kitchen",
+            "interval": {
+              "start": "2026-10-05T10:00:00+09:00",
+              "end": "2026-10-05T10:30:00+09:00"
+            },
+            "required_people": 3,
+            "assigned_people": 2,
+            "missing_people": 1,
+            "minimum_people": 1
+          }
+        ],
+        "proven_minimal": true
+      },
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 10,
+        "search_elapsed_seconds": 0.00223966600606218,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.0005344999954104424,
+        "backend_loading_elapsed_seconds": 2.333021257072687e-06,
+        "preparation_elapsed_seconds": 0.00025516696041449904,
+        "verification_elapsed_seconds": 0.0008231670362874866,
+        "candidate_expansion_elapsed_seconds": 3.162503708153963e-05,
+        "input_validation_elapsed_seconds": 0.0005003339610993862
+      },
+      "assignments": 2,
+      "shifts": 2,
+      "import_seconds": 5.082983989268541e-06,
+      "input_seconds": 0.00012699997751042247,
+      "elapsed_seconds": 0.006049542047549039,
+      "request_elapsed_seconds": 0.00618162500904873,
+      "engine_elapsed_seconds": 0.006046290975064039,
+      "metadata_seconds": 0.000562082976102829,
+      "peak_rss_mib": 106.84375,
+      "group": 1,
+      "iteration": 3,
+      "mode": "warm",
+      "execution": "continued"
+    },
+    {
+      "input_file": "examples/minimum_conflict.json",
+      "input_sha256": "0bf9f6f886215c0eac4647b63675216fca8f6aae0acf7217f44e642d8fe1a4e8",
+      "problem_type": "roster",
+      "employees": 2,
+      "roles": 2,
+      "days": 1.0,
+      "slot_minutes": 30,
+      "slots": 48,
+      "candidates": 0,
+      "objective_order": [
+        "scheduled_minutes"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.5",
+        "library_version": "9.15.6755",
+        "selection_reason": "MANDATORY_DEMAND"
+      },
+      "schema_version": "0.12",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "INFEASIBLE",
+      "verification": {
+        "performed": false,
+        "valid": null,
+        "violations": []
+      },
+      "objectives": [],
+      "objective_quality": [],
+      "diagnostics": [
+        {
+          "code": "NO_FEASIBLE_PLAN",
+          "message": "すべての必須条件を満たす配置はありません。",
+          "json_pointer": "",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 10
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.0012880000285804272
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.03801525000017136
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.20782020798651502
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.00038049998693168163
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.0036591659882105887
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 4.875008016824722e-06
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.03800654096994549
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": null,
+      "day_count_summary": null,
+      "cost_summary": null,
+      "duty_balance_summary": null,
+      "shortage_summary": null,
+      "diagnosis_result": {
+        "status": "COMPLETE",
+        "reason": null,
+        "conflict": {
+          "conditions": [
+            {
+              "code": "DEMAND",
+              "json_pointer": "/demand/0",
+              "related_ids": [
+                "need_0_600_kitchen",
+                "kitchen"
+              ],
+              "interval": {
+                "start": "2026-10-05T10:00:00+09:00",
+                "end": "2026-10-05T10:30:00+09:00"
+              },
+              "group_id": "/demand/0"
+            }
+          ],
+          "background_conditions": [
+            {
+              "code": "AVAILABILITY",
+              "json_pointer": "/employees/0/availability",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": {
+                "start": "2026-10-05T00:00:00+09:00",
+                "end": "2026-10-06T00:00:00+09:00"
+              },
+              "group_id": "/employees/0/availability"
+            },
+            {
+              "code": "HISTORY",
+              "json_pointer": "/employees/0/history",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": null,
+              "group_id": "/employees/0/history"
+            },
+            {
+              "code": "EMPLOYEE_SKILLS",
+              "json_pointer": "/employees/0/skills",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": null,
+              "group_id": "/employees/0/skills"
+            },
+            {
+              "code": "AVAILABILITY",
+              "json_pointer": "/employees/1/availability",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": {
+                "start": "2026-10-05T00:00:00+09:00",
+                "end": "2026-10-06T00:00:00+09:00"
+              },
+              "group_id": "/employees/1/availability"
+            },
+            {
+              "code": "HISTORY",
+              "json_pointer": "/employees/1/history",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": null,
+              "group_id": "/employees/1/history"
+            },
+            {
+              "code": "EMPLOYEE_SKILLS",
+              "json_pointer": "/employees/1/skills",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": null,
+              "group_id": "/employees/1/skills"
+            },
+            {
+              "code": "PLANNING_GRID",
+              "json_pointer": "/planning_window",
+              "related_ids": [],
+              "interval": {
+                "start": "2026-10-05T00:00:00+09:00",
+                "end": "2026-10-06T00:00:00+09:00"
+              },
+              "group_id": "/planning_window"
+            },
+            {
+              "code": "BASIC_ROSTER_RULES",
+              "json_pointer": "/problem_type",
+              "related_ids": [],
+              "interval": {
+                "start": "2026-10-05T00:00:00+09:00",
+                "end": "2026-10-06T00:00:00+09:00"
+              },
+              "group_id": "/problem_type"
+            },
+            {
+              "code": "REQUIRED_SKILLS",
+              "json_pointer": "/roles/0/required_skills",
+              "related_ids": [
+                "kitchen"
+              ],
+              "interval": null,
+              "group_id": "/roles/0/required_skills"
+            },
+            {
+              "code": "REQUIRED_SKILLS",
+              "json_pointer": "/roles/1/required_skills",
+              "related_ids": [
+                "hall"
+              ],
+              "interval": null,
+              "group_id": "/roles/1/required_skills"
+            },
+            {
+              "code": "CANDIDATE_SET",
+              "json_pointer": "/shift_candidates",
+              "related_ids": [],
+              "interval": null,
+              "group_id": "/shift_candidates"
+            }
+          ],
+          "infeasibility_proven": true,
+          "minimality": "inclusion_minimal",
+          "minimality_scope": "condition_groups_relative_to_background",
+          "background_only": false,
+          "rechecked": true,
+          "checks": [
+            {
+              "phase": "initial",
+              "active_groups": [
+                "/demand/0"
+              ],
+              "removed_group_id": null,
+              "status": "INFEASIBLE",
+              "witness_verified": null,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.00023891701130196452,
+              "preparation_elapsed_seconds": 0.00018570898100733757,
+              "search_elapsed_seconds": 4.150002496317029e-05,
+              "verification_elapsed_seconds": 1.66997779160738e-07
+            },
+            {
+              "phase": "removal",
+              "active_groups": [],
+              "removed_group_id": "/demand/0",
+              "status": "OPTIMAL",
+              "witness_verified": true,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.00899512495379895,
+              "preparation_elapsed_seconds": 0.00015587499365210533,
+              "search_elapsed_seconds": 0.0006867079646326602,
+              "verification_elapsed_seconds": 0.00813787494553253
+            },
+            {
+              "phase": "final",
+              "active_groups": [
+                "/demand/0"
+              ],
+              "removed_group_id": null,
+              "status": "INFEASIBLE",
+              "witness_verified": null,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.00024045800091698766,
+              "preparation_elapsed_seconds": 0.00018145900685340166,
+              "search_elapsed_seconds": 4.770804662257433e-05,
+              "verification_elapsed_seconds": 4.196772351861e-08
+            },
+            {
+              "phase": "witness_recheck",
+              "active_groups": [],
+              "removed_group_id": "/demand/0",
+              "status": "OPTIMAL",
+              "witness_verified": true,
+              "completed_in_budget": true,
+              "elapsed_seconds": 8.516700472682714e-05,
+              "preparation_elapsed_seconds": 0.0,
+              "search_elapsed_seconds": 0.0,
+              "verification_elapsed_seconds": 8.504203287884593e-05
+            }
+          ]
+        },
+        "suggestions": [
+          {
+            "option_id": "lower_only",
+            "modified_request": {
+              "schema_version": "0.12",
+              "request_id": "minimum_conflict",
+              "problem_type": "roster",
+              "planning_window": {
+                "start": "2026-10-05T00:00:00+09:00",
+                "end": "2026-10-06T00:00:00+09:00",
+                "timezone": "Asia/Tokyo",
+                "slot_minutes": 30
+              },
+              "skills": [],
+              "roles": [
+                {
+                  "id": "kitchen",
+                  "label": "kitchen",
+                  "required_skills": []
+                },
+                {
+                  "id": "hall",
+                  "label": "hall",
+                  "required_skills": []
+                }
+              ],
+              "employees": [
+                {
+                  "id": "alice",
+                  "label": "alice",
+                  "skills": [],
+                  "availability": [],
+                  "history": {
+                    "last_shift_end": null,
+                    "consecutive_work_days_before_window": 0,
+                    "last_work_day": null
+                  }
+                },
+                {
+                  "id": "bob",
+                  "label": "bob",
+                  "skills": [],
+                  "availability": [],
+                  "history": {
+                    "last_shift_end": null,
+                    "consecutive_work_days_before_window": 0,
+                    "last_work_day": null
+                  }
+                }
+              ],
+              "demand": [
+                {
+                  "id": "need_0_600_kitchen",
+                  "role_id": "kitchen",
+                  "interval": {
+                    "start": "2026-10-05T10:00:00+09:00",
+                    "end": "2026-10-05T10:30:00+09:00"
+                  },
+                  "required_people": 3,
+                  "minimum_people": 0
+                }
+              ],
+              "shift_candidates": [],
+              "constraints": [],
+              "preferences": [],
+              "objectives": [
+                {
+                  "id": "work",
+                  "metric": "scheduled_minutes"
+                }
+              ],
+              "solver": {
+                "backend": "auto",
+                "time_limit_seconds": 9.949266999959946,
+                "seed": 0
+              }
+            },
+            "response": {
+              "schema_version": "0.12",
+              "request_id": "minimum_conflict",
+              "status": "PARTIAL",
+              "solver": {
+                "backend": "cp_sat",
+                "engine_version": "0.1.5",
+                "library_version": "9.15.6755",
+                "selection_reason": "JOINT_ROSTER"
+              },
+              "solution": {
+                "assignments": [],
+                "shifts": []
+              },
+              "objectives": [
+                {
+                  "id": "work",
+                  "metric": "scheduled_minutes",
+                  "value": 0,
+                  "proven_optimal": true
+                }
+              ],
+              "diagnostics": [
+                {
+                  "code": "SEARCH_STATS",
+                  "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+                  "json_pointer": "/solver/time_limit_seconds",
+                  "related_ids": [],
+                  "facts": [
+                    {
+                      "name": "time_limit_seconds",
+                      "value": 9.949266999959946
+                    },
+                    {
+                      "name": "search_elapsed_seconds",
+                      "value": 0.0022819169680587947
+                    },
+                    {
+                      "name": "num_workers",
+                      "value": 2
+                    },
+                    {
+                      "name": "workers_applied",
+                      "value": true
+                    },
+                    {
+                      "name": "normalization_elapsed_seconds",
+                      "value": 0.0003755829529836774
+                    },
+                    {
+                      "name": "backend_loading_elapsed_seconds",
+                      "value": 4.959001671522856e-06
+                    },
+                    {
+                      "name": "preparation_elapsed_seconds",
+                      "value": 0.0003061660099774599
+                    },
+                    {
+                      "name": "verification_elapsed_seconds",
+                      "value": 0.0005477080121636391
+                    },
+                    {
+                      "name": "candidate_expansion_elapsed_seconds",
+                      "value": 4.708010237663984e-06
+                    },
+                    {
+                      "name": "input_validation_elapsed_seconds",
+                      "value": 0.00036816700594499707
+                    }
+                  ]
+                },
+                {
+                  "code": "SHORTAGE_BOUND",
+                  "message": "不足合計人分の探索下限です。",
+                  "json_pointer": "/shortage_summary",
+                  "related_ids": [],
+                  "facts": [
+                    {
+                      "name": "best_bound",
+                      "value": 90.0
+                    }
+                  ]
+                },
+                {
+                  "code": "OBJECTIVE_BOUND",
+                  "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+                  "json_pointer": "/objectives/0",
+                  "related_ids": [
+                    "work"
+                  ],
+                  "facts": [
+                    {
+                      "name": "objective_index",
+                      "value": 0
+                    },
+                    {
+                      "name": "best_bound",
+                      "value": 0.0
+                    }
+                  ]
+                }
+              ],
+              "verification": {
+                "performed": true,
+                "valid": true,
+                "violations": []
+              },
+              "stats": {
+                "elapsed_seconds": 0.004783916985616088
+              },
+              "fairness_summary": null,
+              "change_summary": null,
+              "diagnosis_result": null,
+              "shortage_summary": {
+                "total_person_minutes": 90,
+                "shortages": [
+                  {
+                    "demand_id": "need_0_600_kitchen",
+                    "role_id": "kitchen",
+                    "interval": {
+                      "start": "2026-10-05T10:00:00+09:00",
+                      "end": "2026-10-05T10:30:00+09:00"
+                    },
+                    "required_people": 3,
+                    "assigned_people": 0,
+                    "missing_people": 3,
+                    "minimum_people": 0
+                  }
+                ],
+                "proven_minimal": true
+              },
+              "priority_summary": {
+                "groups": [
+                  {
+                    "priority": 0,
+                    "total_person_minutes": 90,
+                    "proven_minimal": true
+                  }
+                ]
+              },
+              "continuity_summary": null,
+              "cost_summary": null,
+              "duty_balance_summary": null,
+              "day_count_summary": null
+            }
+          },
+          {
+            "option_id": "both",
+            "modified_request": {
+              "schema_version": "0.12",
+              "request_id": "minimum_conflict",
+              "problem_type": "roster",
+              "planning_window": {
+                "start": "2026-10-05T00:00:00+09:00",
+                "end": "2026-10-06T00:00:00+09:00",
+                "timezone": "Asia/Tokyo",
+                "slot_minutes": 30
+              },
+              "skills": [],
+              "roles": [
+                {
+                  "id": "kitchen",
+                  "label": "kitchen",
+                  "required_skills": []
+                },
+                {
+                  "id": "hall",
+                  "label": "hall",
+                  "required_skills": []
+                }
+              ],
+              "employees": [
+                {
+                  "id": "alice",
+                  "label": "alice",
+                  "skills": [],
+                  "availability": [],
+                  "history": {
+                    "last_shift_end": null,
+                    "consecutive_work_days_before_window": 0,
+                    "last_work_day": null
+                  }
+                },
+                {
+                  "id": "bob",
+                  "label": "bob",
+                  "skills": [],
+                  "availability": [],
+                  "history": {
+                    "last_shift_end": null,
+                    "consecutive_work_days_before_window": 0,
+                    "last_work_day": null
+                  }
+                }
+              ],
+              "demand": [
+                {
+                  "id": "need_0_600_kitchen",
+                  "role_id": "kitchen",
+                  "interval": {
+                    "start": "2026-10-05T10:00:00+09:00",
+                    "end": "2026-10-05T10:30:00+09:00"
+                  },
+                  "required_people": 0,
+                  "minimum_people": 0
+                }
+              ],
+              "shift_candidates": [],
+              "constraints": [],
+              "preferences": [],
+              "objectives": [
+                {
+                  "id": "work",
+                  "metric": "scheduled_minutes"
+                }
+              ],
+              "solver": {
+                "backend": "auto",
+                "time_limit_seconds": 9.943207416974474,
+                "seed": 0
+              }
+            },
+            "response": {
+              "schema_version": "0.12",
+              "request_id": "minimum_conflict",
+              "status": "OPTIMAL",
+              "solver": {
+                "backend": "cp_sat",
+                "engine_version": "0.1.5",
+                "library_version": "9.15.6755",
+                "selection_reason": "JOINT_ROSTER"
+              },
+              "solution": {
+                "assignments": [],
+                "shifts": []
+              },
+              "objectives": [
+                {
+                  "id": "work",
+                  "metric": "scheduled_minutes",
+                  "value": 0,
+                  "proven_optimal": true
+                }
+              ],
+              "diagnostics": [
+                {
+                  "code": "SEARCH_STATS",
+                  "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+                  "json_pointer": "/solver/time_limit_seconds",
+                  "related_ids": [],
+                  "facts": [
+                    {
+                      "name": "time_limit_seconds",
+                      "value": 9.943207416974474
+                    },
+                    {
+                      "name": "search_elapsed_seconds",
+                      "value": 0.0005448749870993197
+                    },
+                    {
+                      "name": "num_workers",
+                      "value": 2
+                    },
+                    {
+                      "name": "workers_applied",
+                      "value": true
+                    },
+                    {
+                      "name": "normalization_elapsed_seconds",
+                      "value": 0.00034370803041383624
+                    },
+                    {
+                      "name": "backend_loading_elapsed_seconds",
+                      "value": 3.04199056699872e-06
+                    },
+                    {
+                      "name": "preparation_elapsed_seconds",
+                      "value": 0.0001604169956408441
+                    },
+                    {
+                      "name": "verification_elapsed_seconds",
+                      "value": 0.00047387502854689956
+                    },
+                    {
+                      "name": "candidate_expansion_elapsed_seconds",
+                      "value": 2.8329668566584587e-06
+                    },
+                    {
+                      "name": "input_validation_elapsed_seconds",
+                      "value": 0.00033879204420372844
+                    }
+                  ]
+                },
+                {
+                  "code": "SHORTAGE_BOUND",
+                  "message": "不足合計人分の探索下限です。",
+                  "json_pointer": "/shortage_summary",
+                  "related_ids": [],
+                  "facts": [
+                    {
+                      "name": "best_bound",
+                      "value": 0.0
+                    }
+                  ]
+                },
+                {
+                  "code": "OBJECTIVE_BOUND",
+                  "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+                  "json_pointer": "/objectives/0",
+                  "related_ids": [
+                    "work"
+                  ],
+                  "facts": [
+                    {
+                      "name": "objective_index",
+                      "value": 0
+                    },
+                    {
+                      "name": "best_bound",
+                      "value": 0.0
+                    }
+                  ]
+                }
+              ],
+              "verification": {
+                "performed": true,
+                "valid": true,
+                "violations": []
+              },
+              "stats": {
+                "elapsed_seconds": 0.0026897910283878446
+              },
+              "fairness_summary": null,
+              "change_summary": null,
+              "diagnosis_result": null,
+              "shortage_summary": {
+                "total_person_minutes": 0,
+                "shortages": [],
+                "proven_minimal": true
+              },
+              "priority_summary": {
+                "groups": [
+                  {
+                    "priority": 0,
+                    "total_person_minutes": 0,
+                    "proven_minimal": true
+                  }
+                ]
+              },
+              "continuity_summary": null,
+              "cost_summary": null,
+              "duty_balance_summary": null,
+              "day_count_summary": null
+            }
+          }
+        ],
+        "suggestion_minimality": "not_proven",
+        "time_limit_seconds": 10,
+        "elapsed_seconds": 0.06611479102866724,
+        "diagnostics": [
+          {
+            "code": "OPTION_REJECTED",
+            "message": "変更後入力の検証済み解を取得できませんでした。",
+            "json_pointer": "",
+            "related_ids": [
+              "upper_only"
+            ],
+            "facts": [
+              {
+                "name": "status",
+                "value": "INVALID_INPUT"
+              }
+            ]
+          },
+          {
+            "code": "OPTION_BUDGET",
+            "message": "許可編集を適用し、診断を無効にして残り予算で検証しました。",
+            "json_pointer": "/solver/time_limit_seconds",
+            "related_ids": [
+              "lower_only"
+            ],
+            "facts": [
+              {
+                "name": "original_budget",
+                "value": 10
+              },
+              {
+                "name": "applied_budget",
+                "value": 9.949266999959946
+              }
+            ]
+          },
+          {
+            "code": "OPTION_BUDGET",
+            "message": "許可編集を適用し、診断を無効にして残り予算で検証しました。",
+            "json_pointer": "/solver/time_limit_seconds",
+            "related_ids": [
+              "both"
+            ],
+            "facts": [
+              {
+                "name": "original_budget",
+                "value": 10
+              },
+              {
+                "name": "applied_budget",
+                "value": 9.943207416974474
+              }
+            ]
+          }
+        ]
+      },
+      "search_stats": {
+        "time_limit_seconds": 10,
+        "search_elapsed_seconds": 0.0012880000285804272,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.03801525000017136,
+        "backend_loading_elapsed_seconds": 0.20782020798651502,
+        "preparation_elapsed_seconds": 0.00038049998693168163,
+        "verification_elapsed_seconds": 0.0036591659882105887,
+        "candidate_expansion_elapsed_seconds": 4.875008016824722e-06,
+        "input_validation_elapsed_seconds": 0.03800654096994549
+      },
+      "assignments": 0,
+      "shifts": 0,
+      "import_seconds": 0.02978658297797665,
+      "input_seconds": 0.00014054198982194066,
+      "elapsed_seconds": 0.3173069170443341,
+      "request_elapsed_seconds": 0.3472340420121327,
+      "engine_elapsed_seconds": 0.3173025830183178,
+      "metadata_seconds": 0.00047858298057690263,
+      "peak_rss_mib": 106.171875,
+      "group": 1,
+      "iteration": 1,
+      "mode": "warm",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "examples/minimum_conflict.json",
+      "input_sha256": "0bf9f6f886215c0eac4647b63675216fca8f6aae0acf7217f44e642d8fe1a4e8",
+      "problem_type": "roster",
+      "employees": 2,
+      "roles": 2,
+      "days": 1.0,
+      "slot_minutes": 30,
+      "slots": 48,
+      "candidates": 0,
+      "objective_order": [
+        "scheduled_minutes"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.5",
+        "library_version": "9.15.6755",
+        "selection_reason": "MANDATORY_DEMAND"
+      },
+      "schema_version": "0.12",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "INFEASIBLE",
+      "verification": {
+        "performed": false,
+        "valid": null,
+        "violations": []
+      },
+      "objectives": [],
+      "objective_quality": [],
+      "diagnostics": [
+        {
+          "code": "NO_FEASIBLE_PLAN",
+          "message": "すべての必須条件を満たす配置はありません。",
+          "json_pointer": "",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 10
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 5.0084025133401155e-05
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.0004450420383363962
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 2.416956704109907e-06
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.00018808303866535425
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.00034170900471508503
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 2.9579969123005867e-06
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.00043987599201500416
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": null,
+      "day_count_summary": null,
+      "cost_summary": null,
+      "duty_balance_summary": null,
+      "shortage_summary": null,
+      "diagnosis_result": {
+        "status": "COMPLETE",
+        "reason": null,
+        "conflict": {
+          "conditions": [
+            {
+              "code": "DEMAND",
+              "json_pointer": "/demand/0",
+              "related_ids": [
+                "need_0_600_kitchen",
+                "kitchen"
+              ],
+              "interval": {
+                "start": "2026-10-05T10:00:00+09:00",
+                "end": "2026-10-05T10:30:00+09:00"
+              },
+              "group_id": "/demand/0"
+            }
+          ],
+          "background_conditions": [
+            {
+              "code": "AVAILABILITY",
+              "json_pointer": "/employees/0/availability",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": {
+                "start": "2026-10-05T00:00:00+09:00",
+                "end": "2026-10-06T00:00:00+09:00"
+              },
+              "group_id": "/employees/0/availability"
+            },
+            {
+              "code": "HISTORY",
+              "json_pointer": "/employees/0/history",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": null,
+              "group_id": "/employees/0/history"
+            },
+            {
+              "code": "EMPLOYEE_SKILLS",
+              "json_pointer": "/employees/0/skills",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": null,
+              "group_id": "/employees/0/skills"
+            },
+            {
+              "code": "AVAILABILITY",
+              "json_pointer": "/employees/1/availability",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": {
+                "start": "2026-10-05T00:00:00+09:00",
+                "end": "2026-10-06T00:00:00+09:00"
+              },
+              "group_id": "/employees/1/availability"
+            },
+            {
+              "code": "HISTORY",
+              "json_pointer": "/employees/1/history",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": null,
+              "group_id": "/employees/1/history"
+            },
+            {
+              "code": "EMPLOYEE_SKILLS",
+              "json_pointer": "/employees/1/skills",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": null,
+              "group_id": "/employees/1/skills"
+            },
+            {
+              "code": "PLANNING_GRID",
+              "json_pointer": "/planning_window",
+              "related_ids": [],
+              "interval": {
+                "start": "2026-10-05T00:00:00+09:00",
+                "end": "2026-10-06T00:00:00+09:00"
+              },
+              "group_id": "/planning_window"
+            },
+            {
+              "code": "BASIC_ROSTER_RULES",
+              "json_pointer": "/problem_type",
+              "related_ids": [],
+              "interval": {
+                "start": "2026-10-05T00:00:00+09:00",
+                "end": "2026-10-06T00:00:00+09:00"
+              },
+              "group_id": "/problem_type"
+            },
+            {
+              "code": "REQUIRED_SKILLS",
+              "json_pointer": "/roles/0/required_skills",
+              "related_ids": [
+                "kitchen"
+              ],
+              "interval": null,
+              "group_id": "/roles/0/required_skills"
+            },
+            {
+              "code": "REQUIRED_SKILLS",
+              "json_pointer": "/roles/1/required_skills",
+              "related_ids": [
+                "hall"
+              ],
+              "interval": null,
+              "group_id": "/roles/1/required_skills"
+            },
+            {
+              "code": "CANDIDATE_SET",
+              "json_pointer": "/shift_candidates",
+              "related_ids": [],
+              "interval": null,
+              "group_id": "/shift_candidates"
+            }
+          ],
+          "infeasibility_proven": true,
+          "minimality": "inclusion_minimal",
+          "minimality_scope": "condition_groups_relative_to_background",
+          "background_only": false,
+          "rechecked": true,
+          "checks": [
+            {
+              "phase": "initial",
+              "active_groups": [
+                "/demand/0"
+              ],
+              "removed_group_id": null,
+              "status": "INFEASIBLE",
+              "witness_verified": null,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.0003629590501077473,
+              "preparation_elapsed_seconds": 0.00032291701063513756,
+              "search_elapsed_seconds": 2.624996704980731e-05,
+              "verification_elapsed_seconds": 4.202593117952347e-08
+            },
+            {
+              "phase": "removal",
+              "active_groups": [],
+              "removed_group_id": "/demand/0",
+              "status": "OPTIMAL",
+              "witness_verified": true,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.002006624999921769,
+              "preparation_elapsed_seconds": 0.00013316597323864698,
+              "search_elapsed_seconds": 0.0017752500134520233,
+              "verification_elapsed_seconds": 8.416699711233377e-05
+            },
+            {
+              "phase": "final",
+              "active_groups": [
+                "/demand/0"
+              ],
+              "removed_group_id": null,
+              "status": "INFEASIBLE",
+              "witness_verified": null,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.00016904197400435805,
+              "preparation_elapsed_seconds": 0.00013654096983373165,
+              "search_elapsed_seconds": 2.441700780764222e-05,
+              "verification_elapsed_seconds": 8.399365469813347e-08
+            },
+            {
+              "phase": "witness_recheck",
+              "active_groups": [],
+              "removed_group_id": "/demand/0",
+              "status": "OPTIMAL",
+              "witness_verified": true,
+              "completed_in_budget": true,
+              "elapsed_seconds": 6.166700040921569e-05,
+              "preparation_elapsed_seconds": 0.0,
+              "search_elapsed_seconds": 0.0,
+              "verification_elapsed_seconds": 6.158300675451756e-05
+            }
+          ]
+        },
+        "suggestions": [
+          {
+            "option_id": "lower_only",
+            "modified_request": {
+              "schema_version": "0.12",
+              "request_id": "minimum_conflict",
+              "problem_type": "roster",
+              "planning_window": {
+                "start": "2026-10-05T00:00:00+09:00",
+                "end": "2026-10-06T00:00:00+09:00",
+                "timezone": "Asia/Tokyo",
+                "slot_minutes": 30
+              },
+              "skills": [],
+              "roles": [
+                {
+                  "id": "kitchen",
+                  "label": "kitchen",
+                  "required_skills": []
+                },
+                {
+                  "id": "hall",
+                  "label": "hall",
+                  "required_skills": []
+                }
+              ],
+              "employees": [
+                {
+                  "id": "alice",
+                  "label": "alice",
+                  "skills": [],
+                  "availability": [],
+                  "history": {
+                    "last_shift_end": null,
+                    "consecutive_work_days_before_window": 0,
+                    "last_work_day": null
+                  }
+                },
+                {
+                  "id": "bob",
+                  "label": "bob",
+                  "skills": [],
+                  "availability": [],
+                  "history": {
+                    "last_shift_end": null,
+                    "consecutive_work_days_before_window": 0,
+                    "last_work_day": null
+                  }
+                }
+              ],
+              "demand": [
+                {
+                  "id": "need_0_600_kitchen",
+                  "role_id": "kitchen",
+                  "interval": {
+                    "start": "2026-10-05T10:00:00+09:00",
+                    "end": "2026-10-05T10:30:00+09:00"
+                  },
+                  "required_people": 3,
+                  "minimum_people": 0
+                }
+              ],
+              "shift_candidates": [],
+              "constraints": [],
+              "preferences": [],
+              "objectives": [
+                {
+                  "id": "work",
+                  "metric": "scheduled_minutes"
+                }
+              ],
+              "solver": {
+                "backend": "auto",
+                "time_limit_seconds": 9.996263417007867,
+                "seed": 0
+              }
+            },
+            "response": {
+              "schema_version": "0.12",
+              "request_id": "minimum_conflict",
+              "status": "PARTIAL",
+              "solver": {
+                "backend": "cp_sat",
+                "engine_version": "0.1.5",
+                "library_version": "9.15.6755",
+                "selection_reason": "JOINT_ROSTER"
+              },
+              "solution": {
+                "assignments": [],
+                "shifts": []
+              },
+              "objectives": [
+                {
+                  "id": "work",
+                  "metric": "scheduled_minutes",
+                  "value": 0,
+                  "proven_optimal": true
+                }
+              ],
+              "diagnostics": [
+                {
+                  "code": "SEARCH_STATS",
+                  "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+                  "json_pointer": "/solver/time_limit_seconds",
+                  "related_ids": [],
+                  "facts": [
+                    {
+                      "name": "time_limit_seconds",
+                      "value": 9.996263417007867
+                    },
+                    {
+                      "name": "search_elapsed_seconds",
+                      "value": 0.0035464580287225544
+                    },
+                    {
+                      "name": "num_workers",
+                      "value": 2
+                    },
+                    {
+                      "name": "workers_applied",
+                      "value": true
+                    },
+                    {
+                      "name": "normalization_elapsed_seconds",
+                      "value": 0.00033145799534395337
+                    },
+                    {
+                      "name": "backend_loading_elapsed_seconds",
+                      "value": 2.6249908842146397e-06
+                    },
+                    {
+                      "name": "preparation_elapsed_seconds",
+                      "value": 0.00015537498984485865
+                    },
+                    {
+                      "name": "verification_elapsed_seconds",
+                      "value": 0.0004872079589404166
+                    },
+                    {
+                      "name": "candidate_expansion_elapsed_seconds",
+                      "value": 3.2919924706220627e-06
+                    },
+                    {
+                      "name": "input_validation_elapsed_seconds",
+                      "value": 0.00032583303982391953
+                    }
+                  ]
+                },
+                {
+                  "code": "SHORTAGE_BOUND",
+                  "message": "不足合計人分の探索下限です。",
+                  "json_pointer": "/shortage_summary",
+                  "related_ids": [],
+                  "facts": [
+                    {
+                      "name": "best_bound",
+                      "value": 90.0
+                    }
+                  ]
+                },
+                {
+                  "code": "OBJECTIVE_BOUND",
+                  "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+                  "json_pointer": "/objectives/0",
+                  "related_ids": [
+                    "work"
+                  ],
+                  "facts": [
+                    {
+                      "name": "objective_index",
+                      "value": 0
+                    },
+                    {
+                      "name": "best_bound",
+                      "value": 0.0
+                    }
+                  ]
+                }
+              ],
+              "verification": {
+                "performed": true,
+                "valid": true,
+                "violations": []
+              },
+              "stats": {
+                "elapsed_seconds": 0.00585841597057879
+              },
+              "fairness_summary": null,
+              "change_summary": null,
+              "diagnosis_result": null,
+              "shortage_summary": {
+                "total_person_minutes": 90,
+                "shortages": [
+                  {
+                    "demand_id": "need_0_600_kitchen",
+                    "role_id": "kitchen",
+                    "interval": {
+                      "start": "2026-10-05T10:00:00+09:00",
+                      "end": "2026-10-05T10:30:00+09:00"
+                    },
+                    "required_people": 3,
+                    "assigned_people": 0,
+                    "missing_people": 3,
+                    "minimum_people": 0
+                  }
+                ],
+                "proven_minimal": true
+              },
+              "priority_summary": {
+                "groups": [
+                  {
+                    "priority": 0,
+                    "total_person_minutes": 90,
+                    "proven_minimal": true
+                  }
+                ]
+              },
+              "continuity_summary": null,
+              "cost_summary": null,
+              "duty_balance_summary": null,
+              "day_count_summary": null
+            }
+          },
+          {
+            "option_id": "both",
+            "modified_request": {
+              "schema_version": "0.12",
+              "request_id": "minimum_conflict",
+              "problem_type": "roster",
+              "planning_window": {
+                "start": "2026-10-05T00:00:00+09:00",
+                "end": "2026-10-06T00:00:00+09:00",
+                "timezone": "Asia/Tokyo",
+                "slot_minutes": 30
+              },
+              "skills": [],
+              "roles": [
+                {
+                  "id": "kitchen",
+                  "label": "kitchen",
+                  "required_skills": []
+                },
+                {
+                  "id": "hall",
+                  "label": "hall",
+                  "required_skills": []
+                }
+              ],
+              "employees": [
+                {
+                  "id": "alice",
+                  "label": "alice",
+                  "skills": [],
+                  "availability": [],
+                  "history": {
+                    "last_shift_end": null,
+                    "consecutive_work_days_before_window": 0,
+                    "last_work_day": null
+                  }
+                },
+                {
+                  "id": "bob",
+                  "label": "bob",
+                  "skills": [],
+                  "availability": [],
+                  "history": {
+                    "last_shift_end": null,
+                    "consecutive_work_days_before_window": 0,
+                    "last_work_day": null
+                  }
+                }
+              ],
+              "demand": [
+                {
+                  "id": "need_0_600_kitchen",
+                  "role_id": "kitchen",
+                  "interval": {
+                    "start": "2026-10-05T10:00:00+09:00",
+                    "end": "2026-10-05T10:30:00+09:00"
+                  },
+                  "required_people": 0,
+                  "minimum_people": 0
+                }
+              ],
+              "shift_candidates": [],
+              "constraints": [],
+              "preferences": [],
+              "objectives": [
+                {
+                  "id": "work",
+                  "metric": "scheduled_minutes"
+                }
+              ],
+              "solver": {
+                "backend": "auto",
+                "time_limit_seconds": 9.988995874999091,
+                "seed": 0
+              }
+            },
+            "response": {
+              "schema_version": "0.12",
+              "request_id": "minimum_conflict",
+              "status": "OPTIMAL",
+              "solver": {
+                "backend": "cp_sat",
+                "engine_version": "0.1.5",
+                "library_version": "9.15.6755",
+                "selection_reason": "JOINT_ROSTER"
+              },
+              "solution": {
+                "assignments": [],
+                "shifts": []
+              },
+              "objectives": [
+                {
+                  "id": "work",
+                  "metric": "scheduled_minutes",
+                  "value": 0,
+                  "proven_optimal": true
+                }
+              ],
+              "diagnostics": [
+                {
+                  "code": "SEARCH_STATS",
+                  "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+                  "json_pointer": "/solver/time_limit_seconds",
+                  "related_ids": [],
+                  "facts": [
+                    {
+                      "name": "time_limit_seconds",
+                      "value": 9.988995874999091
+                    },
+                    {
+                      "name": "search_elapsed_seconds",
+                      "value": 0.0005261669866740704
+                    },
+                    {
+                      "name": "num_workers",
+                      "value": 2
+                    },
+                    {
+                      "name": "workers_applied",
+                      "value": true
+                    },
+                    {
+                      "name": "normalization_elapsed_seconds",
+                      "value": 0.0003795840311795473
+                    },
+                    {
+                      "name": "backend_loading_elapsed_seconds",
+                      "value": 2.874992787837982e-06
+                    },
+                    {
+                      "name": "preparation_elapsed_seconds",
+                      "value": 0.00016720796702429652
+                    },
+                    {
+                      "name": "verification_elapsed_seconds",
+                      "value": 0.00045195803977549076
+                    },
+                    {
+                      "name": "candidate_expansion_elapsed_seconds",
+                      "value": 3.0840164981782436e-06
+                    },
+                    {
+                      "name": "input_validation_elapsed_seconds",
+                      "value": 0.00037420797161757946
+                    }
+                  ]
+                },
+                {
+                  "code": "SHORTAGE_BOUND",
+                  "message": "不足合計人分の探索下限です。",
+                  "json_pointer": "/shortage_summary",
+                  "related_ids": [],
+                  "facts": [
+                    {
+                      "name": "best_bound",
+                      "value": 0.0
+                    }
+                  ]
+                },
+                {
+                  "code": "OBJECTIVE_BOUND",
+                  "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+                  "json_pointer": "/objectives/0",
+                  "related_ids": [
+                    "work"
+                  ],
+                  "facts": [
+                    {
+                      "name": "objective_index",
+                      "value": 0
+                    },
+                    {
+                      "name": "best_bound",
+                      "value": 0.0
+                    }
+                  ]
+                }
+              ],
+              "verification": {
+                "performed": true,
+                "valid": true,
+                "violations": []
+              },
+              "stats": {
+                "elapsed_seconds": 0.002706292027141899
+              },
+              "fairness_summary": null,
+              "change_summary": null,
+              "diagnosis_result": null,
+              "shortage_summary": {
+                "total_person_minutes": 0,
+                "shortages": [],
+                "proven_minimal": true
+              },
+              "priority_summary": {
+                "groups": [
+                  {
+                    "priority": 0,
+                    "total_person_minutes": 0,
+                    "proven_minimal": true
+                  }
+                ]
+              },
+              "continuity_summary": null,
+              "cost_summary": null,
+              "duty_balance_summary": null,
+              "day_count_summary": null
+            }
+          }
+        ],
+        "suggestion_minimality": "not_proven",
+        "time_limit_seconds": 10,
+        "elapsed_seconds": 0.02061962499283254,
+        "diagnostics": [
+          {
+            "code": "OPTION_REJECTED",
+            "message": "変更後入力の検証済み解を取得できませんでした。",
+            "json_pointer": "",
+            "related_ids": [
+              "upper_only"
+            ],
+            "facts": [
+              {
+                "name": "status",
+                "value": "INVALID_INPUT"
+              }
+            ]
+          },
+          {
+            "code": "OPTION_BUDGET",
+            "message": "許可編集を適用し、診断を無効にして残り予算で検証しました。",
+            "json_pointer": "/solver/time_limit_seconds",
+            "related_ids": [
+              "lower_only"
+            ],
+            "facts": [
+              {
+                "name": "original_budget",
+                "value": 10
+              },
+              {
+                "name": "applied_budget",
+                "value": 9.996263417007867
+              }
+            ]
+          },
+          {
+            "code": "OPTION_BUDGET",
+            "message": "許可編集を適用し、診断を無効にして残り予算で検証しました。",
+            "json_pointer": "/solver/time_limit_seconds",
+            "related_ids": [
+              "both"
+            ],
+            "facts": [
+              {
+                "name": "original_budget",
+                "value": 10
+              },
+              {
+                "name": "applied_budget",
+                "value": 9.988995874999091
+              }
+            ]
+          }
+        ]
+      },
+      "search_stats": {
+        "time_limit_seconds": 10,
+        "search_elapsed_seconds": 5.0084025133401155e-05,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.0004450420383363962,
+        "backend_loading_elapsed_seconds": 2.416956704109907e-06,
+        "preparation_elapsed_seconds": 0.00018808303866535425,
+        "verification_elapsed_seconds": 0.00034170900471508503,
+        "candidate_expansion_elapsed_seconds": 2.9579969123005867e-06,
+        "input_validation_elapsed_seconds": 0.00043987599201500416
+      },
+      "assignments": 0,
+      "shifts": 0,
+      "import_seconds": 9.874987881630659e-06,
+      "input_seconds": 0.00012874999083578587,
+      "elapsed_seconds": 0.021663000050466508,
+      "request_elapsed_seconds": 0.021801625029183924,
+      "engine_elapsed_seconds": 0.021659792051650584,
+      "metadata_seconds": 0.0004905419773422182,
+      "peak_rss_mib": 106.375,
+      "group": 1,
+      "iteration": 2,
+      "mode": "warm",
+      "execution": "continued"
+    },
+    {
+      "input_file": "examples/minimum_conflict.json",
+      "input_sha256": "0bf9f6f886215c0eac4647b63675216fca8f6aae0acf7217f44e642d8fe1a4e8",
+      "problem_type": "roster",
+      "employees": 2,
+      "roles": 2,
+      "days": 1.0,
+      "slot_minutes": 30,
+      "slots": 48,
+      "candidates": 0,
+      "objective_order": [
+        "scheduled_minutes"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.5",
+        "library_version": "9.15.6755",
+        "selection_reason": "MANDATORY_DEMAND"
+      },
+      "schema_version": "0.12",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "INFEASIBLE",
+      "verification": {
+        "performed": false,
+        "valid": null,
+        "violations": []
+      },
+      "objectives": [],
+      "objective_quality": [],
+      "diagnostics": [
+        {
+          "code": "NO_FEASIBLE_PLAN",
+          "message": "すべての必須条件を満たす配置はありません。",
+          "json_pointer": "",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 10
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 3.7416990380734205e-05
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.00048500002594664693
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 2.4999608285725117e-06
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.0001865830272436142
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.0003541249898262322
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 3.04199056699872e-06
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.00047979102237150073
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": null,
+      "day_count_summary": null,
+      "cost_summary": null,
+      "duty_balance_summary": null,
+      "shortage_summary": null,
+      "diagnosis_result": {
+        "status": "COMPLETE",
+        "reason": null,
+        "conflict": {
+          "conditions": [
+            {
+              "code": "DEMAND",
+              "json_pointer": "/demand/0",
+              "related_ids": [
+                "need_0_600_kitchen",
+                "kitchen"
+              ],
+              "interval": {
+                "start": "2026-10-05T10:00:00+09:00",
+                "end": "2026-10-05T10:30:00+09:00"
+              },
+              "group_id": "/demand/0"
+            }
+          ],
+          "background_conditions": [
+            {
+              "code": "AVAILABILITY",
+              "json_pointer": "/employees/0/availability",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": {
+                "start": "2026-10-05T00:00:00+09:00",
+                "end": "2026-10-06T00:00:00+09:00"
+              },
+              "group_id": "/employees/0/availability"
+            },
+            {
+              "code": "HISTORY",
+              "json_pointer": "/employees/0/history",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": null,
+              "group_id": "/employees/0/history"
+            },
+            {
+              "code": "EMPLOYEE_SKILLS",
+              "json_pointer": "/employees/0/skills",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": null,
+              "group_id": "/employees/0/skills"
+            },
+            {
+              "code": "AVAILABILITY",
+              "json_pointer": "/employees/1/availability",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": {
+                "start": "2026-10-05T00:00:00+09:00",
+                "end": "2026-10-06T00:00:00+09:00"
+              },
+              "group_id": "/employees/1/availability"
+            },
+            {
+              "code": "HISTORY",
+              "json_pointer": "/employees/1/history",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": null,
+              "group_id": "/employees/1/history"
+            },
+            {
+              "code": "EMPLOYEE_SKILLS",
+              "json_pointer": "/employees/1/skills",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": null,
+              "group_id": "/employees/1/skills"
+            },
+            {
+              "code": "PLANNING_GRID",
+              "json_pointer": "/planning_window",
+              "related_ids": [],
+              "interval": {
+                "start": "2026-10-05T00:00:00+09:00",
+                "end": "2026-10-06T00:00:00+09:00"
+              },
+              "group_id": "/planning_window"
+            },
+            {
+              "code": "BASIC_ROSTER_RULES",
+              "json_pointer": "/problem_type",
+              "related_ids": [],
+              "interval": {
+                "start": "2026-10-05T00:00:00+09:00",
+                "end": "2026-10-06T00:00:00+09:00"
+              },
+              "group_id": "/problem_type"
+            },
+            {
+              "code": "REQUIRED_SKILLS",
+              "json_pointer": "/roles/0/required_skills",
+              "related_ids": [
+                "kitchen"
+              ],
+              "interval": null,
+              "group_id": "/roles/0/required_skills"
+            },
+            {
+              "code": "REQUIRED_SKILLS",
+              "json_pointer": "/roles/1/required_skills",
+              "related_ids": [
+                "hall"
+              ],
+              "interval": null,
+              "group_id": "/roles/1/required_skills"
+            },
+            {
+              "code": "CANDIDATE_SET",
+              "json_pointer": "/shift_candidates",
+              "related_ids": [],
+              "interval": null,
+              "group_id": "/shift_candidates"
+            }
+          ],
+          "infeasibility_proven": true,
+          "minimality": "inclusion_minimal",
+          "minimality_scope": "condition_groups_relative_to_background",
+          "background_only": false,
+          "rechecked": true,
+          "checks": [
+            {
+              "phase": "initial",
+              "active_groups": [
+                "/demand/0"
+              ],
+              "removed_group_id": null,
+              "status": "INFEASIBLE",
+              "witness_verified": null,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.000370291993021965,
+              "preparation_elapsed_seconds": 0.00033258303301408887,
+              "search_elapsed_seconds": 2.7916976250708103e-05,
+              "verification_elapsed_seconds": 8.300412446260452e-08
+            },
+            {
+              "phase": "removal",
+              "active_groups": [],
+              "removed_group_id": "/demand/0",
+              "status": "OPTIMAL",
+              "witness_verified": true,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.0004987079882994294,
+              "preparation_elapsed_seconds": 0.00013520900392904878,
+              "search_elapsed_seconds": 0.000270040996838361,
+              "verification_elapsed_seconds": 8.079101098701358e-05
+            },
+            {
+              "phase": "final",
+              "active_groups": [
+                "/demand/0"
+              ],
+              "removed_group_id": null,
+              "status": "INFEASIBLE",
+              "witness_verified": null,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.00019545899704098701,
+              "preparation_elapsed_seconds": 0.0001569580053910613,
+              "search_elapsed_seconds": 2.9292015824466944e-05,
+              "verification_elapsed_seconds": 4.202593117952347e-08
+            },
+            {
+              "phase": "witness_recheck",
+              "active_groups": [],
+              "removed_group_id": "/demand/0",
+              "status": "OPTIMAL",
+              "witness_verified": true,
+              "completed_in_budget": true,
+              "elapsed_seconds": 6.737496005371213e-05,
+              "preparation_elapsed_seconds": 0.0,
+              "search_elapsed_seconds": 0.0,
+              "verification_elapsed_seconds": 6.729195592924953e-05
+            }
+          ]
+        },
+        "suggestions": [
+          {
+            "option_id": "lower_only",
+            "modified_request": {
+              "schema_version": "0.12",
+              "request_id": "minimum_conflict",
+              "problem_type": "roster",
+              "planning_window": {
+                "start": "2026-10-05T00:00:00+09:00",
+                "end": "2026-10-06T00:00:00+09:00",
+                "timezone": "Asia/Tokyo",
+                "slot_minutes": 30
+              },
+              "skills": [],
+              "roles": [
+                {
+                  "id": "kitchen",
+                  "label": "kitchen",
+                  "required_skills": []
+                },
+                {
+                  "id": "hall",
+                  "label": "hall",
+                  "required_skills": []
+                }
+              ],
+              "employees": [
+                {
+                  "id": "alice",
+                  "label": "alice",
+                  "skills": [],
+                  "availability": [],
+                  "history": {
+                    "last_shift_end": null,
+                    "consecutive_work_days_before_window": 0,
+                    "last_work_day": null
+                  }
+                },
+                {
+                  "id": "bob",
+                  "label": "bob",
+                  "skills": [],
+                  "availability": [],
+                  "history": {
+                    "last_shift_end": null,
+                    "consecutive_work_days_before_window": 0,
+                    "last_work_day": null
+                  }
+                }
+              ],
+              "demand": [
+                {
+                  "id": "need_0_600_kitchen",
+                  "role_id": "kitchen",
+                  "interval": {
+                    "start": "2026-10-05T10:00:00+09:00",
+                    "end": "2026-10-05T10:30:00+09:00"
+                  },
+                  "required_people": 3,
+                  "minimum_people": 0
+                }
+              ],
+              "shift_candidates": [],
+              "constraints": [],
+              "preferences": [],
+              "objectives": [
+                {
+                  "id": "work",
+                  "metric": "scheduled_minutes"
+                }
+              ],
+              "solver": {
+                "backend": "auto",
+                "time_limit_seconds": 9.997642582980916,
+                "seed": 0
+              }
+            },
+            "response": {
+              "schema_version": "0.12",
+              "request_id": "minimum_conflict",
+              "status": "PARTIAL",
+              "solver": {
+                "backend": "cp_sat",
+                "engine_version": "0.1.5",
+                "library_version": "9.15.6755",
+                "selection_reason": "JOINT_ROSTER"
+              },
+              "solution": {
+                "assignments": [],
+                "shifts": []
+              },
+              "objectives": [
+                {
+                  "id": "work",
+                  "metric": "scheduled_minutes",
+                  "value": 0,
+                  "proven_optimal": true
+                }
+              ],
+              "diagnostics": [
+                {
+                  "code": "SEARCH_STATS",
+                  "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+                  "json_pointer": "/solver/time_limit_seconds",
+                  "related_ids": [],
+                  "facts": [
+                    {
+                      "name": "time_limit_seconds",
+                      "value": 9.997642582980916
+                    },
+                    {
+                      "name": "search_elapsed_seconds",
+                      "value": 0.0035563750425353646
+                    },
+                    {
+                      "name": "num_workers",
+                      "value": 2
+                    },
+                    {
+                      "name": "workers_applied",
+                      "value": true
+                    },
+                    {
+                      "name": "normalization_elapsed_seconds",
+                      "value": 0.0003392500220797956
+                    },
+                    {
+                      "name": "backend_loading_elapsed_seconds",
+                      "value": 2.416956704109907e-06
+                    },
+                    {
+                      "name": "preparation_elapsed_seconds",
+                      "value": 0.00017262500477954745
+                    },
+                    {
+                      "name": "verification_elapsed_seconds",
+                      "value": 0.00044370797695592046
+                    },
+                    {
+                      "name": "candidate_expansion_elapsed_seconds",
+                      "value": 3.2079988159239292e-06
+                    },
+                    {
+                      "name": "input_validation_elapsed_seconds",
+                      "value": 0.00033366697607561946
+                    }
+                  ]
+                },
+                {
+                  "code": "SHORTAGE_BOUND",
+                  "message": "不足合計人分の探索下限です。",
+                  "json_pointer": "/shortage_summary",
+                  "related_ids": [],
+                  "facts": [
+                    {
+                      "name": "best_bound",
+                      "value": 90.0
+                    }
+                  ]
+                },
+                {
+                  "code": "OBJECTIVE_BOUND",
+                  "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+                  "json_pointer": "/objectives/0",
+                  "related_ids": [
+                    "work"
+                  ],
+                  "facts": [
+                    {
+                      "name": "objective_index",
+                      "value": 0
+                    },
+                    {
+                      "name": "best_bound",
+                      "value": 0.0
+                    }
+                  ]
+                }
+              ],
+              "verification": {
+                "performed": true,
+                "valid": true,
+                "violations": []
+              },
+              "stats": {
+                "elapsed_seconds": 0.005805374996270984
+              },
+              "fairness_summary": null,
+              "change_summary": null,
+              "diagnosis_result": null,
+              "shortage_summary": {
+                "total_person_minutes": 90,
+                "shortages": [
+                  {
+                    "demand_id": "need_0_600_kitchen",
+                    "role_id": "kitchen",
+                    "interval": {
+                      "start": "2026-10-05T10:00:00+09:00",
+                      "end": "2026-10-05T10:30:00+09:00"
+                    },
+                    "required_people": 3,
+                    "assigned_people": 0,
+                    "missing_people": 3,
+                    "minimum_people": 0
+                  }
+                ],
+                "proven_minimal": true
+              },
+              "priority_summary": {
+                "groups": [
+                  {
+                    "priority": 0,
+                    "total_person_minutes": 90,
+                    "proven_minimal": true
+                  }
+                ]
+              },
+              "continuity_summary": null,
+              "cost_summary": null,
+              "duty_balance_summary": null,
+              "day_count_summary": null
+            }
+          },
+          {
+            "option_id": "both",
+            "modified_request": {
+              "schema_version": "0.12",
+              "request_id": "minimum_conflict",
+              "problem_type": "roster",
+              "planning_window": {
+                "start": "2026-10-05T00:00:00+09:00",
+                "end": "2026-10-06T00:00:00+09:00",
+                "timezone": "Asia/Tokyo",
+                "slot_minutes": 30
+              },
+              "skills": [],
+              "roles": [
+                {
+                  "id": "kitchen",
+                  "label": "kitchen",
+                  "required_skills": []
+                },
+                {
+                  "id": "hall",
+                  "label": "hall",
+                  "required_skills": []
+                }
+              ],
+              "employees": [
+                {
+                  "id": "alice",
+                  "label": "alice",
+                  "skills": [],
+                  "availability": [],
+                  "history": {
+                    "last_shift_end": null,
+                    "consecutive_work_days_before_window": 0,
+                    "last_work_day": null
+                  }
+                },
+                {
+                  "id": "bob",
+                  "label": "bob",
+                  "skills": [],
+                  "availability": [],
+                  "history": {
+                    "last_shift_end": null,
+                    "consecutive_work_days_before_window": 0,
+                    "last_work_day": null
+                  }
+                }
+              ],
+              "demand": [
+                {
+                  "id": "need_0_600_kitchen",
+                  "role_id": "kitchen",
+                  "interval": {
+                    "start": "2026-10-05T10:00:00+09:00",
+                    "end": "2026-10-05T10:30:00+09:00"
+                  },
+                  "required_people": 0,
+                  "minimum_people": 0
+                }
+              ],
+              "shift_candidates": [],
+              "constraints": [],
+              "preferences": [],
+              "objectives": [
+                {
+                  "id": "work",
+                  "metric": "scheduled_minutes"
+                }
+              ],
+              "solver": {
+                "backend": "auto",
+                "time_limit_seconds": 9.990541415987536,
+                "seed": 0
+              }
+            },
+            "response": {
+              "schema_version": "0.12",
+              "request_id": "minimum_conflict",
+              "status": "OPTIMAL",
+              "solver": {
+                "backend": "cp_sat",
+                "engine_version": "0.1.5",
+                "library_version": "9.15.6755",
+                "selection_reason": "JOINT_ROSTER"
+              },
+              "solution": {
+                "assignments": [],
+                "shifts": []
+              },
+              "objectives": [
+                {
+                  "id": "work",
+                  "metric": "scheduled_minutes",
+                  "value": 0,
+                  "proven_optimal": true
+                }
+              ],
+              "diagnostics": [
+                {
+                  "code": "SEARCH_STATS",
+                  "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+                  "json_pointer": "/solver/time_limit_seconds",
+                  "related_ids": [],
+                  "facts": [
+                    {
+                      "name": "time_limit_seconds",
+                      "value": 9.990541415987536
+                    },
+                    {
+                      "name": "search_elapsed_seconds",
+                      "value": 0.0035294590052217245
+                    },
+                    {
+                      "name": "num_workers",
+                      "value": 2
+                    },
+                    {
+                      "name": "workers_applied",
+                      "value": true
+                    },
+                    {
+                      "name": "normalization_elapsed_seconds",
+                      "value": 0.00034420902375131845
+                    },
+                    {
+                      "name": "backend_loading_elapsed_seconds",
+                      "value": 2.500019036233425e-06
+                    },
+                    {
+                      "name": "preparation_elapsed_seconds",
+                      "value": 0.00015074998373165727
+                    },
+                    {
+                      "name": "verification_elapsed_seconds",
+                      "value": 0.0004747500061057508
+                    },
+                    {
+                      "name": "candidate_expansion_elapsed_seconds",
+                      "value": 2.9160291887819767e-06
+                    },
+                    {
+                      "name": "input_validation_elapsed_seconds",
+                      "value": 0.0003392089856788516
+                    }
+                  ]
+                },
+                {
+                  "code": "SHORTAGE_BOUND",
+                  "message": "不足合計人分の探索下限です。",
+                  "json_pointer": "/shortage_summary",
+                  "related_ids": [],
+                  "facts": [
+                    {
+                      "name": "best_bound",
+                      "value": 0.0
+                    }
+                  ]
+                },
+                {
+                  "code": "OBJECTIVE_BOUND",
+                  "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+                  "json_pointer": "/objectives/0",
+                  "related_ids": [
+                    "work"
+                  ],
+                  "facts": [
+                    {
+                      "name": "objective_index",
+                      "value": 0
+                    },
+                    {
+                      "name": "best_bound",
+                      "value": 0.0
+                    }
+                  ]
+                }
+              ],
+              "verification": {
+                "performed": true,
+                "valid": true,
+                "violations": []
+              },
+              "stats": {
+                "elapsed_seconds": 0.005769625015091151
+              },
+              "fairness_summary": null,
+              "change_summary": null,
+              "diagnosis_result": null,
+              "shortage_summary": {
+                "total_person_minutes": 0,
+                "shortages": [],
+                "proven_minimal": true
+              },
+              "priority_summary": {
+                "groups": [
+                  {
+                    "priority": 0,
+                    "total_person_minutes": 0,
+                    "proven_minimal": true
+                  }
+                ]
+              },
+              "continuity_summary": null,
+              "cost_summary": null,
+              "duty_balance_summary": null,
+              "day_count_summary": null
+            }
+          }
+        ],
+        "suggestion_minimality": "not_proven",
+        "time_limit_seconds": 10,
+        "elapsed_seconds": 0.022767625050619245,
+        "diagnostics": [
+          {
+            "code": "OPTION_REJECTED",
+            "message": "変更後入力の検証済み解を取得できませんでした。",
+            "json_pointer": "",
+            "related_ids": [
+              "upper_only"
+            ],
+            "facts": [
+              {
+                "name": "status",
+                "value": "INVALID_INPUT"
+              }
+            ]
+          },
+          {
+            "code": "OPTION_BUDGET",
+            "message": "許可編集を適用し、診断を無効にして残り予算で検証しました。",
+            "json_pointer": "/solver/time_limit_seconds",
+            "related_ids": [
+              "lower_only"
+            ],
+            "facts": [
+              {
+                "name": "original_budget",
+                "value": 10
+              },
+              {
+                "name": "applied_budget",
+                "value": 9.997642582980916
+              }
+            ]
+          },
+          {
+            "code": "OPTION_BUDGET",
+            "message": "許可編集を適用し、診断を無効にして残り予算で検証しました。",
+            "json_pointer": "/solver/time_limit_seconds",
+            "related_ids": [
+              "both"
+            ],
+            "facts": [
+              {
+                "name": "original_budget",
+                "value": 10
+              },
+              {
+                "name": "applied_budget",
+                "value": 9.990541415987536
+              }
+            ]
+          }
+        ]
+      },
+      "search_stats": {
+        "time_limit_seconds": 10,
+        "search_elapsed_seconds": 3.7416990380734205e-05,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.00048500002594664693,
+        "backend_loading_elapsed_seconds": 2.4999608285725117e-06,
+        "preparation_elapsed_seconds": 0.0001865830272436142,
+        "verification_elapsed_seconds": 0.0003541249898262322,
+        "candidate_expansion_elapsed_seconds": 3.04199056699872e-06,
+        "input_validation_elapsed_seconds": 0.00047979102237150073
+      },
+      "assignments": 0,
+      "shifts": 0,
+      "import_seconds": 6.58305361866951e-06,
+      "input_seconds": 0.00012566696386784315,
+      "elapsed_seconds": 0.023848791024647653,
+      "request_elapsed_seconds": 0.023981041042134166,
+      "engine_elapsed_seconds": 0.023845957999583334,
+      "metadata_seconds": 0.0005238750018179417,
+      "peak_rss_mib": 106.453125,
+      "group": 1,
+      "iteration": 3,
+      "mode": "warm",
+      "execution": "continued"
+    }
+  ],
+  "workers": [
+    {
+      "input_file": "examples/minimum_assignment.json",
+      "group": 1,
+      "elapsed_seconds": 0.4757416250067763,
+      "completed": 3,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "examples/minimum_roster.json",
+      "group": 1,
+      "elapsed_seconds": 0.45173545798752457,
+      "completed": 3,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "examples/minimum_conflict.json",
+      "group": 1,
+      "elapsed_seconds": 0.4936156250187196,
+      "completed": 3,
+      "failure": null,
+      "timeout_seconds": 60
+    }
+  ],
+  "summaries": [
+    {
+      "input_file": "examples/minimum_assignment.json",
+      "attempts": 3,
+      "statuses": {
+        "PARTIAL": 3
+      },
+      "verified_solutions": 3,
+      "complete_solutions": 0,
+      "solution_rate": 1.0,
+      "verified_suggestions": 0,
+      "statistics": {
+        "elapsed_seconds": {
+          "samples": 3,
+          "mean": 0.10783477798880388,
+          "median": 0.004910250019747764,
+          "p95": 0.31413966696709394,
+          "maximum": 0.31413966696709394
+        },
+        "request_elapsed_seconds": {
+          "samples": 3,
+          "mean": 0.12527151367006203,
+          "median": 0.005033833032939583,
+          "p95": 0.3662299999850802,
+          "maximum": 0.3662299999850802
+        },
+        "peak_rss_mib": {
+          "samples": 3,
+          "mean": 107.75,
+          "median": 107.8125,
+          "p95": 107.84375,
+          "maximum": 107.84375
+        }
+      },
+      "first_request_elapsed_seconds": {
+        "samples": 1,
+        "mean": 0.3662299999850802,
+        "median": 0.3662299999850802,
+        "p95": 0.3662299999850802,
+        "maximum": 0.3662299999850802
+      },
+      "continued_request_elapsed_seconds": {
+        "samples": 2,
+        "mean": 0.004792270512552932,
+        "median": 0.004792270512552932,
+        "p95": 0.005033833032939583,
+        "maximum": 0.005033833032939583
+      },
+      "process_elapsed_seconds": {
+        "samples": 1,
+        "mean": 0.4757416250067763,
+        "median": 0.4757416250067763,
+        "p95": 0.4757416250067763,
+        "maximum": 0.4757416250067763
+      },
+      "objective_quality": []
+    },
+    {
+      "input_file": "examples/minimum_roster.json",
+      "attempts": 3,
+      "statuses": {
+        "PARTIAL": 3
+      },
+      "verified_solutions": 3,
+      "complete_solutions": 0,
+      "solution_rate": 1.0,
+      "verified_suggestions": 0,
+      "statistics": {
+        "elapsed_seconds": {
+          "samples": 3,
+          "mean": 0.10643086134223267,
+          "median": 0.007760624983347952,
+          "p95": 0.30548241699580103,
+          "maximum": 0.30548241699580103
+        },
+        "request_elapsed_seconds": {
+          "samples": 3,
+          "mean": 0.11650313900706048,
+          "median": 0.007891624991316348,
+          "p95": 0.33543616702081636,
+          "maximum": 0.33543616702081636
+        },
+        "peak_rss_mib": {
+          "samples": 3,
+          "mean": 106.75520833333333,
+          "median": 106.78125,
+          "p95": 106.84375,
+          "maximum": 106.84375
+        }
+      },
+      "first_request_elapsed_seconds": {
+        "samples": 1,
+        "mean": 0.33543616702081636,
+        "median": 0.33543616702081636,
+        "p95": 0.33543616702081636,
+        "maximum": 0.33543616702081636
+      },
+      "continued_request_elapsed_seconds": {
+        "samples": 2,
+        "mean": 0.007036625000182539,
+        "median": 0.007036625000182539,
+        "p95": 0.007891624991316348,
+        "maximum": 0.007891624991316348
+      },
+      "process_elapsed_seconds": {
+        "samples": 1,
+        "mean": 0.45173545798752457,
+        "median": 0.45173545798752457,
+        "p95": 0.45173545798752457,
+        "maximum": 0.45173545798752457
+      },
+      "objective_quality": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "observed_values": {
+            "samples": 3,
+            "mean": 180,
+            "median": 180,
+            "p95": 180,
+            "maximum": 180
+          },
+          "proven_count": 3,
+          "relative_gap": {
+            "samples": 3,
+            "mean": 0.0,
+            "median": 0.0,
+            "p95": 0.0,
+            "maximum": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "input_file": "examples/minimum_conflict.json",
+      "attempts": 3,
+      "statuses": {
+        "INFEASIBLE": 3
+      },
+      "verified_solutions": 0,
+      "complete_solutions": 0,
+      "solution_rate": 0.0,
+      "verified_suggestions": 3,
+      "statistics": {
+        "elapsed_seconds": {
+          "samples": 3,
+          "mean": 0.12093956937314942,
+          "median": 0.023848791024647653,
+          "p95": 0.3173069170443341,
+          "maximum": 0.3173069170443341
+        },
+        "request_elapsed_seconds": {
+          "samples": 3,
+          "mean": 0.13100556936115026,
+          "median": 0.023981041042134166,
+          "p95": 0.3472340420121327,
+          "maximum": 0.3472340420121327
+        },
+        "peak_rss_mib": {
+          "samples": 3,
+          "mean": 106.33333333333333,
+          "median": 106.375,
+          "p95": 106.453125,
+          "maximum": 106.453125
+        }
+      },
+      "first_request_elapsed_seconds": {
+        "samples": 1,
+        "mean": 0.3472340420121327,
+        "median": 0.3472340420121327,
+        "p95": 0.3472340420121327,
+        "maximum": 0.3472340420121327
+      },
+      "continued_request_elapsed_seconds": {
+        "samples": 2,
+        "mean": 0.022891333035659045,
+        "median": 0.022891333035659045,
+        "p95": 0.023981041042134166,
+        "maximum": 0.023981041042134166
+      },
+      "process_elapsed_seconds": {
+        "samples": 1,
+        "mean": 0.4936156250187196,
+        "median": 0.4936156250187196,
+        "p95": 0.4936156250187196,
+        "maximum": 0.4936156250187196
+      },
+      "objective_quality": []
+    }
+  ]
+}

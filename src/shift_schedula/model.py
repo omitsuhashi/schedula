@@ -146,6 +146,7 @@ class Problem:
     continuity: list = field(default_factory=list)
     normalization_stats: dict = field(default_factory=dict)
     priorities: dict = field(default_factory=dict)
+    minimums: dict = field(default_factory=dict)
 
 
 def priority_levels(request):
@@ -255,10 +256,12 @@ def normalize(request):
         or "role_switches" in metrics
         or request.get("diagnosis")
         or any(d.get("priority", 0) for d in request["demand"])
+        or any(d.get("minimum_people", 0) for d in request["demand"])
     ):
         reject(
             "UNSUPPORTED_BACKEND",
-            "min_cost_flow は roster・明示制約・role_switches 目的・非既定priorityを扱えません。",
+            "min_cost_flow は roster・明示制約・role_switches 目的・"
+            "非既定priority・必須最低人数を扱えません。",
             "/solver/backend",
         )
 
@@ -288,7 +291,7 @@ def normalize(request):
         context_bounds(request, grid)
         continuity_facts = facts(request, grid)
         absolute_available = availability(request, grid)
-    if request["schema_version"] == "0.11":
+    if request["schema_version"] in {"0.11", "0.12"}:
         from .day_counts import validate as validate_day_counts
 
         validate_day_counts(request, grid)
@@ -360,8 +363,17 @@ def normalize(request):
         }
     demand = [{} for _ in range(slots)]
     priorities = {}
+    minimums = {}
     for index, item in enumerate(request["demand"]):
         path = f"/demand/{index}"
+        minimum = int(item.get("minimum_people", 0))
+        if minimum > item["required_people"]:
+            reject(
+                "INVALID_DEMAND_BOUNDS",
+                "最低人数が必要人数を超えています。",
+                path + "/minimum_people",
+                [item["id"]],
+            )
         reference(item["role_id"], ids["roles"], path + "/role_id")
         a, b = grid.interval(item["interval"], path + "/interval")
         for slot in range(a, b):
@@ -373,7 +385,17 @@ def normalize(request):
                     [item["id"], item["role_id"]],
                 )
             demand[slot][item["role_id"]] = int(item["required_people"])
-            if request["schema_version"] in {"0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"}:
+            minimums[slot, item["role_id"]] = minimum
+            if request["schema_version"] in {
+                "0.5",
+                "0.6",
+                "0.7",
+                "0.8",
+                "0.9",
+                "0.10",
+                "0.11",
+                "0.12",
+            }:
                 priorities[slot, item["role_id"]] = int(item.get("priority", 0))
     costs = {}
     for index, item in enumerate(request["preferences"]):
@@ -391,6 +413,7 @@ def normalize(request):
                 costs[key] = costs.get(key, 0) + int(item["penalty_per_minute"]) * grid.slot_minutes
     problem = Problem(request, grid, available, qualified, demand, costs)
     problem.priorities = priorities
+    problem.minimums = minimums
     if roster:
         from .roster import expand_candidates, validate_history
 
@@ -412,12 +435,13 @@ def normalize(request):
         "0.9",
         "0.10",
         "0.11",
+        "0.12",
     }:
         from .diagnosis import validate_options
         from .extensions import validate
 
         validate(problem)
-        if request["schema_version"] in {"0.9", "0.10", "0.11"}:
+        if request["schema_version"] in {"0.9", "0.10", "0.11", "0.12"}:
             from .roster_metrics import validate as validate_metrics
 
             validate_metrics(problem)

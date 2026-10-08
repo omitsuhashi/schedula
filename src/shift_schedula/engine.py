@@ -82,6 +82,7 @@ def validate_response(result, request=None):
             "0.9",
             "0.10",
             "0.11",
+            "0.12",
         }:
             from .extensions import evaluate
 
@@ -98,6 +99,7 @@ def validate_response(result, request=None):
                 "0.9",
                 "0.10",
                 "0.11",
+                "0.12",
             } and shortage != {
                 k: v for k, v in result["shortage_summary"].items() if k != "proven_minimal"
             }:
@@ -108,7 +110,16 @@ def validate_response(result, request=None):
                         "/shortage_summary",
                     )
                 )
-            if request["schema_version"] in {"0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"}:
+            if request["schema_version"] in {
+                "0.5",
+                "0.6",
+                "0.7",
+                "0.8",
+                "0.9",
+                "0.10",
+                "0.11",
+                "0.12",
+            }:
                 expected_priority = priority_summary(request, shortage)
                 actual_priority = {
                     "groups": [
@@ -140,7 +151,7 @@ def validate_response(result, request=None):
                     )
     if result["status"] in {"OPTIMAL", "FEASIBLE", "PARTIAL"}:
         proofs = [item["proven_optimal"] for item in result["objectives"]]
-        if result["schema_version"] in {"0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"}:
+        if result["schema_version"] in {"0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"}:
             groups = result["priority_summary"]["groups"]
             levels = [g["priority"] for g in groups]
             if (
@@ -165,7 +176,7 @@ def validate_response(result, request=None):
             and (
                 proofs
                 or result["schema_version"]
-                in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"}
+                in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"}
             )
             and all(proofs)
         ):
@@ -178,7 +189,7 @@ def validate_response(result, request=None):
             )
     if (
         result["schema_version"]
-        in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"}
+        in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"}
         and result["shortage_summary"] is not None
     ):
         summary = result["shortage_summary"]
@@ -193,6 +204,10 @@ def validate_response(result, request=None):
                 seconds <= 0
                 or seconds % 60
                 or item["required_people"] - item["assigned_people"] != item["missing_people"]
+                or (
+                    result["schema_version"] == "0.12"
+                    and not 0 <= item["minimum_people"] <= item["assigned_people"]
+                )
             ):
                 errors.append(
                     diagnostic(
@@ -221,6 +236,7 @@ def validate_response(result, request=None):
         "0.9",
         "0.10",
         "0.11",
+        "0.12",
     }:
         from .diagnosis import validate_result
 
@@ -266,6 +282,8 @@ def validate(request: object) -> dict:
 def choose_backend(request):
     if request["solver"]["backend"] != "auto":
         return request["solver"]["backend"], "EXPLICIT_BACKEND"
+    if any(d.get("minimum_people", 0) for d in request["demand"]):
+        return "cp_sat", "MANDATORY_DEMAND"
     if any(d.get("priority", 0) for d in request["demand"]):
         return "cp_sat", "DEMAND_PRIORITY"
     if request["problem_type"] == "roster":
@@ -303,17 +321,29 @@ def solve(request: dict, *, num_workers: int = 2) -> dict:
             "0.9",
             "0.10",
             "0.11",
+            "0.12",
         }:
             result.update(fairness_summary=None, change_summary=None, diagnosis_result=None)
-        if schema_version in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"}:
+        if schema_version in {
+            "0.3",
+            "0.4",
+            "0.5",
+            "0.6",
+            "0.7",
+            "0.8",
+            "0.9",
+            "0.10",
+            "0.11",
+            "0.12",
+        }:
             result["shortage_summary"] = None
-        if schema_version in {"0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"}:
+        if schema_version in {"0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"}:
             result["priority_summary"] = None
-        if schema_version in {"0.6", "0.7", "0.8", "0.9", "0.10", "0.11"}:
+        if schema_version in {"0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"}:
             result["continuity_summary"] = None
-        if schema_version in {"0.9", "0.10", "0.11"}:
+        if schema_version in {"0.9", "0.10", "0.11", "0.12"}:
             result.update(cost_summary=None, duty_balance_summary=None)
-        if schema_version == "0.11":
+        if schema_version in {"0.11", "0.12"}:
             result["day_count_summary"] = None
         return result
 
@@ -342,13 +372,24 @@ def solve(request: dict, *, num_workers: int = 2) -> dict:
             backend == "min_cost_flow"
             and outcome.status == "FEASIBLE"
             and schema_version
-            not in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"}
+            not in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"}
         ):
             raise RuntimeError("Unexpected flow outcome")
         result = extend(response(request_id, outcome.status, outcome.diagnostics, backend))
         if outcome.status in {"OPTIMAL", "FEASIBLE"}:
             shortage = None
-            if schema_version in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"}:
+            if schema_version in {
+                "0.3",
+                "0.4",
+                "0.5",
+                "0.6",
+                "0.7",
+                "0.8",
+                "0.9",
+                "0.10",
+                "0.11",
+                "0.12",
+            }:
                 violations, values, shortage = verify_plan(problem, outcome.solution)
                 if (
                     shortage is not None
@@ -364,7 +405,7 @@ def solve(request: dict, *, num_workers: int = 2) -> dict:
             else:
                 violations, values = verify_solution(problem, outcome.solution)
             priorities = None
-            if schema_version in {"0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"}:
+            if schema_version in {"0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"}:
                 priorities = priority_summary(request, shortage)
                 if backend == "cp_sat" and cp_sat.priority_stages(request):
                     if (
@@ -430,6 +471,7 @@ def solve(request: dict, *, num_workers: int = 2) -> dict:
                     "0.9",
                     "0.10",
                     "0.11",
+                    "0.12",
                 }:
                     minimal = (
                         shortage["total_person_minutes"] == 0 or outcome.shortage_proven_minimal
@@ -459,6 +501,7 @@ def solve(request: dict, *, num_workers: int = 2) -> dict:
                     "0.9",
                     "0.10",
                     "0.11",
+                    "0.12",
                 }:
                     from .extensions import evaluate
 
@@ -506,7 +549,8 @@ def solve(request: dict, *, num_workers: int = 2) -> dict:
                         )
                     )
             if (
-                schema_version in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"}
+                schema_version
+                in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"}
                 and outcome.shortage_bound is not None
             ):
                 result["diagnostics"].append(

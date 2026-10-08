@@ -280,7 +280,37 @@ async function jsonInputChecks(page) {
     }
   }
   report.interactions.push("契約0.11の勤務日数・占有日数・完全休日数をJSON入力から計算・表示し、全5失敗状態の集計保持を拒否");
-  for (const schema_version of ["0.6", "0.7", "0.8", "0.9", "0.10", "0.11"]) {
+  for (const kind of ["assignment", "roster"]) {
+    const input = JSON.parse(readFileSync(`examples/minimum_${kind}.json`, "utf8"));
+    await page.locator("#json-input").fill(JSON.stringify(input));
+    await page.locator("#json-calculate").click();
+    await page.waitForFunction(() => !busy);
+    const pair = await page.evaluate(() => jsonPair);
+    assert.ok(pair, await page.locator("#json-status").innerText());
+    assert.equal(pair.response.status, "PARTIAL");
+    assert.equal(pair.response.shortage_summary.total_person_minutes, 30);
+    assert.equal(pair.response.shortage_summary.shortages[0].minimum_people, 1);
+    assert.match(await page.locator("#json-output").innerText(), /最低人数/);
+    for (const damage of ["assignment", "minimum", "missing-minimum"]) {
+      assert.match(await page.evaluate(damage => {
+        const {input, response} = structuredClone(jsonPair);
+        if (damage === "assignment") response.solution.assignments = [];
+        if (damage === "minimum") response.shortage_summary.shortages[0].minimum_people = 0;
+        if (damage === "missing-minimum") delete response.shortage_summary.shortages[0].minimum_people;
+        const grid = [input.planning_window.start, ...jsonSlots(input).map(slot => new Date(slot.end).toISOString())];
+        try { acceptResponse(response, input, grid); return ""; } catch (error) { return error.message; }
+      }, damage), /最低人数|不足/);
+    }
+    input.employees.forEach(e => { e.availability = []; });
+    input.shift_candidates = [];
+    await page.locator("#json-input").fill(JSON.stringify(input));
+    await page.locator("#json-calculate").click();
+    await page.waitForFunction(() => !busy);
+    assert.equal(await page.evaluate(() => jsonPair.response.status), "INFEASIBLE");
+    assert.equal(await page.locator("#json-output table").count(), 0);
+  }
+  report.interactions.push("契約0.12の担当配置・勤務計画で必須最低人数とPARTIALの不足を表示し、下限違反・集計改ざんを拒否");
+  for (const schema_version of ["0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"]) {
     const input = {...JSON.parse(readFileSync("examples/partial_assignment.json", "utf8")), schema_version};
     await page.locator("#json-input").fill(JSON.stringify(input));
     await page.locator("#json-calculate").click();

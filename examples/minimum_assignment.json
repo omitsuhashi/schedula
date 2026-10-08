@@ -1,0 +1,69 @@
+{
+  "schema_version": "0.12",
+  "request_id": "minimum_assignment",
+  "problem_type": "assignment",
+  "planning_window": {
+    "start": "2026-10-05T00:00:00+09:00",
+    "end": "2026-10-06T00:00:00+09:00",
+    "timezone": "Asia/Tokyo",
+    "slot_minutes": 30
+  },
+  "skills": [],
+  "roles": [
+    {
+      "id": "kitchen",
+      "label": "kitchen",
+      "required_skills": []
+    },
+    {
+      "id": "hall",
+      "label": "hall",
+      "required_skills": []
+    }
+  ],
+  "employees": [
+    {
+      "id": "alice",
+      "label": "責任者A",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T11:30:00+09:00"
+        }
+      ]
+    },
+    {
+      "id": "bob",
+      "label": "責任者B",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T11:30:00+09:00"
+        }
+      ]
+    }
+  ],
+  "demand": [
+    {
+      "id": "need_0_600_kitchen",
+      "role_id": "kitchen",
+      "interval": {
+        "start": "2026-10-05T10:00:00+09:00",
+        "end": "2026-10-05T10:30:00+09:00"
+      },
+      "required_people": 3,
+      "minimum_people": 1
+    }
+  ],
+  "shift_candidates": [],
+  "constraints": [],
+  "preferences": [],
+  "objectives": [],
+  "solver": {
+    "backend": "auto",
+    "time_limit_seconds": 10,
+    "seed": 0
+  }
+}
