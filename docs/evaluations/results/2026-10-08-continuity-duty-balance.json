@@ -1,0 +1,4733 @@
+{
+  "measured_at": "2026-10-08T01:58:35.995655+00:00",
+  "command": [
+    "scripts/evaluate.py",
+    "examples/continuity_duty_balance.json",
+    "docs/evaluations/inputs/continuity-duty-partial.json",
+    "docs/evaluations/inputs/continuity-duty-conflict.json",
+    "docs/evaluations/inputs/continuity-duty-invalid.json",
+    "docs/evaluations/inputs/continuity-duty-timeout.json",
+    "--repeat",
+    "3",
+    "--source-ref",
+    "b50edc8bfaa527d429e7d959722fc3b749c7af89",
+    "--output",
+    "test-results/continuity-duty-balance.json"
+  ],
+  "source": {
+    "commit": "b50edc8bfaa527d429e7d959722fc3b749c7af89",
+    "dirty": false,
+    "snapshot": "git_archive",
+    "source_directory": null,
+    "source_tree_sha256": "da7dbb627ffbe6cb7d3e8b58550e33a453813bf709d25f2876ef9ecf8528e47b",
+    "runner_sha256": "ac2b5288203ac60e229aa76263b402ff65f1512e87fee327e74a5859bf958c74",
+    "uv_lock_sha256": "b848a99532d8d329e6b18c35257ec158ff829b111fe0b98a3381904cb7703cd7",
+    "package_version": "0.1.5"
+  },
+  "conditions": {
+    "mode": "cold",
+    "repeat": 3,
+    "processes": 1,
+    "worker_processes_started": 15,
+    "worker_timeout_seconds": 60,
+    "time_limit_seconds_override": null,
+    "quantile_method": "nearest_rank",
+    "cold_definition": "新規 Python プロセス。OS のファイルキャッシュは消去しない。"
+  },
+  "environment": {
+    "platform": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "cpu_count": 8,
+    "python": "3.14.8 (main, Oct  3 2026, 00:54:40) [Clang 22.1.3 ]",
+    "uv": "uv 0.12.23 (46b84fd0b 2026-10-03 aarch64-apple-darwin)",
+    "packages": {
+      "PyYAML": "6.0.3",
+      "Pygments": "2.21.0",
+      "absl-py": "2.5.0",
+      "ast_serialize": "0.12.1",
+      "attrs": "26.1.0",
+      "cfgv": "3.5.0",
+      "distlib": "0.4.3",
+      "filelock": "4.0.10",
+      "identify": "2.6.20",
+      "immutabledict": "4.3.1",
+      "iniconfig": "2.3.0",
+      "jsonschema": "4.26.0",
+      "jsonschema-specifications": "2025.9.1",
+      "librt": "0.16.0",
+      "mypy": "2.4.0",
+      "mypy_extensions": "1.1.0",
+      "nodeenv": "1.11.0",
+      "numpy": "2.5.3",
+      "ortools": "9.15.6755",
+      "packaging": "26.3",
+      "pandas": "3.0.6",
+      "pathspec": "1.1.1",
+      "platformdirs": "4.12.3",
+      "pluggy": "1.6.0",
+      "pre_commit": "4.6.2",
+      "protobuf": "6.33.6",
+      "pytest": "9.1.1",
+      "python-dateutil": "2.9.0.post0",
+      "python-discovery": "1.6.1",
+      "referencing": "0.37.0",
+      "rpds-py": "2026.6.3",
+      "ruff": "0.16.10",
+      "shift-schedula": "0.1.5",
+      "six": "1.17.0",
+      "typing_extensions": "4.16.0",
+      "tzdata": "2026.5",
+      "virtualenv": "21.14.5"
+    }
+  },
+  "measurements": [
+    {
+      "input_file": "examples/continuity_duty_balance.json",
+      "input_sha256": "f99ae3a64cd2cdab2457fbdf48afe763240ab7d32ced9b8f63e73ae937e6538b",
+      "problem_type": "roster",
+      "employees": 2,
+      "roles": 2,
+      "days": 1.0,
+      "slot_minutes": 30,
+      "slots": 48,
+      "candidates": 2,
+      "objective_order": [
+        "duty_deviation_minutes",
+        "scheduled_cost",
+        "scheduled_minutes"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.5",
+        "library_version": "9.15.6755",
+        "selection_reason": "DEMAND_PRIORITY"
+      },
+      "schema_version": "0.10",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "OPTIMAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "balance_night",
+          "metric": "duty_deviation_minutes",
+          "duty_id": "night",
+          "value": 0,
+          "proven_optimal": true
+        },
+        {
+          "id": "cost",
+          "metric": "scheduled_cost",
+          "value": 432000,
+          "proven_optimal": true
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 240,
+          "proven_optimal": true
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "balance_night",
+          "metric": "duty_deviation_minutes",
+          "duty_id": "night",
+          "value": 0,
+          "proven_optimal": true,
+          "best_bound": 0.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "cost",
+          "metric": "scheduled_cost",
+          "value": 432000,
+          "proven_optimal": true,
+          "best_bound": 432000.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 240,
+          "proven_optimal": true,
+          "best_bound": 240.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 10
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.009219208033755422
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.045792958000674844
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.21215270896209404
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.0009440829744562507
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.012943290988914669
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 8.099997648969293e-05
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.04570745804812759
+            }
+          ]
+        },
+        {
+          "code": "PRIORITY_SHORTAGE_BOUND",
+          "message": "上位段階を固定したpriority群の不足下限です。",
+          "json_pointer": "/priority_summary/groups/0",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "SHORTAGE_BOUND",
+          "message": "不足合計人分の探索下限です。",
+          "json_pointer": "/shortage_summary",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "balance_night"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/1",
+          "related_ids": [
+            "cost"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 1
+            },
+            {
+              "name": "best_bound",
+              "value": 432000.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/2",
+          "related_ids": [
+            "work"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 2
+            },
+            {
+              "name": "best_bound",
+              "value": 240.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": {
+        "context_window": {
+          "start": "2026-10-05T00:00:00+09:00",
+          "end": "2026-10-08T00:00:00+09:00"
+        },
+        "planning_window": {
+          "start": "2026-10-06T00:00:00+09:00",
+          "end": "2026-10-07T00:00:00+09:00"
+        },
+        "employees": [
+          {
+            "employee_id": "alice",
+            "historical_minutes": 240,
+            "planned_minutes": 0,
+            "outside_planning_minutes": 0,
+            "committed_shift_ids": []
+          },
+          {
+            "employee_id": "bob",
+            "historical_minutes": 0,
+            "planned_minutes": 240,
+            "outside_planning_minutes": 0,
+            "committed_shift_ids": []
+          }
+        ]
+      },
+      "cost_summary": {
+        "currency": "JPY",
+        "units_per_currency": 60,
+        "evaluation_period": {
+          "start": "2026-10-06T00:00:00+09:00",
+          "end": "2026-10-07T00:00:00+09:00"
+        },
+        "total_units": 432000,
+        "employees": [
+          {
+            "employee_id": "alice",
+            "units_per_minute": 1800,
+            "scheduled_minutes": 0,
+            "cost_units": 0
+          },
+          {
+            "employee_id": "bob",
+            "units_per_minute": 1800,
+            "scheduled_minutes": 240,
+            "cost_units": 432000
+          }
+        ]
+      },
+      "duty_balance_summary": [
+        {
+          "duty_id": "night",
+          "label": "夜勤",
+          "evaluation_period": {
+            "start": "2026-10-05T00:00:00+09:00",
+            "end": "2026-10-08T00:00:00+09:00"
+          },
+          "intervals": [
+            {
+              "start": "2026-10-05T20:00:00+09:00",
+              "end": "2026-10-06T00:00:00+09:00"
+            },
+            {
+              "start": "2026-10-06T20:00:00+09:00",
+              "end": "2026-10-07T00:00:00+09:00"
+            }
+          ],
+          "unit": "minutes",
+          "scale": "absolute_deviation",
+          "normalized": false,
+          "total_deviation_minutes": 0,
+          "employees": [
+            {
+              "employee_id": "alice",
+              "target_minutes": 240,
+              "actual_minutes": 240,
+              "deviation_minutes": 0
+            },
+            {
+              "employee_id": "bob",
+              "target_minutes": 240,
+              "actual_minutes": 240,
+              "deviation_minutes": 0
+            }
+          ]
+        }
+      ],
+      "shortage_summary": {
+        "total_person_minutes": 0,
+        "shortages": [],
+        "proven_minimal": true
+      },
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 10,
+        "search_elapsed_seconds": 0.009219208033755422,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.045792958000674844,
+        "backend_loading_elapsed_seconds": 0.21215270896209404,
+        "preparation_elapsed_seconds": 0.0009440829744562507,
+        "verification_elapsed_seconds": 0.012943290988914669,
+        "candidate_expansion_elapsed_seconds": 8.099997648969293e-05,
+        "input_validation_elapsed_seconds": 0.04570745804812759
+      },
+      "assignments": 1,
+      "shifts": 1,
+      "import_seconds": 0.05144374998053536,
+      "input_seconds": 0.0004575829952955246,
+      "elapsed_seconds": 0.3214998749899678,
+      "request_elapsed_seconds": 0.3734012079657987,
+      "engine_elapsed_seconds": 0.32149316696450114,
+      "metadata_seconds": 0.0015497500426135957,
+      "peak_rss_mib": 108.0,
+      "group": 1,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "examples/continuity_duty_balance.json",
+      "input_sha256": "f99ae3a64cd2cdab2457fbdf48afe763240ab7d32ced9b8f63e73ae937e6538b",
+      "problem_type": "roster",
+      "employees": 2,
+      "roles": 2,
+      "days": 1.0,
+      "slot_minutes": 30,
+      "slots": 48,
+      "candidates": 2,
+      "objective_order": [
+        "duty_deviation_minutes",
+        "scheduled_cost",
+        "scheduled_minutes"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.5",
+        "library_version": "9.15.6755",
+        "selection_reason": "DEMAND_PRIORITY"
+      },
+      "schema_version": "0.10",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "OPTIMAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "balance_night",
+          "metric": "duty_deviation_minutes",
+          "duty_id": "night",
+          "value": 0,
+          "proven_optimal": true
+        },
+        {
+          "id": "cost",
+          "metric": "scheduled_cost",
+          "value": 432000,
+          "proven_optimal": true
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 240,
+          "proven_optimal": true
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "balance_night",
+          "metric": "duty_deviation_minutes",
+          "duty_id": "night",
+          "value": 0,
+          "proven_optimal": true,
+          "best_bound": 0.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "cost",
+          "metric": "scheduled_cost",
+          "value": 432000,
+          "proven_optimal": true,
+          "best_bound": 432000.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 240,
+          "proven_optimal": true,
+          "best_bound": 240.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 10
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.007782583998050541
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.03528687497600913
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.20631704101106152
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.0008969170157797635
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.012688707967754453
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 7.9624995123595e-05
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.03520316700451076
+            }
+          ]
+        },
+        {
+          "code": "PRIORITY_SHORTAGE_BOUND",
+          "message": "上位段階を固定したpriority群の不足下限です。",
+          "json_pointer": "/priority_summary/groups/0",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "SHORTAGE_BOUND",
+          "message": "不足合計人分の探索下限です。",
+          "json_pointer": "/shortage_summary",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "balance_night"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/1",
+          "related_ids": [
+            "cost"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 1
+            },
+            {
+              "name": "best_bound",
+              "value": 432000.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/2",
+          "related_ids": [
+            "work"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 2
+            },
+            {
+              "name": "best_bound",
+              "value": 240.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": {
+        "context_window": {
+          "start": "2026-10-05T00:00:00+09:00",
+          "end": "2026-10-08T00:00:00+09:00"
+        },
+        "planning_window": {
+          "start": "2026-10-06T00:00:00+09:00",
+          "end": "2026-10-07T00:00:00+09:00"
+        },
+        "employees": [
+          {
+            "employee_id": "alice",
+            "historical_minutes": 240,
+            "planned_minutes": 0,
+            "outside_planning_minutes": 0,
+            "committed_shift_ids": []
+          },
+          {
+            "employee_id": "bob",
+            "historical_minutes": 0,
+            "planned_minutes": 240,
+            "outside_planning_minutes": 0,
+            "committed_shift_ids": []
+          }
+        ]
+      },
+      "cost_summary": {
+        "currency": "JPY",
+        "units_per_currency": 60,
+        "evaluation_period": {
+          "start": "2026-10-06T00:00:00+09:00",
+          "end": "2026-10-07T00:00:00+09:00"
+        },
+        "total_units": 432000,
+        "employees": [
+          {
+            "employee_id": "alice",
+            "units_per_minute": 1800,
+            "scheduled_minutes": 0,
+            "cost_units": 0
+          },
+          {
+            "employee_id": "bob",
+            "units_per_minute": 1800,
+            "scheduled_minutes": 240,
+            "cost_units": 432000
+          }
+        ]
+      },
+      "duty_balance_summary": [
+        {
+          "duty_id": "night",
+          "label": "夜勤",
+          "evaluation_period": {
+            "start": "2026-10-05T00:00:00+09:00",
+            "end": "2026-10-08T00:00:00+09:00"
+          },
+          "intervals": [
+            {
+              "start": "2026-10-05T20:00:00+09:00",
+              "end": "2026-10-06T00:00:00+09:00"
+            },
+            {
+              "start": "2026-10-06T20:00:00+09:00",
+              "end": "2026-10-07T00:00:00+09:00"
+            }
+          ],
+          "unit": "minutes",
+          "scale": "absolute_deviation",
+          "normalized": false,
+          "total_deviation_minutes": 0,
+          "employees": [
+            {
+              "employee_id": "alice",
+              "target_minutes": 240,
+              "actual_minutes": 240,
+              "deviation_minutes": 0
+            },
+            {
+              "employee_id": "bob",
+              "target_minutes": 240,
+              "actual_minutes": 240,
+              "deviation_minutes": 0
+            }
+          ]
+        }
+      ],
+      "shortage_summary": {
+        "total_person_minutes": 0,
+        "shortages": [],
+        "proven_minimal": true
+      },
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 10,
+        "search_elapsed_seconds": 0.007782583998050541,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.03528687497600913,
+        "backend_loading_elapsed_seconds": 0.20631704101106152,
+        "preparation_elapsed_seconds": 0.0008969170157797635,
+        "verification_elapsed_seconds": 0.012688707967754453,
+        "candidate_expansion_elapsed_seconds": 7.9624995123595e-05,
+        "input_validation_elapsed_seconds": 0.03520316700451076
+      },
+      "assignments": 1,
+      "shifts": 1,
+      "import_seconds": 0.02939712500665337,
+      "input_seconds": 0.00021725002443417907,
+      "elapsed_seconds": 0.30327079200651497,
+      "request_elapsed_seconds": 0.3328851670376025,
+      "engine_elapsed_seconds": 0.30326483299722895,
+      "metadata_seconds": 0.0014993749791756272,
+      "peak_rss_mib": 106.109375,
+      "group": 2,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "examples/continuity_duty_balance.json",
+      "input_sha256": "f99ae3a64cd2cdab2457fbdf48afe763240ab7d32ced9b8f63e73ae937e6538b",
+      "problem_type": "roster",
+      "employees": 2,
+      "roles": 2,
+      "days": 1.0,
+      "slot_minutes": 30,
+      "slots": 48,
+      "candidates": 2,
+      "objective_order": [
+        "duty_deviation_minutes",
+        "scheduled_cost",
+        "scheduled_minutes"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.5",
+        "library_version": "9.15.6755",
+        "selection_reason": "DEMAND_PRIORITY"
+      },
+      "schema_version": "0.10",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "OPTIMAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "balance_night",
+          "metric": "duty_deviation_minutes",
+          "duty_id": "night",
+          "value": 0,
+          "proven_optimal": true
+        },
+        {
+          "id": "cost",
+          "metric": "scheduled_cost",
+          "value": 432000,
+          "proven_optimal": true
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 240,
+          "proven_optimal": true
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "balance_night",
+          "metric": "duty_deviation_minutes",
+          "duty_id": "night",
+          "value": 0,
+          "proven_optimal": true,
+          "best_bound": 0.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "cost",
+          "metric": "scheduled_cost",
+          "value": 432000,
+          "proven_optimal": true,
+          "best_bound": 432000.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 240,
+          "proven_optimal": true,
+          "best_bound": 240.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 10
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.007845082960557193
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.03657662501791492
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.21341416699578986
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.0009236250189132988
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.012634209007956088
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 8.399999933317304e-05
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.036488625046331435
+            }
+          ]
+        },
+        {
+          "code": "PRIORITY_SHORTAGE_BOUND",
+          "message": "上位段階を固定したpriority群の不足下限です。",
+          "json_pointer": "/priority_summary/groups/0",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "SHORTAGE_BOUND",
+          "message": "不足合計人分の探索下限です。",
+          "json_pointer": "/shortage_summary",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "balance_night"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/1",
+          "related_ids": [
+            "cost"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 1
+            },
+            {
+              "name": "best_bound",
+              "value": 432000.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/2",
+          "related_ids": [
+            "work"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 2
+            },
+            {
+              "name": "best_bound",
+              "value": 240.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": {
+        "context_window": {
+          "start": "2026-10-05T00:00:00+09:00",
+          "end": "2026-10-08T00:00:00+09:00"
+        },
+        "planning_window": {
+          "start": "2026-10-06T00:00:00+09:00",
+          "end": "2026-10-07T00:00:00+09:00"
+        },
+        "employees": [
+          {
+            "employee_id": "alice",
+            "historical_minutes": 240,
+            "planned_minutes": 0,
+            "outside_planning_minutes": 0,
+            "committed_shift_ids": []
+          },
+          {
+            "employee_id": "bob",
+            "historical_minutes": 0,
+            "planned_minutes": 240,
+            "outside_planning_minutes": 0,
+            "committed_shift_ids": []
+          }
+        ]
+      },
+      "cost_summary": {
+        "currency": "JPY",
+        "units_per_currency": 60,
+        "evaluation_period": {
+          "start": "2026-10-06T00:00:00+09:00",
+          "end": "2026-10-07T00:00:00+09:00"
+        },
+        "total_units": 432000,
+        "employees": [
+          {
+            "employee_id": "alice",
+            "units_per_minute": 1800,
+            "scheduled_minutes": 0,
+            "cost_units": 0
+          },
+          {
+            "employee_id": "bob",
+            "units_per_minute": 1800,
+            "scheduled_minutes": 240,
+            "cost_units": 432000
+          }
+        ]
+      },
+      "duty_balance_summary": [
+        {
+          "duty_id": "night",
+          "label": "夜勤",
+          "evaluation_period": {
+            "start": "2026-10-05T00:00:00+09:00",
+            "end": "2026-10-08T00:00:00+09:00"
+          },
+          "intervals": [
+            {
+              "start": "2026-10-05T20:00:00+09:00",
+              "end": "2026-10-06T00:00:00+09:00"
+            },
+            {
+              "start": "2026-10-06T20:00:00+09:00",
+              "end": "2026-10-07T00:00:00+09:00"
+            }
+          ],
+          "unit": "minutes",
+          "scale": "absolute_deviation",
+          "normalized": false,
+          "total_deviation_minutes": 0,
+          "employees": [
+            {
+              "employee_id": "alice",
+              "target_minutes": 240,
+              "actual_minutes": 240,
+              "deviation_minutes": 0
+            },
+            {
+              "employee_id": "bob",
+              "target_minutes": 240,
+              "actual_minutes": 240,
+              "deviation_minutes": 0
+            }
+          ]
+        }
+      ],
+      "shortage_summary": {
+        "total_person_minutes": 0,
+        "shortages": [],
+        "proven_minimal": true
+      },
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 10,
+        "search_elapsed_seconds": 0.007845082960557193,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.03657662501791492,
+        "backend_loading_elapsed_seconds": 0.21341416699578986,
+        "preparation_elapsed_seconds": 0.0009236250189132988,
+        "verification_elapsed_seconds": 0.012634209007956088,
+        "candidate_expansion_elapsed_seconds": 8.399999933317304e-05,
+        "input_validation_elapsed_seconds": 0.036488625046331435
+      },
+      "assignments": 1,
+      "shifts": 1,
+      "import_seconds": 0.0292168750311248,
+      "input_seconds": 0.00021487497724592686,
+      "elapsed_seconds": 0.3119932080153376,
+      "request_elapsed_seconds": 0.3414249580237083,
+      "engine_elapsed_seconds": 0.31198704201960936,
+      "metadata_seconds": 0.0014927499578334391,
+      "peak_rss_mib": 106.15625,
+      "group": 3,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-partial.json",
+      "input_sha256": "6390f6fd9bd98a18285f4e5742f63f1809cb0361b28a581b6458c294e16450bc",
+      "problem_type": "roster",
+      "employees": 2,
+      "roles": 2,
+      "days": 1.0,
+      "slot_minutes": 30,
+      "slots": 48,
+      "candidates": 1,
+      "objective_order": [
+        "duty_deviation_minutes",
+        "scheduled_cost",
+        "scheduled_minutes"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.5",
+        "library_version": "9.15.6755",
+        "selection_reason": "DEMAND_PRIORITY"
+      },
+      "schema_version": "0.10",
+      "replan_mode": "preserve_assigned",
+      "baseline_plan_id": "partial_fixed",
+      "status": "PARTIAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "balance_night",
+          "metric": "duty_deviation_minutes",
+          "duty_id": "night",
+          "value": 0,
+          "proven_optimal": true
+        },
+        {
+          "id": "cost",
+          "metric": "scheduled_cost",
+          "value": 432000,
+          "proven_optimal": true
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 240,
+          "proven_optimal": true
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "balance_night",
+          "metric": "duty_deviation_minutes",
+          "duty_id": "night",
+          "value": 0,
+          "proven_optimal": true,
+          "best_bound": 0.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "cost",
+          "metric": "scheduled_cost",
+          "value": 432000,
+          "proven_optimal": true,
+          "best_bound": 432000.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 240,
+          "proven_optimal": true,
+          "best_bound": 240.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 10
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.007686208002269268
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.044709709007292986
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.20625124999787658
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.0010447080130688846
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.004770750005263835
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 5.345797399058938e-05
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.04465262603480369
+            }
+          ]
+        },
+        {
+          "code": "PRIORITY_SHORTAGE_BOUND",
+          "message": "上位段階を固定したpriority群の不足下限です。",
+          "json_pointer": "/priority_summary/groups/0",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "PRIORITY_SHORTAGE_BOUND",
+          "message": "上位段階を固定したpriority群の不足下限です。",
+          "json_pointer": "/priority_summary/groups/1",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 240.0
+            }
+          ]
+        },
+        {
+          "code": "SHORTAGE_BOUND",
+          "message": "不足合計人分の探索下限です。",
+          "json_pointer": "/shortage_summary",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 240.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "balance_night"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/1",
+          "related_ids": [
+            "cost"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 1
+            },
+            {
+              "name": "best_bound",
+              "value": 432000.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/2",
+          "related_ids": [
+            "work"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 2
+            },
+            {
+              "name": "best_bound",
+              "value": 240.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": {
+        "plan_id": "partial_fixed",
+        "unit": "slot_components",
+        "work_changes": 0,
+        "role_changes": 0,
+        "total_changes": 0,
+        "comparison_interval": {
+          "start": "2026-10-06T00:00:00+09:00",
+          "end": "2026-10-07T00:00:00+09:00"
+        },
+        "slot_minutes": 30
+      },
+      "continuity_summary": {
+        "context_window": {
+          "start": "2026-10-05T00:00:00+09:00",
+          "end": "2026-10-08T00:00:00+09:00"
+        },
+        "planning_window": {
+          "start": "2026-10-06T00:00:00+09:00",
+          "end": "2026-10-07T00:00:00+09:00"
+        },
+        "employees": [
+          {
+            "employee_id": "alice",
+            "historical_minutes": 240,
+            "planned_minutes": 0,
+            "outside_planning_minutes": 0,
+            "committed_shift_ids": []
+          },
+          {
+            "employee_id": "bob",
+            "historical_minutes": 0,
+            "planned_minutes": 240,
+            "outside_planning_minutes": 0,
+            "committed_shift_ids": []
+          }
+        ]
+      },
+      "cost_summary": {
+        "currency": "JPY",
+        "units_per_currency": 60,
+        "evaluation_period": {
+          "start": "2026-10-06T00:00:00+09:00",
+          "end": "2026-10-07T00:00:00+09:00"
+        },
+        "total_units": 432000,
+        "employees": [
+          {
+            "employee_id": "alice",
+            "units_per_minute": 1800,
+            "scheduled_minutes": 0,
+            "cost_units": 0
+          },
+          {
+            "employee_id": "bob",
+            "units_per_minute": 1800,
+            "scheduled_minutes": 240,
+            "cost_units": 432000
+          }
+        ]
+      },
+      "duty_balance_summary": [
+        {
+          "duty_id": "night",
+          "label": "夜勤",
+          "evaluation_period": {
+            "start": "2026-10-05T00:00:00+09:00",
+            "end": "2026-10-08T00:00:00+09:00"
+          },
+          "intervals": [
+            {
+              "start": "2026-10-05T20:00:00+09:00",
+              "end": "2026-10-06T00:00:00+09:00"
+            },
+            {
+              "start": "2026-10-06T20:00:00+09:00",
+              "end": "2026-10-07T00:00:00+09:00"
+            }
+          ],
+          "unit": "minutes",
+          "scale": "absolute_deviation",
+          "normalized": false,
+          "total_deviation_minutes": 0,
+          "employees": [
+            {
+              "employee_id": "alice",
+              "target_minutes": 240,
+              "actual_minutes": 240,
+              "deviation_minutes": 0
+            },
+            {
+              "employee_id": "bob",
+              "target_minutes": 240,
+              "actual_minutes": 240,
+              "deviation_minutes": 0
+            }
+          ]
+        }
+      ],
+      "shortage_summary": {
+        "total_person_minutes": 240,
+        "shortages": [
+          {
+            "demand_id": "hall_need",
+            "role_id": "hall",
+            "interval": {
+              "start": "2026-10-06T20:00:00+09:00",
+              "end": "2026-10-07T00:00:00+09:00"
+            },
+            "required_people": 1,
+            "assigned_people": 0,
+            "missing_people": 1
+          }
+        ],
+        "proven_minimal": true
+      },
+      "diagnosis_result": {
+        "status": "NOT_APPLICABLE",
+        "reason": "ORIGINAL_PARTIAL",
+        "conflict": null,
+        "suggestions": [],
+        "suggestion_minimality": "not_proven",
+        "time_limit_seconds": 10,
+        "elapsed_seconds": 0.042968374968040735,
+        "diagnostics": []
+      },
+      "search_stats": {
+        "time_limit_seconds": 10,
+        "search_elapsed_seconds": 0.007686208002269268,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.044709709007292986,
+        "backend_loading_elapsed_seconds": 0.20625124999787658,
+        "preparation_elapsed_seconds": 0.0010447080130688846,
+        "verification_elapsed_seconds": 0.004770750005263835,
+        "candidate_expansion_elapsed_seconds": 5.345797399058938e-05,
+        "input_validation_elapsed_seconds": 0.04465262603480369
+      },
+      "assignments": 1,
+      "shifts": 1,
+      "import_seconds": 0.029509292042348534,
+      "input_seconds": 0.0004105829866603017,
+      "elapsed_seconds": 0.30747129197698087,
+      "request_elapsed_seconds": 0.3373911670059897,
+      "engine_elapsed_seconds": 0.3074648340116255,
+      "metadata_seconds": 0.0036394160124473274,
+      "peak_rss_mib": 105.953125,
+      "group": 1,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-partial.json",
+      "input_sha256": "6390f6fd9bd98a18285f4e5742f63f1809cb0361b28a581b6458c294e16450bc",
+      "problem_type": "roster",
+      "employees": 2,
+      "roles": 2,
+      "days": 1.0,
+      "slot_minutes": 30,
+      "slots": 48,
+      "candidates": 1,
+      "objective_order": [
+        "duty_deviation_minutes",
+        "scheduled_cost",
+        "scheduled_minutes"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.5",
+        "library_version": "9.15.6755",
+        "selection_reason": "DEMAND_PRIORITY"
+      },
+      "schema_version": "0.10",
+      "replan_mode": "preserve_assigned",
+      "baseline_plan_id": "partial_fixed",
+      "status": "PARTIAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "balance_night",
+          "metric": "duty_deviation_minutes",
+          "duty_id": "night",
+          "value": 0,
+          "proven_optimal": true
+        },
+        {
+          "id": "cost",
+          "metric": "scheduled_cost",
+          "value": 432000,
+          "proven_optimal": true
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 240,
+          "proven_optimal": true
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "balance_night",
+          "metric": "duty_deviation_minutes",
+          "duty_id": "night",
+          "value": 0,
+          "proven_optimal": true,
+          "best_bound": 0.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "cost",
+          "metric": "scheduled_cost",
+          "value": 432000,
+          "proven_optimal": true,
+          "best_bound": 432000.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 240,
+          "proven_optimal": true,
+          "best_bound": 240.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 10
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.0077926249941810966
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.044967333029489964
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.2090684169670567
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.0010436250013299286
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.0047871669521555305
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 5.312496796250343e-05
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.044910083001013845
+            }
+          ]
+        },
+        {
+          "code": "PRIORITY_SHORTAGE_BOUND",
+          "message": "上位段階を固定したpriority群の不足下限です。",
+          "json_pointer": "/priority_summary/groups/0",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "PRIORITY_SHORTAGE_BOUND",
+          "message": "上位段階を固定したpriority群の不足下限です。",
+          "json_pointer": "/priority_summary/groups/1",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 240.0
+            }
+          ]
+        },
+        {
+          "code": "SHORTAGE_BOUND",
+          "message": "不足合計人分の探索下限です。",
+          "json_pointer": "/shortage_summary",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 240.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "balance_night"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/1",
+          "related_ids": [
+            "cost"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 1
+            },
+            {
+              "name": "best_bound",
+              "value": 432000.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/2",
+          "related_ids": [
+            "work"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 2
+            },
+            {
+              "name": "best_bound",
+              "value": 240.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": {
+        "plan_id": "partial_fixed",
+        "unit": "slot_components",
+        "work_changes": 0,
+        "role_changes": 0,
+        "total_changes": 0,
+        "comparison_interval": {
+          "start": "2026-10-06T00:00:00+09:00",
+          "end": "2026-10-07T00:00:00+09:00"
+        },
+        "slot_minutes": 30
+      },
+      "continuity_summary": {
+        "context_window": {
+          "start": "2026-10-05T00:00:00+09:00",
+          "end": "2026-10-08T00:00:00+09:00"
+        },
+        "planning_window": {
+          "start": "2026-10-06T00:00:00+09:00",
+          "end": "2026-10-07T00:00:00+09:00"
+        },
+        "employees": [
+          {
+            "employee_id": "alice",
+            "historical_minutes": 240,
+            "planned_minutes": 0,
+            "outside_planning_minutes": 0,
+            "committed_shift_ids": []
+          },
+          {
+            "employee_id": "bob",
+            "historical_minutes": 0,
+            "planned_minutes": 240,
+            "outside_planning_minutes": 0,
+            "committed_shift_ids": []
+          }
+        ]
+      },
+      "cost_summary": {
+        "currency": "JPY",
+        "units_per_currency": 60,
+        "evaluation_period": {
+          "start": "2026-10-06T00:00:00+09:00",
+          "end": "2026-10-07T00:00:00+09:00"
+        },
+        "total_units": 432000,
+        "employees": [
+          {
+            "employee_id": "alice",
+            "units_per_minute": 1800,
+            "scheduled_minutes": 0,
+            "cost_units": 0
+          },
+          {
+            "employee_id": "bob",
+            "units_per_minute": 1800,
+            "scheduled_minutes": 240,
+            "cost_units": 432000
+          }
+        ]
+      },
+      "duty_balance_summary": [
+        {
+          "duty_id": "night",
+          "label": "夜勤",
+          "evaluation_period": {
+            "start": "2026-10-05T00:00:00+09:00",
+            "end": "2026-10-08T00:00:00+09:00"
+          },
+          "intervals": [
+            {
+              "start": "2026-10-05T20:00:00+09:00",
+              "end": "2026-10-06T00:00:00+09:00"
+            },
+            {
+              "start": "2026-10-06T20:00:00+09:00",
+              "end": "2026-10-07T00:00:00+09:00"
+            }
+          ],
+          "unit": "minutes",
+          "scale": "absolute_deviation",
+          "normalized": false,
+          "total_deviation_minutes": 0,
+          "employees": [
+            {
+              "employee_id": "alice",
+              "target_minutes": 240,
+              "actual_minutes": 240,
+              "deviation_minutes": 0
+            },
+            {
+              "employee_id": "bob",
+              "target_minutes": 240,
+              "actual_minutes": 240,
+              "deviation_minutes": 0
+            }
+          ]
+        }
+      ],
+      "shortage_summary": {
+        "total_person_minutes": 240,
+        "shortages": [
+          {
+            "demand_id": "hall_need",
+            "role_id": "hall",
+            "interval": {
+              "start": "2026-10-06T20:00:00+09:00",
+              "end": "2026-10-07T00:00:00+09:00"
+            },
+            "required_people": 1,
+            "assigned_people": 0,
+            "missing_people": 1
+          }
+        ],
+        "proven_minimal": true
+      },
+      "diagnosis_result": {
+        "status": "NOT_APPLICABLE",
+        "reason": "ORIGINAL_PARTIAL",
+        "conflict": null,
+        "suggestions": [],
+        "suggestion_minimality": "not_proven",
+        "time_limit_seconds": 10,
+        "elapsed_seconds": 0.04342837497824803,
+        "diagnostics": []
+      },
+      "search_stats": {
+        "time_limit_seconds": 10,
+        "search_elapsed_seconds": 0.0077926249941810966,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.044967333029489964,
+        "backend_loading_elapsed_seconds": 0.2090684169670567,
+        "preparation_elapsed_seconds": 0.0010436250013299286,
+        "verification_elapsed_seconds": 0.0047871669521555305,
+        "candidate_expansion_elapsed_seconds": 5.312496796250343e-05,
+        "input_validation_elapsed_seconds": 0.044910083001013845
+      },
+      "assignments": 1,
+      "shifts": 1,
+      "import_seconds": 0.029228500032331795,
+      "input_seconds": 0.0003958329907618463,
+      "elapsed_seconds": 0.3111298750154674,
+      "request_elapsed_seconds": 0.34075420803856105,
+      "engine_elapsed_seconds": 0.3111232499941252,
+      "metadata_seconds": 0.0036860000109300017,
+      "peak_rss_mib": 106.0625,
+      "group": 2,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-partial.json",
+      "input_sha256": "6390f6fd9bd98a18285f4e5742f63f1809cb0361b28a581b6458c294e16450bc",
+      "problem_type": "roster",
+      "employees": 2,
+      "roles": 2,
+      "days": 1.0,
+      "slot_minutes": 30,
+      "slots": 48,
+      "candidates": 1,
+      "objective_order": [
+        "duty_deviation_minutes",
+        "scheduled_cost",
+        "scheduled_minutes"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.5",
+        "library_version": "9.15.6755",
+        "selection_reason": "DEMAND_PRIORITY"
+      },
+      "schema_version": "0.10",
+      "replan_mode": "preserve_assigned",
+      "baseline_plan_id": "partial_fixed",
+      "status": "PARTIAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "balance_night",
+          "metric": "duty_deviation_minutes",
+          "duty_id": "night",
+          "value": 0,
+          "proven_optimal": true
+        },
+        {
+          "id": "cost",
+          "metric": "scheduled_cost",
+          "value": 432000,
+          "proven_optimal": true
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 240,
+          "proven_optimal": true
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "balance_night",
+          "metric": "duty_deviation_minutes",
+          "duty_id": "night",
+          "value": 0,
+          "proven_optimal": true,
+          "best_bound": 0.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "cost",
+          "metric": "scheduled_cost",
+          "value": 432000,
+          "proven_optimal": true,
+          "best_bound": 432000.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 240,
+          "proven_optimal": true,
+          "best_bound": 240.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 10
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.01079270796617493
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.0469715420040302
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.2162950829952024
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.0011108749895356596
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.00487433304078877
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 5.7124998420476913e-05
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.04690912499791011
+            }
+          ]
+        },
+        {
+          "code": "PRIORITY_SHORTAGE_BOUND",
+          "message": "上位段階を固定したpriority群の不足下限です。",
+          "json_pointer": "/priority_summary/groups/0",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "PRIORITY_SHORTAGE_BOUND",
+          "message": "上位段階を固定したpriority群の不足下限です。",
+          "json_pointer": "/priority_summary/groups/1",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 240.0
+            }
+          ]
+        },
+        {
+          "code": "SHORTAGE_BOUND",
+          "message": "不足合計人分の探索下限です。",
+          "json_pointer": "/shortage_summary",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 240.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "balance_night"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/1",
+          "related_ids": [
+            "cost"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 1
+            },
+            {
+              "name": "best_bound",
+              "value": 432000.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/2",
+          "related_ids": [
+            "work"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 2
+            },
+            {
+              "name": "best_bound",
+              "value": 240.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": {
+        "plan_id": "partial_fixed",
+        "unit": "slot_components",
+        "work_changes": 0,
+        "role_changes": 0,
+        "total_changes": 0,
+        "comparison_interval": {
+          "start": "2026-10-06T00:00:00+09:00",
+          "end": "2026-10-07T00:00:00+09:00"
+        },
+        "slot_minutes": 30
+      },
+      "continuity_summary": {
+        "context_window": {
+          "start": "2026-10-05T00:00:00+09:00",
+          "end": "2026-10-08T00:00:00+09:00"
+        },
+        "planning_window": {
+          "start": "2026-10-06T00:00:00+09:00",
+          "end": "2026-10-07T00:00:00+09:00"
+        },
+        "employees": [
+          {
+            "employee_id": "alice",
+            "historical_minutes": 240,
+            "planned_minutes": 0,
+            "outside_planning_minutes": 0,
+            "committed_shift_ids": []
+          },
+          {
+            "employee_id": "bob",
+            "historical_minutes": 0,
+            "planned_minutes": 240,
+            "outside_planning_minutes": 0,
+            "committed_shift_ids": []
+          }
+        ]
+      },
+      "cost_summary": {
+        "currency": "JPY",
+        "units_per_currency": 60,
+        "evaluation_period": {
+          "start": "2026-10-06T00:00:00+09:00",
+          "end": "2026-10-07T00:00:00+09:00"
+        },
+        "total_units": 432000,
+        "employees": [
+          {
+            "employee_id": "alice",
+            "units_per_minute": 1800,
+            "scheduled_minutes": 0,
+            "cost_units": 0
+          },
+          {
+            "employee_id": "bob",
+            "units_per_minute": 1800,
+            "scheduled_minutes": 240,
+            "cost_units": 432000
+          }
+        ]
+      },
+      "duty_balance_summary": [
+        {
+          "duty_id": "night",
+          "label": "夜勤",
+          "evaluation_period": {
+            "start": "2026-10-05T00:00:00+09:00",
+            "end": "2026-10-08T00:00:00+09:00"
+          },
+          "intervals": [
+            {
+              "start": "2026-10-05T20:00:00+09:00",
+              "end": "2026-10-06T00:00:00+09:00"
+            },
+            {
+              "start": "2026-10-06T20:00:00+09:00",
+              "end": "2026-10-07T00:00:00+09:00"
+            }
+          ],
+          "unit": "minutes",
+          "scale": "absolute_deviation",
+          "normalized": false,
+          "total_deviation_minutes": 0,
+          "employees": [
+            {
+              "employee_id": "alice",
+              "target_minutes": 240,
+              "actual_minutes": 240,
+              "deviation_minutes": 0
+            },
+            {
+              "employee_id": "bob",
+              "target_minutes": 240,
+              "actual_minutes": 240,
+              "deviation_minutes": 0
+            }
+          ]
+        }
+      ],
+      "shortage_summary": {
+        "total_person_minutes": 240,
+        "shortages": [
+          {
+            "demand_id": "hall_need",
+            "role_id": "hall",
+            "interval": {
+              "start": "2026-10-06T20:00:00+09:00",
+              "end": "2026-10-07T00:00:00+09:00"
+            },
+            "required_people": 1,
+            "assigned_people": 0,
+            "missing_people": 1
+          }
+        ],
+        "proven_minimal": true
+      },
+      "diagnosis_result": {
+        "status": "NOT_APPLICABLE",
+        "reason": "ORIGINAL_PARTIAL",
+        "conflict": null,
+        "suggestions": [],
+        "suggestion_minimality": "not_proven",
+        "time_limit_seconds": 10,
+        "elapsed_seconds": 0.04417979100253433,
+        "diagnostics": []
+      },
+      "search_stats": {
+        "time_limit_seconds": 10,
+        "search_elapsed_seconds": 0.01079270796617493,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.0469715420040302,
+        "backend_loading_elapsed_seconds": 0.2162950829952024,
+        "preparation_elapsed_seconds": 0.0011108749895356596,
+        "verification_elapsed_seconds": 0.00487433304078877,
+        "candidate_expansion_elapsed_seconds": 5.7124998420476913e-05,
+        "input_validation_elapsed_seconds": 0.04690912499791011
+      },
+      "assignments": 1,
+      "shifts": 1,
+      "import_seconds": 0.0294749999884516,
+      "input_seconds": 0.00039954198291525245,
+      "elapsed_seconds": 0.3242688329773955,
+      "request_elapsed_seconds": 0.35414337494876236,
+      "engine_elapsed_seconds": 0.3242622920079157,
+      "metadata_seconds": 0.003615250054281205,
+      "peak_rss_mib": 106.046875,
+      "group": 3,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-conflict.json",
+      "input_sha256": "db9c2c682a6542e780ecb586aaa14a4b5734650d6925a8c92cff9e9dc2ee5c93",
+      "problem_type": "roster",
+      "employees": 2,
+      "roles": 2,
+      "days": 1.0,
+      "slot_minutes": 30,
+      "slots": 48,
+      "candidates": 1,
+      "objective_order": [
+        "duty_deviation_minutes",
+        "scheduled_cost",
+        "scheduled_minutes"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.5",
+        "library_version": "9.15.6755",
+        "selection_reason": "DEMAND_PRIORITY"
+      },
+      "schema_version": "0.10",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "INFEASIBLE",
+      "verification": {
+        "performed": false,
+        "valid": null,
+        "violations": []
+      },
+      "objectives": [],
+      "objective_quality": [],
+      "diagnostics": [
+        {
+          "code": "NO_FEASIBLE_PLAN",
+          "message": "すべての必須条件を満たす配置はありません。",
+          "json_pointer": "",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 10
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.0012658749474212527
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.03557725000428036
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.20735541702015325
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.0008917500381357968
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.0036632500123232603
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 5.241698818281293e-05
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.03552050003781915
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": null,
+      "cost_summary": null,
+      "duty_balance_summary": null,
+      "shortage_summary": null,
+      "diagnosis_result": {
+        "status": "COMPLETE",
+        "reason": null,
+        "conflict": {
+          "conditions": [
+            {
+              "code": "CONSTRAINT",
+              "json_pointer": "/constraints/3",
+              "related_ids": [
+                "bob_cap",
+                "bob"
+              ],
+              "interval": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-07T00:00:00+09:00"
+              },
+              "group_id": "/constraints/3"
+            }
+          ],
+          "background_conditions": [
+            {
+              "code": "CONTINUITY_BACKGROUND",
+              "json_pointer": "/continuity/context_window",
+              "related_ids": [],
+              "interval": {
+                "start": "2026-10-05T00:00:00+09:00",
+                "end": "2026-10-08T00:00:00+09:00"
+              },
+              "group_id": "/continuity/context_window"
+            },
+            {
+              "code": "ACTUAL_SHIFT_BACKGROUND",
+              "json_pointer": "/continuity/employees/0/actual_shifts/0",
+              "related_ids": [
+                "alice",
+                "past_alice"
+              ],
+              "interval": {
+                "start": "2026-10-05T20:00:00+09:00",
+                "end": "2026-10-06T00:00:00+09:00"
+              },
+              "group_id": "/continuity/employees/0/actual_shifts/0"
+            },
+            {
+              "code": "HISTORY_BACKGROUND",
+              "json_pointer": "/continuity/employees/0/before_context",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": null,
+              "group_id": "/continuity/employees/0/before_context"
+            },
+            {
+              "code": "HISTORY_BACKGROUND",
+              "json_pointer": "/continuity/employees/1/before_context",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": null,
+              "group_id": "/continuity/employees/1/before_context"
+            },
+            {
+              "code": "COMMITTED_SHIFT_BACKGROUND",
+              "json_pointer": "/continuity/employees/1/committed_shifts/0",
+              "related_ids": [
+                "bob",
+                "bob_fixed"
+              ],
+              "interval": {
+                "start": "2026-10-06T20:00:00+09:00",
+                "end": "2026-10-07T00:00:00+09:00"
+              },
+              "group_id": "/continuity/employees/1/committed_shifts/0"
+            },
+            {
+              "code": "AVAILABILITY",
+              "json_pointer": "/employees/0/availability",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-07T00:00:00+09:00"
+              },
+              "group_id": "/employees/0/availability"
+            },
+            {
+              "code": "EMPLOYEE_SKILLS",
+              "json_pointer": "/employees/0/skills",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": null,
+              "group_id": "/employees/0/skills"
+            },
+            {
+              "code": "AVAILABILITY",
+              "json_pointer": "/employees/1/availability",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-07T00:00:00+09:00"
+              },
+              "group_id": "/employees/1/availability"
+            },
+            {
+              "code": "EMPLOYEE_SKILLS",
+              "json_pointer": "/employees/1/skills",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": null,
+              "group_id": "/employees/1/skills"
+            },
+            {
+              "code": "PLANNING_GRID",
+              "json_pointer": "/planning_window",
+              "related_ids": [],
+              "interval": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-07T00:00:00+09:00"
+              },
+              "group_id": "/planning_window"
+            },
+            {
+              "code": "BASIC_ROSTER_RULES",
+              "json_pointer": "/problem_type",
+              "related_ids": [],
+              "interval": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-07T00:00:00+09:00"
+              },
+              "group_id": "/problem_type"
+            },
+            {
+              "code": "REQUIRED_SKILLS",
+              "json_pointer": "/roles/0/required_skills",
+              "related_ids": [
+                "kitchen"
+              ],
+              "interval": null,
+              "group_id": "/roles/0/required_skills"
+            },
+            {
+              "code": "REQUIRED_SKILLS",
+              "json_pointer": "/roles/1/required_skills",
+              "related_ids": [
+                "hall"
+              ],
+              "interval": null,
+              "group_id": "/roles/1/required_skills"
+            },
+            {
+              "code": "CANDIDATE_SET",
+              "json_pointer": "/shift_candidates",
+              "related_ids": [],
+              "interval": null,
+              "group_id": "/shift_candidates"
+            },
+            {
+              "code": "SHIFT_CANDIDATE",
+              "json_pointer": "/shift_candidates/0",
+              "related_ids": [
+                "alice_night",
+                "alice"
+              ],
+              "interval": {
+                "start": "2026-10-06T20:00:00+09:00",
+                "end": "2026-10-07T00:00:00+09:00"
+              },
+              "group_id": "/shift_candidates/0"
+            }
+          ],
+          "infeasibility_proven": true,
+          "minimality": "inclusion_minimal",
+          "minimality_scope": "condition_groups_relative_to_background",
+          "background_only": false,
+          "rechecked": true,
+          "checks": [
+            {
+              "phase": "initial",
+              "active_groups": [
+                "/constraints/0",
+                "/constraints/1",
+                "/constraints/2",
+                "/constraints/3",
+                "/demand/0"
+              ],
+              "removed_group_id": null,
+              "status": "INFEASIBLE",
+              "witness_verified": null,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.0006525419885292649,
+              "preparation_elapsed_seconds": 0.0005859159864485264,
+              "search_elapsed_seconds": 5.2875024266541004e-05,
+              "verification_elapsed_seconds": 1.66997779160738e-07
+            },
+            {
+              "phase": "removal",
+              "active_groups": [
+                "/constraints/1",
+                "/constraints/2",
+                "/constraints/3",
+                "/demand/0"
+              ],
+              "removed_group_id": "/constraints/0",
+              "status": "INFEASIBLE",
+              "witness_verified": null,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.0006745840073563159,
+              "preparation_elapsed_seconds": 0.000628374982625246,
+              "search_elapsed_seconds": 3.4541008062660694e-05,
+              "verification_elapsed_seconds": 2.0902371034026146e-07
+            },
+            {
+              "phase": "removal",
+              "active_groups": [
+                "/constraints/2",
+                "/constraints/3",
+                "/demand/0"
+              ],
+              "removed_group_id": "/constraints/1",
+              "status": "INFEASIBLE",
+              "witness_verified": null,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.00048583303578197956,
+              "preparation_elapsed_seconds": 0.0004439579788595438,
+              "search_elapsed_seconds": 3.108399687334895e-05,
+              "verification_elapsed_seconds": 8.300412446260452e-08
+            },
+            {
+              "phase": "removal",
+              "active_groups": [
+                "/constraints/3",
+                "/demand/0"
+              ],
+              "removed_group_id": "/constraints/2",
+              "status": "INFEASIBLE",
+              "witness_verified": null,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.0004449170082807541,
+              "preparation_elapsed_seconds": 0.00040787499165162444,
+              "search_elapsed_seconds": 2.679100725799799e-05,
+              "verification_elapsed_seconds": 8.399365469813347e-08
+            },
+            {
+              "phase": "removal",
+              "active_groups": [
+                "/demand/0"
+              ],
+              "removed_group_id": "/constraints/3",
+              "status": "OPTIMAL",
+              "witness_verified": true,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.009564624982886016,
+              "preparation_elapsed_seconds": 0.0003956669825129211,
+              "search_elapsed_seconds": 0.0008886250434443355,
+              "verification_elapsed_seconds": 0.00816254096571356
+            },
+            {
+              "phase": "removal",
+              "active_groups": [
+                "/constraints/3"
+              ],
+              "removed_group_id": "/demand/0",
+              "status": "INFEASIBLE",
+              "witness_verified": null,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.0004841670161113143,
+              "preparation_elapsed_seconds": 0.00043483299668878317,
+              "search_elapsed_seconds": 3.7375022657215595e-05,
+              "verification_elapsed_seconds": 8.300412446260452e-08
+            },
+            {
+              "phase": "final",
+              "active_groups": [
+                "/constraints/3"
+              ],
+              "removed_group_id": null,
+              "status": "INFEASIBLE",
+              "witness_verified": null,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.0004055839963257313,
+              "preparation_elapsed_seconds": 0.00036758300848305225,
+              "search_elapsed_seconds": 2.7500034775584936e-05,
+              "verification_elapsed_seconds": 4.196772351861e-08
+            },
+            {
+              "phase": "witness_recheck",
+              "active_groups": [],
+              "removed_group_id": "/constraints/3",
+              "status": "OPTIMAL",
+              "witness_verified": true,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.0005097920075058937,
+              "preparation_elapsed_seconds": 0.0,
+              "search_elapsed_seconds": 0.0,
+              "verification_elapsed_seconds": 0.0005096670356579125
+            }
+          ]
+        },
+        "suggestions": [],
+        "suggestion_minimality": "not_proven",
+        "time_limit_seconds": 10,
+        "elapsed_seconds": 0.051825416972860694,
+        "diagnostics": []
+      },
+      "search_stats": {
+        "time_limit_seconds": 10,
+        "search_elapsed_seconds": 0.0012658749474212527,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.03557725000428036,
+        "backend_loading_elapsed_seconds": 0.20735541702015325,
+        "preparation_elapsed_seconds": 0.0008917500381357968,
+        "verification_elapsed_seconds": 0.0036632500123232603,
+        "candidate_expansion_elapsed_seconds": 5.241698818281293e-05,
+        "input_validation_elapsed_seconds": 0.03552050003781915
+      },
+      "assignments": 0,
+      "shifts": 0,
+      "import_seconds": 0.0294357500388287,
+      "input_seconds": 0.0010963749955408275,
+      "elapsed_seconds": 0.3006107080145739,
+      "request_elapsed_seconds": 0.33114283304894343,
+      "engine_elapsed_seconds": 0.30060533300274983,
+      "metadata_seconds": 0.001690667006187141,
+      "peak_rss_mib": 106.34375,
+      "group": 1,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-conflict.json",
+      "input_sha256": "db9c2c682a6542e780ecb586aaa14a4b5734650d6925a8c92cff9e9dc2ee5c93",
+      "problem_type": "roster",
+      "employees": 2,
+      "roles": 2,
+      "days": 1.0,
+      "slot_minutes": 30,
+      "slots": 48,
+      "candidates": 1,
+      "objective_order": [
+        "duty_deviation_minutes",
+        "scheduled_cost",
+        "scheduled_minutes"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.5",
+        "library_version": "9.15.6755",
+        "selection_reason": "DEMAND_PRIORITY"
+      },
+      "schema_version": "0.10",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "INFEASIBLE",
+      "verification": {
+        "performed": false,
+        "valid": null,
+        "violations": []
+      },
+      "objectives": [],
+      "objective_quality": [],
+      "diagnostics": [
+        {
+          "code": "NO_FEASIBLE_PLAN",
+          "message": "すべての必須条件を満たす配置はありません。",
+          "json_pointer": "",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 10
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.0012980829924345016
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.035573125001974404
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.20817420800449327
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.0009165829978883266
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.0037005420308560133
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 5.212501855567098e-05
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.03551708394661546
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": null,
+      "cost_summary": null,
+      "duty_balance_summary": null,
+      "shortage_summary": null,
+      "diagnosis_result": {
+        "status": "COMPLETE",
+        "reason": null,
+        "conflict": {
+          "conditions": [
+            {
+              "code": "CONSTRAINT",
+              "json_pointer": "/constraints/3",
+              "related_ids": [
+                "bob_cap",
+                "bob"
+              ],
+              "interval": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-07T00:00:00+09:00"
+              },
+              "group_id": "/constraints/3"
+            }
+          ],
+          "background_conditions": [
+            {
+              "code": "CONTINUITY_BACKGROUND",
+              "json_pointer": "/continuity/context_window",
+              "related_ids": [],
+              "interval": {
+                "start": "2026-10-05T00:00:00+09:00",
+                "end": "2026-10-08T00:00:00+09:00"
+              },
+              "group_id": "/continuity/context_window"
+            },
+            {
+              "code": "ACTUAL_SHIFT_BACKGROUND",
+              "json_pointer": "/continuity/employees/0/actual_shifts/0",
+              "related_ids": [
+                "alice",
+                "past_alice"
+              ],
+              "interval": {
+                "start": "2026-10-05T20:00:00+09:00",
+                "end": "2026-10-06T00:00:00+09:00"
+              },
+              "group_id": "/continuity/employees/0/actual_shifts/0"
+            },
+            {
+              "code": "HISTORY_BACKGROUND",
+              "json_pointer": "/continuity/employees/0/before_context",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": null,
+              "group_id": "/continuity/employees/0/before_context"
+            },
+            {
+              "code": "HISTORY_BACKGROUND",
+              "json_pointer": "/continuity/employees/1/before_context",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": null,
+              "group_id": "/continuity/employees/1/before_context"
+            },
+            {
+              "code": "COMMITTED_SHIFT_BACKGROUND",
+              "json_pointer": "/continuity/employees/1/committed_shifts/0",
+              "related_ids": [
+                "bob",
+                "bob_fixed"
+              ],
+              "interval": {
+                "start": "2026-10-06T20:00:00+09:00",
+                "end": "2026-10-07T00:00:00+09:00"
+              },
+              "group_id": "/continuity/employees/1/committed_shifts/0"
+            },
+            {
+              "code": "AVAILABILITY",
+              "json_pointer": "/employees/0/availability",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-07T00:00:00+09:00"
+              },
+              "group_id": "/employees/0/availability"
+            },
+            {
+              "code": "EMPLOYEE_SKILLS",
+              "json_pointer": "/employees/0/skills",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": null,
+              "group_id": "/employees/0/skills"
+            },
+            {
+              "code": "AVAILABILITY",
+              "json_pointer": "/employees/1/availability",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-07T00:00:00+09:00"
+              },
+              "group_id": "/employees/1/availability"
+            },
+            {
+              "code": "EMPLOYEE_SKILLS",
+              "json_pointer": "/employees/1/skills",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": null,
+              "group_id": "/employees/1/skills"
+            },
+            {
+              "code": "PLANNING_GRID",
+              "json_pointer": "/planning_window",
+              "related_ids": [],
+              "interval": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-07T00:00:00+09:00"
+              },
+              "group_id": "/planning_window"
+            },
+            {
+              "code": "BASIC_ROSTER_RULES",
+              "json_pointer": "/problem_type",
+              "related_ids": [],
+              "interval": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-07T00:00:00+09:00"
+              },
+              "group_id": "/problem_type"
+            },
+            {
+              "code": "REQUIRED_SKILLS",
+              "json_pointer": "/roles/0/required_skills",
+              "related_ids": [
+                "kitchen"
+              ],
+              "interval": null,
+              "group_id": "/roles/0/required_skills"
+            },
+            {
+              "code": "REQUIRED_SKILLS",
+              "json_pointer": "/roles/1/required_skills",
+              "related_ids": [
+                "hall"
+              ],
+              "interval": null,
+              "group_id": "/roles/1/required_skills"
+            },
+            {
+              "code": "CANDIDATE_SET",
+              "json_pointer": "/shift_candidates",
+              "related_ids": [],
+              "interval": null,
+              "group_id": "/shift_candidates"
+            },
+            {
+              "code": "SHIFT_CANDIDATE",
+              "json_pointer": "/shift_candidates/0",
+              "related_ids": [
+                "alice_night",
+                "alice"
+              ],
+              "interval": {
+                "start": "2026-10-06T20:00:00+09:00",
+                "end": "2026-10-07T00:00:00+09:00"
+              },
+              "group_id": "/shift_candidates/0"
+            }
+          ],
+          "infeasibility_proven": true,
+          "minimality": "inclusion_minimal",
+          "minimality_scope": "condition_groups_relative_to_background",
+          "background_only": false,
+          "rechecked": true,
+          "checks": [
+            {
+              "phase": "initial",
+              "active_groups": [
+                "/constraints/0",
+                "/constraints/1",
+                "/constraints/2",
+                "/constraints/3",
+                "/demand/0"
+              ],
+              "removed_group_id": null,
+              "status": "INFEASIBLE",
+              "witness_verified": null,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.0006522919866256416,
+              "preparation_elapsed_seconds": 0.0005844580009579659,
+              "search_elapsed_seconds": 5.400000372901559e-05,
+              "verification_elapsed_seconds": 1.2497184798121452e-07
+            },
+            {
+              "phase": "removal",
+              "active_groups": [
+                "/constraints/1",
+                "/constraints/2",
+                "/constraints/3",
+                "/demand/0"
+              ],
+              "removed_group_id": "/constraints/0",
+              "status": "INFEASIBLE",
+              "witness_verified": null,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.0006729169981554151,
+              "preparation_elapsed_seconds": 0.0006257499917410314,
+              "search_elapsed_seconds": 3.529200330376625e-05,
+              "verification_elapsed_seconds": 1.66997779160738e-07
+            },
+            {
+              "phase": "removal",
+              "active_groups": [
+                "/constraints/2",
+                "/constraints/3",
+                "/demand/0"
+              ],
+              "removed_group_id": "/constraints/1",
+              "status": "INFEASIBLE",
+              "witness_verified": null,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.0005105829914100468,
+              "preparation_elapsed_seconds": 0.0004658750258386135,
+              "search_elapsed_seconds": 3.3999967854470015e-05,
+              "verification_elapsed_seconds": 8.300412446260452e-08
+            },
+            {
+              "phase": "removal",
+              "active_groups": [
+                "/constraints/3",
+                "/demand/0"
+              ],
+              "removed_group_id": "/constraints/2",
+              "status": "INFEASIBLE",
+              "witness_verified": null,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.00044724997133016586,
+              "preparation_elapsed_seconds": 0.00040954200085252523,
+              "search_elapsed_seconds": 2.7542002499103546e-05,
+              "verification_elapsed_seconds": 1.2497184798121452e-07
+            },
+            {
+              "phase": "removal",
+              "active_groups": [
+                "/demand/0"
+              ],
+              "removed_group_id": "/constraints/3",
+              "status": "OPTIMAL",
+              "witness_verified": true,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.011296375014353544,
+              "preparation_elapsed_seconds": 0.00039658398600295186,
+              "search_elapsed_seconds": 0.002448916027788073,
+              "verification_elapsed_seconds": 0.008318250009324402
+            },
+            {
+              "phase": "removal",
+              "active_groups": [
+                "/constraints/3"
+              ],
+              "removed_group_id": "/demand/0",
+              "status": "INFEASIBLE",
+              "witness_verified": null,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.0004583330010063946,
+              "preparation_elapsed_seconds": 0.00040858302963897586,
+              "search_elapsed_seconds": 3.745901631191373e-05,
+              "verification_elapsed_seconds": 1.25030055642128e-07
+            },
+            {
+              "phase": "final",
+              "active_groups": [
+                "/constraints/3"
+              ],
+              "removed_group_id": null,
+              "status": "INFEASIBLE",
+              "witness_verified": null,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.0004130000015720725,
+              "preparation_elapsed_seconds": 0.0003736669896170497,
+              "search_elapsed_seconds": 2.8708018362522125e-05,
+              "verification_elapsed_seconds": 8.300412446260452e-08
+            },
+            {
+              "phase": "witness_recheck",
+              "active_groups": [],
+              "removed_group_id": "/constraints/3",
+              "status": "OPTIMAL",
+              "witness_verified": true,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.0005200830055400729,
+              "preparation_elapsed_seconds": 0.0,
+              "search_elapsed_seconds": 0.0,
+              "verification_elapsed_seconds": 0.0005200000014156103
+            }
+          ]
+        },
+        "suggestions": [],
+        "suggestion_minimality": "not_proven",
+        "time_limit_seconds": 10,
+        "elapsed_seconds": 0.05415254196850583,
+        "diagnostics": []
+      },
+      "search_stats": {
+        "time_limit_seconds": 10,
+        "search_elapsed_seconds": 0.0012980829924345016,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.035573125001974404,
+        "backend_loading_elapsed_seconds": 0.20817420800449327,
+        "preparation_elapsed_seconds": 0.0009165829978883266,
+        "verification_elapsed_seconds": 0.0037005420308560133,
+        "candidate_expansion_elapsed_seconds": 5.212501855567098e-05,
+        "input_validation_elapsed_seconds": 0.03551708394661546
+      },
+      "assignments": 0,
+      "shifts": 0,
+      "import_seconds": 0.02949166699545458,
+      "input_seconds": 0.000225916039198637,
+      "elapsed_seconds": 0.3038477500085719,
+      "request_elapsed_seconds": 0.3335653330432251,
+      "engine_elapsed_seconds": 0.30384195799706504,
+      "metadata_seconds": 0.001701959001366049,
+      "peak_rss_mib": 106.296875,
+      "group": 2,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-conflict.json",
+      "input_sha256": "db9c2c682a6542e780ecb586aaa14a4b5734650d6925a8c92cff9e9dc2ee5c93",
+      "problem_type": "roster",
+      "employees": 2,
+      "roles": 2,
+      "days": 1.0,
+      "slot_minutes": 30,
+      "slots": 48,
+      "candidates": 1,
+      "objective_order": [
+        "duty_deviation_minutes",
+        "scheduled_cost",
+        "scheduled_minutes"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.5",
+        "library_version": "9.15.6755",
+        "selection_reason": "DEMAND_PRIORITY"
+      },
+      "schema_version": "0.10",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "INFEASIBLE",
+      "verification": {
+        "performed": false,
+        "valid": null,
+        "violations": []
+      },
+      "objectives": [],
+      "objective_quality": [],
+      "diagnostics": [
+        {
+          "code": "NO_FEASIBLE_PLAN",
+          "message": "すべての必須条件を満たす配置はありません。",
+          "json_pointer": "",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 10
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.0013090839493088424
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.03525037498911843
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.20708229101728648
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.0009565840009599924
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.0036681669880636036
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 5.3875031881034374e-05
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.03519199992297217
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": null,
+      "cost_summary": null,
+      "duty_balance_summary": null,
+      "shortage_summary": null,
+      "diagnosis_result": {
+        "status": "COMPLETE",
+        "reason": null,
+        "conflict": {
+          "conditions": [
+            {
+              "code": "CONSTRAINT",
+              "json_pointer": "/constraints/3",
+              "related_ids": [
+                "bob_cap",
+                "bob"
+              ],
+              "interval": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-07T00:00:00+09:00"
+              },
+              "group_id": "/constraints/3"
+            }
+          ],
+          "background_conditions": [
+            {
+              "code": "CONTINUITY_BACKGROUND",
+              "json_pointer": "/continuity/context_window",
+              "related_ids": [],
+              "interval": {
+                "start": "2026-10-05T00:00:00+09:00",
+                "end": "2026-10-08T00:00:00+09:00"
+              },
+              "group_id": "/continuity/context_window"
+            },
+            {
+              "code": "ACTUAL_SHIFT_BACKGROUND",
+              "json_pointer": "/continuity/employees/0/actual_shifts/0",
+              "related_ids": [
+                "alice",
+                "past_alice"
+              ],
+              "interval": {
+                "start": "2026-10-05T20:00:00+09:00",
+                "end": "2026-10-06T00:00:00+09:00"
+              },
+              "group_id": "/continuity/employees/0/actual_shifts/0"
+            },
+            {
+              "code": "HISTORY_BACKGROUND",
+              "json_pointer": "/continuity/employees/0/before_context",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": null,
+              "group_id": "/continuity/employees/0/before_context"
+            },
+            {
+              "code": "HISTORY_BACKGROUND",
+              "json_pointer": "/continuity/employees/1/before_context",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": null,
+              "group_id": "/continuity/employees/1/before_context"
+            },
+            {
+              "code": "COMMITTED_SHIFT_BACKGROUND",
+              "json_pointer": "/continuity/employees/1/committed_shifts/0",
+              "related_ids": [
+                "bob",
+                "bob_fixed"
+              ],
+              "interval": {
+                "start": "2026-10-06T20:00:00+09:00",
+                "end": "2026-10-07T00:00:00+09:00"
+              },
+              "group_id": "/continuity/employees/1/committed_shifts/0"
+            },
+            {
+              "code": "AVAILABILITY",
+              "json_pointer": "/employees/0/availability",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-07T00:00:00+09:00"
+              },
+              "group_id": "/employees/0/availability"
+            },
+            {
+              "code": "EMPLOYEE_SKILLS",
+              "json_pointer": "/employees/0/skills",
+              "related_ids": [
+                "alice"
+              ],
+              "interval": null,
+              "group_id": "/employees/0/skills"
+            },
+            {
+              "code": "AVAILABILITY",
+              "json_pointer": "/employees/1/availability",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-07T00:00:00+09:00"
+              },
+              "group_id": "/employees/1/availability"
+            },
+            {
+              "code": "EMPLOYEE_SKILLS",
+              "json_pointer": "/employees/1/skills",
+              "related_ids": [
+                "bob"
+              ],
+              "interval": null,
+              "group_id": "/employees/1/skills"
+            },
+            {
+              "code": "PLANNING_GRID",
+              "json_pointer": "/planning_window",
+              "related_ids": [],
+              "interval": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-07T00:00:00+09:00"
+              },
+              "group_id": "/planning_window"
+            },
+            {
+              "code": "BASIC_ROSTER_RULES",
+              "json_pointer": "/problem_type",
+              "related_ids": [],
+              "interval": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-07T00:00:00+09:00"
+              },
+              "group_id": "/problem_type"
+            },
+            {
+              "code": "REQUIRED_SKILLS",
+              "json_pointer": "/roles/0/required_skills",
+              "related_ids": [
+                "kitchen"
+              ],
+              "interval": null,
+              "group_id": "/roles/0/required_skills"
+            },
+            {
+              "code": "REQUIRED_SKILLS",
+              "json_pointer": "/roles/1/required_skills",
+              "related_ids": [
+                "hall"
+              ],
+              "interval": null,
+              "group_id": "/roles/1/required_skills"
+            },
+            {
+              "code": "CANDIDATE_SET",
+              "json_pointer": "/shift_candidates",
+              "related_ids": [],
+              "interval": null,
+              "group_id": "/shift_candidates"
+            },
+            {
+              "code": "SHIFT_CANDIDATE",
+              "json_pointer": "/shift_candidates/0",
+              "related_ids": [
+                "alice_night",
+                "alice"
+              ],
+              "interval": {
+                "start": "2026-10-06T20:00:00+09:00",
+                "end": "2026-10-07T00:00:00+09:00"
+              },
+              "group_id": "/shift_candidates/0"
+            }
+          ],
+          "infeasibility_proven": true,
+          "minimality": "inclusion_minimal",
+          "minimality_scope": "condition_groups_relative_to_background",
+          "background_only": false,
+          "rechecked": true,
+          "checks": [
+            {
+              "phase": "initial",
+              "active_groups": [
+                "/constraints/0",
+                "/constraints/1",
+                "/constraints/2",
+                "/constraints/3",
+                "/demand/0"
+              ],
+              "removed_group_id": null,
+              "status": "INFEASIBLE",
+              "witness_verified": null,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.000650417001452297,
+              "preparation_elapsed_seconds": 0.0005839160294272006,
+              "search_elapsed_seconds": 5.2958959713578224e-05,
+              "verification_elapsed_seconds": 1.66997779160738e-07
+            },
+            {
+              "phase": "removal",
+              "active_groups": [
+                "/constraints/1",
+                "/constraints/2",
+                "/constraints/3",
+                "/demand/0"
+              ],
+              "removed_group_id": "/constraints/0",
+              "status": "INFEASIBLE",
+              "witness_verified": null,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.0006693750037811697,
+              "preparation_elapsed_seconds": 0.0006225839606486261,
+              "search_elapsed_seconds": 3.516604192554951e-05,
+              "verification_elapsed_seconds": 2.08965502679348e-07
+            },
+            {
+              "phase": "removal",
+              "active_groups": [
+                "/constraints/2",
+                "/constraints/3",
+                "/demand/0"
+              ],
+              "removed_group_id": "/constraints/1",
+              "status": "INFEASIBLE",
+              "witness_verified": null,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.00047308404464274645,
+              "preparation_elapsed_seconds": 0.00043145898962393403,
+              "search_elapsed_seconds": 3.120803739875555e-05,
+              "verification_elapsed_seconds": 4.202593117952347e-08
+            },
+            {
+              "phase": "removal",
+              "active_groups": [
+                "/constraints/3",
+                "/demand/0"
+              ],
+              "removed_group_id": "/constraints/2",
+              "status": "INFEASIBLE",
+              "witness_verified": null,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.000445541983935982,
+              "preparation_elapsed_seconds": 0.0004089580033905804,
+              "search_elapsed_seconds": 2.6458001229912043e-05,
+              "verification_elapsed_seconds": 4.196772351861e-08
+            },
+            {
+              "phase": "removal",
+              "active_groups": [
+                "/demand/0"
+              ],
+              "removed_group_id": "/constraints/3",
+              "status": "OPTIMAL",
+              "witness_verified": true,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.011202582973055542,
+              "preparation_elapsed_seconds": 0.00039674999425187707,
+              "search_elapsed_seconds": 0.0024350000312551856,
+              "verification_elapsed_seconds": 0.008261915994808078
+            },
+            {
+              "phase": "removal",
+              "active_groups": [
+                "/constraints/3"
+              ],
+              "removed_group_id": "/demand/0",
+              "status": "INFEASIBLE",
+              "witness_verified": null,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.000464791024569422,
+              "preparation_elapsed_seconds": 0.00041399995097890496,
+              "search_elapsed_seconds": 3.862503217533231e-05,
+              "verification_elapsed_seconds": 8.300412446260452e-08
+            },
+            {
+              "phase": "final",
+              "active_groups": [
+                "/constraints/3"
+              ],
+              "removed_group_id": null,
+              "status": "INFEASIBLE",
+              "witness_verified": null,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.0004175840294919908,
+              "preparation_elapsed_seconds": 0.0003784580039791763,
+              "search_elapsed_seconds": 2.8292008209973574e-05,
+              "verification_elapsed_seconds": 4.202593117952347e-08
+            },
+            {
+              "phase": "witness_recheck",
+              "active_groups": [],
+              "removed_group_id": "/constraints/3",
+              "status": "OPTIMAL",
+              "witness_verified": true,
+              "completed_in_budget": true,
+              "elapsed_seconds": 0.0005210840026848018,
+              "preparation_elapsed_seconds": 0.0,
+              "search_elapsed_seconds": 0.0,
+              "verification_elapsed_seconds": 0.0005209589726291597
+            }
+          ]
+        },
+        "suggestions": [],
+        "suggestion_minimality": "not_proven",
+        "time_limit_seconds": 10,
+        "elapsed_seconds": 0.05368945898953825,
+        "diagnostics": []
+      },
+      "search_stats": {
+        "time_limit_seconds": 10,
+        "search_elapsed_seconds": 0.0013090839493088424,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.03525037498911843,
+        "backend_loading_elapsed_seconds": 0.20708229101728648,
+        "preparation_elapsed_seconds": 0.0009565840009599924,
+        "verification_elapsed_seconds": 0.0036681669880636036,
+        "candidate_expansion_elapsed_seconds": 5.3875031881034374e-05,
+        "input_validation_elapsed_seconds": 0.03519199992297217
+      },
+      "assignments": 0,
+      "shifts": 0,
+      "import_seconds": 0.032242582994513214,
+      "input_seconds": 0.00027116696583107114,
+      "elapsed_seconds": 0.30198741605272517,
+      "request_elapsed_seconds": 0.33450116601306945,
+      "engine_elapsed_seconds": 0.301981833006721,
+      "metadata_seconds": 0.0016736669931560755,
+      "peak_rss_mib": 106.265625,
+      "group": 3,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-invalid.json",
+      "input_sha256": "f85f6f1a614fd3077237e08fbdbbea30aeffefb4e55f41b8918ff6b1d38cc14b",
+      "problem_type": null,
+      "employees": null,
+      "roles": null,
+      "days": null,
+      "slot_minutes": null,
+      "slots": null,
+      "candidates": null,
+      "objective_order": null,
+      "solver_request": null,
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "none",
+        "engine_version": "0.1.5",
+        "library_version": null,
+        "selection_reason": "NOT_SELECTED"
+      },
+      "schema_version": "0.10",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "INVALID_INPUT",
+      "verification": {
+        "performed": false,
+        "valid": null,
+        "violations": []
+      },
+      "objectives": [],
+      "objective_quality": [],
+      "diagnostics": [
+        {
+          "code": "INCOMPLETE_HISTORY",
+          "message": "履歴・実績・確定勤務と完全性確認が必要です。",
+          "json_pointer": "/continuity/employees/1",
+          "related_ids": [],
+          "facts": []
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": null,
+      "cost_summary": null,
+      "duty_balance_summary": null,
+      "shortage_summary": null,
+      "diagnosis_result": null,
+      "search_stats": {},
+      "assignments": 0,
+      "shifts": 0,
+      "import_seconds": 0.0292682500439696,
+      "input_seconds": 0.0002328339614905417,
+      "elapsed_seconds": 0.041358624992426485,
+      "request_elapsed_seconds": 0.07085970899788663,
+      "engine_elapsed_seconds": 0.04135754198068753,
+      "metadata_seconds": 0.00015758303925395012,
+      "peak_rss_mib": 36.234375,
+      "group": 1,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-invalid.json",
+      "input_sha256": "f85f6f1a614fd3077237e08fbdbbea30aeffefb4e55f41b8918ff6b1d38cc14b",
+      "problem_type": null,
+      "employees": null,
+      "roles": null,
+      "days": null,
+      "slot_minutes": null,
+      "slots": null,
+      "candidates": null,
+      "objective_order": null,
+      "solver_request": null,
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "none",
+        "engine_version": "0.1.5",
+        "library_version": null,
+        "selection_reason": "NOT_SELECTED"
+      },
+      "schema_version": "0.10",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "INVALID_INPUT",
+      "verification": {
+        "performed": false,
+        "valid": null,
+        "violations": []
+      },
+      "objectives": [],
+      "objective_quality": [],
+      "diagnostics": [
+        {
+          "code": "INCOMPLETE_HISTORY",
+          "message": "履歴・実績・確定勤務と完全性確認が必要です。",
+          "json_pointer": "/continuity/employees/1",
+          "related_ids": [],
+          "facts": []
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": null,
+      "cost_summary": null,
+      "duty_balance_summary": null,
+      "shortage_summary": null,
+      "diagnosis_result": null,
+      "search_stats": {},
+      "assignments": 0,
+      "shifts": 0,
+      "import_seconds": 0.029909665987361223,
+      "input_seconds": 0.000225124997086823,
+      "elapsed_seconds": 0.0415214590029791,
+      "request_elapsed_seconds": 0.07165624998742715,
+      "engine_elapsed_seconds": 0.04151983297197148,
+      "metadata_seconds": 0.00016087503172457218,
+      "peak_rss_mib": 36.375,
+      "group": 2,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-invalid.json",
+      "input_sha256": "f85f6f1a614fd3077237e08fbdbbea30aeffefb4e55f41b8918ff6b1d38cc14b",
+      "problem_type": null,
+      "employees": null,
+      "roles": null,
+      "days": null,
+      "slot_minutes": null,
+      "slots": null,
+      "candidates": null,
+      "objective_order": null,
+      "solver_request": null,
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "none",
+        "engine_version": "0.1.5",
+        "library_version": null,
+        "selection_reason": "NOT_SELECTED"
+      },
+      "schema_version": "0.10",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "INVALID_INPUT",
+      "verification": {
+        "performed": false,
+        "valid": null,
+        "violations": []
+      },
+      "objectives": [],
+      "objective_quality": [],
+      "diagnostics": [
+        {
+          "code": "INCOMPLETE_HISTORY",
+          "message": "履歴・実績・確定勤務と完全性確認が必要です。",
+          "json_pointer": "/continuity/employees/1",
+          "related_ids": [],
+          "facts": []
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": null,
+      "cost_summary": null,
+      "duty_balance_summary": null,
+      "shortage_summary": null,
+      "diagnosis_result": null,
+      "search_stats": {},
+      "assignments": 0,
+      "shifts": 0,
+      "import_seconds": 0.029754540999419987,
+      "input_seconds": 0.00022262503625825047,
+      "elapsed_seconds": 0.041058458969928324,
+      "request_elapsed_seconds": 0.07103562500560656,
+      "engine_elapsed_seconds": 0.041056625021155924,
+      "metadata_seconds": 0.00016391597455367446,
+      "peak_rss_mib": 36.25,
+      "group": 3,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-timeout.json",
+      "input_sha256": "e218b8025a85f1cf8a1231f329fbf7596649f424ce8ac7172095e25d41266e67",
+      "problem_type": "roster",
+      "employees": 2,
+      "roles": 2,
+      "days": 1.0,
+      "slot_minutes": 30,
+      "slots": 48,
+      "candidates": 2,
+      "objective_order": [
+        "duty_deviation_minutes",
+        "scheduled_cost",
+        "scheduled_minutes"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 1e-09,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 1e-09,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.5",
+        "library_version": "9.15.6755",
+        "selection_reason": "DEMAND_PRIORITY"
+      },
+      "schema_version": "0.10",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "UNKNOWN",
+      "verification": {
+        "performed": false,
+        "valid": null,
+        "violations": []
+      },
+      "objectives": [],
+      "objective_quality": [],
+      "diagnostics": [
+        {
+          "code": "TIME_LIMIT",
+          "message": "探索予算内に目的順序の最適化を完了できませんでした。",
+          "json_pointer": "/shortage_summary",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "completed_objectives",
+              "value": 0
+            },
+            {
+              "name": "completed_priority_groups",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 1e-09
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.0009082079632207751
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.03478849999373779
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.205572624981869
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.0008992079528979957
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.0036629170062951744
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 8.175004040822387e-05
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.03470304195070639
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": null,
+      "cost_summary": null,
+      "duty_balance_summary": null,
+      "shortage_summary": null,
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 1e-09,
+        "search_elapsed_seconds": 0.0009082079632207751,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.03478849999373779,
+        "backend_loading_elapsed_seconds": 0.205572624981869,
+        "preparation_elapsed_seconds": 0.0008992079528979957,
+        "verification_elapsed_seconds": 0.0036629170062951744,
+        "candidate_expansion_elapsed_seconds": 8.175004040822387e-05,
+        "input_validation_elapsed_seconds": 0.03470304195070639
+      },
+      "assignments": 0,
+      "shifts": 0,
+      "import_seconds": 0.029347167001105845,
+      "input_seconds": 0.00023570802295580506,
+      "elapsed_seconds": 0.28333091700915247,
+      "request_elapsed_seconds": 0.3129137920332141,
+      "engine_elapsed_seconds": 0.2833238340099342,
+      "metadata_seconds": 0.0015821249689906836,
+      "peak_rss_mib": 102.390625,
+      "group": 1,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-timeout.json",
+      "input_sha256": "e218b8025a85f1cf8a1231f329fbf7596649f424ce8ac7172095e25d41266e67",
+      "problem_type": "roster",
+      "employees": 2,
+      "roles": 2,
+      "days": 1.0,
+      "slot_minutes": 30,
+      "slots": 48,
+      "candidates": 2,
+      "objective_order": [
+        "duty_deviation_minutes",
+        "scheduled_cost",
+        "scheduled_minutes"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 1e-09,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 1e-09,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.5",
+        "library_version": "9.15.6755",
+        "selection_reason": "DEMAND_PRIORITY"
+      },
+      "schema_version": "0.10",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "UNKNOWN",
+      "verification": {
+        "performed": false,
+        "valid": null,
+        "violations": []
+      },
+      "objectives": [],
+      "objective_quality": [],
+      "diagnostics": [
+        {
+          "code": "TIME_LIMIT",
+          "message": "探索予算内に目的順序の最適化を完了できませんでした。",
+          "json_pointer": "/shortage_summary",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "completed_objectives",
+              "value": 0
+            },
+            {
+              "name": "completed_priority_groups",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 1e-09
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.0009000410209409893
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.035004833014681935
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.2088221670128405
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.0009228340350091457
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.0036927079781889915
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 7.766700582578778e-05
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.03492304100655019
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": null,
+      "cost_summary": null,
+      "duty_balance_summary": null,
+      "shortage_summary": null,
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 1e-09,
+        "search_elapsed_seconds": 0.0009000410209409893,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.035004833014681935,
+        "backend_loading_elapsed_seconds": 0.2088221670128405,
+        "preparation_elapsed_seconds": 0.0009228340350091457,
+        "verification_elapsed_seconds": 0.0036927079781889915,
+        "candidate_expansion_elapsed_seconds": 7.766700582578778e-05,
+        "input_validation_elapsed_seconds": 0.03492304100655019
+      },
+      "assignments": 0,
+      "shifts": 0,
+      "import_seconds": 0.02981162501964718,
+      "input_seconds": 0.00022429099772125483,
+      "elapsed_seconds": 0.28727679199073464,
+      "request_elapsed_seconds": 0.3173127080081031,
+      "engine_elapsed_seconds": 0.28727000002982095,
+      "metadata_seconds": 0.0015976669965311885,
+      "peak_rss_mib": 102.265625,
+      "group": 2,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-timeout.json",
+      "input_sha256": "e218b8025a85f1cf8a1231f329fbf7596649f424ce8ac7172095e25d41266e67",
+      "problem_type": "roster",
+      "employees": 2,
+      "roles": 2,
+      "days": 1.0,
+      "slot_minutes": 30,
+      "slots": 48,
+      "candidates": 2,
+      "objective_order": [
+        "duty_deviation_minutes",
+        "scheduled_cost",
+        "scheduled_minutes"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 1e-09,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 1e-09,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.5",
+        "library_version": "9.15.6755",
+        "selection_reason": "DEMAND_PRIORITY"
+      },
+      "schema_version": "0.10",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "UNKNOWN",
+      "verification": {
+        "performed": false,
+        "valid": null,
+        "violations": []
+      },
+      "objectives": [],
+      "objective_quality": [],
+      "diagnostics": [
+        {
+          "code": "TIME_LIMIT",
+          "message": "探索予算内に目的順序の最適化を完了できませんでした。",
+          "json_pointer": "/shortage_summary",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "completed_objectives",
+              "value": 0
+            },
+            {
+              "name": "completed_priority_groups",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 1e-09
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.0009228329872712493
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.03529491601511836
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.2070993339875713
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.0008962080464698374
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.0036442080163396895
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 7.937499321997166e-05
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.035211750015150756
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": null,
+      "cost_summary": null,
+      "duty_balance_summary": null,
+      "shortage_summary": null,
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 1e-09,
+        "search_elapsed_seconds": 0.0009228329872712493,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.03529491601511836,
+        "backend_loading_elapsed_seconds": 0.2070993339875713,
+        "preparation_elapsed_seconds": 0.0008962080464698374,
+        "verification_elapsed_seconds": 0.0036442080163396895,
+        "candidate_expansion_elapsed_seconds": 7.937499321997166e-05,
+        "input_validation_elapsed_seconds": 0.035211750015150756
+      },
+      "assignments": 0,
+      "shifts": 0,
+      "import_seconds": 0.029346499999519438,
+      "input_seconds": 0.000222250004298985,
+      "elapsed_seconds": 0.2858007089816965,
+      "request_elapsed_seconds": 0.31536945898551494,
+      "engine_elapsed_seconds": 0.28579387499485165,
+      "metadata_seconds": 0.0016311660292558372,
+      "peak_rss_mib": 102.421875,
+      "group": 3,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    }
+  ],
+  "workers": [
+    {
+      "input_file": "examples/continuity_duty_balance.json",
+      "group": 1,
+      "elapsed_seconds": 0.47179675003280863,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "examples/continuity_duty_balance.json",
+      "group": 2,
+      "elapsed_seconds": 0.4311090420233086,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "examples/continuity_duty_balance.json",
+      "group": 3,
+      "elapsed_seconds": 0.4389927919837646,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-partial.json",
+      "group": 1,
+      "elapsed_seconds": 0.4377972910297103,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-partial.json",
+      "group": 2,
+      "elapsed_seconds": 0.441231417004019,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-partial.json",
+      "group": 3,
+      "elapsed_seconds": 0.4564467500313185,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-conflict.json",
+      "group": 1,
+      "elapsed_seconds": 0.4302987499977462,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-conflict.json",
+      "group": 2,
+      "elapsed_seconds": 0.4320999580086209,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-conflict.json",
+      "group": 3,
+      "elapsed_seconds": 0.4328533750376664,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-invalid.json",
+      "group": 1,
+      "elapsed_seconds": 0.12844300002325326,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-invalid.json",
+      "group": 2,
+      "elapsed_seconds": 0.12952929100720212,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-invalid.json",
+      "group": 3,
+      "elapsed_seconds": 0.12972520798211917,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-timeout.json",
+      "group": 1,
+      "elapsed_seconds": 0.4164054589928128,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-timeout.json",
+      "group": 2,
+      "elapsed_seconds": 0.4162534999777563,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-timeout.json",
+      "group": 3,
+      "elapsed_seconds": 0.4132983749732375,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    }
+  ],
+  "summaries": [
+    {
+      "input_file": "examples/continuity_duty_balance.json",
+      "attempts": 3,
+      "statuses": {
+        "OPTIMAL": 3
+      },
+      "verified_solutions": 3,
+      "complete_solutions": 3,
+      "solution_rate": 1.0,
+      "verified_suggestions": 0,
+      "statistics": {
+        "elapsed_seconds": {
+          "samples": 3,
+          "mean": 0.31225462500394013,
+          "median": 0.3119932080153376,
+          "p95": 0.3214998749899678,
+          "maximum": 0.3214998749899678
+        },
+        "request_elapsed_seconds": {
+          "samples": 3,
+          "mean": 0.3492371110090365,
+          "median": 0.3414249580237083,
+          "p95": 0.3734012079657987,
+          "maximum": 0.3734012079657987
+        },
+        "peak_rss_mib": {
+          "samples": 3,
+          "mean": 106.75520833333333,
+          "median": 106.15625,
+          "p95": 108.0,
+          "maximum": 108.0
+        }
+      },
+      "first_request_elapsed_seconds": {
+        "samples": 3,
+        "mean": 0.3492371110090365,
+        "median": 0.3414249580237083,
+        "p95": 0.3734012079657987,
+        "maximum": 0.3734012079657987
+      },
+      "continued_request_elapsed_seconds": {
+        "samples": 0,
+        "mean": null,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "process_elapsed_seconds": {
+        "samples": 3,
+        "mean": 0.4472995280132939,
+        "median": 0.4389927919837646,
+        "p95": 0.47179675003280863,
+        "maximum": 0.47179675003280863
+      },
+      "objective_quality": [
+        {
+          "id": "balance_night",
+          "metric": "duty_deviation_minutes",
+          "observed_values": {
+            "samples": 3,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "maximum": 0
+          },
+          "proven_count": 3,
+          "relative_gap": {
+            "samples": 3,
+            "mean": 0.0,
+            "median": 0.0,
+            "p95": 0.0,
+            "maximum": 0.0
+          }
+        },
+        {
+          "id": "cost",
+          "metric": "scheduled_cost",
+          "observed_values": {
+            "samples": 3,
+            "mean": 432000,
+            "median": 432000,
+            "p95": 432000,
+            "maximum": 432000
+          },
+          "proven_count": 3,
+          "relative_gap": {
+            "samples": 3,
+            "mean": 0.0,
+            "median": 0.0,
+            "p95": 0.0,
+            "maximum": 0.0
+          }
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "observed_values": {
+            "samples": 3,
+            "mean": 240,
+            "median": 240,
+            "p95": 240,
+            "maximum": 240
+          },
+          "proven_count": 3,
+          "relative_gap": {
+            "samples": 3,
+            "mean": 0.0,
+            "median": 0.0,
+            "p95": 0.0,
+            "maximum": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-partial.json",
+      "attempts": 3,
+      "statuses": {
+        "PARTIAL": 3
+      },
+      "verified_solutions": 3,
+      "complete_solutions": 0,
+      "solution_rate": 1.0,
+      "verified_suggestions": 0,
+      "statistics": {
+        "elapsed_seconds": {
+          "samples": 3,
+          "mean": 0.31428999998994794,
+          "median": 0.3111298750154674,
+          "p95": 0.3242688329773955,
+          "maximum": 0.3242688329773955
+        },
+        "request_elapsed_seconds": {
+          "samples": 3,
+          "mean": 0.34409624999777105,
+          "median": 0.34075420803856105,
+          "p95": 0.35414337494876236,
+          "maximum": 0.35414337494876236
+        },
+        "peak_rss_mib": {
+          "samples": 3,
+          "mean": 106.02083333333333,
+          "median": 106.046875,
+          "p95": 106.0625,
+          "maximum": 106.0625
+        }
+      },
+      "first_request_elapsed_seconds": {
+        "samples": 3,
+        "mean": 0.34409624999777105,
+        "median": 0.34075420803856105,
+        "p95": 0.35414337494876236,
+        "maximum": 0.35414337494876236
+      },
+      "continued_request_elapsed_seconds": {
+        "samples": 0,
+        "mean": null,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "process_elapsed_seconds": {
+        "samples": 3,
+        "mean": 0.4451584860216826,
+        "median": 0.441231417004019,
+        "p95": 0.4564467500313185,
+        "maximum": 0.4564467500313185
+      },
+      "objective_quality": [
+        {
+          "id": "balance_night",
+          "metric": "duty_deviation_minutes",
+          "observed_values": {
+            "samples": 3,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "maximum": 0
+          },
+          "proven_count": 3,
+          "relative_gap": {
+            "samples": 3,
+            "mean": 0.0,
+            "median": 0.0,
+            "p95": 0.0,
+            "maximum": 0.0
+          }
+        },
+        {
+          "id": "cost",
+          "metric": "scheduled_cost",
+          "observed_values": {
+            "samples": 3,
+            "mean": 432000,
+            "median": 432000,
+            "p95": 432000,
+            "maximum": 432000
+          },
+          "proven_count": 3,
+          "relative_gap": {
+            "samples": 3,
+            "mean": 0.0,
+            "median": 0.0,
+            "p95": 0.0,
+            "maximum": 0.0
+          }
+        },
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "observed_values": {
+            "samples": 3,
+            "mean": 240,
+            "median": 240,
+            "p95": 240,
+            "maximum": 240
+          },
+          "proven_count": 3,
+          "relative_gap": {
+            "samples": 3,
+            "mean": 0.0,
+            "median": 0.0,
+            "p95": 0.0,
+            "maximum": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-conflict.json",
+      "attempts": 3,
+      "statuses": {
+        "INFEASIBLE": 3
+      },
+      "verified_solutions": 0,
+      "complete_solutions": 0,
+      "solution_rate": 0.0,
+      "verified_suggestions": 0,
+      "statistics": {
+        "elapsed_seconds": {
+          "samples": 3,
+          "mean": 0.30214862469195697,
+          "median": 0.30198741605272517,
+          "p95": 0.3038477500085719,
+          "maximum": 0.3038477500085719
+        },
+        "request_elapsed_seconds": {
+          "samples": 3,
+          "mean": 0.33306977736841265,
+          "median": 0.3335653330432251,
+          "p95": 0.33450116601306945,
+          "maximum": 0.33450116601306945
+        },
+        "peak_rss_mib": {
+          "samples": 3,
+          "mean": 106.30208333333333,
+          "median": 106.296875,
+          "p95": 106.34375,
+          "maximum": 106.34375
+        }
+      },
+      "first_request_elapsed_seconds": {
+        "samples": 3,
+        "mean": 0.33306977736841265,
+        "median": 0.3335653330432251,
+        "p95": 0.33450116601306945,
+        "maximum": 0.33450116601306945
+      },
+      "continued_request_elapsed_seconds": {
+        "samples": 0,
+        "mean": null,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "process_elapsed_seconds": {
+        "samples": 3,
+        "mean": 0.43175069434801117,
+        "median": 0.4320999580086209,
+        "p95": 0.4328533750376664,
+        "maximum": 0.4328533750376664
+      },
+      "objective_quality": []
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-invalid.json",
+      "attempts": 3,
+      "statuses": {
+        "INVALID_INPUT": 3
+      },
+      "verified_solutions": 0,
+      "complete_solutions": 0,
+      "solution_rate": 0.0,
+      "verified_suggestions": 0,
+      "statistics": {
+        "elapsed_seconds": {
+          "samples": 3,
+          "mean": 0.041312847655111305,
+          "median": 0.041358624992426485,
+          "p95": 0.0415214590029791,
+          "maximum": 0.0415214590029791
+        },
+        "request_elapsed_seconds": {
+          "samples": 3,
+          "mean": 0.07118386133030678,
+          "median": 0.07103562500560656,
+          "p95": 0.07165624998742715,
+          "maximum": 0.07165624998742715
+        },
+        "peak_rss_mib": {
+          "samples": 3,
+          "mean": 36.286458333333336,
+          "median": 36.25,
+          "p95": 36.375,
+          "maximum": 36.375
+        }
+      },
+      "first_request_elapsed_seconds": {
+        "samples": 3,
+        "mean": 0.07118386133030678,
+        "median": 0.07103562500560656,
+        "p95": 0.07165624998742715,
+        "maximum": 0.07165624998742715
+      },
+      "continued_request_elapsed_seconds": {
+        "samples": 0,
+        "mean": null,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "process_elapsed_seconds": {
+        "samples": 3,
+        "mean": 0.12923249967085818,
+        "median": 0.12952929100720212,
+        "p95": 0.12972520798211917,
+        "maximum": 0.12972520798211917
+      },
+      "objective_quality": []
+    },
+    {
+      "input_file": "docs/evaluations/inputs/continuity-duty-timeout.json",
+      "attempts": 3,
+      "statuses": {
+        "UNKNOWN": 3
+      },
+      "verified_solutions": 0,
+      "complete_solutions": 0,
+      "solution_rate": 0.0,
+      "verified_suggestions": 0,
+      "statistics": {
+        "elapsed_seconds": {
+          "samples": 3,
+          "mean": 0.28546947266052786,
+          "median": 0.2858007089816965,
+          "p95": 0.28727679199073464,
+          "maximum": 0.28727679199073464
+        },
+        "request_elapsed_seconds": {
+          "samples": 3,
+          "mean": 0.31519865300894406,
+          "median": 0.31536945898551494,
+          "p95": 0.3173127080081031,
+          "maximum": 0.3173127080081031
+        },
+        "peak_rss_mib": {
+          "samples": 3,
+          "mean": 102.359375,
+          "median": 102.390625,
+          "p95": 102.421875,
+          "maximum": 102.421875
+        }
+      },
+      "first_request_elapsed_seconds": {
+        "samples": 3,
+        "mean": 0.31519865300894406,
+        "median": 0.31536945898551494,
+        "p95": 0.3173127080081031,
+        "maximum": 0.3173127080081031
+      },
+      "continued_request_elapsed_seconds": {
+        "samples": 0,
+        "mean": null,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "process_elapsed_seconds": {
+        "samples": 3,
+        "mean": 0.4153191113146022,
+        "median": 0.4162534999777563,
+        "p95": 0.4164054589928128,
+        "maximum": 0.4164054589928128
+      },
+      "objective_quality": []
+    }
+  ]
+}
