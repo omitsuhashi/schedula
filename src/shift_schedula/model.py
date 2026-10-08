@@ -164,6 +164,8 @@ def unique(items, field, path):
 
 
 def objective_key(objective):
+    if "balance_id" in objective:
+        return objective["metric"], objective["balance_id"]
     return (
         (objective["metric"], objective["duty_id"])
         if "duty_id" in objective
@@ -291,7 +293,7 @@ def normalize(request):
         context_bounds(request, grid)
         continuity_facts = facts(request, grid)
         absolute_available = availability(request, grid)
-    if request["schema_version"] in {"0.11", "0.12", "0.13", "0.14"}:
+    if request["schema_version"] in {"0.11", "0.12", "0.13", "0.14", "0.15"}:
         from .day_counts import validate as validate_day_counts
 
         validate_day_counts(request, grid)
@@ -397,6 +399,7 @@ def normalize(request):
                 "0.12",
                 "0.13",
                 "0.14",
+                "0.15",
             }:
                 priorities[slot, item["role_id"]] = int(item.get("priority", 0))
     costs = {}
@@ -426,11 +429,11 @@ def normalize(request):
         expansion_start = time.perf_counter()
         problem.candidates = expand_candidates(request, grid)
         expansion_seconds = time.perf_counter() - expansion_start
-    if request["schema_version"] in {"0.13", "0.14"}:
+    if request["schema_version"] in {"0.13", "0.14", "0.15"}:
         from .shift_patterns import validate as validate_patterns
 
         validate_patterns(problem)
-    if request["schema_version"] == "0.14":
+    if request["schema_version"] in {"0.14", "0.15"}:
         from .coworkers import validate as validate_coworkers
 
         validate_coworkers(request, grid)
@@ -448,12 +451,17 @@ def normalize(request):
         "0.12",
         "0.13",
         "0.14",
+        "0.15",
     }:
         from .diagnosis import validate_options
         from .extensions import validate
 
         validate(problem)
-        if request["schema_version"] in {"0.9", "0.10", "0.11", "0.12", "0.13", "0.14"}:
+        if request["schema_version"] == "0.15":
+            from .shift_counts import validate as validate_counts
+
+            validate_counts(problem)
+        if request["schema_version"] in {"0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"}:
             from .roster_metrics import validate as validate_metrics
 
             validate_metrics(problem)

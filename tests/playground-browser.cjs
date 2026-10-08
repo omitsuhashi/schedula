@@ -349,7 +349,34 @@ async function jsonInputChecks(page) {
   assert.equal(await page.evaluate(() => jsonPair.response.status), "INVALID_INPUT");
   assert.match(await page.locator("#json-output").innerText(), /OVERLAPPING_EMPLOYEE_SETS/);
   report.interactions.push("契約0.14の交代指導者・同時勤務禁止を実計算し、待機勤務・最低人数・PARTIALを表示、集合交差の入力不備を表示");
-  for (const schema_version of ["0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14"]) {
+  for (const name of ["shift_count_balance", "combined_conditions"]) {
+    await page.locator("#json-sample").selectOption(name);
+    await page.locator("#json-load-sample").click();
+    await page.waitForFunction(name => document.getElementById("json-input").value.includes(name), name);
+    await page.locator("#json-calculate").click();
+    await page.waitForFunction(() => !busy);
+    const pair = await page.evaluate(() => jsonPair);
+    assert.ok(pair, await page.locator("#json-status").innerText());
+    assert.equal(pair.response.schema_version, "0.15");
+    assert.equal(pair.response.status, name === "shift_count_balance" ? "OPTIMAL" : "PARTIAL");
+    assert.equal(pair.response.shift_count_balance_summary[0].total_deviation_count, 0);
+    assert.match(await page.locator("#json-output").innerText(), /目標1回・実際1回・偏差0回/);
+    const rejected = await page.evaluate(pair => {
+      const boundaries = jsonSlots(pair.input).flatMap(slot => [slot.start, slot.end]).map(t => new Date(t).toISOString());
+      const response = structuredClone(pair.response);
+      response.shift_count_balance_summary[0].employees[0].actual_count++;
+      try { acceptResponse(response, pair.input, boundaries); return false; } catch { return true; }
+    }, pair);
+    assert.ok(rejected);
+    pair.input.shift_count_balance[0].employee_targets[0].target_count = true;
+    await page.locator("#json-input").fill(JSON.stringify(pair.input));
+    await page.locator("#json-calculate").click();
+    await page.waitForFunction(() => !busy);
+    assert.equal(await page.evaluate(() => jsonPair.response.status), "INVALID_INPUT");
+    assert.equal(await page.locator("#json-output table").count(), 0);
+  }
+  report.interactions.push("契約0.15の履歴付き勤務回数・全5機能の休憩交代を実計算し、回数を表示、改ざん集計・bool目標を拒否");
+  for (const schema_version of ["0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"]) {
     const input = {...JSON.parse(readFileSync("examples/partial_assignment.json", "utf8")), schema_version};
     await page.locator("#json-input").fill(JSON.stringify(input));
     await page.locator("#json-calculate").click();

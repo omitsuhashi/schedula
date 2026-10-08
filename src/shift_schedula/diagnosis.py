@@ -43,7 +43,7 @@ def validate_options(request):
             minimum_edit = (
                 name == "demand"
                 and field == "minimum_people"
-                and request["schema_version"] in {"0.12", "0.13", "0.14"}
+                and request["schema_version"] in {"0.12", "0.13", "0.14", "0.15"}
             )
             if (
                 number >= len(request[name])
@@ -82,7 +82,21 @@ def conditions(request):
     add(
         "DEMAND_LIMIT_AND_SINGLE_ASSIGNMENT"
         if request["schema_version"]
-        in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14"}
+        in {
+            "0.3",
+            "0.4",
+            "0.5",
+            "0.6",
+            "0.7",
+            "0.8",
+            "0.9",
+            "0.10",
+            "0.11",
+            "0.12",
+            "0.13",
+            "0.14",
+            "0.15",
+        }
         else "EXACT_DEMAND_AND_SINGLE_ASSIGNMENT",
         "/problem_type",
     )
@@ -158,6 +172,7 @@ def condition_groups(request):
         "fairness",
         "costs",
         "duty_balance",
+        "shift_count_balance",
         "shift_categories",
         "baseline",
         "fixed_parts",
@@ -446,7 +461,16 @@ def diagnose(request, status, solve, *, problem=None, num_workers=2):
         if time.monotonic() >= deadline:
             result["status"] = "TIME_LIMIT"
         else:
-            if request["schema_version"] in {"0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14"}:
+            if request["schema_version"] in {
+                "0.8",
+                "0.9",
+                "0.10",
+                "0.11",
+                "0.12",
+                "0.13",
+                "0.14",
+                "0.15",
+            }:
                 groups, background = condition_groups(request)
                 if config.get("conflict_refinement"):
                     refine(
@@ -503,7 +527,7 @@ def diagnose(request, status, solve, *, problem=None, num_workers=2):
                 break
             accepted = (
                 {"OPTIMAL", "FEASIBLE", "PARTIAL"}
-                if request["schema_version"] in {"0.12", "0.13", "0.14"}
+                if request["schema_version"] in {"0.12", "0.13", "0.14", "0.15"}
                 else {"OPTIMAL", "FEASIBLE"}
             )
             if response["status"] in accepted and response["verification"]["valid"]:
@@ -601,7 +625,16 @@ def validate_result(request, response):
             fail()
         return errors
     if result["conflict"] is not None:
-        if request["schema_version"] in {"0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14"}:
+        if request["schema_version"] in {
+            "0.8",
+            "0.9",
+            "0.10",
+            "0.11",
+            "0.12",
+            "0.13",
+            "0.14",
+            "0.15",
+        }:
             if not valid_group_conflict(
                 request, result["conflict"], failed=result["status"] == "ERROR"
             ):

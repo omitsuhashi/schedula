@@ -13,6 +13,7 @@ fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
 .actions { margin-top: 16px; }
 input, select, button, textarea { font: inherit; }
 select, button, input[type=text], input[type=number] { padding: 6px; border: 1px solid #87998e; border-radius: 4px; background: #fff; color: inherit; }
+select { max-width: 100%; }
 button { cursor: pointer; padding: 7px 12px; }
 button.primary { background: #1e6957; color: white; border-color: #1e6957; }
 :disabled { cursor: wait; opacity: .65; }

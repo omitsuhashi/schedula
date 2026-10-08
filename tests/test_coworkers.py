@@ -242,7 +242,7 @@ def test_invalid_input_is_rejected_by_all_public_entries(mutation):
     assert verify(data, {"assignments": [], "shifts": []})["status"] == "INVALID_INPUT"
 
 
-@pytest.mark.parametrize("version", [v for v in SCHEMA_VERSIONS if v != "0.14"])
+@pytest.mark.parametrize("version", [v for v in SCHEMA_VERSIONS if v not in {"0.14", "0.15"}])
 def test_old_versions_reject_both_new_conditions(version):
     for rule in (required(), incompatible()):
         data = example()

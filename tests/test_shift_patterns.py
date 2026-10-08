@@ -392,7 +392,9 @@ def test_invalid_classifications_rules_dates_and_integer_types(mutation):
     assert_response(solve(data), "INVALID_INPUT")
 
 
-@pytest.mark.parametrize("version", [v for v in SCHEMA_VERSIONS if v not in {"0.13", "0.14"}])
+@pytest.mark.parametrize(
+    "version", [v for v in SCHEMA_VERSIONS if v not in {"0.13", "0.14", "0.15"}]
+)
 def test_old_contracts_reject_categories_and_patterns(version):
     data = example()
     data["schema_version"] = version

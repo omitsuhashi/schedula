@@ -37,6 +37,14 @@ FILES = {
         ROOT / "examples" / "coworkers.json",
         "application/json; charset=utf-8",
     ),
+    "/samples/shift_count_balance.json": (
+        ROOT / "examples" / "shift_count_balance.json",
+        "application/json; charset=utf-8",
+    ),
+    "/samples/combined_conditions.json": (
+        ROOT / "examples" / "combined_conditions.json",
+        "application/json; charset=utf-8",
+    ),
     "/samples/roster-100-30.json": (
         SAMPLES / "roster-100-30.json",
         "application/json; charset=utf-8",

@@ -83,6 +83,7 @@ def test_sdist_builds_and_runs_without_original_checkout(tmp_path):
             "0.12",
             "0.13",
             "0.14",
+            "0.15",
         ):
             for kind in ("request", "response"):
                 assert f"shift_schedula/schemas/{version}/{kind}.schema.json" in archive.namelist()

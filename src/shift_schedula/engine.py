@@ -60,10 +60,12 @@ def validate_response(result, request=None):
         )
     if request is not None and result["status"] in {"OPTIMAL", "FEASIBLE", "PARTIAL"}:
         expected = [
-            (item["id"], item["metric"], item.get("duty_id")) for item in request["objectives"]
+            (item["id"], item["metric"], item.get("duty_id"), item.get("balance_id"))
+            for item in request["objectives"]
         ]
         actual = [
-            (item["id"], item["metric"], item.get("duty_id")) for item in result["objectives"]
+            (item["id"], item["metric"], item.get("duty_id"), item.get("balance_id"))
+            for item in result["objectives"]
         ]
         if expected != actual:
             errors.append(
@@ -85,6 +87,7 @@ def validate_response(result, request=None):
             "0.12",
             "0.13",
             "0.14",
+            "0.15",
         }:
             from .extensions import evaluate
 
@@ -104,6 +107,7 @@ def validate_response(result, request=None):
                 "0.12",
                 "0.13",
                 "0.14",
+                "0.15",
             } and shortage != {
                 k: v for k, v in result["shortage_summary"].items() if k != "proven_minimal"
             }:
@@ -125,6 +129,7 @@ def validate_response(result, request=None):
                 "0.12",
                 "0.13",
                 "0.14",
+                "0.15",
             }:
                 expected_priority = priority_summary(request, shortage)
                 actual_priority = {
@@ -168,6 +173,7 @@ def validate_response(result, request=None):
             "0.12",
             "0.13",
             "0.14",
+            "0.15",
         }:
             groups = result["priority_summary"]["groups"]
             levels = [g["priority"] for g in groups]
@@ -206,6 +212,7 @@ def validate_response(result, request=None):
                     "0.12",
                     "0.13",
                     "0.14",
+                    "0.15",
                 }
             )
             and all(proofs)
@@ -219,7 +226,21 @@ def validate_response(result, request=None):
             )
     if (
         result["schema_version"]
-        in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14"}
+        in {
+            "0.3",
+            "0.4",
+            "0.5",
+            "0.6",
+            "0.7",
+            "0.8",
+            "0.9",
+            "0.10",
+            "0.11",
+            "0.12",
+            "0.13",
+            "0.14",
+            "0.15",
+        }
         and result["shortage_summary"] is not None
     ):
         summary = result["shortage_summary"]
@@ -235,7 +256,7 @@ def validate_response(result, request=None):
                 or seconds % 60
                 or item["required_people"] - item["assigned_people"] != item["missing_people"]
                 or (
-                    result["schema_version"] in {"0.12", "0.13", "0.14"}
+                    result["schema_version"] in {"0.12", "0.13", "0.14", "0.15"}
                     and not 0 <= item["minimum_people"] <= item["assigned_people"]
                 )
             ):
@@ -269,6 +290,7 @@ def validate_response(result, request=None):
         "0.12",
         "0.13",
         "0.14",
+        "0.15",
     }:
         from .diagnosis import validate_result
 
@@ -356,6 +378,7 @@ def solve(request: dict, *, num_workers: int = 2) -> dict:
             "0.12",
             "0.13",
             "0.14",
+            "0.15",
         }:
             result.update(fairness_summary=None, change_summary=None, diagnosis_result=None)
         if schema_version in {
@@ -371,6 +394,7 @@ def solve(request: dict, *, num_workers: int = 2) -> dict:
             "0.12",
             "0.13",
             "0.14",
+            "0.15",
         }:
             result["shortage_summary"] = None
         if schema_version in {
@@ -384,14 +408,28 @@ def solve(request: dict, *, num_workers: int = 2) -> dict:
             "0.12",
             "0.13",
             "0.14",
+            "0.15",
         }:
             result["priority_summary"] = None
-        if schema_version in {"0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14"}:
+        if schema_version in {
+            "0.6",
+            "0.7",
+            "0.8",
+            "0.9",
+            "0.10",
+            "0.11",
+            "0.12",
+            "0.13",
+            "0.14",
+            "0.15",
+        }:
             result["continuity_summary"] = None
-        if schema_version in {"0.9", "0.10", "0.11", "0.12", "0.13", "0.14"}:
+        if schema_version in {"0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"}:
             result.update(cost_summary=None, duty_balance_summary=None)
-        if schema_version in {"0.11", "0.12", "0.13", "0.14"}:
+        if schema_version in {"0.11", "0.12", "0.13", "0.14", "0.15"}:
             result["day_count_summary"] = None
+        if schema_version == "0.15":
+            result["shift_count_balance_summary"] = None
         return result
 
     try:
@@ -432,6 +470,7 @@ def solve(request: dict, *, num_workers: int = 2) -> dict:
                 "0.12",
                 "0.13",
                 "0.14",
+                "0.15",
             }
         ):
             raise RuntimeError("Unexpected flow outcome")
@@ -451,6 +490,7 @@ def solve(request: dict, *, num_workers: int = 2) -> dict:
                 "0.12",
                 "0.13",
                 "0.14",
+                "0.15",
             }:
                 violations, values, shortage = verify_plan(problem, outcome.solution)
                 if (
@@ -478,6 +518,7 @@ def solve(request: dict, *, num_workers: int = 2) -> dict:
                 "0.12",
                 "0.13",
                 "0.14",
+                "0.15",
             }:
                 priorities = priority_summary(request, shortage)
                 if backend == "cp_sat" and cp_sat.priority_stages(request):
@@ -547,6 +588,7 @@ def solve(request: dict, *, num_workers: int = 2) -> dict:
                     "0.12",
                     "0.13",
                     "0.14",
+                    "0.15",
                 }:
                     minimal = (
                         shortage["total_person_minutes"] == 0 or outcome.shortage_proven_minimal
@@ -579,6 +621,7 @@ def solve(request: dict, *, num_workers: int = 2) -> dict:
                     "0.12",
                     "0.13",
                     "0.14",
+                    "0.15",
                 }:
                     from .extensions import evaluate
 
@@ -640,6 +683,7 @@ def solve(request: dict, *, num_workers: int = 2) -> dict:
                     "0.12",
                     "0.13",
                     "0.14",
+                    "0.15",
                 }
                 and outcome.shortage_bound is not None
             ):
