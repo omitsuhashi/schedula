@@ -31,7 +31,7 @@ uv run --locked python -m shift_schedula adapter verify-record run.json
 | partial_replan_preserve_assigned.draft.json | 原baseline/固定状態を保持、make_baselineを既存入口で実行 |
 | unconfirmed.draft.json | UNCONFIRMED_SOURCEとUNRESOLVED_INPUT、部分Requestを出力しない |
 | tests/test_adapter.pyの所有競合・不正参照・未知項目/版 | 入力元とpointerを持つ拒否診断、入力不変 |
-| 同テストの古い週→明示更新 | 確認失効/期間不一致を診断、原履歴を移動しない |
+| week-next-stale.draft.json → week-next.draft.json / week-next.request.json | 確認失効/期間不一致を診断、原履歴を移動しない |
 | 同テストの構造的に有効な両立不能 | 組み立てVALID、既存solveがINFEASIBLE |
 | 同テストの別実行・混在・原本保護 | request_idとは別のrun_id、ハッシュ検査、書込失敗で原本不変 |
 
@@ -45,7 +45,14 @@ uv run --locked python -m shift_schedula adapter verify-record run.json
 
 2026-10-08、macOS / CPython 3.14.8 / jsonschema 4.26.0 / OR-Tools 9.15.6755 /
 tzdata 2026.5で実行しています。初回追加テストは38件成功、スキップ0件でした。
-全体回帰・配布物・ブラウザーの最終結果と規模測定は、実行後に追記します。
+修正後の追加テストは43件成功、スキップ0件。公開型のmypy strictも成功しました。
+実ブラウザー（Chromium）は既存シナリオ・旧JSON・100人30日・新Adapterの保存往復まで成功。
+保存往復の初回は整数floatのJSON表記変更でハッシュ照合に失敗し、数値正規化で修正しました。
+後続の表示テストは閉じたdetailsのinnerTextを読んで失敗し、textContentで内容を照合しました。
+初回全体回帰は1881件成功・1件失敗（sdist内部の途中版で数値正規化/未import名の2件失敗）、
+スキップ0件でした。修正後のコードを固定して全体/配布物を再確認します。
+Standards/Specの独立レビューで保存Request検証・0.1の混在検査・重複元の診断・置換理由保存を
+修正し、レビュー側でも修正と再現テストの成功を確認しました。
 初回の保存コマンドはtest-resultsディレクトリ未作成で出力に失敗し、元入力は不変でした。
 出力先の親は利用者が作成します。同期の--lockedは配布版変更直後にlock不一致を検出し、
 uv lockでパッケージ版だけを更新して再同期しました。
@@ -60,3 +67,15 @@ uv lockでパッケージ版だけを更新して再同期しました。
 ローカルCLIは16 MiB/ファイル・64 MiB合計、demoは2 MiB/本文・100人/30日/3000枠です。
 出力上限超過は切り詰めずに拒否します。実務性能や商用画面の保証ではありません。
 アプリ側の入力保存・採用・Query/SQLite接続は[schedula-app #30](https://github.com/omitsuhashi/schedula-app/issues/30)に引き継ぎます。
+
+
+## 規模測定
+
+[生データ](results/input-adapter-20261008.json)は全4試行を保持します。
+100人・30日の既存架空入力は準備0.137秒、組み立て0.108秒、求解32.279秒、
+記録作成/保存1.220秒、再検証/JSON投影1.658秒、出力921713 bytesでした。
+探索予算30秒に対し総処理は別計測です。FEASIBLE、需要充足、独立検証成功、
+勤務量540000分、最適性未証明です。PARTIAL・継続計画・固定再計画の3試行も
+記録保存・独立再検証成功。不足最小性は元Responseの証拠であり、現在verifyには戻しません。
+測定は最終レビュー修正時のローカル試行で、合成入力の性能を他環境へ保証しません。
+表示は同じ上限の既存100人30日ブラウザー回帰と新Adapterの小規模表示を別に確認しました。

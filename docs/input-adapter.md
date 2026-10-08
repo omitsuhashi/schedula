@@ -115,17 +115,22 @@ assembleは組み立て結果全体を返し、`--request-only` で確定Request
 ## 実行記録と表示
 
 `run_draft(draft, num_workers=2)` は組み立て成功時だけsolveし、実行記録を返します。
-`create_record(request, response, provenance, sources, num_workers=2)` は同じ実行を保存します。
+`create_record(request, response, provenance, sources, num_workers=2, draft=None)` は同じ実行を保存します。
 record_versionは1.0、run_idは毎回新規UUID、request_idとは別です。
 確定Request・Response・num_workers・入力元内容と改訂・対応表・エンジン/依存版を保存します。
+run_draftはdraft_metadataへ仮定・未解決項目・明示置換の変更前と理由・配列順も保存します。
+読み戻し時は保存した入力元とmetadataを組み立て、確定Requestとの対応を照合します。
+create_recordへDraftを渡さない場合はdraft_metadataがnullで、外側の確認来歴を推定しません。
 入力元content_hashは元バイト列ではなく正規化した入力元JSONのSHA-256です。
 正規化はUTF-8、ensure_ascii=False、sort_keys=True、separators=(",", ":")、有限数のみ。
-objectキー順は無視し、配列順と数値表現（1と1.0）は保持します。
+objectキー順は無視し、配列順を保持します。整数値のfloatは整数へ正規化し、
+1と1.0、0と-0.0は同じ内容として照合します（ブラウザーのJSON往復と互換）。
 記録content_hashはcontent_hash自身を除く全フィールドを同じ方式で照合します。
 ハッシュは偶発的な混在/破損の検出用で、真正性や実行認証を保証しません。
 
 `check_record` はSchema・ハッシュ・request_id/版・目的/解とRequestとの対応を検査します。
-保存時もResponseの既存検証を使います。無解・UNKNOWN等のsolutionはnullのままです。
+保存時/読み戻し時もRequestの既存validateとResponseの既存検証を使います。
+未確定/不正入力は組み立て診断として返し、実行記録を作成しません。無解・UNKNOWN等のsolutionはnullのままです。
 `reverify_record` は元記録を変更せず、recordとcurrent_verificationの別欄を返します。
 solutionなしではcurrent_verificationはnull（未実施）です。
 現在の有効性・不足/評価はverify結果を使い、保存済みverificationは代用しません。

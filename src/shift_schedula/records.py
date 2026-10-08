@@ -18,7 +18,7 @@ from .adapter import (
     diagnostic_sources,
 )
 from .contract import InvalidInput, diagnostic, load_json
-from .engine import solve, validate_response
+from .engine import solve, validate, validate_response
 from .verify import verify
 
 MAX_FILE_BYTES = 16 * 1024 * 1024
@@ -136,13 +136,42 @@ def _dependency_versions():
     return result
 
 
-def create_record(request, response, provenance=None, sources=(), *, num_workers=2):
+def _check_pair(request, response):
+    checked = validate(request)
+    if checked["status"] != "VALID":
+        raise InvalidInput(checked["diagnostics"])
+    validate_response(response, request)
+    if response["schema_version"] == "0.1" and response["solution"] is not None:
+        checked_plan = verify(request, response["solution"])
+        if checked_plan["verification"]["valid"] is not True:
+            raise InvalidInput(checked_plan["diagnostics"])
+        expected = [(o["id"], o["metric"], o["value"]) for o in checked_plan["objectives"]]
+        actual = [(o["id"], o["metric"], o["value"]) for o in response["objectives"]]
+        if expected != actual:
+            _reject("RECORD_MISMATCH", "保存した目的値がRequest/解と一致しません。")
+
+
+def _check_draft_pair(record):
+    if record["draft_metadata"] is None:
+        return
+    draft = {**record["draft_metadata"], "sources": [i["source"] for i in record["sources"]]}
+    assembled = assemble(draft)
+    if assembled["request"] is None:
+        raise InvalidInput(assembled["diagnostics"])
+    if assembled["request"] != record["request"]:
+        _reject("RECORD_MISMATCH", "記録した入力元/確認と確定Requestが一致しません。")
+
+
+def create_record(request, response, provenance=None, sources=(), *, num_workers=2, draft=None):
     if type(num_workers) is not int or not 1 <= num_workers <= 32:
         _reject("INVALID_EXECUTION", "num_workersは1〜32の整数で指定します。")
-    validate_response(response, request)
+    _check_pair(request, response)
     if response["request_id"] != request.get("request_id"):
         _reject("RECORD_MISMATCH", "RequestとResponseのIDが一致しません。")
     record = {
+        "draft_metadata": {k: copy.deepcopy(v) for k, v in draft.items() if k != "sources"}
+        if draft is not None
+        else None,
         "record_version": "1.0",
         "run_id": str(uuid4()),
         "created_at": datetime.now(UTC).isoformat(),
@@ -155,6 +184,7 @@ def create_record(request, response, provenance=None, sources=(), *, num_workers
     }
     record["content_hash"] = content_hash(record)
     check_adapter("record", record)
+    _check_draft_pair(record)
     return record
 
 
@@ -171,7 +201,8 @@ def check_record(record):
     request, response = record["request"], record["response"]
     if response.get("request_id") != request.get("request_id"):
         _reject("RECORD_MISMATCH", "RequestとResponseのIDが一致しません。")
-    validate_response(response, request)
+    _check_pair(request, response)
+    _check_draft_pair(record)
     return copy.deepcopy(record)
 
 
@@ -188,6 +219,7 @@ def run_draft(draft, *, num_workers=2):
         assembled["provenance"],
         draft["sources"],
         num_workers=num_workers,
+        draft=draft,
     )
 
 

@@ -1284,7 +1284,17 @@ class EngineIdentity(TypedDict):
     dependencies: dict[str, str | None]
 
 
+class DraftMetadata(TypedDict):
+    adapter_version: Literal["1.0"]
+    schema_version: SchemaVersion
+    unresolved: list[UnresolvedInput]
+    assumptions: list[str]
+    overrides: list[ConstraintOverride]
+    order: dict[str, list[str]]
+
+
 class RunRecord(TypedDict):
+    draft_metadata: DraftMetadata | None
     record_version: Literal["1.0"]
     run_id: str
     created_at: str

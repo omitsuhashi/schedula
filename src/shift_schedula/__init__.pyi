@@ -88,6 +88,7 @@ def create_record(
     sources: list[InputSource] | tuple[()] = (),
     *,
     num_workers: int = 2,
+    draft: RequestDraft | None = None,
 ) -> RunRecord: ...
 def check_record(record: RunRecord) -> RunRecord: ...
 def reverify_record(

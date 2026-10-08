@@ -212,7 +212,12 @@ def adapter_action(path, value):
         return {
             "record": record,
             "view": record_view(record),
-            "draft": import_request(record["request"]),
+            "draft": {
+                **record["draft_metadata"],
+                "sources": [s["source"] for s in record["sources"]],
+            }
+            if record["draft_metadata"] is not None
+            else import_request(record["request"]),
         }
     assembled = assemble(value)
     if assembled["request"] is None or path == "/adapter/check":

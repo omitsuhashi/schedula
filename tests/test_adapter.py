@@ -14,6 +14,7 @@ from shift_schedula import (
     check_record,
     confirm_source,
     confirmation_state,
+    create_record,
     get_adapter_schema,
     import_request,
     make_baseline,
@@ -247,6 +248,11 @@ def test_explicit_rule_override_and_order():
     assembled = assemble(draft)
     assert assembled["status"] == "VALID", assembled
     assert assembled["request"]["constraints"][0] == replacement
+    draft["assumptions"] = ["明示した今回の仮定"]
+    record = run_draft(draft)
+    assert record["draft_metadata"]["overrides"] == draft["overrides"]
+    assert record["draft_metadata"]["assumptions"] == draft["assumptions"]
+    assert check_record(record) == record
     draft["overrides"][0]["before"]["limit_minutes"] -= 1
     draft = confirm_source(confirm_source(draft, "common"), "period")
     assert_code(draft, "INVALID_OVERRIDE")
@@ -295,7 +301,7 @@ def test_save_snapshot_mixups_reverify_and_replanning(tmp_path):
         {"a": [1, 0], "b": 2}
     )
     assert adapter.content_hash([1, 0]) != adapter.content_hash([0, 1])
-    assert adapter.content_hash(1) != adapter.content_hash(1.0)
+    assert adapter.content_hash(1) == adapter.content_hash(1.0)
     for bad in ("{", '{"a":1,"a":2}', '{"a":NaN}'):
         path.write_text(bad)
         with pytest.raises(InvalidInput):
@@ -389,3 +395,70 @@ def test_cli_checkpoints_and_schema(tmp_path):
     saved = run.read_bytes()
     assert cli("verify-record", run, "--output", run, "--overwrite").returncode == 2
     assert run.read_bytes() == saved
+
+
+def test_record_rejects_unknown_request_even_with_fresh_hash():
+    value = request("assignment")
+    response = solve(value)
+    bad = {**value, "unknown": True}
+    with pytest.raises(InvalidInput):
+        create_record(bad, response)
+    record = create_record(value, response)
+    record["request"] = bad
+    record["content_hash"] = adapter.content_hash(
+        {k: v for k, v in record.items() if k != "content_hash"}
+    )
+    with pytest.raises(InvalidInput):
+        check_record(record)
+
+
+def test_legacy_response_cannot_be_mixed_with_different_request():
+    value = request("assignment")
+    old_response = solve(value)
+    changed = copy.deepcopy(value)
+    changed["employees"][0]["availability"] = []
+    assert validate(changed)["status"] == "VALID"
+    with pytest.raises(InvalidInput):
+        create_record(changed, old_response)
+    record = create_record(value, old_response)
+    record["response"]["objectives"][0]["value"] += 1
+    record["content_hash"] = adapter.content_hash(
+        {k: v for k, v in record.items() if k != "content_hash"}
+    )
+    with pytest.raises(InvalidInput):
+        check_record(record)
+
+
+def test_duplicate_rules_show_both_sources():
+    draft = confirmed(request("roster"))
+    common = source(draft, "common")
+    duplicate = copy.deepcopy(common)
+    duplicate["id"] = "common2"
+    draft["sources"].append(duplicate)
+    draft = confirm_source(draft, "common2")
+    result = assert_code(draft, "DUPLICATE_ID")
+    error = next(d for d in result["diagnostics"] if d["code"] == "DUPLICATE_ID")
+    assert {loc["source_id"] for loc in error["sources"]} == {"common", "common2"}
+
+
+def test_explicit_next_week_example_preserves_reusable_sources():
+    stale = read_draft(ROOT / "examples/adapter/week-next-stale.draft.json")
+    normal = read_draft(ROOT / "examples/adapter/week-next.draft.json")
+    expected, _ = records.read_json_file(ROOT / "examples/adapter/week-next.request.json")
+    assert_code(stale, "STALE_APPLICABILITY")
+    assert assemble(normal)["request"] == expected
+    assert expected["shift_templates"][0]["dates"] == ["2026-10-12", "2026-10-13"]
+    for section in ("basic", "common", "execution"):
+        assert source(stale, section) == source(normal, section)
+    assert source(stale, "history")["data"] == source(normal, "history")["data"]
+
+
+def test_invalid_fragment_types_are_diagnostics():
+    draft = confirmed(request("continuity_week"))
+    source(draft, "history")["data"]["continuity"] = ["not an object"]
+    draft = confirm_source(draft, "history")
+    assert assemble(draft)["status"] == "INVALID_INPUT"
+    draft = confirmed(request("assignment"))
+    source(draft, "period")["data"]["employees"] = 1
+    draft = confirm_source(draft, "period")
+    assert_code(draft, "INVALID_EMPLOYEES")

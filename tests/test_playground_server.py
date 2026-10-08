@@ -394,7 +394,7 @@ def test_adapter_http_is_inline_and_reverify_preserves_record(http_server):
     status, restored = call(http_server, record, path="/adapter/verify")
     assert status == 200 and restored["record"] == record
     assert restored["view"]["run_id"] == record["run_id"]
-    assert restored["draft"]["sources"][0]["origin"] == "unknown"
+    assert restored["draft"] == draft
     status, result = call(
         http_server, {"manifest_version": "1.0", "files": ["/etc/passwd"]}, path="/adapter/run"
     )

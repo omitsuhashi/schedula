@@ -46,6 +46,10 @@ async function adapterOperation(action) {
   try {
     const value = await action(controller);
     if (token !== adapterToken) return;
+    if (value === null) {
+      adapterStatus("Draftを保存しました。入力と実行記録は保持しています。");
+      return;
+    }
     if (value.adapter_version) {
       $("adapter-input").value = JSON.stringify(value, null, 2);
       adapterRecord = null;
@@ -141,7 +145,7 @@ $("adapter-save-draft").addEventListener("click", () => adapterOperation(async c
   const value = await adapterPost("/adapter/draft", $("adapter-input").value, controller);
   if (!value.adapter_version) return value;
   adapterDownload("draft.json", JSON.stringify(value, null, 2));
-  return value;
+  return null;
 }));
 $("adapter-save-record").addEventListener("click", () => {
   if (adapterRecord) adapterDownload(`${adapterRecord.run_id}.json`, JSON.stringify(adapterRecord, null, 2));

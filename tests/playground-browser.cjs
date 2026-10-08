@@ -502,7 +502,7 @@ async function adapterChecks(page) {
   assert.ok((await page.locator("#adapter-output").innerText()).includes("不足あり"));
   const partial = await page.evaluate(() => structuredClone(adapterRecord));
   assert.equal(partial.response.shortage_summary.proven_minimal, true);
-  const detailsText = await page.locator("#adapter-output details").first().locator("pre").innerText();
+  const detailsText = await page.locator("#adapter-output details").first().locator("pre").textContent();
   assert.equal(JSON.parse(detailsText).metrics.shortage_summary.proven_minimal, false);
   for (const state of ["UNKNOWN", "INFEASIBLE", "INTERNAL_ERROR"]) {
     // 状態表示用サンプル。実求解の証拠として数えない。

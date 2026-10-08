@@ -44,10 +44,22 @@ EMPLOYEE_FIELDS = {
 }
 
 
+def _canonical_numbers(value):
+    if isinstance(value, dict):
+        return {key: _canonical_numbers(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_canonical_numbers(item) for item in value]
+    return int(value) if isinstance(value, float) and value.is_integer() else value
+
+
 def canonical_json(value):
     check_json(value)
     return json.dumps(
-        value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False
+        _canonical_numbers(value),
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
     ).encode("utf-8")
 
 
@@ -105,7 +117,7 @@ def _applicability(draft, source):
             (s["data"].get("continuity") for s in draft["sources"] if s["data"].get("continuity")),
             None,
         )
-        return continuity.get("context_window") if continuity else _window(draft)
+        return continuity.get("context_window") if isinstance(continuity, dict) else _window(draft)
     if section in {"period", "replanning", "imported"} or (
         section == "execution" and dated(source["data"])
     ):
@@ -520,6 +532,19 @@ def assemble(draft):
                 else:
                     rules.pop(old[0])
                     rule_origins.pop(old[0])
+            duplicates = {}
+            for index, rule in enumerate(rules):
+                if isinstance(rule, dict) and isinstance(rule.get("id"), str):
+                    duplicates.setdefault(rule["id"], []).append(index)
+            for rule_id, positions in duplicates.items():
+                if len(positions) > 1:
+                    fail(
+                        "DUPLICATE_ID",
+                        "ルールIDが重複しています。",
+                        f"/constraints/{positions[-1]}/id",
+                        [rule_origins[i][1] for i in positions],
+                        [rule_id],
+                    )
             order = draft["order"].get("constraints")
             if order is not None:
                 rule_ids = [r.get("id") if isinstance(r, dict) else None for r in rules]
@@ -529,18 +554,19 @@ def assemble(draft):
                     combined = {r["id"]: (r, o) for r, o in zip(rules, rule_origins, strict=True)}
                     rules = [combined[i][0] for i in order]
                     rule_origins = [combined[i][1] for i in order]
+            contributors = [
+                _locations(s, "/constraints")
+                for s in draft["sources"]
+                if "constraints" in s["data"]
+            ]
             own(
                 "/constraints",
                 rules,
-                {
-                    "source_id": "draft",
-                    "revision": "1",
-                    "section": "common",
-                    "json_pointer": "/order/constraints",
-                },
+                contributors[0],
                 request,
                 "constraints",
             )
+            provenance["/constraints"] = contributors
             for i, (_, loc) in enumerate(rule_origins):
                 provenance[f"/constraints/{i}"] = [loc]
         elif draft["overrides"]:

@@ -1,0 +1,170 @@
+{
+  "date": "2026-10-08",
+  "source_base": "cd0787c194b1d3f592742f3a975d647aee694202",
+  "python": "3.14.8",
+  "platform": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+  "dependencies": {
+    "shift-schedula": "0.1.6",
+    "jsonschema": "4.26.0",
+    "ortools": "9.15.6755",
+    "tzdata": "2026.5"
+  },
+  "trials": [
+    {
+      "input": "examples/playground/roster-100-30.json",
+      "input_hash": "4bfe05ce8e235887ec9690cd82c7abc31e34be027c35cbbf2d5d1b2343d7c22a",
+      "preparation_seconds": 0.13703704200452194,
+      "assembly_seconds": 0.10818775004008785,
+      "solve_seconds": 32.2788985419902,
+      "save_seconds": 1.2204490829608403,
+      "output_bytes": 921713,
+      "draft_bytes": 68412,
+      "view_seconds": 1.6578219999792054,
+      "status": "FEASIBLE",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 540000,
+          "proven_optimal": false
+        }
+      ],
+      "shortage_summary": {
+        "total_person_minutes": 0,
+        "shortages": [],
+        "proven_minimal": true
+      }
+    },
+    {
+      "input": "examples/partial_roster.json",
+      "input_hash": "efe8e333ab2a3efe0d1cbf532d73717658a46e11a0ed942c9c6ad40457bd6e48",
+      "preparation_seconds": 0.003921375027857721,
+      "assembly_seconds": 0.0023059999803081155,
+      "solve_seconds": 0.008240583003498614,
+      "save_seconds": 0.010045124974567443,
+      "output_bytes": 9837,
+      "draft_bytes": 2868,
+      "view_seconds": 0.011213999998290092,
+      "status": "PARTIAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 90,
+          "proven_optimal": true
+        }
+      ],
+      "shortage_summary": {
+        "total_person_minutes": 30,
+        "shortages": [
+          {
+            "demand_id": "need_0_600_kitchen",
+            "role_id": "kitchen",
+            "interval": {
+              "start": "2026-10-05T10:00:00+09:00",
+              "end": "2026-10-05T10:30:00+09:00"
+            },
+            "required_people": 2,
+            "assigned_people": 1,
+            "missing_people": 1
+          }
+        ],
+        "proven_minimal": true
+      }
+    },
+    {
+      "input": "examples/continuity_week.json",
+      "input_hash": "c4d9133fd05d13a9649942d70e0a6e781ec8a23a8c0e313120dd8e87294d0798",
+      "preparation_seconds": 0.03901033301372081,
+      "assembly_seconds": 0.004266499949153513,
+      "solve_seconds": 0.05922866699984297,
+      "save_seconds": 0.016869750048499554,
+      "output_bytes": 13588,
+      "draft_bytes": 4247,
+      "view_seconds": 0.03740979201393202,
+      "status": "PARTIAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 1440,
+          "proven_optimal": true
+        }
+      ],
+      "shortage_summary": {
+        "total_person_minutes": 480,
+        "shortages": [
+          {
+            "demand_id": "need_10-08",
+            "role_id": "kitchen",
+            "interval": {
+              "start": "2026-10-08T09:00:00+09:00",
+              "end": "2026-10-08T17:00:00+09:00"
+            },
+            "required_people": 1,
+            "assigned_people": 0,
+            "missing_people": 1
+          }
+        ],
+        "proven_minimal": true
+      }
+    },
+    {
+      "input": "examples/partial_replan_preserve_assigned.json",
+      "input_hash": "7048548bb6a305319fa38f8998a1d75099f4e05b97395b65b721292e64bcde01",
+      "preparation_seconds": 0.04168266704073176,
+      "assembly_seconds": 0.0041823749779723585,
+      "solve_seconds": 0.03834966599242762,
+      "save_seconds": 0.015297666017431766,
+      "output_bytes": 15765,
+      "draft_bytes": 5564,
+      "view_seconds": 0.029313917038962245,
+      "status": "PARTIAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 90,
+          "proven_optimal": true
+        }
+      ],
+      "shortage_summary": {
+        "total_person_minutes": 30,
+        "shortages": [
+          {
+            "demand_id": "need_0_600_hall",
+            "role_id": "hall",
+            "interval": {
+              "start": "2026-10-05T10:00:00+09:00",
+              "end": "2026-10-05T10:30:00+09:00"
+            },
+            "required_people": 1,
+            "assigned_people": 0,
+            "missing_people": 1
+          }
+        ],
+        "proven_minimal": true
+      }
+    }
+  ]
+}
