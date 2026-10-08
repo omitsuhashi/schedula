@@ -46,11 +46,16 @@ uv run --locked python -m shift_schedula adapter verify-record run.json
 2026-10-08、macOS / CPython 3.14.8 / jsonschema 4.26.0 / OR-Tools 9.15.6755 /
 tzdata 2026.5で実行しています。初回追加テストは38件成功、スキップ0件でした。
 修正後の追加テストは43件成功、スキップ0件。公開型のmypy strictも成功しました。
-実ブラウザー（Chromium）は既存シナリオ・旧JSON・100人30日・新Adapterの保存往復まで成功。
+実ブラウザー（Chromium 151.0.7922.34）は既存シナリオ・旧JSON・100人30日・新Adapterの
+保存往復まで成功し、page_errorsは0件でした。
 保存往復の初回は整数floatのJSON表記変更でハッシュ照合に失敗し、数値正規化で修正しました。
 後続の表示テストは閉じたdetailsのinnerTextを読んで失敗し、textContentで内容を照合しました。
 初回全体回帰は1881件成功・1件失敗（sdist内部の途中版で数値正規化/未import名の2件失敗）、
-スキップ0件でした。修正後のコードを固定して全体/配布物を再確認します。
+スキップ0件でした。修正後の全体回帰は1888件と6件のsubtestが成功し、
+失敗・エラー・スキップは0件、所要時間577.68秒でした。
+隔離wheel/sdist・既存API/CLI・公開型・ソルバーなしのAdapter利用も成功しました。
+元ファイル対応の追加後にAdapterの43件を再実行し、全件成功しています。
+GitHub CIは本実装PRから対象commitと各ジョブの結果を確認します。
 Standards/Specの独立レビューで保存Request検証・0.1の混在検査・重複元の診断・置換理由保存を
 修正し、レビュー側でも修正と再現テストの成功を確認しました。
 初回の保存コマンドはtest-resultsディレクトリ未作成で出力に失敗し、元入力は不変でした。
@@ -68,6 +73,14 @@ uv lockでパッケージ版だけを更新して再同期しました。
 出力上限超過は切り詰めずに拒否します。実務性能や商用画面の保証ではありません。
 アプリ側の入力保存・採用・Query/SQLite接続は[schedula-app #30](https://github.com/omitsuhashi/schedula-app/issues/30)に引き継ぎます。
 
+## 配布物の識別
+
+ローカルで検証したwheelは `shift_schedula-0.1.6-py3-none-any.whl`、
+コードcommitは `9b26968ebbf7983568e03c6375d11fbd9d3034ac`、
+SHA-256は `3348d24d8970c5faf4e61e9e3a85709071308095659d0a062f9ef94905eec925` です。
+`SOURCE_DATE_EPOCH=1791462167 uv build --wheel` で生成しました。
+Request契約は0.1〜0.15、Adapter/manifest/record形式は1.0です。
+この識別は未公開の接続候補であり、アプリの採用版・SQLite保存版の決定やPyPI公開を示しません。
 
 ## 規模測定
 
