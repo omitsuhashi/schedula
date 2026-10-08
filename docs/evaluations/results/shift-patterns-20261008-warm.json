@@ -1,0 +1,812 @@
+{
+  "measured_at": "2026-10-08T06:48:26.928652+00:00",
+  "command": [
+    "scripts/evaluate.py",
+    "examples/shift_patterns.json",
+    "--output",
+    "docs/evaluations/results/shift-patterns-20261008-warm.json",
+    "--backend",
+    "cp_sat",
+    "--repeat",
+    "3",
+    "--mode",
+    "warm",
+    "--source-ref",
+    "93e327335f458de09ac70aa8527671a12590767f"
+  ],
+  "source": {
+    "commit": "93e327335f458de09ac70aa8527671a12590767f",
+    "dirty": false,
+    "snapshot": "git_archive",
+    "source_directory": null,
+    "source_tree_sha256": "41889522021161cd7159bf233e725cef5eddac1f2e812cf3bdacd73d7b4bc61c",
+    "runner_sha256": "a9ddb34746ce7109b777f6dbfaa8f88f7c335beb37589529e224eb6b72d2cc45",
+    "uv_lock_sha256": "b848a99532d8d329e6b18c35257ec158ff829b111fe0b98a3381904cb7703cd7",
+    "package_version": "0.1.5"
+  },
+  "conditions": {
+    "mode": "warm",
+    "repeat": 3,
+    "processes": 1,
+    "worker_processes_started": 1,
+    "worker_timeout_seconds": 60,
+    "time_limit_seconds_override": null,
+    "quantile_method": "nearest_rank",
+    "cold_definition": "新規 Python プロセス。OS のファイルキャッシュは消去しない。"
+  },
+  "environment": {
+    "platform": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "cpu_count": 8,
+    "python": "3.14.8 (main, Oct  3 2026, 00:54:40) [Clang 22.1.3 ]",
+    "uv": "uv 0.12.23 (46b84fd0b 2026-10-03 aarch64-apple-darwin)",
+    "packages": {
+      "PyYAML": "6.0.3",
+      "Pygments": "2.21.0",
+      "absl-py": "2.5.0",
+      "ast_serialize": "0.12.1",
+      "attrs": "26.1.0",
+      "cfgv": "3.5.0",
+      "distlib": "0.4.3",
+      "filelock": "4.0.10",
+      "identify": "2.6.20",
+      "immutabledict": "4.3.1",
+      "iniconfig": "2.3.0",
+      "jsonschema": "4.26.0",
+      "jsonschema-specifications": "2025.9.1",
+      "librt": "0.16.0",
+      "mypy": "2.4.0",
+      "mypy_extensions": "1.1.0",
+      "nodeenv": "1.11.0",
+      "numpy": "2.5.3",
+      "ortools": "9.15.6755",
+      "packaging": "26.3",
+      "pandas": "3.0.6",
+      "pathspec": "1.1.1",
+      "platformdirs": "4.12.3",
+      "pluggy": "1.6.0",
+      "pre_commit": "4.6.2",
+      "protobuf": "6.33.6",
+      "pytest": "9.1.1",
+      "python-dateutil": "2.9.0.post0",
+      "python-discovery": "1.6.1",
+      "referencing": "0.37.0",
+      "rpds-py": "2026.6.3",
+      "ruff": "0.16.10",
+      "shift-schedula": "0.1.5",
+      "six": "1.17.0",
+      "typing_extensions": "4.16.0",
+      "tzdata": "2026.5",
+      "virtualenv": "21.14.5"
+    }
+  },
+  "measurements": [
+    {
+      "input_file": "examples/shift_patterns.json",
+      "input_sha256": "74805a82d72ca53b8ce88b0bda2b8d7c0af6766d81d4badae715404e91823bcb",
+      "problem_type": "roster",
+      "employees": 1,
+      "roles": 2,
+      "days": 14.0,
+      "slot_minutes": 30,
+      "slots": 672,
+      "candidates": 5,
+      "objective_order": [
+        "scheduled_minutes"
+      ],
+      "solver_request": {
+        "backend": "cp_sat",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.5",
+        "library_version": "9.15.6755",
+        "selection_reason": "EXPLICIT_BACKEND"
+      },
+      "schema_version": "0.13",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "PARTIAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 780,
+          "proven_optimal": true
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 780,
+          "proven_optimal": true,
+          "best_bound": 780.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 10
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.009866832988336682
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.06821754097472876
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.2877849999931641
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.001718625018838793
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.013734750042203814
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 0.00011941598495468497
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.06809316697763279
+            }
+          ]
+        },
+        {
+          "code": "PRIORITY_SHORTAGE_BOUND",
+          "message": "上位段階を固定したpriority群の不足下限です。",
+          "json_pointer": "/priority_summary/groups/0",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "PRIORITY_SHORTAGE_BOUND",
+          "message": "上位段階を固定したpriority群の不足下限です。",
+          "json_pointer": "/priority_summary/groups/1",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 30.0
+            }
+          ]
+        },
+        {
+          "code": "SHORTAGE_BOUND",
+          "message": "不足合計人分の探索下限です。",
+          "json_pointer": "/shortage_summary",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 30.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "work"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 780.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": null,
+      "day_count_summary": null,
+      "cost_summary": null,
+      "duty_balance_summary": null,
+      "shortage_summary": {
+        "total_person_minutes": 30,
+        "shortages": [
+          {
+            "demand_id": "need_8_600_kitchen",
+            "role_id": "kitchen",
+            "interval": {
+              "start": "2026-10-13T10:00:00+09:00",
+              "end": "2026-10-13T10:30:00+09:00"
+            },
+            "required_people": 1,
+            "assigned_people": 0,
+            "missing_people": 1,
+            "minimum_people": 0
+          }
+        ],
+        "proven_minimal": true
+      },
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 10,
+        "search_elapsed_seconds": 0.009866832988336682,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.06821754097472876,
+        "backend_loading_elapsed_seconds": 0.2877849999931641,
+        "preparation_elapsed_seconds": 0.001718625018838793,
+        "verification_elapsed_seconds": 0.013734750042203814,
+        "candidate_expansion_elapsed_seconds": 0.00011941598495468497,
+        "input_validation_elapsed_seconds": 0.06809316697763279
+      },
+      "assignments": 4,
+      "shifts": 4,
+      "import_seconds": 0.0703625840251334,
+      "input_seconds": 0.0006010829820297658,
+      "elapsed_seconds": 0.43113174999598414,
+      "request_elapsed_seconds": 0.5020954170031473,
+      "engine_elapsed_seconds": 0.43108125001890585,
+      "metadata_seconds": 0.0043832919909618795,
+      "peak_rss_mib": 109.46875,
+      "group": 1,
+      "iteration": 1,
+      "mode": "warm",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "examples/shift_patterns.json",
+      "input_sha256": "74805a82d72ca53b8ce88b0bda2b8d7c0af6766d81d4badae715404e91823bcb",
+      "problem_type": "roster",
+      "employees": 1,
+      "roles": 2,
+      "days": 14.0,
+      "slot_minutes": 30,
+      "slots": 672,
+      "candidates": 5,
+      "objective_order": [
+        "scheduled_minutes"
+      ],
+      "solver_request": {
+        "backend": "cp_sat",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.5",
+        "library_version": "9.15.6755",
+        "selection_reason": "EXPLICIT_BACKEND"
+      },
+      "schema_version": "0.13",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "PARTIAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 780,
+          "proven_optimal": true
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 780,
+          "proven_optimal": true,
+          "best_bound": 780.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 10
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.008100832987111062
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.004095999989658594
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 5.875015631318092e-06
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.0013992090243846178
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.0017832089797593653
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 7.225002627819777e-05
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.004019874962978065
+            }
+          ]
+        },
+        {
+          "code": "PRIORITY_SHORTAGE_BOUND",
+          "message": "上位段階を固定したpriority群の不足下限です。",
+          "json_pointer": "/priority_summary/groups/0",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "PRIORITY_SHORTAGE_BOUND",
+          "message": "上位段階を固定したpriority群の不足下限です。",
+          "json_pointer": "/priority_summary/groups/1",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 30.0
+            }
+          ]
+        },
+        {
+          "code": "SHORTAGE_BOUND",
+          "message": "不足合計人分の探索下限です。",
+          "json_pointer": "/shortage_summary",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 30.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "work"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 780.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": null,
+      "day_count_summary": null,
+      "cost_summary": null,
+      "duty_balance_summary": null,
+      "shortage_summary": {
+        "total_person_minutes": 30,
+        "shortages": [
+          {
+            "demand_id": "need_8_600_kitchen",
+            "role_id": "kitchen",
+            "interval": {
+              "start": "2026-10-13T10:00:00+09:00",
+              "end": "2026-10-13T10:30:00+09:00"
+            },
+            "required_people": 1,
+            "assigned_people": 0,
+            "missing_people": 1,
+            "minimum_people": 0
+          }
+        ],
+        "proven_minimal": true
+      },
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 10,
+        "search_elapsed_seconds": 0.008100832987111062,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.004095999989658594,
+        "backend_loading_elapsed_seconds": 5.875015631318092e-06,
+        "preparation_elapsed_seconds": 0.0013992090243846178,
+        "verification_elapsed_seconds": 0.0017832089797593653,
+        "candidate_expansion_elapsed_seconds": 7.225002627819777e-05,
+        "input_validation_elapsed_seconds": 0.004019874962978065
+      },
+      "assignments": 4,
+      "shifts": 4,
+      "import_seconds": 1.1791009455919266e-05,
+      "input_seconds": 0.0004005000228062272,
+      "elapsed_seconds": 0.023319625004660338,
+      "request_elapsed_seconds": 0.023731916036922485,
+      "engine_elapsed_seconds": 0.02329483302310109,
+      "metadata_seconds": 0.004350541974417865,
+      "peak_rss_mib": 109.734375,
+      "group": 1,
+      "iteration": 2,
+      "mode": "warm",
+      "execution": "continued"
+    },
+    {
+      "input_file": "examples/shift_patterns.json",
+      "input_sha256": "74805a82d72ca53b8ce88b0bda2b8d7c0af6766d81d4badae715404e91823bcb",
+      "problem_type": "roster",
+      "employees": 1,
+      "roles": 2,
+      "days": 14.0,
+      "slot_minutes": 30,
+      "slots": 672,
+      "candidates": 5,
+      "objective_order": [
+        "scheduled_minutes"
+      ],
+      "solver_request": {
+        "backend": "cp_sat",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.5",
+        "library_version": "9.15.6755",
+        "selection_reason": "EXPLICIT_BACKEND"
+      },
+      "schema_version": "0.13",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "PARTIAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 780,
+          "proven_optimal": true
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 780,
+          "proven_optimal": true,
+          "best_bound": 780.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 10
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.004995124996639788
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.0040242079994641244
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 3.4580007195472717e-06
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.0013794999686069787
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.002198916976340115
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 6.737496005371213e-05
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.0039537500706501305
+            }
+          ]
+        },
+        {
+          "code": "PRIORITY_SHORTAGE_BOUND",
+          "message": "上位段階を固定したpriority群の不足下限です。",
+          "json_pointer": "/priority_summary/groups/0",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "PRIORITY_SHORTAGE_BOUND",
+          "message": "上位段階を固定したpriority群の不足下限です。",
+          "json_pointer": "/priority_summary/groups/1",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 30.0
+            }
+          ]
+        },
+        {
+          "code": "SHORTAGE_BOUND",
+          "message": "不足合計人分の探索下限です。",
+          "json_pointer": "/shortage_summary",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 30.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "work"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 780.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": null,
+      "day_count_summary": null,
+      "cost_summary": null,
+      "duty_balance_summary": null,
+      "shortage_summary": {
+        "total_person_minutes": 30,
+        "shortages": [
+          {
+            "demand_id": "need_8_600_kitchen",
+            "role_id": "kitchen",
+            "interval": {
+              "start": "2026-10-13T10:00:00+09:00",
+              "end": "2026-10-13T10:30:00+09:00"
+            },
+            "required_people": 1,
+            "assigned_people": 0,
+            "missing_people": 1,
+            "minimum_people": 0
+          }
+        ],
+        "proven_minimal": true
+      },
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 10,
+        "search_elapsed_seconds": 0.004995124996639788,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.0040242079994641244,
+        "backend_loading_elapsed_seconds": 3.4580007195472717e-06,
+        "preparation_elapsed_seconds": 0.0013794999686069787,
+        "verification_elapsed_seconds": 0.002198916976340115,
+        "candidate_expansion_elapsed_seconds": 6.737496005371213e-05,
+        "input_validation_elapsed_seconds": 0.0039537500706501305
+      },
+      "assignments": 4,
+      "shifts": 4,
+      "import_seconds": 9.374984074383974e-06,
+      "input_seconds": 0.0003920830204151571,
+      "elapsed_seconds": 0.020067417004611343,
+      "request_elapsed_seconds": 0.020468875009100884,
+      "engine_elapsed_seconds": 0.020051166007760912,
+      "metadata_seconds": 0.00414158299099654,
+      "peak_rss_mib": 109.796875,
+      "group": 1,
+      "iteration": 3,
+      "mode": "warm",
+      "execution": "continued"
+    }
+  ],
+  "workers": [
+    {
+      "input_file": "examples/shift_patterns.json",
+      "group": 1,
+      "elapsed_seconds": 0.6838455830002204,
+      "completed": 3,
+      "failure": null,
+      "timeout_seconds": 60
+    }
+  ],
+  "summaries": [
+    {
+      "input_file": "examples/shift_patterns.json",
+      "attempts": 3,
+      "statuses": {
+        "PARTIAL": 3
+      },
+      "verified_solutions": 3,
+      "complete_solutions": 0,
+      "solution_rate": 1.0,
+      "verified_suggestions": 0,
+      "statistics": {
+        "elapsed_seconds": {
+          "samples": 3,
+          "mean": 0.15817293066841862,
+          "median": 0.023319625004660338,
+          "p95": 0.43113174999598414,
+          "maximum": 0.43113174999598414
+        },
+        "request_elapsed_seconds": {
+          "samples": 3,
+          "mean": 0.18209873601639023,
+          "median": 0.023731916036922485,
+          "p95": 0.5020954170031473,
+          "maximum": 0.5020954170031473
+        },
+        "peak_rss_mib": {
+          "samples": 3,
+          "mean": 109.66666666666667,
+          "median": 109.734375,
+          "p95": 109.796875,
+          "maximum": 109.796875
+        }
+      },
+      "first_request_elapsed_seconds": {
+        "samples": 1,
+        "mean": 0.5020954170031473,
+        "median": 0.5020954170031473,
+        "p95": 0.5020954170031473,
+        "maximum": 0.5020954170031473
+      },
+      "continued_request_elapsed_seconds": {
+        "samples": 2,
+        "mean": 0.022100395523011684,
+        "median": 0.022100395523011684,
+        "p95": 0.023731916036922485,
+        "maximum": 0.023731916036922485
+      },
+      "process_elapsed_seconds": {
+        "samples": 1,
+        "mean": 0.6838455830002204,
+        "median": 0.6838455830002204,
+        "p95": 0.6838455830002204,
+        "maximum": 0.6838455830002204
+      },
+      "objective_quality": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "observed_values": {
+            "samples": 3,
+            "mean": 780,
+            "median": 780,
+            "p95": 780,
+            "maximum": 780
+          },
+          "proven_count": 3,
+          "relative_gap": {
+            "samples": 3,
+            "mean": 0.0,
+            "median": 0.0,
+            "p95": 0.0,
+            "maximum": 0.0
+          }
+        }
+      ]
+    }
+  ]
+}
