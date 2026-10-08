@@ -71,7 +71,7 @@ uv lockでパッケージ版だけを更新して再同期しました。
 
 ## 規模測定
 
-[生データ](results/input-adapter-20261008.json)は全4試行を保持します。
+[生データ](https://github.com/omitsuhashi/schedula/blob/9b1bc4bb2ca60a126e97fa351cc1539619ba89c5/docs/evaluations/results/input-adapter-20261008.json)は全4試行を保持します。
 100人・30日の既存架空入力は準備0.137秒、組み立て0.108秒、求解32.279秒、
 記録作成/保存1.220秒、再検証/JSON投影1.658秒、出力921713 bytesでした。
 探索予算30秒に対し総処理は別計測です。FEASIBLE、需要充足、独立検証成功、

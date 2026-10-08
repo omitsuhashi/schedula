@@ -183,6 +183,25 @@ def test_installed_wheel_types_check_consumer_and_reject_typos(tmp_path):
         "assert validate({'request_id':'incomplete'})['status'] == 'INVALID_INPUT'",
     )
     run(str(python), "-m", "mypy", "--strict", str(ROOT / "examples/typed_api.py"))
+    run(str(python), "-m", "mypy", "--strict", str(ROOT / "examples/typed_adapter.py"))
+    run(
+        str(python),
+        "-I",
+        "-c",
+        "import importlib.util, json, sys\n"
+        "from shift_schedula import split_request, confirm_source, assemble, verify, "
+        "get_adapter_schema\n"
+        "assert importlib.util.find_spec('ortools') is None\n"
+        "request, solution = map(json.loads, sys.argv[1:])\n"
+        "draft = split_request(request)\n"
+        "for source in draft['sources']: draft = confirm_source(draft, source['id'])\n"
+        "assembled = assemble(draft)\n"
+        "assert assembled['request'] == request\n"
+        "assert verify(assembled['request'], solution)['status'] == 'PARTIAL'\n"
+        "assert get_adapter_schema('record')['properties']['record_version']['const'] == '1.0'\n",
+        json.dumps(minimum_request),
+        json.dumps(minimum_solution),
+    )
     overlap_consumer = tmp_path / "overlap_consumer.py"
     overlap_consumer.write_text(
         "from shift_schedula import make_baseline, solve\n"
