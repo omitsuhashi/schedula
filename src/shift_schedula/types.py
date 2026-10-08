@@ -2,7 +2,7 @@
 
 from typing import Literal, NotRequired, TypedDict
 
-type SchemaVersion = Literal["0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9"]
+type SchemaVersion = Literal["0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10"]
 type JSONValue = None | bool | int | float | str | list[JSONValue] | dict[str, JSONValue]
 type FailureStatus = Literal[
     "INFEASIBLE", "UNKNOWN", "INVALID_INPUT", "BACKEND_UNAVAILABLE", "INTERNAL_ERROR"
@@ -400,8 +400,7 @@ class PlanningWindow09(Interval):
     slot_minutes: Literal[1, 5, 10, 15, 20, 30, 60]
 
 
-class Request09(TypedDict):
-    schema_version: Literal["0.9"]
+class MetricsRequestFields(TypedDict):
     request_id: str
     problem_type: Literal["assignment", "roster"]
     planning_window: PlanningWindow09
@@ -425,6 +424,14 @@ class Request09(TypedDict):
     duty_balance: NotRequired[list[DutyBalance]]
 
 
+class Request09(MetricsRequestFields):
+    schema_version: Literal["0.9"]
+
+
+class Request010(MetricsRequestFields):
+    schema_version: Literal["0.10"]
+
+
 type Request = (
     Request01
     | Request02
@@ -435,6 +442,7 @@ type Request = (
     | Request07
     | Request08
     | Request09
+    | Request010
 )
 
 
@@ -834,6 +842,22 @@ class Response09Failure(Response09Fields):
     priority_summary: None
 
 
+class Response010Success(Response09Fields):
+    schema_version: Literal["0.10"]
+    status: Literal["OPTIMAL", "FEASIBLE", "PARTIAL"]
+    solution: ContinuitySolution
+    continuity_summary: ContinuitySummary | None
+    priority_summary: PrioritySummary
+
+
+class Response010Failure(Response09Fields):
+    schema_version: Literal["0.10"]
+    status: FailureStatus
+    solution: None
+    continuity_summary: None
+    priority_summary: None
+
+
 type Response = (
     Response01Success
     | Response01Failure
@@ -853,6 +877,8 @@ type Response = (
     | Response08Failure
     | Response09Success
     | Response09Failure
+    | Response010Success
+    | Response010Failure
 )
 
 

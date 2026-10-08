@@ -1,10 +1,51 @@
-"""計画内の勤務費用と指定区間の目標偏差。"""
+"""計画内の勤務費用と、確認済み文脈の指定区間の目標偏差。"""
 
 from collections import defaultdict
 from copy import deepcopy
+from datetime import timedelta
 
+from .continuity import context_bounds, minutes
+from .continuity import interval as context_interval
 from .contract import parse_datetime, reject
 from .model import reference, unique
+
+
+def duty_intervals(duty):
+    intervals = []
+    for start, end in sorted(
+        (parse_datetime(i["start"]), parse_datetime(i["end"])) for i in duty["intervals"]
+    ):
+        if intervals and start <= intervals[-1][1]:
+            intervals[-1][1] = max(end, intervals[-1][1])
+        else:
+            intervals.append([start, end])
+    return intervals
+
+
+def coefficients(problem, duty):
+    grid = problem.grid
+    if problem.request["schema_version"] == "0.10" and problem.request.get("continuity"):
+        intervals = duty_intervals(duty)
+        values = {
+            c.id: sum(minutes(c.absolute_segments, a, b) for a, b in intervals)
+            for c in problem.candidates
+        }
+        constants = defaultdict(int)
+        for fact in problem.continuity:
+            constants[fact["employee_id"]] += sum(
+                minutes(fact["segments"], a, b) for a, b in intervals
+            )
+        return values, constants, sum((b - a) // timedelta(minutes=1) for a, b in intervals)
+    from .continuity import covered_slots
+
+    slots = duty_slots(duty, grid)
+    values = {c.id: len(c.work_slots & slots) * grid.slot_minutes for c in problem.candidates}
+    constants = defaultdict(int)
+    for fact in problem.continuity:
+        constants[fact["employee_id"]] += (
+            len(covered_slots(fact["segments"], grid) & slots) * grid.slot_minutes
+        )
+    return values, constants, len(slots) * grid.slot_minutes
 
 
 def duty_slots(duty, grid):
@@ -60,9 +101,25 @@ def validate(problem):
     bound = 0
     for i, duty in enumerate(duties):
         path = f"/duty_balance/{i}"
-        start, end = grid.interval(duty["evaluation_period"], path + "/evaluation_period")
+
+        def checked_interval(value, pointer):
+            if request["schema_version"] == "0.10":
+                if request.get("continuity"):
+                    return context_interval(value, grid, context_bounds(request, grid), pointer)
+                if (
+                    parse_datetime(value["start"]) < grid.start
+                    or parse_datetime(value["end"]) > grid.end
+                ):
+                    reject(
+                        "INCOMPLETE_HISTORY",
+                        "計画外の評価には確認済み continuity が必要です。",
+                        pointer,
+                    )
+            return grid.interval(value, pointer)
+
+        start, end = checked_interval(duty["evaluation_period"], path + "/evaluation_period")
         for j, interval in enumerate(duty["intervals"]):
-            a, b = grid.interval(interval, f"{path}/intervals/{j}")
+            a, b = checked_interval(interval, f"{path}/intervals/{j}")
             if not start <= a < b <= end:
                 reject(
                     "INVALID_DUTY_INTERVAL",
@@ -70,17 +127,10 @@ def validate(problem):
                     f"{path}/intervals/{j}",
                 )
         unique(duty["employee_targets"], "employee_id", path + "/employee_targets")
-        slots = duty_slots(duty, grid)
-        upper = defaultdict(int)
+        values, constants, _ = coefficients(problem, duty)
+        upper = defaultdict(int, constants)
         for candidate in problem.candidates:
-            upper[candidate.employee_id] += len(candidate.work_slots & slots) * grid.slot_minutes
-        if request.get("continuity"):
-            from .continuity import covered_slots
-
-            for duty_fact in problem.continuity:
-                upper[duty_fact["employee_id"]] += (
-                    len(covered_slots(duty_fact["segments"], grid) & slots) * grid.slot_minutes
-                )
+            upper[candidate.employee_id] += values[candidate.id]
         for j, target in enumerate(duty["employee_targets"]):
             pointer = f"{path}/employee_targets/{j}"
             reference(target["employee_id"], employees, pointer + "/employee_id")
@@ -92,7 +142,7 @@ def validate(problem):
 
 
 def prepare(model, problem, shifts, scheduled):
-    request, grid = problem.request, problem.grid
+    request = problem.request
     expressions = {}
     if "costs" in request:
         expressions["scheduled_cost"] = sum(
@@ -100,35 +150,24 @@ def prepare(model, problem, shifts, scheduled):
             for r in request["costs"]["employee_rates"]
         )
     for duty in request.get("duty_balance", []):
-        slots = duty_slots(duty, grid)
+        values, constants, upper = coefficients(problem, duty)
         deviations = []
         for target in duty["employee_targets"]:
-            employee, minutes = target["employee_id"], target["target_minutes"]
+            employee, target_minutes = target["employee_id"], target["target_minutes"]
             actual = sum(
-                len(c.work_slots & slots) * grid.slot_minutes * shifts[c.id]
-                for c in problem.candidates
-                if c.employee_id == employee
+                values[c.id] * shifts[c.id] for c in problem.candidates if c.employee_id == employee
             )
-            if request.get("continuity"):
-                from .continuity import covered_slots
-
-                actual += sum(
-                    len(covered_slots(d["segments"], grid) & slots) * grid.slot_minutes
-                    for d in problem.continuity
-                    if d["employee_id"] == employee
-                )
+            actual += constants[employee]
             deviation = model.new_int_var(
-                0, max(len(slots) * grid.slot_minutes, minutes), f"duty_{duty['id']}_{employee}"
+                0, max(int(upper), target_minutes), f"duty_{duty['id']}_{employee}"
             )
-            model.add_abs_equality(deviation, actual - minutes)
+            model.add_abs_equality(deviation, actual - target_minutes)
             deviations.append(deviation)
         expressions["duty_deviation_minutes", duty["id"]] = sum(deviations)
     return expressions
 
 
 def evaluate(request, grid, solution):
-    from .continuity import minutes
-
     # 元JSONと返却segmentsだけを読む。モデルの候補・係数・正規化区間を使わない。
     segments = defaultdict(list)
     for shift in solution["shifts"]:
@@ -170,6 +209,26 @@ def evaluate(request, grid, solution):
             "employees": employees,
         }
     if "duty_balance" in request:
+        if request["schema_version"] == "0.10" and request.get("continuity"):
+            # Wに重なる確定勤務は解の原segmentsで一度数える。W外だけの事実を補う。
+            returned = {
+                s["committed_shift_id"] for s in solution["shifts"] if "committed_shift_id" in s
+            }
+            for row in request["continuity"]["employees"]:
+                for fact in row["actual_shifts"] + row["committed_shifts"]:
+                    if fact["id"] in returned:
+                        continue
+                    segments[row["employee_id"]].extend(
+                        (
+                            parse_datetime(s["interval"]["start"]),
+                            parse_datetime(s["interval"]["end"]),
+                            tuple(
+                                (parse_datetime(b["start"]), parse_datetime(b["end"]))
+                                for b in s["breaks"]
+                            ),
+                        )
+                        for s in fact["segments"]
+                    )
         summaries["duty_balance_summary"] = []
         for duty in request["duty_balance"]:
             intervals = []

@@ -75,7 +75,7 @@ def conditions(request):
     add("PLANNING_GRID", "/planning_window", interval=window)
     add(
         "DEMAND_LIMIT_AND_SINGLE_ASSIGNMENT"
-        if request["schema_version"] in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9"}
+        if request["schema_version"] in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10"}
         else "EXACT_DEMAND_AND_SINGLE_ASSIGNMENT",
         "/problem_type",
     )
@@ -425,7 +425,7 @@ def diagnose(request, status, solve, *, problem=None, num_workers=2):
         if time.monotonic() >= deadline:
             result["status"] = "TIME_LIMIT"
         else:
-            if request["schema_version"] in {"0.8", "0.9"}:
+            if request["schema_version"] in {"0.8", "0.9", "0.10"}:
                 groups, background = condition_groups(request)
                 if config.get("conflict_refinement"):
                     refine(
@@ -575,7 +575,7 @@ def validate_result(request, response):
             fail()
         return errors
     if result["conflict"] is not None:
-        if request["schema_version"] in {"0.8", "0.9"}:
+        if request["schema_version"] in {"0.8", "0.9", "0.10"}:
             if not valid_group_conflict(
                 request, result["conflict"], failed=result["status"] == "ERROR"
             ):

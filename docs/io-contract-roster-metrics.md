@@ -39,7 +39,7 @@ bool・null・浮動小数・負数は拒否し、明示0単価は受理する�
 計画期間Wと交差する分だけを課金する。過去実績・未来部分は計画内費用へ加算しない。
 倍率60なら、60分・単価1800は108000費用単位＝1800通貨単位。
 17分は30600費用単位、単価1001の1分は正確に1001/60通貨単位となる。
-途中の丸めは行わない。0.9だけ1分粒度も受理し、従来の5/10/15/20/30/60分と
+途中の丸めは行わない。0.9以降は1分粒度も受理し、従来の5/10/15/20/30/60分と
 時間枠数3000・従業員×枠×役割100万の上限を維持する。
 
 全候補と確定勤務のW内費用をPython整数で足した保守的上界は `2**53-1` 以下。
@@ -87,7 +87,7 @@ DSTでは時計表示差でなくUTC上の実経過分数を使う。係数・�
 `unit: "minutes"`、`scale: "absolute_deviation"`、`normalized: false`、
 `total_deviation_minutes`、対象者の `employee_id` / `target_minutes` / `actual_minutes` /
 `deviation_minutes` を返す。Responseの目的にも `duty_id` を保持する。
-過去を含む評価は[Issue #79](https://github.com/omitsuhashi/schedula/issues/79)の別契約へ残す。
+過去を含む評価は[契約0.10](io-contract-duty-continuity.md)を指定する。0.9はW外の評価を拒否する。
 
 ## 実行と独立検証
 

@@ -43,7 +43,7 @@ class SatResult:
 def priority_stages(request):
     levels = (
         priority_levels(request)
-        if request["schema_version"] in {"0.5", "0.6", "0.7", "0.8", "0.9"}
+        if request["schema_version"] in {"0.5", "0.6", "0.7", "0.8", "0.9", "0.10"}
         else ()
     )
     return levels if any(levels) else ()
@@ -74,6 +74,7 @@ def prepare_roster(model, problem, active_groups=None):
         "0.7",
         "0.8",
         "0.9",
+        "0.10",
     }:
         for candidates in by_employee.values():
             model.add_no_overlap(
@@ -190,6 +191,7 @@ def prepare(problem, cp_model, *, active_groups=None):
                 "0.7",
                 "0.8",
                 "0.9",
+                "0.10",
             }:
                 shortage = model.new_int_var(0, count, f"shortage_{slot}_{role}")
                 model.add(sum(by_role[slot, role]) + shortage == count)
@@ -288,6 +290,7 @@ def prepare(problem, cp_model, *, active_groups=None):
         "0.7",
         "0.8",
         "0.9",
+        "0.10",
     }:
         from .extensions import prepare as prepare_extensions
 
@@ -307,6 +310,7 @@ def prepare(problem, cp_model, *, active_groups=None):
         "0.7",
         "0.8",
         "0.9",
+        "0.10",
     }:
         objectives = (
             sum(shortages) * problem.grid.slot_minutes,
@@ -379,7 +383,16 @@ def run(problem, cp_model, num_workers=2):
     deadline = start + budget
     best = None
     bounds = [None] * len(objectives)
-    partial = problem.request["schema_version"] in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9"}
+    partial = problem.request["schema_version"] in {
+        "0.3",
+        "0.4",
+        "0.5",
+        "0.6",
+        "0.7",
+        "0.8",
+        "0.9",
+        "0.10",
+    }
     prefix = int(partial) + len(priority_stages(problem.request))
     for index, objective in enumerate(objectives or (None,)):
         path = (
@@ -415,7 +428,8 @@ def run(problem, cp_model, num_workers=2):
                     completed_objectives=max(0, index - prefix),
                     **(
                         {"completed_priority_groups": min(prefix - 1, max(0, index - 1))}
-                        if problem.request["schema_version"] in {"0.5", "0.6", "0.7", "0.8", "0.9"}
+                        if problem.request["schema_version"]
+                        in {"0.5", "0.6", "0.7", "0.8", "0.9", "0.10"}
                         else {}
                     ),
                 ),
@@ -465,7 +479,16 @@ def run(problem, cp_model, num_workers=2):
     best.search_elapsed_seconds = time.monotonic() - start
     best.preparation_elapsed_seconds = preparation_elapsed
     best.objective_bounds = tuple(bounds)
-    if problem.request["schema_version"] in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9"}:
+    if problem.request["schema_version"] in {
+        "0.3",
+        "0.4",
+        "0.5",
+        "0.6",
+        "0.7",
+        "0.8",
+        "0.9",
+        "0.10",
+    }:
         if best.solution is not None:
             best.shortage_person_minutes = best.values[0]
             best.shortage_proven_minimal = best.values[0] == 0 or best.proven_optimal[0]
