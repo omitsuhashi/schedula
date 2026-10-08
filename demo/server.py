@@ -29,6 +29,10 @@ FILES = {
         "application/json; charset=utf-8",
     ),
     "/samples/roster.json": (ROOT / "examples" / "roster.json", "application/json; charset=utf-8"),
+    "/samples/shift_patterns.json": (
+        ROOT / "examples" / "shift_patterns.json",
+        "application/json; charset=utf-8",
+    ),
     "/samples/roster-100-30.json": (
         SAMPLES / "roster-100-30.json",
         "application/json; charset=utf-8",

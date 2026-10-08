@@ -560,7 +560,9 @@ def test_shared_budget_and_unproven_prefix_are_preserved(monkeypatch, statuses):
     assert all(not o["proven_optimal"] for o in result["objectives"])
 
 
-@pytest.mark.parametrize("version", [v for v in SCHEMA_VERSIONS if v not in {"0.11", "0.12"}])
+@pytest.mark.parametrize(
+    "version", [v for v in SCHEMA_VERSIONS if v not in {"0.11", "0.12", "0.13"}]
+)
 def test_legacy_rejects_new_fields(version):
     data = example()
     data["schema_version"] = version

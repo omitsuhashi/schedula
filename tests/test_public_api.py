@@ -49,7 +49,21 @@ def test_public_validation_reuses_entry_checks_without_solving(assignment_reques
 
 def test_public_types_match_version_fields_and_literals():
     for version, request_type in zip(
-        ("0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"),
+        (
+            "0.1",
+            "0.2",
+            "0.3",
+            "0.4",
+            "0.5",
+            "0.6",
+            "0.7",
+            "0.8",
+            "0.9",
+            "0.10",
+            "0.11",
+            "0.12",
+            "0.13",
+        ),
         (
             types.Request01,
             types.Request02,
@@ -63,6 +77,7 @@ def test_public_types_match_version_fields_and_literals():
             types.Request010,
             types.Request011,
             types.Request012,
+            types.Request013,
         ),
         strict=True,
     ):
@@ -83,6 +98,7 @@ def test_public_types_match_version_fields_and_literals():
         "0.10",
         "0.11",
         "0.12",
+        "0.13",
     }
     assert "PARTIAL" not in get_args(get_type_hints(types.Response01Success)["status"])
     assert "PARTIAL" in get_args(get_type_hints(types.Response04Success)["status"])
@@ -126,6 +142,32 @@ def test_installed_wheel_types_check_consumer_and_reject_typos(tmp_path):
         "assert solve(request)['status'] == 'BACKEND_UNAVAILABLE'",
         json.dumps(minimum_request),
         json.dumps(minimum_solution),
+    )
+    patterns_request = json.loads(
+        (ROOT / "examples/shift_patterns.json").read_text(encoding="utf-8")
+    )
+    patterns_solution = solve(patterns_request)["solution"]
+    run(
+        str(python),
+        "-I",
+        "-c",
+        "import importlib.util, json, sys; "
+        "from shift_schedula import solve, verify, make_baseline; "
+        "assert importlib.util.find_spec('ortools') is None; "
+        "request, solution = map(json.loads, sys.argv[1:]); "
+        "assert verify(request, solution)['status'] == 'PARTIAL'; "
+        "assert make_baseline(request, solution, 'saved')['source_request']"
+        "['shift_categories'] == request['shift_categories']; "
+        "early = next(c for c in request['shift_candidates'] if c['id'] == 'early'); "
+        "solution['shifts'].append({'candidate_id':'early', 'employee_id':'alice', "
+        "'work_day':early['segments'][0]['interval']['start'][:10], "
+        "'segments':early['segments']}); "
+        "checked = verify(request, solution); "
+        "assert checked['status'] == 'INVALID_PLAN'; "
+        "assert any(v['code']=='SHIFT_PATTERN_VIOLATION' for v in checked['diagnostics']); "
+        "assert solve(request)['status'] == 'BACKEND_UNAVAILABLE'",
+        json.dumps(patterns_request),
+        json.dumps(patterns_solution),
     )
     run(
         str(python),
@@ -210,6 +252,19 @@ def test_installed_wheel_types_check_consumer_and_reject_typos(tmp_path):
         encoding="utf-8",
     )
     run(str(python), "-m", "mypy", "--strict", str(minimum_consumer))
+    patterns_consumer = tmp_path / "patterns_consumer.py"
+    patterns_consumer.write_text(
+        minimum_consumer.read_text(encoding="utf-8")
+        .replace("Request012", "Request013")
+        .replace('"0.12"', '"0.13"')
+        + '        request["shift_categories"] = [{"id": "night", "label": "夜勤", '
+        '"intervals": [], "min_overlap_minutes": 60}]\n'
+        + '        request["constraints"].append({"id": "off", '
+        '"type": "min_consecutive_days_off", "employee_ids": ["alice"], '
+        '"evaluation_period": {"start": "", "end": ""}, "min_days": 2})\n',
+        encoding="utf-8",
+    )
+    run(str(python), "-m", "mypy", "--strict", str(patterns_consumer))
     invalid = tmp_path / "invalid_consumer.py"
     invalid.write_text(
         "from shift_schedula import Response\n"

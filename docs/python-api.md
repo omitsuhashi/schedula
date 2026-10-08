@@ -10,7 +10,7 @@ JSONのdict/list境界を維持する。公開型は標準 `typing` の `TypedDi
 | `solve(request: Request, *, num_workers: int = 2) -> Response` | 求解と独立検証 | 入力不備・依存不足・内部障害を既存Responseの状態で返す |
 | `verify(request: Request, solution: Solution) -> Verification` | 保存・編集した解の独立検証。最適性は認定しない | `VALID` / `PARTIAL` / `INVALID_INPUT` / `INVALID_PLAN` / `INTERNAL_ERROR` |
 | `get_schema(kind, schema_version="0.1")` | `request` / `response` / `solution` / `verification` のSchema | 未知の種類・版は `ValueError` |
-| `make_baseline(request: Request04 \| Request05 \| Request06 \| Request07 \| Request08 \| Request09 \| Request010 \| Request011 \| Request012, solution: ExtendedSolution \| ContinuitySolution, plan_id: str) -> Baseline` | 契約0.4〜0.12のrosterから検証済み基準計画を作る | 入力・解の不備は `InvalidInput`。環境・内部例外は呼び出し側で扱う |
+| `make_baseline(request: Request04 \| Request05 \| Request06 \| Request07 \| Request08 \| Request09 \| Request010 \| Request011 \| Request012 \| Request013, solution: ExtendedSolution \| ContinuitySolution, plan_id: str) -> Baseline` | 契約0.4〜0.13のrosterから検証済み基準計画を作る | 入力・解の不備は `InvalidInput`。環境・内部例外は呼び出し側で扱う |
 
 `InvalidInput` は `ValueError` の派生で、`diagnostics` に既存形式の診断配列を持つ。
 公開関数は入力を書き換えない。make_baselineは返すスナップショットをコピーして作る。
@@ -126,3 +126,6 @@ spawnと終了処理は[Python 3.14公式文書](https://docs.python.org/3.14/li
 
 契約0.5の `PriorityDemand.priority` と `Response05Success.priority_summary` は
 [需要priorityの契約](io-contract-priority.md)を参照する。独立検証の同集計は最小性の証明を付けない。
+
+契約0.13の `Request013` / `ShiftCategory` / `Constraint013` は、勤務分類と4種類の必須パターンを扱う。
+[契約・境界](io-contract-shift-patterns.md)に従い、原勤務と判定余白を入力する。

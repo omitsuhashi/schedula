@@ -21,6 +21,7 @@ SCHEMA_VERSIONS = (
     "0.10",
     "0.11",
     "0.12",
+    "0.13",
 )
 
 
@@ -130,7 +131,7 @@ def get_schema(kind, schema_version="0.1"):
     if kind not in {"request", "response", "solution", "verification"}:
         raise ValueError("request、response、solution、verification を指定します。")
     if schema_version not in SCHEMA_VERSIONS:
-        raise ValueError("schema_version は 0.1〜0.12 のいずれかを指定します。")
+        raise ValueError("schema_version は 0.1〜0.13 のいずれかを指定します。")
     if kind in {"solution", "verification"}:
         if kind == "solution":
             schema = get_schema("response", schema_version)
@@ -144,7 +145,7 @@ def get_schema(kind, schema_version="0.1"):
         schema = get_schema(
             "response",
             schema_version
-            if schema_version in {"0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"}
+            if schema_version in {"0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13"}
             else "0.4",
         )
         properties = {
@@ -160,12 +161,12 @@ def get_schema(kind, schema_version="0.1"):
                 "shortage_summary",
             )
         }
-        if schema_version in {"0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"}:
+        if schema_version in {"0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13"}:
             properties["continuity_summary"] = schema["properties"]["continuity_summary"]
-        if schema_version in {"0.9", "0.10", "0.11", "0.12"}:
+        if schema_version in {"0.9", "0.10", "0.11", "0.12", "0.13"}:
             for name in ("cost_summary", "duty_balance_summary"):
                 properties[name] = schema["properties"][name]
-        if schema_version in {"0.11", "0.12"}:
+        if schema_version in {"0.11", "0.12", "0.13"}:
             properties["day_count_summary"] = schema["properties"]["day_count_summary"]
         properties.update(
             schema_version={"const": schema_version},
@@ -174,12 +175,12 @@ def get_schema(kind, schema_version="0.1"):
             },
             demand_satisfied={"type": ["boolean", "null"]},
         )
-        if schema_version in {"0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"}:
+        if schema_version in {"0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13"}:
             properties["priority_summary"] = schema["properties"]["priority_summary"]
         properties["objectives"]["items"]["properties"]["proven_optimal"] = {"const": False}
         definitions = {k: v for k, v in schema["$defs"].items() if k != "solution"}
         definitions["shortage_summary"]["properties"]["proven_minimal"] = {"const": False}
-        if schema_version in {"0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"}:
+        if schema_version in {"0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13"}:
             definitions["priority_summary"]["properties"]["groups"]["items"]["properties"][
                 "proven_minimal"
             ] = {"const": False}
@@ -211,15 +212,28 @@ def get_schema(kind, schema_version="0.1"):
                         for name in ("shortage_summary", "fairness_summary", "change_summary")
                     }
                 )
-            if schema_version in {"0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"}:
+            if schema_version in {
+                "0.5",
+                "0.6",
+                "0.7",
+                "0.8",
+                "0.9",
+                "0.10",
+                "0.11",
+                "0.12",
+                "0.13",
+            }:
                 expected["priority_summary"] = {"type": "object" if valid else "null"}
-            if schema_version in {"0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"} and not valid:
+            if (
+                schema_version in {"0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13"}
+                and not valid
+            ):
                 expected["continuity_summary"] = {"type": "null"}
-            if schema_version in {"0.9", "0.10", "0.11", "0.12"} and not valid:
+            if schema_version in {"0.9", "0.10", "0.11", "0.12", "0.13"} and not valid:
                 expected.update(
                     cost_summary={"type": "null"}, duty_balance_summary={"type": "null"}
                 )
-            if schema_version in {"0.11", "0.12"} and not valid:
+            if schema_version in {"0.11", "0.12", "0.13"} and not valid:
                 expected["day_count_summary"] = {"type": "null"}
             rules.append(
                 {
@@ -268,7 +282,8 @@ def validate_request(request):
         reject("NON_JSON_VALUE", "入力の階層が深すぎます。")
     if (
         isinstance(request, dict)
-        and request.get("schema_version") in {"0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"}
+        and request.get("schema_version")
+        in {"0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13"}
         and isinstance(request.get("continuity"), dict)
     ):
         value = request["continuity"]

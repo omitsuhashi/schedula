@@ -310,7 +310,27 @@ async function jsonInputChecks(page) {
     assert.equal(await page.locator("#json-output table").count(), 0);
   }
   report.interactions.push("契約0.12の担当配置・勤務計画で必須最低人数とPARTIALの不足を表示し、下限違反・集計改ざんを拒否");
-  for (const schema_version of ["0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"]) {
+  await page.locator("#json-sample").selectOption("shift_patterns");
+  await page.locator("#json-load-sample").click();
+  await page.waitForFunction(() => document.getElementById("json-input").value.includes("shift_patterns_example"));
+  await page.locator("#json-calculate").click();
+  await page.waitForFunction(() => !busy);
+  const patternsPair = await page.evaluate(() => jsonPair);
+  assert.ok(patternsPair, await page.locator("#json-status").innerText());
+  assert.equal(patternsPair.response.schema_version, "0.13");
+  assert.equal(patternsPair.response.status, "PARTIAL");
+  assert.equal(patternsPair.response.shortage_summary.total_person_minutes, 30);
+  assert.deepEqual(patternsPair.response.solution.shifts.map(s => s.candidate_id), ["night", "day4", "late", "weekend"]);
+  assert.match(await page.locator("#json-output").innerText(), /最低人数/);
+  patternsPair.input.constraints[1].evaluation_period.start = patternsPair.input.planning_window.start;
+  await page.locator("#json-input").fill(JSON.stringify(patternsPair.input));
+  await page.locator("#json-calculate").click();
+  await page.waitForFunction(() => !busy);
+  assert.equal(await page.evaluate(() => jsonPair.response.status), "INVALID_INPUT");
+  assert.match(await page.locator("#json-output").innerText(), /INCOMPLETE_HISTORY/);
+  assert.match(await page.locator("#json-output").innerText(), /判定に必要な期間：2026-10-03/);
+  report.interactions.push("契約0.13の4パターンをサンプルから実計算し、必須下限とPARTIALの不足・余白不足の必要区間を表示");
+  for (const schema_version of ["0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13"]) {
     const input = {...JSON.parse(readFileSync("examples/partial_assignment.json", "utf8")), schema_version};
     await page.locator("#json-input").fill(JSON.stringify(input));
     await page.locator("#json-calculate").click();

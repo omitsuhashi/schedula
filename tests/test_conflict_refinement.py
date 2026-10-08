@@ -401,7 +401,8 @@ def test_response_rejects_tampered_references_and_proof_records(field):
 
 
 @pytest.mark.parametrize(
-    "version", [v for v in SCHEMA_VERSIONS if v not in {"0.8", "0.9", "0.10", "0.11", "0.12"}]
+    "version",
+    [v for v in SCHEMA_VERSIONS if v not in {"0.8", "0.9", "0.10", "0.11", "0.12", "0.13"}],
 )
 def test_new_request_and_response_fields_rejected_by_old_versions(version):
     data = example()

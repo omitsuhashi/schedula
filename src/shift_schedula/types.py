@@ -3,7 +3,7 @@
 from typing import Literal, NotRequired, TypedDict
 
 type SchemaVersion = Literal[
-    "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"
+    "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13"
 ]
 type JSONValue = None | bool | int | float | str | list[JSONValue] | dict[str, JSONValue]
 type FailureStatus = Literal[
@@ -163,6 +163,55 @@ type Constraint01 = MinutesConstraint | ConsecutiveDaysConstraint | RoleSwitchCo
 type Constraint = Constraint01 | SplitGapConstraint
 type Constraint04 = Constraint | ScheduledMinutesBounds
 type Constraint011 = Constraint04 | DayCountBounds
+
+
+class ShiftCategory(TypedDict):
+    id: str
+    label: str
+    intervals: list[Interval]
+    min_overlap_minutes: int
+
+
+class PatternFields(ConstraintFields):
+    evaluation_period: Interval
+
+
+class ForbiddenShiftSuccessions(PatternFields):
+    type: Literal["forbidden_shift_successions"]
+    from_category_id: str
+    to_category_id: str
+    day_offset: int
+
+
+class DaysOffAfterShift(PatternFields):
+    type: Literal["days_off_after_shift"]
+    category_id: str
+    min_days: int
+
+
+class MinConsecutiveDaysOff(PatternFields):
+    type: Literal["min_consecutive_days_off"]
+    min_days: int
+
+
+class DateGroup(TypedDict):
+    id: str
+    dates: list[str]
+
+
+class WorkedDateGroupsLimit(PatternFields):
+    type: Literal["worked_date_groups_limit"]
+    date_groups: list[DateGroup]
+    max_groups: int
+
+
+type Constraint013 = (
+    Constraint011
+    | ForbiddenShiftSuccessions
+    | DaysOffAfterShift
+    | MinConsecutiveDaysOff
+    | WorkedDateGroupsLimit
+)
 
 
 class PreferenceFields(TypedDict):
@@ -460,6 +509,14 @@ class Request012(MetricsRequestFields):
     constraints: list[Constraint011]
 
 
+class Request013(MetricsRequestFields):
+    schema_version: Literal["0.13"]
+    demand: list[MinimumDemand]
+    constraints: list[Constraint013]
+
+    shift_categories: NotRequired[list[ShiftCategory]]
+
+
 type Request = (
     Request01
     | Request02
@@ -473,6 +530,7 @@ type Request = (
     | Request010
     | Request011
     | Request012
+    | Request013
 )
 
 
@@ -941,6 +999,24 @@ class Response012Failure(Response09Fields):
     day_count_summary: None
 
 
+class Response013Success(Response09Fields):
+    schema_version: Literal["0.13"]
+    status: Literal["OPTIMAL", "FEASIBLE", "PARTIAL"]
+    solution: ContinuitySolution
+    continuity_summary: ContinuitySummary | None
+    priority_summary: PrioritySummary
+    day_count_summary: list[DayCountSummary] | None
+
+
+class Response013Failure(Response09Fields):
+    schema_version: Literal["0.13"]
+    status: FailureStatus
+    solution: None
+    continuity_summary: None
+    priority_summary: None
+    day_count_summary: None
+
+
 type Response = (
     Response01Success
     | Response01Failure
@@ -966,6 +1042,8 @@ type Response = (
     | Response011Failure
     | Response012Success
     | Response012Failure
+    | Response013Success
+    | Response013Failure
 )
 
 
