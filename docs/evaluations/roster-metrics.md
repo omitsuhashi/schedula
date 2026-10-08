@@ -66,3 +66,21 @@ Ruff hooks、差分検査が成功した。旧0.1〜0.8のSchemaの原bytesを�
 
 履歴を含む夜勤休日評価は#79へ残し、0.9ではW外を受理しない。
 PyPI公開・タグ作成・productionデプロイは実施していない。
+
+## JSON画面の契約版処理の修正
+
+PR #83のレビュー指摘を受け、JSON画面が0.9入力を0.1として応答照合していた問題を修正した。
+0.6〜0.9をそのまま照合し、不足・priority集計と証明の検証を同じ版まで適用する。
+目的の照合には `duty_id` も含める。READMEの0.1〜0.9対応という記載を維持する。
+
+既存Chromium結合に、0.9の費用・夜勤例の貼り付け実行と、0.6〜0.9のPARTIAL表示を追加した。
+費用108000/2016000、夜勤偏差0、不足60人分を確認し、
+不足合計・priority・矛盾する証明・解なし集計・duty_idの改ざんを拒否した。
+修正前の追加テストは版不一致で失敗し、修正後は既存操作も含めて成功した。
+途中で目的のないPARTIALの未証明priorityを不正と期待したテストが1件失敗したため、
+総不足未証明なのにpriority証明済みという矛盾した応答へ修正した。
+
+`uv run --locked --extra cp-sat pytest -q -ra tests/test_playground_server.py tests/test_playground_scenarios.py`
+は61件成功、失敗・skip 0。最初のsandbox実行は3件成功・HTTP bind権限不足で58件の準備エラー、
+ローカルHTTPを許可した環境で再実行して成功した。Chromiumのコマンドは上記と同じ。
+Nodeの構文検査、Ruff、差分検査も成功した。エンジン・旧Schema・依存は変更していない。

@@ -324,12 +324,13 @@ function acceptResponse(response, request, requestBoundaries = boundaries) {
   if (success ? !validPair({input: request, response}) || !Array.isArray(response.solution.assignments) : response.solution !== null || response.objectives.length !== 0 || response.verification.valid === true) throw new Error("応答の状態と解・独立検証が一致しません。");
   if (!response.diagnostics.every(item => item && typeof item.code === "string" && typeof item.message === "string") ||
       !response.objectives.every(item => item && typeof item.proven_optimal === "boolean" && Number.isFinite(item.value))) throw new Error("応答の診断または評価値が不正です。");
-  if (success && (response.objectives.length !== request.objectives.length || response.objectives.some((item, i) => item.id !== request.objectives[i].id || item.metric !== request.objectives[i].metric))) throw new Error("応答の目的が入力と一致しません。");
+  if (success && (response.objectives.length !== request.objectives.length || response.objectives.some((item, i) => item.id !== request.objectives[i].id || item.metric !== request.objectives[i].metric || item.duty_id !== request.objectives[i].duty_id))) throw new Error("応答の目的が入力と一致しません。");
   if (success && !response.solution.assignments.every(item => item && request.employees.some(employee => employee.id === item.employee_id) &&
       request.roles.some(role => role.id === item.role_id) && requestBoundaries.some(value => Date.parse(value) === Date.parse(item.interval?.start)) &&
       requestBoundaries.some(value => Date.parse(value) === Date.parse(item.interval?.end)) && Date.parse(item.interval.start) < Date.parse(item.interval.end))) throw new Error("担当配置の参照または日時が不正です。");
-  if (["0.3", "0.4", "0.5"].includes(request.schema_version)) {
-    if (!success) { if (request.schema_version === "0.5" && response.priority_summary !== null) throw new Error("計画がない応答にpriority集計があります。"); if (response.shortage_summary !== null) throw new Error("計画がない応答に不足集計があります。"); return; }
+  const hasPriority = ["0.5", "0.6", "0.7", "0.8", "0.9"].includes(request.schema_version);
+  if (["0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9"].includes(request.schema_version)) {
+    if (!success) { if (hasPriority && response.priority_summary !== null) throw new Error("計画がない応答にpriority集計があります。"); if (response.shortage_summary !== null) throw new Error("計画がない応答に不足集計があります。"); return; }
     const summary = response.shortage_summary;
     if (!summary || typeof summary.proven_minimal !== "boolean" || !Number.isSafeInteger(summary.total_person_minutes) || !Array.isArray(summary.shortages)) throw new Error("不足集計が不正です。");
     const grid = requestBoundaries.map(Date.parse), positions = new Map(grid.map((value, i) => [value, i]));
@@ -362,7 +363,7 @@ function acceptResponse(response, request, requestBoundaries = boundaries) {
     }
     const actual = summary.shortages.map(item => ({demand_id: item.demand_id, role_id: item.role_id, start: Date.parse(item.interval?.start), end: Date.parse(item.interval?.end), required_people: item.required_people, assigned_people: item.assigned_people, missing_people: item.missing_people}));
     const proofs = response.objectives.map(item => item.proven_optimal);
-    if (request.schema_version === "0.5") {
+    if (hasPriority) {
       const groups = response.priority_summary?.groups;
       const grouped = new Map(request.demand.map(d => [d.priority ?? 0, 0]));
       const priorities = new Map(request.demand.map(d => [d.id, d.priority ?? 0]));
@@ -587,7 +588,7 @@ async function calculateJSON() {
     ]);
     if (token !== generation) return;
     const input = JSON.parse(text);
-    const expected = {...input, schema_version: ["0.2", "0.3", "0.4", "0.5"].includes(input?.schema_version) ? input.schema_version : "0.1", request_id: typeof input?.request_id === "string" ? input.request_id : null};
+    const expected = {...input, schema_version: ["0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9"].includes(input?.schema_version) ? input.schema_version : "0.1", request_id: typeof input?.request_id === "string" ? input.request_id : null};
     const requestBoundaries = ["OPTIMAL", "FEASIBLE", "PARTIAL"].includes(result.status) ?
       [input.planning_window.start, ...jsonSlots(input).map(slot => new Date(slot.end).toISOString())] : [];
     acceptResponse(result, expected, requestBoundaries);
