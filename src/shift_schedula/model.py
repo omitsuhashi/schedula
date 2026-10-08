@@ -288,6 +288,10 @@ def normalize(request):
         context_bounds(request, grid)
         continuity_facts = facts(request, grid)
         absolute_available = availability(request, grid)
+    if request["schema_version"] == "0.11":
+        from .day_counts import validate as validate_day_counts
+
+        validate_day_counts(request, grid)
     for index, constraint in enumerate(request["constraints"]):
         if constraint["type"] == "scheduled_minutes_bounds":
             if continuous:
@@ -369,7 +373,7 @@ def normalize(request):
                     [item["id"], item["role_id"]],
                 )
             demand[slot][item["role_id"]] = int(item["required_people"])
-            if request["schema_version"] in {"0.5", "0.6", "0.7", "0.8", "0.9", "0.10"}:
+            if request["schema_version"] in {"0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"}:
                 priorities[slot, item["role_id"]] = int(item.get("priority", 0))
     costs = {}
     for index, item in enumerate(request["preferences"]):
@@ -407,12 +411,13 @@ def normalize(request):
         "0.8",
         "0.9",
         "0.10",
+        "0.11",
     }:
         from .diagnosis import validate_options
         from .extensions import validate
 
         validate(problem)
-        if request["schema_version"] in {"0.9", "0.10"}:
+        if request["schema_version"] in {"0.9", "0.10", "0.11"}:
             from .roster_metrics import validate as validate_metrics
 
             validate_metrics(problem)

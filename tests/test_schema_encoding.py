@@ -7,7 +7,8 @@ from shift_schedula import contract
 
 @pytest.mark.parametrize("kind", ["request", "response"])
 @pytest.mark.parametrize(
-    "schema_version", ["0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10"]
+    "schema_version",
+    ["0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"],
 )
 def test_schema_reading_with_cp932_default(kind, schema_version, monkeypatch):
     schema_bytes = (
@@ -25,7 +26,7 @@ def test_schema_reading_with_cp932_default(kind, schema_version, monkeypatch):
     if kind == "request":
         expected = (
             "需要は元の必要人数"
-            if schema_version in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10"}
+            if schema_version in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"}
             else "需要は厳密な人数"
         )
         assert expected in schema["description"]

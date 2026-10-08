@@ -49,7 +49,7 @@ def test_public_validation_reuses_entry_checks_without_solving(assignment_reques
 
 def test_public_types_match_version_fields_and_literals():
     for version, request_type in zip(
-        ("0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10"),
+        ("0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"),
         (
             types.Request01,
             types.Request02,
@@ -61,6 +61,7 @@ def test_public_types_match_version_fields_and_literals():
             types.Request08,
             types.Request09,
             types.Request010,
+            types.Request011,
         ),
         strict=True,
     ):
@@ -79,6 +80,7 @@ def test_public_types_match_version_fields_and_literals():
         "0.8",
         "0.9",
         "0.10",
+        "0.11",
     }
     assert "PARTIAL" not in get_args(get_type_hints(types.Response01Success)["status"])
     assert "PARTIAL" in get_args(get_type_hints(types.Response04Success)["status"])
@@ -167,6 +169,15 @@ def test_installed_wheel_types_check_consumer_and_reject_typos(tmp_path):
         encoding="utf-8",
     )
     run(str(python), "-m", "mypy", "--strict", str(history_consumer))
+    days_consumer = tmp_path / "days_consumer.py"
+    days_consumer.write_text(
+        history_consumer.read_text(encoding="utf-8")
+        .replace("Request010", "Request011")
+        .replace('"0.10"', '"0.11"')
+        + '        print(result["day_count_summary"])\n',
+        encoding="utf-8",
+    )
+    run(str(python), "-m", "mypy", "--strict", str(days_consumer))
     invalid = tmp_path / "invalid_consumer.py"
     invalid.write_text(
         "from shift_schedula import Response\n"

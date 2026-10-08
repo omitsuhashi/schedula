@@ -56,12 +56,14 @@ def main():
                     if isinstance(request, dict) and isinstance(request.get("request_id"), str)
                     else None,
                 )
-                if result["schema_version"] in {"0.5", "0.6", "0.7", "0.8", "0.9", "0.10"}:
+                if result["schema_version"] in {"0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"}:
                     result["priority_summary"] = None
-                if result["schema_version"] in {"0.6", "0.7", "0.8", "0.9", "0.10"}:
+                if result["schema_version"] in {"0.6", "0.7", "0.8", "0.9", "0.10", "0.11"}:
                     result["continuity_summary"] = None
-                if result["schema_version"] in {"0.9", "0.10"}:
+                if result["schema_version"] in {"0.9", "0.10", "0.11"}:
                     result.update(cost_summary=None, duty_balance_summary=None)
+                if result["schema_version"] == "0.11":
+                    result["day_count_summary"] = None
             else:
                 result = response(None, "INVALID_INPUT", diagnostics)
         if args.command != "verify":

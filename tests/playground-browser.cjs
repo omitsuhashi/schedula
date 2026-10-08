@@ -258,7 +258,29 @@ async function jsonInputChecks(page) {
       assert.equal(pair.response.solution.shifts[0].employee_id, "bob");
     }
   }
-  for (const schema_version of ["0.6", "0.7", "0.8", "0.9", "0.10"]) {
+  const daysInput = JSON.parse(readFileSync("examples/day_counts.json", "utf8"));
+  await page.locator("#json-input").fill(JSON.stringify(daysInput));
+  await page.locator("#json-calculate").click();
+  await page.waitForFunction(() => !busy);
+  const daysPair = await page.evaluate(() => jsonPair);
+  assert.ok(daysPair, await page.locator("#json-status").innerText());
+  assert.equal(daysPair.response.status, "OPTIMAL");
+  assert.deepEqual(daysPair.response.day_count_summary[0].employees[0], {employee_id: "alice", work_days: 3, occupied_days: 3, days_off: 4});
+  assert.match(await page.locator("#json-output").innerText(), /勤務3日・占有3日・完全休日4日/);
+  for (const status of ["INFEASIBLE", "UNKNOWN", "INVALID_INPUT", "BACKEND_UNAVAILABLE", "INTERNAL_ERROR"]) {
+    for (const retained of [false, true]) {
+      const message = await page.evaluate(({status, retained}) => {
+        const {input, response} = structuredClone(jsonPair);
+        Object.assign(response, {status, solution: null, objectives: [], fairness_summary: null, change_summary: null, continuity_summary: null, shortage_summary: null, priority_summary: null, cost_summary: null, duty_balance_summary: null, verification: {performed: false, valid: null, violations: []}});
+        if (!retained) response.day_count_summary = null;
+        try { acceptResponse(response, input); return ""; } catch (error) { return error.message; }
+      }, {status, retained});
+      if (retained) assert.match(message, /計画がない応答に日数集計があります/);
+      else assert.equal(message, "");
+    }
+  }
+  report.interactions.push("契約0.11の勤務日数・占有日数・完全休日数をJSON入力から計算・表示し、全5失敗状態の集計保持を拒否");
+  for (const schema_version of ["0.6", "0.7", "0.8", "0.9", "0.10", "0.11"]) {
     const input = {...JSON.parse(readFileSync("examples/partial_assignment.json", "utf8")), schema_version};
     await page.locator("#json-input").fill(JSON.stringify(input));
     await page.locator("#json-calculate").click();

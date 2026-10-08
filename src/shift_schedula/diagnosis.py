@@ -75,7 +75,8 @@ def conditions(request):
     add("PLANNING_GRID", "/planning_window", interval=window)
     add(
         "DEMAND_LIMIT_AND_SINGLE_ASSIGNMENT"
-        if request["schema_version"] in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10"}
+        if request["schema_version"]
+        in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"}
         else "EXACT_DEMAND_AND_SINGLE_ASSIGNMENT",
         "/problem_type",
     )
@@ -163,6 +164,8 @@ def condition_groups(request):
         "max_consecutive_days",
         "min_split_gap_minutes",
         "scheduled_minutes_bounds",
+        "work_days_bounds",
+        "days_off_bounds",
     }
     if request.keys() - supported_fields or any(
         rule["type"] not in supported_rules for rule in request["constraints"]
@@ -425,7 +428,7 @@ def diagnose(request, status, solve, *, problem=None, num_workers=2):
         if time.monotonic() >= deadline:
             result["status"] = "TIME_LIMIT"
         else:
-            if request["schema_version"] in {"0.8", "0.9", "0.10"}:
+            if request["schema_version"] in {"0.8", "0.9", "0.10", "0.11"}:
                 groups, background = condition_groups(request)
                 if config.get("conflict_refinement"):
                     refine(
@@ -575,7 +578,7 @@ def validate_result(request, response):
             fail()
         return errors
     if result["conflict"] is not None:
-        if request["schema_version"] in {"0.8", "0.9", "0.10"}:
+        if request["schema_version"] in {"0.8", "0.9", "0.10", "0.11"}:
             if not valid_group_conflict(
                 request, result["conflict"], failed=result["status"] == "ERROR"
             ):

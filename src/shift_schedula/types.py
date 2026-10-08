@@ -2,7 +2,9 @@
 
 from typing import Literal, NotRequired, TypedDict
 
-type SchemaVersion = Literal["0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10"]
+type SchemaVersion = Literal[
+    "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"
+]
 type JSONValue = None | bool | int | float | str | list[JSONValue] | dict[str, JSONValue]
 type FailureStatus = Literal[
     "INFEASIBLE", "UNKNOWN", "INVALID_INPUT", "BACKEND_UNAVAILABLE", "INTERNAL_ERROR"
@@ -146,9 +148,17 @@ class ScheduledMinutesBounds(ConstraintFields):
     max_minutes: NotRequired[int]
 
 
+class DayCountBounds(ConstraintFields):
+    type: Literal["work_days_bounds", "days_off_bounds"]
+    interval: Interval
+    min_days: NotRequired[int]
+    max_days: NotRequired[int]
+
+
 type Constraint01 = MinutesConstraint | ConsecutiveDaysConstraint | RoleSwitchConstraint
 type Constraint = Constraint01 | SplitGapConstraint
 type Constraint04 = Constraint | ScheduledMinutesBounds
+type Constraint011 = Constraint04 | DayCountBounds
 
 
 class PreferenceFields(TypedDict):
@@ -408,7 +418,6 @@ class MetricsRequestFields(TypedDict):
     roles: list[Role]
     solver: SolverOptions
     demand: list[PriorityDemand]
-    constraints: list[Constraint04]
     preferences: list[AvoidRole | WorkPreference]
     replan_mode: NotRequired[Literal["preserve_assigned", "rebuild"]]
     continuity: NotRequired[Continuity]
@@ -426,10 +435,17 @@ class MetricsRequestFields(TypedDict):
 
 class Request09(MetricsRequestFields):
     schema_version: Literal["0.9"]
+    constraints: list[Constraint04]
 
 
 class Request010(MetricsRequestFields):
     schema_version: Literal["0.10"]
+    constraints: list[Constraint04]
+
+
+class Request011(MetricsRequestFields):
+    schema_version: Literal["0.11"]
+    constraints: list[Constraint011]
 
 
 type Request = (
@@ -443,6 +459,7 @@ type Request = (
     | Request08
     | Request09
     | Request010
+    | Request011
 )
 
 
@@ -858,6 +875,40 @@ class Response010Failure(Response09Fields):
     priority_summary: None
 
 
+class DayCountEmployeeSummary(TypedDict):
+    employee_id: str
+    work_days: int
+    occupied_days: int
+    days_off: int
+
+
+class DayCountSummary(TypedDict):
+    constraint_id: str
+    type: Literal["work_days_bounds", "days_off_bounds"]
+    interval: Interval
+    min_days: int | None
+    max_days: int | None
+    employees: list[DayCountEmployeeSummary]
+
+
+class Response011Success(Response09Fields):
+    schema_version: Literal["0.11"]
+    status: Literal["OPTIMAL", "FEASIBLE", "PARTIAL"]
+    solution: ContinuitySolution
+    continuity_summary: ContinuitySummary | None
+    priority_summary: PrioritySummary
+    day_count_summary: list[DayCountSummary] | None
+
+
+class Response011Failure(Response09Fields):
+    schema_version: Literal["0.11"]
+    status: FailureStatus
+    solution: None
+    continuity_summary: None
+    priority_summary: None
+    day_count_summary: None
+
+
 type Response = (
     Response01Success
     | Response01Failure
@@ -879,10 +930,13 @@ type Response = (
     | Response09Failure
     | Response010Success
     | Response010Failure
+    | Response011Success
+    | Response011Failure
 )
 
 
 class Verification(TypedDict):
+    day_count_summary: NotRequired[list[DayCountSummary] | None]
     cost_summary: NotRequired[CostSummary | None]
     duty_balance_summary: NotRequired[list[DutyBalanceSummary] | None]
     priority_summary: NotRequired[PrioritySummary | None]
