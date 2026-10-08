@@ -447,6 +447,46 @@ async function jsonInputChecks(page) {
 async function adapterChecks(page) {
   const wait = text => page.waitForFunction(value => document.getElementById("adapter-status").textContent.includes(value) && !document.getElementById("adapter-check").disabled, text, {timeout: 120000});
   await page.locator("#adapter-demo > summary").click();
+  const staleWeek = JSON.parse(readFileSync("examples/adapter/week-next-stale.draft.json", "utf8"));
+  const nextWeek = JSON.parse(readFileSync("examples/adapter/week-next.draft.json", "utf8"));
+  await page.locator("#adapter-file").setInputFiles("examples/adapter/week-next-stale.draft.json");
+  await wait("入力候補");
+  await page.locator("#adapter-check").click();
+  await wait("INVALID_INPUT");
+  assert.ok((await page.locator("#adapter-output").innerText()).includes("STALE_APPLICABILITY"));
+  const editedWeek = structuredClone(staleWeek);
+  for (const id of ["period", "history"]) {
+    const source = editedWeek.sources.find(s => s.id === id);
+    const updated = nextWeek.sources.find(s => s.id === id);
+    source.data = updated.data;
+    source.applies_to = updated.applies_to;
+    source.revision = updated.revision;
+  }
+  await page.locator("#adapter-input").fill(JSON.stringify(editedWeek));
+  await page.locator("#adapter-check").click();
+  await wait("INVALID_INPUT");
+  const weekStates = await page.evaluate(() => JSON.parse(document.querySelector("#adapter-output details pre").textContent));
+  for (const id of ["basic", "common", "execution"]) assert.equal(weekStates.find(s => s.source_id === id).state, "confirmed");
+  for (const id of ["period", "history"]) {
+    assert.equal(weekStates.find(s => s.source_id === id).state, "stale");
+    await page.locator("#adapter-source").selectOption(id);
+    await page.locator("#adapter-confirm").click();
+    await wait("入力候補");
+  }
+  await page.locator("#adapter-check").click();
+  await wait("VALIDです");
+  await page.locator("#adapter-run").click();
+  await wait("現在の検証 VALID");
+  const weekRecord = await page.evaluate(() => structuredClone(adapterRecord));
+  assert.deepEqual(weekRecord.request, JSON.parse(readFileSync("examples/adapter/week-next.request.json", "utf8")));
+  assert.deepEqual(weekRecord.sources.find(s => s.source.id === "history").source.data, staleWeek.sources.find(s => s.id === "history").data);
+  const weekDownloadPromise = page.waitForEvent("download");
+  await page.locator("#adapter-save-record").click();
+  const weekSavedPath = await (await weekDownloadPromise).path();
+  await page.locator("#adapter-file").setInputFiles(weekSavedPath);
+  await wait("現在の検証 VALID");
+  assert.deepEqual(await page.evaluate(() => adapterRecord), weekRecord);
+  report.interactions.push("翌週の古い日付を診断→基本情報/共通ルールの確認を保持→期間/履歴の適用範囲を明示更新・個別確認→実計算→保存/再読込、原履歴は不変");
   await page.locator("#adapter-sample").selectOption("unconfirmed");
   await page.locator("#adapter-load").click();
   await wait("入力候補");
