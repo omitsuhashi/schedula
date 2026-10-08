@@ -219,7 +219,7 @@ async function jsonInputChecks(page) {
     assert.equal(await page.locator("#json-output table").count(), ["infeasible", "invalid-input"].includes(name) ? 0 : partial ? 3 : 2);
   }
   await largeShortageRendering(page);
-  for (const name of ["scheduled_cost", "duty_balance"]) {
+  for (const name of ["scheduled_cost", "duty_balance", "continuity_duty_balance"]) {
     const input = JSON.parse(readFileSync(`examples/${name}.json`, "utf8"));
     await page.locator("#json-input").fill(JSON.stringify(input));
     await page.locator("#json-calculate").click();
@@ -227,11 +227,11 @@ async function jsonInputChecks(page) {
     const pair = await page.evaluate(() => jsonPair);
     assert.ok(pair, await page.locator("#json-status").innerText());
     assert.deepEqual(pair.input, input);
-    assert.equal(pair.response.schema_version, "0.9");
+    assert.equal(pair.response.schema_version, input.schema_version);
     assert.equal(pair.response.status, "OPTIMAL");
     assert.equal(pair.response.verification.valid, true);
-    assert.equal(pair.response.cost_summary.total_units, name === "scheduled_cost" ? 108000 : 2016000);
-    if (name === "duty_balance") {
+    assert.equal(pair.response.cost_summary.total_units, name === "scheduled_cost" ? 108000 : name === "continuity_duty_balance" ? 432000 : 2016000);
+    if (name !== "scheduled_cost") {
       assert.equal(pair.response.duty_balance_summary[0].total_deviation_minutes, 0);
       assert.equal(pair.response.objectives[0].duty_id, input.objectives[0].duty_id);
       assert.match(await page.evaluate(() => {
@@ -251,10 +251,14 @@ async function jsonInputChecks(page) {
           else assert.equal(message, "", status);
         }
       }
-      report.response_samples.push("契約0.9の全5失敗状態：費用・指定区間の集計を個別に残すと拒否、両方nullなら受理");
+      report.response_samples.push(`契約${input.schema_version}の全5失敗状態：費用・指定区間の集計を個別に残すと拒否、両方nullなら受理`);
+    }
+    if (name === "continuity_duty_balance") {
+      assert.deepEqual(pair.response.duty_balance_summary[0].employees.map(e => e.actual_minutes), [240, 240]);
+      assert.equal(pair.response.solution.shifts[0].employee_id, "bob");
     }
   }
-  for (const schema_version of ["0.6", "0.7", "0.8", "0.9"]) {
+  for (const schema_version of ["0.6", "0.7", "0.8", "0.9", "0.10"]) {
     const input = {...JSON.parse(readFileSync("examples/partial_assignment.json", "utf8")), schema_version};
     await page.locator("#json-input").fill(JSON.stringify(input));
     await page.locator("#json-calculate").click();
@@ -277,7 +281,7 @@ async function jsonInputChecks(page) {
       }, kind), /不足|priority/);
     }
   }
-  report.interactions.push("契約0.9の費用・夜勤評価をJSON貼り付けで実行、0.6〜0.9の不足・priority・証明・解なし応答を検証");
+  report.interactions.push("契約0.9・0.10の費用・夜勤評価をJSON貼り付けで実行、0.6〜0.10の不足・priority・証明・解なし応答を検証");
   const request = {...JSON.parse(readFileSync('examples/assignment.json', 'utf8')), schema_version: '0.3'};
   // 夏時間終了で同じ壁時計時刻が繰り返されても、実際の不足区間を区別する。
   const clockChange = structuredClone(request);

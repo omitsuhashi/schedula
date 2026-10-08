@@ -519,7 +519,7 @@ def test_unproven_higher_objectives_do_not_claim_cost_or_duty_optimality(monkeyp
     assert proofs == ([True, False] if len(statuses) == 3 else [False, False])
 
 
-@pytest.mark.parametrize("version", [v for v in SCHEMA_VERSIONS if v != "0.9"])
+@pytest.mark.parametrize("version", [v for v in SCHEMA_VERSIONS if v not in {"0.9", "0.10"}])
 def test_old_versions_reject_new_fields_and_objectives(version):
     data = cost_request()
     add_duty(data, {"alice": 60})
