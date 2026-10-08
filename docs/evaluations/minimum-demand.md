@@ -62,3 +62,31 @@ JSON入力の境界を明示して修正・再実行した。最終ブラウザ�
 旧0.1〜0.11の22 Schemaファイルは基点commitの原bytesと一致した。
 新版Request/Response/solution/verification Schemaは構造検証に成功した。
 Ruff hooks・Node構文確認・`bash -n scripts/deploy`・`git diff --check` は成功した。
+
+## 固定ソースの反復評価
+
+[生の評価結果](results/2026-10-08-minimum-demand.json)は、実装commit
+`4b9a7501c457fa49801a3a80d1900458daf9a759` のGit archiveを読み込んで取得した。
+ソースはdirty=false、ソースツリーSHA-256は
+`34b3f65380b09009d9724f9fe8f682a5dab2cfe5e6013b4e5a2aae8591ee7868`。
+入力・評価スクリプト・lockのSHA-256、依存版、探索結果と診断結果を同じJSONへ保存した。
+
+```sh
+uv run --locked --extra cp-sat python scripts/evaluate.py \
+  examples/minimum_assignment.json examples/minimum_roster.json examples/minimum_conflict.json \
+  --source-ref 4b9a7501c457fa49801a3a80d1900458daf9a759 \
+  --repeat 3 --mode warm --backend auto \
+  --output docs/evaluations/results/2026-10-08-minimum-demand.json
+```
+
+| 入力 | 3回の結果 | 確認内容 |
+| --- | --- | --- |
+| minimum_assignment.json | PARTIAL 3回 | 独立検証成功、不足30人分 |
+| minimum_roster.json | PARTIAL 3回 | 独立検証成功、不足30人分、勤務180分を最適性証明 |
+| minimum_conflict.json | INFEASIBLE 3回 | 需要グループの矛盾を再検証、上限のみの編集を拒否 |
+
+診断例では毎回、下限のみを0へ下げる案が独立検証済みPARTIAL、
+下限と上限をともに0へ下げる案が独立検証済みOPTIMALとなった。
+各入力は別プロセス内で3回連続実行し、初回のimport等を含む呼び出し時間は0.335〜0.367秒、
+継続呼び出しは0.004〜0.024秒だった。小さな架空例の観測値であり、
+#91の規模評価や実データの所要時間の保証を代替しない。
