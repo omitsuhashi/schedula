@@ -33,6 +33,10 @@ FILES = {
         ROOT / "examples" / "shift_patterns.json",
         "application/json; charset=utf-8",
     ),
+    "/samples/coworkers.json": (
+        ROOT / "examples" / "coworkers.json",
+        "application/json; charset=utf-8",
+    ),
     "/samples/roster-100-30.json": (
         SAMPLES / "roster-100-30.json",
         "application/json; charset=utf-8",

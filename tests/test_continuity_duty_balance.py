@@ -534,7 +534,7 @@ def test_conflict_refinement_preserves_history_and_commitment_background():
 
 
 @pytest.mark.parametrize(
-    "version", [v for v in SCHEMA_VERSIONS if v not in {"0.10", "0.11", "0.12", "0.13"}]
+    "version", [v for v in SCHEMA_VERSIONS if v not in {"0.10", "0.11", "0.12", "0.13", "0.14"}]
 )
 def test_older_versions_reject_history_evaluation(version):
     data = example()

@@ -3,7 +3,20 @@
 from typing import Literal, NotRequired, TypedDict
 
 type SchemaVersion = Literal[
-    "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13"
+    "0.1",
+    "0.2",
+    "0.3",
+    "0.4",
+    "0.5",
+    "0.6",
+    "0.7",
+    "0.8",
+    "0.9",
+    "0.10",
+    "0.11",
+    "0.12",
+    "0.13",
+    "0.14",
 ]
 type JSONValue = None | bool | int | float | str | list[JSONValue] | dict[str, JSONValue]
 type FailureStatus = Literal[
@@ -212,6 +225,21 @@ type Constraint013 = (
     | MinConsecutiveDaysOff
     | WorkedDateGroupsLimit
 )
+
+
+class RequiredCoworkers(ConstraintFields):
+    type: Literal["required_coworkers"]
+    interval: Interval
+    coworker_ids: list[str]
+    minimum_people: int
+
+
+class IncompatibleEmployees(ConstraintFields):
+    type: Literal["incompatible_employees"]
+    interval: Interval
+
+
+type Constraint014 = Constraint013 | RequiredCoworkers | IncompatibleEmployees
 
 
 class PreferenceFields(TypedDict):
@@ -517,6 +545,13 @@ class Request013(MetricsRequestFields):
     shift_categories: NotRequired[list[ShiftCategory]]
 
 
+class Request014(MetricsRequestFields):
+    schema_version: Literal["0.14"]
+    demand: list[MinimumDemand]
+    constraints: list[Constraint014]
+    shift_categories: NotRequired[list[ShiftCategory]]
+
+
 type Request = (
     Request01
     | Request02
@@ -531,6 +566,7 @@ type Request = (
     | Request011
     | Request012
     | Request013
+    | Request014
 )
 
 
@@ -1017,6 +1053,24 @@ class Response013Failure(Response09Fields):
     day_count_summary: None
 
 
+class Response014Success(Response09Fields):
+    schema_version: Literal["0.14"]
+    status: Literal["OPTIMAL", "FEASIBLE", "PARTIAL"]
+    solution: ContinuitySolution
+    continuity_summary: ContinuitySummary | None
+    priority_summary: PrioritySummary
+    day_count_summary: list[DayCountSummary] | None
+
+
+class Response014Failure(Response09Fields):
+    schema_version: Literal["0.14"]
+    status: FailureStatus
+    solution: None
+    continuity_summary: None
+    priority_summary: None
+    day_count_summary: None
+
+
 type Response = (
     Response01Success
     | Response01Failure
@@ -1044,6 +1098,8 @@ type Response = (
     | Response012Failure
     | Response013Success
     | Response013Failure
+    | Response014Success
+    | Response014Failure
 )
 
 

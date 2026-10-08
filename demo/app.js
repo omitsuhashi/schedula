@@ -157,14 +157,14 @@ function coverageCell(assigned, required) {
 
 function verificationText(result) {
   if (result.status !== "PARTIAL") return "独立検証：成功";
-  return ["0.12", "0.13"].includes(result.schema_version) ? "独立検証：不足集計・最低人数を含む必須条件を確認済み" : "独立検証：不足集計・需要以外の必須条件を確認済み";
+  return ["0.12", "0.13", "0.14"].includes(result.schema_version) ? "独立検証：不足集計・最低人数を含む必須条件を確認済み" : "独立検証：不足集計・需要以外の必須条件を確認済み";
 }
 
 function renderShortages(pair) {
   const summary = pair.response.shortage_summary;
   if (!summary) return node("span");
   const roles = new Map(pair.input.roles.map(role => [role.id, role.label || role.id]));
-  const hasMinimum = ["0.12", "0.13"].includes(pair.input.schema_version);
+  const hasMinimum = ["0.12", "0.13", "0.14"].includes(pair.input.schema_version);
   const zone = pair.input.planning_window.timezone;
   const dateTime = new Intl.DateTimeFormat("ja-JP", {timeZone: zone, month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZoneName: "shortOffset"});
   const result = node("div", "", {}, [
@@ -330,10 +330,10 @@ function acceptResponse(response, request, requestBoundaries = boundaries) {
   if (success && !response.solution.assignments.every(item => item && request.employees.some(employee => employee.id === item.employee_id) &&
       request.roles.some(role => role.id === item.role_id) && requestBoundaries.some(value => Date.parse(value) === Date.parse(item.interval?.start)) &&
       requestBoundaries.some(value => Date.parse(value) === Date.parse(item.interval?.end)) && Date.parse(item.interval.start) < Date.parse(item.interval.end))) throw new Error("担当配置の参照または日時が不正です。");
-  if (!success && ["0.11", "0.12", "0.13"].includes(request.schema_version) && response.day_count_summary !== null) throw new Error("計画がない応答に日数集計があります。");
-  const hasPriority = ["0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13"].includes(request.schema_version);
-  if (["0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13"].includes(request.schema_version)) {
-    if (!success && ["0.9", "0.10", "0.11", "0.12", "0.13"].includes(request.schema_version) && (response.cost_summary !== null || response.duty_balance_summary !== null)) throw new Error("計画がない応答に費用・指定区間の集計があります。");
+  if (!success && ["0.11", "0.12", "0.13", "0.14"].includes(request.schema_version) && response.day_count_summary !== null) throw new Error("計画がない応答に日数集計があります。");
+  const hasPriority = ["0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14"].includes(request.schema_version);
+  if (["0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14"].includes(request.schema_version)) {
+    if (!success && ["0.9", "0.10", "0.11", "0.12", "0.13", "0.14"].includes(request.schema_version) && (response.cost_summary !== null || response.duty_balance_summary !== null)) throw new Error("計画がない応答に費用・指定区間の集計があります。");
     if (!success) { if (hasPriority && response.priority_summary !== null) throw new Error("計画がない応答にpriority集計があります。"); if (response.shortage_summary !== null) throw new Error("計画がない応答に不足集計があります。"); return; }
     const summary = response.shortage_summary;
     if (!summary || typeof summary.proven_minimal !== "boolean" || !Number.isSafeInteger(summary.total_person_minutes) || !Array.isArray(summary.shortages)) throw new Error("不足集計が不正です。");
@@ -354,7 +354,7 @@ function acceptResponse(response, request, requestBoundaries = boundaries) {
       let run = null;
       for (let i = positions.get(Date.parse(demand.interval.start)); i < positions.get(Date.parse(demand.interval.end)); i++) {
         const assigned = counts.get(`${demand.role_id}/${i}`) || 0, missing = demand.required_people - assigned;
-        const minimum = ["0.12", "0.13"].includes(request.schema_version) ? demand.minimum_people ?? 0 : 0;
+        const minimum = ["0.12", "0.13", "0.14"].includes(request.schema_version) ? demand.minimum_people ?? 0 : 0;
         if (assigned < minimum) throw new Error("応答が必須の最低人数を満たしていません。");
         if (missing < 0) throw new Error("応答に過剰配置があります。");
         counts.delete(`${demand.role_id}/${i}`);
@@ -363,12 +363,12 @@ function acceptResponse(response, request, requestBoundaries = boundaries) {
         if (run && run.end === grid[i] && run.assigned_people === assigned) run.end = grid[i + 1];
         else {
           run = {demand_id: demand.id, role_id: demand.role_id, start: grid[i], end: grid[i + 1], required_people: demand.required_people, assigned_people: assigned, missing_people: missing};
-          if (["0.12", "0.13"].includes(request.schema_version)) run.minimum_people = minimum;
+          if (["0.12", "0.13", "0.14"].includes(request.schema_version)) run.minimum_people = minimum;
           expected.push(run);
         }
       }
     }
-    const actual = summary.shortages.map(item => ({demand_id: item.demand_id, role_id: item.role_id, start: Date.parse(item.interval?.start), end: Date.parse(item.interval?.end), required_people: item.required_people, assigned_people: item.assigned_people, missing_people: item.missing_people, ...(["0.12", "0.13"].includes(request.schema_version) ? {minimum_people: item.minimum_people} : {})}));
+    const actual = summary.shortages.map(item => ({demand_id: item.demand_id, role_id: item.role_id, start: Date.parse(item.interval?.start), end: Date.parse(item.interval?.end), required_people: item.required_people, assigned_people: item.assigned_people, missing_people: item.missing_people, ...(["0.12", "0.13", "0.14"].includes(request.schema_version) ? {minimum_people: item.minimum_people} : {})}));
     const proofs = response.objectives.map(item => item.proven_optimal);
     if (hasPriority) {
       const groups = response.priority_summary?.groups;
@@ -602,7 +602,7 @@ async function calculateJSON() {
     ]);
     if (token !== generation) return;
     const input = JSON.parse(text);
-    const expected = {...input, schema_version: ["0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13"].includes(input?.schema_version) ? input.schema_version : "0.1", request_id: typeof input?.request_id === "string" ? input.request_id : null};
+    const expected = {...input, schema_version: ["0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14"].includes(input?.schema_version) ? input.schema_version : "0.1", request_id: typeof input?.request_id === "string" ? input.request_id : null};
     const requestBoundaries = ["OPTIMAL", "FEASIBLE", "PARTIAL"].includes(result.status) ?
       [input.planning_window.start, ...jsonSlots(input).map(slot => new Date(slot.end).toISOString())] : [];
     acceptResponse(result, expected, requestBoundaries);

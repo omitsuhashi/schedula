@@ -29,6 +29,7 @@ def coefficients(problem, duty):
         "0.11",
         "0.12",
         "0.13",
+        "0.14",
     } and problem.request.get("continuity"):
         intervals = duty_intervals(duty)
         values = {
@@ -108,7 +109,7 @@ def validate(problem):
         path = f"/duty_balance/{i}"
 
         def checked_interval(value, pointer):
-            if request["schema_version"] in {"0.10", "0.11", "0.12", "0.13"}:
+            if request["schema_version"] in {"0.10", "0.11", "0.12", "0.13", "0.14"}:
                 if request.get("continuity"):
                     return context_interval(value, grid, context_bounds(request, grid), pointer)
                 if (
@@ -214,7 +215,7 @@ def evaluate(request, grid, solution):
             "employees": employees,
         }
     if "duty_balance" in request:
-        if request["schema_version"] in {"0.10", "0.11", "0.12", "0.13"} and request.get(
+        if request["schema_version"] in {"0.10", "0.11", "0.12", "0.13", "0.14"} and request.get(
             "continuity"
         ):
             # Wに重なる確定勤務は解の原segmentsで一度数える。W外だけの事実を補う。

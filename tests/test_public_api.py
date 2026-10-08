@@ -63,6 +63,7 @@ def test_public_types_match_version_fields_and_literals():
             "0.11",
             "0.12",
             "0.13",
+            "0.14",
         ),
         (
             types.Request01,
@@ -78,6 +79,7 @@ def test_public_types_match_version_fields_and_literals():
             types.Request011,
             types.Request012,
             types.Request013,
+            types.Request014,
         ),
         strict=True,
     ):
@@ -99,6 +101,7 @@ def test_public_types_match_version_fields_and_literals():
         "0.11",
         "0.12",
         "0.13",
+        "0.14",
     }
     assert "PARTIAL" not in get_args(get_type_hints(types.Response01Success)["status"])
     assert "PARTIAL" in get_args(get_type_hints(types.Response04Success)["status"])
@@ -265,6 +268,42 @@ def test_installed_wheel_types_check_consumer_and_reject_typos(tmp_path):
         encoding="utf-8",
     )
     run(str(python), "-m", "mypy", "--strict", str(patterns_consumer))
+    coworkers_request = json.loads((ROOT / "examples/coworkers.json").read_text(encoding="utf-8"))
+    coworkers_solution = solve(coworkers_request)["solution"]
+    run(
+        str(python),
+        "-I",
+        "-c",
+        "import importlib.util, json, sys; "
+        "from shift_schedula import solve, verify, make_baseline; "
+        "assert importlib.util.find_spec('ortools') is None; "
+        "request, solution = map(json.loads, sys.argv[1:]); "
+        "assert verify(request, solution)['status'] == 'PARTIAL'; "
+        "assert make_baseline(request, solution, 'saved')['source_request']['constraints'] "
+        "== request['constraints']; "
+        "solution['shifts'] = [s for s in solution['shifts'] if s['employee_id'] != 'mentor_b']; "
+        "checked = verify(request, solution); "
+        "assert checked['status'] == 'INVALID_PLAN'; "
+        "assert any(v['code']=='REQUIRED_COWORKERS_VIOLATION' for v in checked['diagnostics']); "
+        "assert solve(request)['status'] == 'BACKEND_UNAVAILABLE'",
+        json.dumps(coworkers_request),
+        json.dumps(coworkers_solution),
+    )
+    coworkers_consumer = tmp_path / "coworkers_consumer.py"
+    coworkers_consumer.write_text(
+        patterns_consumer.read_text(encoding="utf-8")
+        .replace("Request013", "Request014")
+        .replace('"0.13"', '"0.14"')
+        + '        request["constraints"].append({"id": "training", '
+        '"type": "required_coworkers", "employee_ids": ["alice"], '
+        '"coworker_ids": ["bob"], "minimum_people": 1, '
+        '"interval": {"start": "", "end": ""}})\n'
+        + '        request["constraints"].append({"id": "separate", '
+        '"type": "incompatible_employees", "employee_ids": ["alice", "bob"], '
+        '"interval": {"start": "", "end": ""}})\n',
+        encoding="utf-8",
+    )
+    run(str(python), "-m", "mypy", "--strict", str(coworkers_consumer))
     invalid = tmp_path / "invalid_consumer.py"
     invalid.write_text(
         "from shift_schedula import Response\n"
