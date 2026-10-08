@@ -291,7 +291,7 @@ def normalize(request):
         context_bounds(request, grid)
         continuity_facts = facts(request, grid)
         absolute_available = availability(request, grid)
-    if request["schema_version"] in {"0.11", "0.12", "0.13"}:
+    if request["schema_version"] in {"0.11", "0.12", "0.13", "0.14"}:
         from .day_counts import validate as validate_day_counts
 
         validate_day_counts(request, grid)
@@ -396,6 +396,7 @@ def normalize(request):
                 "0.11",
                 "0.12",
                 "0.13",
+                "0.14",
             }:
                 priorities[slot, item["role_id"]] = int(item.get("priority", 0))
     costs = {}
@@ -425,10 +426,14 @@ def normalize(request):
         expansion_start = time.perf_counter()
         problem.candidates = expand_candidates(request, grid)
         expansion_seconds = time.perf_counter() - expansion_start
-    if request["schema_version"] == "0.13":
+    if request["schema_version"] in {"0.13", "0.14"}:
         from .shift_patterns import validate as validate_patterns
 
         validate_patterns(problem)
+    if request["schema_version"] == "0.14":
+        from .coworkers import validate as validate_coworkers
+
+        validate_coworkers(request, grid)
     if request["schema_version"] in {
         "0.2",
         "0.3",
@@ -442,12 +447,13 @@ def normalize(request):
         "0.11",
         "0.12",
         "0.13",
+        "0.14",
     }:
         from .diagnosis import validate_options
         from .extensions import validate
 
         validate(problem)
-        if request["schema_version"] in {"0.9", "0.10", "0.11", "0.12", "0.13"}:
+        if request["schema_version"] in {"0.9", "0.10", "0.11", "0.12", "0.13", "0.14"}:
             from .roster_metrics import validate as validate_metrics
 
             validate_metrics(problem)

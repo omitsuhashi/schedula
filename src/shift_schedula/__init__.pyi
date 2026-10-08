@@ -9,6 +9,7 @@ from .types import (
     Request011,
     Request012,
     Request013,
+    Request014,
     Request04,
     Request05,
     Request06,
@@ -56,7 +57,8 @@ def make_baseline(
     | Request010
     | Request011
     | Request012
-    | Request013,
+    | Request013
+    | Request014,
     solution: ExtendedSolution | ContinuitySolution,
     plan_id: str,
 ) -> Baseline: ...

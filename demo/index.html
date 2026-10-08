@@ -28,6 +28,7 @@
             <option value="roster">4人・2日の勤務計画</option>
             <option value="partial_roster">不足付きの勤務計画</option>
             <option value="shift_patterns">夜勤後の休み・勤務の並び・週末交代</option>
+            <option value="coworkers">新人と指導者の交代・同時勤務禁止</option>
             <option value="partial_assignment">不足付きの担当配置</option>
             <option value="lunch">6人の担当配置</option>
           </select>
@@ -35,7 +36,7 @@
           <label for="json-file">JSON ファイル</label>
           <input id="json-file" type="file" accept=".json,application/json">
         </div>
-        <p class="note">契約0.1〜0.13に対応。ファイル・本文は2 MiBまで。勤務計画と必須の最低人数には OR-Tools が必要です。</p>
+        <p class="note">契約0.1〜0.14に対応。ファイル・本文は2 MiBまで。勤務計画と必須の最低人数には OR-Tools が必要です。</p>
         <label for="json-input">計算する JSON</label>
         <textarea id="json-input" rows="12" spellcheck="false" required></textarea>
         <div class="actions"><button class="primary" id="json-calculate" type="submit">JSON で計算</button></div>

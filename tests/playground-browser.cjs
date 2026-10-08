@@ -330,7 +330,26 @@ async function jsonInputChecks(page) {
   assert.match(await page.locator("#json-output").innerText(), /INCOMPLETE_HISTORY/);
   assert.match(await page.locator("#json-output").innerText(), /判定に必要な期間：2026-10-03/);
   report.interactions.push("契約0.13の4パターンをサンプルから実計算し、必須下限とPARTIALの不足・余白不足の必要区間を表示");
-  for (const schema_version of ["0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13"]) {
+  await page.locator("#json-sample").selectOption("coworkers");
+  await page.locator("#json-load-sample").click();
+  await page.waitForFunction(() => document.getElementById("json-input").value.includes("coworkers_example"));
+  await page.locator("#json-calculate").click();
+  await page.waitForFunction(() => !busy);
+  const coworkersPair = await page.evaluate(() => jsonPair);
+  assert.ok(coworkersPair, await page.locator("#json-status").innerText());
+  assert.equal(coworkersPair.response.schema_version, "0.14");
+  assert.equal(coworkersPair.response.status, "PARTIAL");
+  assert.equal(coworkersPair.response.shortage_summary.total_person_minutes, 120);
+  assert.match(await page.locator("#json-output").innerText(), /待機/);
+  assert.match(await page.locator("#json-output").innerText(), /最低人数/);
+  coworkersPair.input.constraints[0].coworker_ids = ["trainee"];
+  await page.locator("#json-input").fill(JSON.stringify(coworkersPair.input));
+  await page.locator("#json-calculate").click();
+  await page.waitForFunction(() => !busy);
+  assert.equal(await page.evaluate(() => jsonPair.response.status), "INVALID_INPUT");
+  assert.match(await page.locator("#json-output").innerText(), /OVERLAPPING_EMPLOYEE_SETS/);
+  report.interactions.push("契約0.14の交代指導者・同時勤務禁止を実計算し、待機勤務・最低人数・PARTIALを表示、集合交差の入力不備を表示");
+  for (const schema_version of ["0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14"]) {
     const input = {...JSON.parse(readFileSync("examples/partial_assignment.json", "utf8")), schema_version};
     await page.locator("#json-input").fill(JSON.stringify(input));
     await page.locator("#json-calculate").click();

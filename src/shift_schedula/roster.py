@@ -21,6 +21,7 @@ def validate_history(request, grid):
         "0.11",
         "0.12",
         "0.13",
+        "0.14",
     }
     first_day = grid.start.astimezone(grid.timezone).date().toordinal()
     for index, employee in enumerate(request["employees"]):
@@ -98,6 +99,7 @@ def expand_candidates(request, grid):
         "0.11",
         "0.12",
         "0.13",
+        "0.14",
     }
     employees = {e["id"]: e for e in request["employees"]}
     available = (

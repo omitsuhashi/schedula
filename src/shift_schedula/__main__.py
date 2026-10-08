@@ -66,6 +66,7 @@ def main():
                     "0.11",
                     "0.12",
                     "0.13",
+                    "0.14",
                 }:
                     result["priority_summary"] = None
                 if result["schema_version"] in {
@@ -77,11 +78,12 @@ def main():
                     "0.11",
                     "0.12",
                     "0.13",
+                    "0.14",
                 }:
                     result["continuity_summary"] = None
-                if result["schema_version"] in {"0.9", "0.10", "0.11", "0.12", "0.13"}:
+                if result["schema_version"] in {"0.9", "0.10", "0.11", "0.12", "0.13", "0.14"}:
                     result.update(cost_summary=None, duty_balance_summary=None)
-                if result["schema_version"] in {"0.11", "0.12", "0.13"}:
+                if result["schema_version"] in {"0.11", "0.12", "0.13", "0.14"}:
                     result["day_count_summary"] = None
             else:
                 result = response(None, "INVALID_INPUT", diagnostics)
