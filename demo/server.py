@@ -7,7 +7,17 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from threading import Lock
 
-from shift_schedula import solve
+from shift_schedula import (
+    assemble,
+    check_record,
+    confirm_source,
+    import_request,
+    record_view,
+    run_draft,
+    solve,
+    split_request,
+)
+from shift_schedula.adapter import check_adapter
 from shift_schedula.contract import InvalidInput, load_json
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -49,6 +59,21 @@ FILES = {
         SAMPLES / "roster-100-30.json",
         "application/json; charset=utf-8",
     ),
+}
+FILES["/adapter.js"] = (ROOT / "demo" / "adapter.js", "text/javascript; charset=utf-8")
+for name in ("assignment", "roster", "partial_roster", "continuity_week", "unconfirmed"):
+    FILES[f"/samples/{name}.draft.json"] = (
+        ROOT / "examples" / "adapter" / f"{name}.draft.json",
+        "application/json; charset=utf-8",
+    )
+ADAPTER_PATHS = {
+    "/adapter/draft",
+    "/adapter/check",
+    "/adapter/confirm",
+    "/adapter/run",
+    "/adapter/verify",
+    "/adapter/import",
+    "/adapter/split",
 }
 MAX_BODY = 64 * 1024
 MAX_JSON_BODY = 2 * 1024 * 1024
@@ -144,6 +169,59 @@ def validate_demo(request):
                 require(interval["start"] < interval["end"], interval_pointer + "/end")
 
 
+def validate_adapter_display(request):
+    window = request["planning_window"]
+    from shift_schedula.contract import diagnostic, parse_datetime
+
+    slots = (parse_datetime(window["end"]) - parse_datetime(window["start"])).total_seconds() / (
+        window["slot_minutes"] * 60
+    )
+    if (
+        len(request["employees"]) > 100
+        or slots > 3000
+        or (parse_datetime(window["end"]) - parse_datetime(window["start"])).total_seconds()
+        > 30 * 86400
+    ):
+        raise InvalidInput([diagnostic("DEMO_LIMIT", "表示は100人・30日・3000枠までです。")])
+
+
+def adapter_action(path, value):
+    # ブラウザーにはパス解決/保存の入口を公開せず、受信JSONだけを処理する。
+    if path == "/adapter/draft":
+        check_adapter("draft", value)
+        return value
+    if path in {"/adapter/import", "/adapter/split"}:
+        return (import_request if path.endswith("import") else split_request)(value)
+    if path == "/adapter/confirm":
+        if not isinstance(value, dict) or set(value) != {"draft", "source_id"}:
+            raise InvalidInput(
+                [
+                    {
+                        "code": "INVALID_CONFIRMATION",
+                        "message": "入力候補と確認元IDを指定します。",
+                        "json_pointer": "",
+                        "related_ids": [],
+                        "facts": [],
+                    }
+                ]
+            )
+        return confirm_source(value["draft"], value["source_id"])
+    if path == "/adapter/verify":
+        record = check_record(value)
+        validate_adapter_display(record["request"])
+        return {
+            "record": record,
+            "view": record_view(record),
+            "draft": import_request(record["request"]),
+        }
+    assembled = assemble(value)
+    if assembled["request"] is None or path == "/adapter/check":
+        return assembled
+    validate_adapter_display(assembled["request"])
+    record = run_draft(value)
+    return {"record": record, "view": record_view(record)}
+
+
 class DemoServer(ThreadingHTTPServer):
     def __init__(self, port=8765):
         self.solve_lock = Lock()
@@ -214,7 +292,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if not self.allowed_origin():
             return
-        if self.path not in {"/solve", "/solve-json"}:
+        if self.path not in {"/solve", "/solve-json"} | ADAPTER_PATHS:
             self.error(404, "NOT_FOUND", "計算入口は /solve または /solve-json です。")
             return
         if self.headers.get_all("Transfer-Encoding"):
@@ -225,7 +303,7 @@ class Handler(BaseHTTPRequestHandler):
             self.error(400, "INVALID_BODY", "Content-Length を一つ指定してください。")
             return
         length = int(lengths[0])
-        limit = MAX_JSON_BODY if self.path == "/solve-json" else MAX_BODY
+        limit = MAX_BODY if self.path == "/solve" else MAX_JSON_BODY
         if length > limit:
             self.error(413, "BODY_TOO_LARGE", f"本文は{limit // 1024} KiB以下にしてください。")
             return
@@ -270,10 +348,15 @@ class Handler(BaseHTTPRequestHandler):
             return
         try:
             try:
-                result = solve(request)
+                if self.path in ADAPTER_PATHS:
+                    result = adapter_action(self.path, request)
+                else:
+                    result = solve(request)
             finally:
                 self.server.solve_lock.release()
             self.send_json(200, result)
+        except InvalidInput as error:
+            self.send_json(200, {"status": "INVALID_INPUT", "diagnostics": error.diagnostics})
         except Exception:
             self.error(500, "SERVER_ERROR", "実行入口で計算に失敗しました。再計算してください。")
 

@@ -58,10 +58,10 @@ OSのTZDB優先・tzdata fallbackと再現方法は[Pythonセットアップ](py
 ```sh
 uv build --wheel
 uv export --locked --extra cp-sat --no-dev --no-emit-project --output-file runtime-requirements.txt
-sha256sum dist/shift_schedula-0.1.5-py3-none-any.whl
+sha256sum dist/shift_schedula-0.1.6-py3-none-any.whl
 uv init --python 3.14 my-scheduler
 cd my-scheduler
-uv add --constraints ../runtime-requirements.txt '../dist/shift_schedula-0.1.5-py3-none-any.whl[cp-sat]'
+uv add --constraints ../runtime-requirements.txt '../dist/shift_schedula-0.1.6-py3-none-any.whl[cp-sat]'
 uv run python -c 'from shift_schedula import solve, verify, make_baseline, get_schema; print(get_schema("request", "0.4")["$id"])'
 ```
 
@@ -69,13 +69,13 @@ uv run python -c 'from shift_schedula import solve, verify, make_baseline, get_s
 利用側はそのwheel・SHA-256・採用したエンジン版・入出力契約版・自分のlock fileを保存する。
 uv自体の導入は[Pythonセットアップ](python-setup.md)を参照する。
 wheelの取得元を差し替えた場合はパスも明示して変更する。
-`schema_version` とエンジンの配布版は別で、本ソースから作る0.1.5のwheelは契約0.1〜0.8を同梱する。
+`schema_version` とエンジンの配布版は別で、本ソースから作る0.1.6のwheelは契約0.1〜0.15とAdapter形式1.0のSchemaを同梱する。
 新しい業務ルールは新契約版へ追加し、旧版の意味を黙って変更しない。
 候補件数上限の撤廃は受理範囲の拡大であり、保存済みSchemaは再取得する。
 
 ## sdistだけから利用・検証する
 
-`uv build --sdist` で `dist/shift_schedula-0.1.5.tar.gz` を作る。
+`uv build --sdist` で `dist/shift_schedula-0.1.6.tar.gz` を作る。
 利用者は空のディレクトリに展開し、その中の `pyproject.toml` がある場所で次を実行する。
 
 ```sh
@@ -110,7 +110,7 @@ CIの配布検証では、sdistを展開して作ったwheelを別環境に依�
 
 ```sh
 uv remove schedula
-uv add '../dist/shift_schedula-0.1.5-py3-none-any.whl[cp-sat]'
+uv add '../dist/shift_schedula-0.1.6-py3-none-any.whl[cp-sat]'
 uv run python -c 'from shift_schedula import solve, verify, make_baseline, get_schema; print(get_schema("request", "0.4")["$id"])'
 ```
 

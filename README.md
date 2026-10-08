@@ -88,6 +88,30 @@ uv run --locked --extra cp-sat python demo/server.py
 昼の休憩中は役割ごとの需要を10人、それ以外は20人と明示しています。
 探索予算30秒と総処理時間は別で、`FEASIBLE` は独立検証済み・最適性未証明として表示します。
 
+## 基本情報を再利用して入力・結果を保存する
+
+[分割入力と実行記録](docs/input-adapter.md)では、基本情報・期間非依存ルールを再利用し、
+今回の期間・勤務可能時間・日付付き条件を明示して一つの確定Requestへ組み立てます。
+確認は入力元ごとの値・改訂・期間・参照情報に結びつき、変更の影響を受けた確認だけが失効します。
+
+```sh
+uv run --locked --extra cp-sat python -m shift_schedula adapter assemble examples/adapter/assignment.manifest.json --request-only
+uv run --locked --extra cp-sat python -m shift_schedula adapter solve examples/adapter/assignment.manifest.json --output run.json
+uv run --locked python -m shift_schedula adapter verify-record run.json
+uv run --locked python -m shift_schedula adapter view run.json
+```
+
+実行記録は確定Request・Response・入力元・実行設定を一組で保持し、元マスターを移動しても再検証できます。
+既存ファイルは明示した `--overwrite` だけで置換できます。元入力と参照元は保護します。
+PARTIALは不足付きの有効な計画で終了コード2、再検証は最適性・不足最小性を付与しません。
+完全Requestからの移行は `adapter import`（出典不明のまま取り込み）または `adapter split`
+（区分別の未確認Draft）で行います。Schema・型・確認と省略・週替わり・失敗時の操作はリンク先を参照してください。
+
+デモ上部の「基本情報を再利用し、入力を確認・保存する」でも、JSON修正→入力元の個別確認→
+実計算→Draft/実行記録の保存→再読み込み/再検証を試せます。
+画面は入力元の診断と最小勤務表示に絞り、日常編集・比較・採用・SQLite保存はschedula-appの担当です。
+[結合検証と制限](docs/evaluations/input-adapter.md)に再実行手順と確認範囲を記録します。
+
 ## 不足を伴う計画を出力する
 
 ```sh

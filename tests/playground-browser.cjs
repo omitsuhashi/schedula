@@ -444,6 +444,103 @@ async function jsonInputChecks(page) {
   report.interactions.push("JSON のファイル入力・夜勤・分割勤務・解なし・入力不備・重複キー・不正UTF-8・日付切替・編集で結果を失効");
 }
 
+async function adapterChecks(page) {
+  const wait = text => page.waitForFunction(value => document.getElementById("adapter-status").textContent.includes(value) && !document.getElementById("adapter-check").disabled, text, {timeout: 120000});
+  await page.locator("#adapter-demo > summary").click();
+  await page.locator("#adapter-sample").selectOption("unconfirmed");
+  await page.locator("#adapter-load").click();
+  await wait("入力候補");
+  await page.locator("#adapter-check").click();
+  await wait("INVALID_INPUT");
+  assert.ok((await page.locator("#adapter-output").innerText()).includes("UNCONFIRMED_SOURCE"));
+  assert.ok((await page.locator("#adapter-output").innerText()).includes("/employees/0/availability"));
+  let draft = JSON.parse(await page.locator("#adapter-input").inputValue());
+  draft.unresolved = [];
+  await page.locator("#adapter-input").fill(JSON.stringify(draft));
+  await page.locator("#adapter-source").selectOption("basic");
+  await page.locator("#adapter-confirm").focus();
+  await page.keyboard.press("Enter");
+  await wait("入力候補");
+  await page.locator("#adapter-check").click();
+  await wait("VALIDです");
+  await page.locator("#adapter-run").click();
+  await wait("現在の検証 VALID");
+  const original = await page.evaluate(() => structuredClone(adapterRecord));
+  assert.equal(original.response.verification.valid, true);
+  assert.ok((await page.locator("#adapter-output").innerText()).includes(original.run_id));
+  const downloadPromise = page.waitForEvent("download");
+  await page.locator("#adapter-save-record").click();
+  const download = await downloadPromise;
+  const savedPath = await download.path();
+  const saved = JSON.parse(readFileSync(savedPath, "utf8"));
+  assert.deepEqual(saved, original);
+  draft = JSON.parse(await page.locator("#adapter-input").inputValue());
+  const period = draft.sources.find(s => s.section === "period");
+  period.data.employees[0].availability = [];
+  await page.locator("#adapter-input").fill(JSON.stringify(draft));
+  assert.equal(await page.evaluate(() => adapterRecord), null);
+  await page.locator("#adapter-check").click();
+  await wait("INVALID_INPUT");
+  const states = await page.evaluate(() => JSON.parse(document.querySelector("#adapter-output details pre").textContent));
+  assert.equal(states.find(s => s.source_id === "period").state, "stale");
+  assert.equal(states.find(s => s.source_id === "basic").state, "confirmed");
+  await page.locator("#adapter-file").setInputFiles(savedPath);
+  await wait("現在の検証 VALID");
+  assert.deepEqual(await page.evaluate(() => adapterRecord), saved);
+  const input = await page.locator("#adapter-input").inputValue();
+  await page.locator("#adapter-file").setInputFiles({name:"bad.json",mimeType:"application/json",buffer:Buffer.from([255])});
+  await wait("処理できませんでした");
+  assert.equal(await page.locator("#adapter-input").inputValue(), input);
+  await page.locator("#adapter-reverify").click();
+  await wait("現在の検証 VALID");
+  assert.deepEqual(await page.evaluate(() => adapterRecord), saved);
+  await page.locator("#adapter-sample").selectOption("partial_roster");
+  await page.locator("#adapter-load").click();
+  await wait("入力候補");
+  await page.locator("#adapter-run").click();
+  await wait("現在の検証 PARTIAL");
+  assert.ok((await page.locator("#adapter-output").innerText()).includes("不足あり"));
+  const partial = await page.evaluate(() => structuredClone(adapterRecord));
+  assert.equal(partial.response.shortage_summary.proven_minimal, true);
+  const detailsText = await page.locator("#adapter-output details").first().locator("pre").innerText();
+  assert.equal(JSON.parse(detailsText).metrics.shortage_summary.proven_minimal, false);
+  for (const state of ["UNKNOWN", "INFEASIBLE", "INTERNAL_ERROR"]) {
+    // 状態表示用サンプル。実求解の証拠として数えない。
+    await page.route("**/adapter/run", async route => {
+      const record = structuredClone(partial);
+      record.response = {...record.response, status:state, solution:null, objectives:[], shortage_summary:null,
+        verification:{performed:false,valid:null,violations:[]}};
+      const view = {run_id:record.run_id,original_status:state,current_status:"NOT_PERFORMED",demand_satisfied:null,
+        solution:null,metrics:{},diagnostics:[],original_evidence:record.response};
+      await route.fulfill({json:{record,view}});
+    });
+    await page.locator("#adapter-run").click();
+    await wait(`${state} · 現在の検証 NOT_PERFORMED`);
+    assert.equal(await page.locator("#adapter-output table").count(), 0);
+    await page.unroute("**/adapter/run");
+    report.response_samples.push(`adapter-${state}`);
+  }
+  await page.locator("#adapter-input").fill(JSON.stringify(draft));
+  let release;
+  const released = new Promise(resolve => {release = resolve;});
+  await page.route("**/adapter/check", async route => {
+    await released;
+    try { await route.fulfill({json:{status:"VALID",request:original.request,provenance:{},diagnostics:[],confirmations:[]}}); } catch { /* 編集で失効した応答 */ }
+  });
+  await page.locator("#adapter-check").click();
+  await page.locator("#adapter-input").fill(JSON.stringify({...draft,assumptions:["新しい編集"]}));
+  release();
+  await page.waitForTimeout(100);
+  assert.ok((await page.locator("#adapter-status").innerText()).includes("入力を変更"));
+  assert.equal(await page.evaluate(() => adapterRecord), null);
+  await page.unroute("**/adapter/check");
+  await page.setViewportSize({width:390,height:844});
+  assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  await page.screenshot({path:"test-results/adapter-mobile.png",fullPage:true});
+  await page.setViewportSize({width:1440,height:1000});
+  report.interactions.push("分割入力の未確認修正・個別確認・実計算・記録ダウンロード/再読み込み・失敗時の入力保持・再検証・PARTIALと過去の証明・古い応答の排除・キーボード/狭い画面");
+}
+
 async function main() {
   mkdirSync("test-results", {recursive: true});
   let url = process.env.PLAYGROUND_URL;
@@ -685,6 +782,7 @@ async function main() {
   await verified(page, {status: "OPTIMAL", assigned_slots: 22});
   report.response_samples.push("待機期限（テスト時のみ100msに短縮）・期限後応答の拒否・復帰");
   await jsonInputChecks(page);
+  await adapterChecks(page);
   assert.deepEqual(errors, []);
   report.page_errors = errors;
   writeFileSync("test-results/playground-browser.json", JSON.stringify(report, null, 2) + "\n");

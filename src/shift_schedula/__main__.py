@@ -3,7 +3,7 @@ import json
 import sys
 from pathlib import Path
 
-from . import get_schema, solve, verify
+from . import adapter_cli, get_schema, solve, verify
 from .contract import SCHEMA_VERSIONS, InvalidInput, diagnostic, load_json, schema_version_of
 from .engine import response, validate_response
 
@@ -19,7 +19,10 @@ def main():
     schema_parser = commands.add_parser("schema")
     schema_parser.add_argument("kind", choices=["request", "response", "solution", "verification"])
     schema_parser.add_argument("--schema-version", choices=SCHEMA_VERSIONS, default="0.1")
+    adapter_cli.register(commands)
     args = parser.parse_args()
+    if args.command == "adapter":
+        return adapter_cli.handle(args)
     if args.command == "schema":
         result, exit_code = get_schema(args.kind, args.schema_version), 0
     else:
