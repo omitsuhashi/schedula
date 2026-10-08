@@ -53,6 +53,10 @@ OR-Toolsを導入しない隔離wheelでも下限の公開verifyはPARTIAL/INVAL
 sdist由来の隔離導入と中核テスト再実行も初回全体実行で成功している。
 最終commitの全体実行はPRのGitHub CIを正本とし、実行URLと件数をPRに記録する。
 
+初回CIは1655成功・1失敗・6 subtests成功、201.13秒だった。
+失敗はsdistから除外する評価JSONへの相対リンクを新規文書に記載したため。
+評価JSONを含む固定commitのGitHub URLへ修正し、配布物内のリンクを再検証した。
+
 Chromiumで担当配置/勤務計画の0.12実計算、最低人数・不足の表示、下限違反と不足一覧の改ざん拒否を確認した。
 既存3シナリオ・100人30日・キーボード・狭い画面・応答失効も成功した。
 ブラウザーの改ざん検出テストでは初回にフォームの時刻境界を使用して別の違反を検出したため、
@@ -65,7 +69,7 @@ Ruff hooks・Node構文確認・`bash -n scripts/deploy`・`git diff --check` �
 
 ## 固定ソースの反復評価
 
-[生の評価結果](results/2026-10-08-minimum-demand.json)は、実装commit
+[生の評価結果](https://github.com/omitsuhashi/schedula/blob/64475fe5a52463afe94d83f7b7baf2fbe604d85f/docs/evaluations/results/2026-10-08-minimum-demand.json)は、実装commit
 `4b9a7501c457fa49801a3a80d1900458daf9a759` のGit archiveを読み込んで取得した。
 ソースはdirty=false、ソースツリーSHA-256は
 `34b3f65380b09009d9724f9fe8f682a5dab2cfe5e6013b4e5a2aae8591ee7868`。
