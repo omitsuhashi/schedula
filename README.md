@@ -5,7 +5,7 @@ Python の配布名は `shift-schedula`、import 名は `shift_schedula` です�
 
 技能・勤務可能時間・役割別需要・業務ルールから、担当配置（`assignment`）と
 出退勤・休憩を含む勤務計画（`roster`）の検証済み解を求める Python ライブラリと CLI です。
-JSON 契約0.1〜0.8に対応し、独立した配置は最小費用流、
+JSON 契約0.1〜0.9に対応し、独立した配置は最小費用流、
 担当時間・担当切替を含む配置と勤務計画は CP-SAT を使用します。
 
 独自コード・文書・デモは[MIT](LICENSE)で、自力導入・組み込み・商用利用ができます。
@@ -73,7 +73,7 @@ uv run --locked python demo/server.py
 再実行コマンドと検証結果は[デモの検証記録](docs/evaluations/playground.md)を参照してください。
 
 画面上部の「JSON で担当配置・勤務計画を計算する」を開くと、JSON の貼り付け・
-UTF-8 ファイルの読み込み（2 MiBまで）から、契約0.1〜0.8の入力を実行できます。
+UTF-8 ファイルの読み込み（2 MiBまで）から、契約0.1〜0.9の入力を実行できます。
 「100人・30日・30分刻みの勤務計画」を選び、「サンプルを読み込む」→「JSON で計算」を押します。
 結果の日付を選ぶと、100人分の担当・休憩・待機・勤務なしと役割別の需要充足を確認できます。
 
@@ -131,6 +131,14 @@ uv run --locked python -m shift_schedula verify examples/roster_conditions.json 
 合成入力の実測は[結合・規模評価](docs/evaluations/roster-conditions.md)を参照してください。
 
 ## 入力を作る
+
+勤務費用と夜勤・休日の目標偏差は[契約0.9](docs/io-contract-roster-metrics.md)で指定できます。
+明示した整数分単価と、指定区間に重なる勤務分数から独立集計し、目的の配列順で比較します。
+
+```sh
+uv run --locked --extra cp-sat python -m shift_schedula solve examples/scheduled_cost.json
+uv run --locked --extra cp-sat python -m shift_schedula solve examples/duty_balance.json
+```
 
 次を `request.json` として UTF-8 で保存すれば、1人・1役割の担当配置を実行できます。
 ID は種類ごとに一意にし、参照先を登録します。不要な配列も `[]` を明示してください。
@@ -231,7 +239,7 @@ PY
 | --- | --- | --- |
 | `OPTIMAL` | 検証成功を確認して解を採用する。指定した条件・候補・粒度・目的の範囲で最適 | 0 |
 | `FEASIBLE` | 検証成功と未証明の目的を確認し、採用または探索予算を増やして再計算する | 0 |
-| `PARTIAL` | 契約0.3〜0.8の未完成の計画。不足一覧・合計人分・`proven_minimal` を読み、需要充足と検証成功を区別する | 2 |
+| `PARTIAL` | 契約0.3〜0.9の未完成の計画。不足一覧・合計人分・`proven_minimal` を読み、需要充足と検証成功を区別する | 2 |
 | `INFEASIBLE` | 必須条件を満たす解がないと証明された。0.3では需要不足を許容しても計画を作れない。診断を確認する | 2 |
 | `UNKNOWN` | 解も不可能性の証明もない。予算や問題規模を見直す | 2 |
 | `INVALID_INPUT` | `code` / `json_pointer` / `related_ids` / `facts` を基に入力を修正する | 2 |
@@ -239,7 +247,7 @@ PY
 | `INTERNAL_ERROR` | 解を採用せず、入力・エンジン版・診断を保存して調査する | 2 |
 
 解を返すのは独立検証に成功した `OPTIMAL` / `FEASIBLE` / `PARTIAL` だけです。
-0.1・0.2は完全充足を求め、0.3〜0.8だけが元需要を保持した不足付き計画を許容します。
+0.1・0.2は完全充足を求め、0.3〜0.9だけが元需要を保持した不足付き計画を許容します。
 それ以外は `solution: null` / `objectives: []`。終了コード2だけでは状態を区別できません。
 `message` は補助説明で、プログラムでは `status` と診断の `code` で分岐します。
 次の2例は意図的に終了コード2となります。

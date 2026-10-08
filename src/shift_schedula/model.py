@@ -162,6 +162,14 @@ def unique(items, field, path):
     return seen
 
 
+def objective_key(objective):
+    return (
+        (objective["metric"], objective["duty_id"])
+        if "duty_id" in objective
+        else objective["metric"]
+    )
+
+
 def reference(identifier, identifiers, path):
     if identifier not in identifiers:
         reject("UNKNOWN_REFERENCE", "参照先の ID がありません。", path, [identifier])
@@ -206,7 +214,18 @@ def normalize(request):
             "objectives",
         )
     }
-    metrics = unique(request["objectives"], "metric", "/objectives")
+    keys = set()
+    for index, objective in enumerate(request["objectives"]):
+        key = objective_key(objective)
+        if key in keys:
+            reject(
+                "DUPLICATE_ID",
+                "ID が重複しています。",
+                f"/objectives/{index}/metric",
+                [objective["metric"]],
+            )
+        keys.add(key)
+    metrics = {o["metric"] for o in request["objectives"]}
     for index, objective in enumerate(request["objectives"]):
         if not roster and objective["metric"] not in {"preference_penalty", "role_switches"}:
             reject(
@@ -350,7 +369,7 @@ def normalize(request):
                     [item["id"], item["role_id"]],
                 )
             demand[slot][item["role_id"]] = int(item["required_people"])
-            if request["schema_version"] in {"0.5", "0.6", "0.7", "0.8"}:
+            if request["schema_version"] in {"0.5", "0.6", "0.7", "0.8", "0.9"}:
                 priorities[slot, item["role_id"]] = int(item.get("priority", 0))
     costs = {}
     for index, item in enumerate(request["preferences"]):
@@ -378,11 +397,15 @@ def normalize(request):
         expansion_start = time.perf_counter()
         problem.candidates = expand_candidates(request, grid)
         expansion_seconds = time.perf_counter() - expansion_start
-    if request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8"}:
+    if request["schema_version"] in {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9"}:
         from .diagnosis import validate_options
         from .extensions import validate
 
         validate(problem)
+        if request["schema_version"] == "0.9":
+            from .roster_metrics import validate as validate_metrics
+
+            validate_metrics(problem)
         validate_options(request)
         bounds = [
             slots * len(ids["employees"]) * max(costs.values(), default=0)

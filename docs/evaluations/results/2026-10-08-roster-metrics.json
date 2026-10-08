@@ -1,0 +1,856 @@
+{
+  "measured_at": "2026-10-08T00:30:25.910316+00:00",
+  "command": [
+    "scripts/evaluate.py",
+    "examples/scheduled_cost.json",
+    "examples/duty_balance.json",
+    "--output",
+    "docs/evaluations/results/2026-10-08-roster-metrics.json"
+  ],
+  "source": {
+    "commit": "c4c2c65e19ed17a8052bb7fce4f835d2c9ea0d96",
+    "dirty": true,
+    "snapshot": "working_tree_copy",
+    "source_directory": null,
+    "source_tree_sha256": "1cfe3aa9ab1f6ff469fa2e7d963de70e76403e76c4910f5b0096a081ac22fafe",
+    "runner_sha256": "ac2b5288203ac60e229aa76263b402ff65f1512e87fee327e74a5859bf958c74",
+    "uv_lock_sha256": "b848a99532d8d329e6b18c35257ec158ff829b111fe0b98a3381904cb7703cd7",
+    "package_version": "0.1.5"
+  },
+  "conditions": {
+    "mode": "cold",
+    "repeat": 1,
+    "processes": 1,
+    "worker_processes_started": 2,
+    "worker_timeout_seconds": 60,
+    "time_limit_seconds_override": null,
+    "quantile_method": "nearest_rank",
+    "cold_definition": "新規 Python プロセス。OS のファイルキャッシュは消去しない。"
+  },
+  "environment": {
+    "platform": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "cpu_count": 8,
+    "python": "3.14.8 (main, Oct  3 2026, 00:54:40) [Clang 22.1.3 ]",
+    "uv": "uv 0.12.23 (46b84fd0b 2026-10-03 aarch64-apple-darwin)",
+    "packages": {
+      "PyYAML": "6.0.3",
+      "Pygments": "2.21.0",
+      "absl-py": "2.5.0",
+      "ast_serialize": "0.12.1",
+      "attrs": "26.1.0",
+      "cfgv": "3.5.0",
+      "distlib": "0.4.3",
+      "filelock": "4.0.10",
+      "identify": "2.6.20",
+      "immutabledict": "4.3.1",
+      "iniconfig": "2.3.0",
+      "jsonschema": "4.26.0",
+      "jsonschema-specifications": "2025.9.1",
+      "librt": "0.16.0",
+      "mypy": "2.4.0",
+      "mypy_extensions": "1.1.0",
+      "nodeenv": "1.11.0",
+      "numpy": "2.5.3",
+      "ortools": "9.15.6755",
+      "packaging": "26.3",
+      "pandas": "3.0.6",
+      "pathspec": "1.1.1",
+      "platformdirs": "4.12.3",
+      "pluggy": "1.6.0",
+      "pre_commit": "4.6.2",
+      "protobuf": "6.33.6",
+      "pytest": "9.1.1",
+      "python-dateutil": "2.9.0.post0",
+      "python-discovery": "1.6.1",
+      "referencing": "0.37.0",
+      "rpds-py": "2026.6.3",
+      "ruff": "0.16.10",
+      "shift-schedula": "0.1.5",
+      "six": "1.17.0",
+      "typing_extensions": "4.16.0",
+      "tzdata": "2026.5",
+      "virtualenv": "21.14.5"
+    }
+  },
+  "measurements": [
+    {
+      "input_file": "examples/scheduled_cost.json",
+      "input_sha256": "4ed530d68b2c33a1e0114a3214d75e92f3f04e69e7add874982cd6b3bb042623",
+      "problem_type": "roster",
+      "employees": 2,
+      "roles": 2,
+      "days": 1.0,
+      "slot_minutes": 30,
+      "slots": 48,
+      "candidates": 2,
+      "objective_order": [
+        "scheduled_cost",
+        "preference_penalty"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.5",
+        "library_version": "9.15.6755",
+        "selection_reason": "JOINT_ROSTER"
+      },
+      "schema_version": "0.9",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "OPTIMAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "cost",
+          "metric": "scheduled_cost",
+          "value": 108000,
+          "proven_optimal": true
+        },
+        {
+          "id": "wishes",
+          "metric": "preference_penalty",
+          "value": 60,
+          "proven_optimal": true
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "cost",
+          "metric": "scheduled_cost",
+          "value": 108000,
+          "proven_optimal": true,
+          "best_bound": 108000.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "wishes",
+          "metric": "preference_penalty",
+          "value": 60,
+          "proven_optimal": true,
+          "best_bound": 60.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 10
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.004399375000502914
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.04077050002524629
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.2114367089816369
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.0004832909908145666
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.016100000008009374
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 5.4791977163404226e-05
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.04071133304387331
+            }
+          ]
+        },
+        {
+          "code": "SHORTAGE_BOUND",
+          "message": "不足合計人分の探索下限です。",
+          "json_pointer": "/shortage_summary",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "cost"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 108000.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/1",
+          "related_ids": [
+            "wishes"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 1
+            },
+            {
+              "name": "best_bound",
+              "value": 60.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": null,
+      "cost_summary": {
+        "currency": "JPY",
+        "units_per_currency": 60,
+        "evaluation_period": {
+          "start": "2026-10-07T00:00:00+09:00",
+          "end": "2026-10-08T00:00:00+09:00"
+        },
+        "total_units": 108000,
+        "employees": [
+          {
+            "employee_id": "alice",
+            "units_per_minute": 1800,
+            "scheduled_minutes": 60,
+            "cost_units": 108000
+          },
+          {
+            "employee_id": "bob",
+            "units_per_minute": 2400,
+            "scheduled_minutes": 0,
+            "cost_units": 0
+          }
+        ]
+      },
+      "duty_balance_summary": null,
+      "shortage_summary": {
+        "total_person_minutes": 0,
+        "shortages": [],
+        "proven_minimal": true
+      },
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 10,
+        "search_elapsed_seconds": 0.004399375000502914,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.04077050002524629,
+        "backend_loading_elapsed_seconds": 0.2114367089816369,
+        "preparation_elapsed_seconds": 0.0004832909908145666,
+        "verification_elapsed_seconds": 0.016100000008009374,
+        "candidate_expansion_elapsed_seconds": 5.4791977163404226e-05,
+        "input_validation_elapsed_seconds": 0.04071133304387331
+      },
+      "assignments": 1,
+      "shifts": 1,
+      "import_seconds": 0.050760708982124925,
+      "input_seconds": 0.0001652910141274333,
+      "elapsed_seconds": 0.3127403339603916,
+      "request_elapsed_seconds": 0.36366633395664394,
+      "engine_elapsed_seconds": 0.3127348750131205,
+      "metadata_seconds": 0.000682624988257885,
+      "peak_rss_mib": 108.1875,
+      "group": 1,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "examples/duty_balance.json",
+      "input_sha256": "b6a1ed556e1b7d338d42abc1de9b3aa99dd27daadd262ba596edca95f8dc3a18",
+      "problem_type": "roster",
+      "employees": 2,
+      "roles": 2,
+      "days": 2.0,
+      "slot_minutes": 30,
+      "slots": 96,
+      "candidates": 8,
+      "objective_order": [
+        "duty_deviation_minutes",
+        "preference_penalty",
+        "scheduled_cost"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.1.5",
+        "library_version": "9.15.6755",
+        "selection_reason": "JOINT_ROSTER"
+      },
+      "schema_version": "0.9",
+      "replan_mode": null,
+      "baseline_plan_id": "first_day",
+      "status": "OPTIMAL",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "balance_night",
+          "metric": "duty_deviation_minutes",
+          "duty_id": "night",
+          "value": 0,
+          "proven_optimal": true
+        },
+        {
+          "id": "wishes",
+          "metric": "preference_penalty",
+          "value": 240,
+          "proven_optimal": true
+        },
+        {
+          "id": "cost",
+          "metric": "scheduled_cost",
+          "value": 2016000,
+          "proven_optimal": true
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "balance_night",
+          "metric": "duty_deviation_minutes",
+          "duty_id": "night",
+          "value": 0,
+          "proven_optimal": true,
+          "best_bound": 0.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "wishes",
+          "metric": "preference_penalty",
+          "value": 240,
+          "proven_optimal": true,
+          "best_bound": 240.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "cost",
+          "metric": "scheduled_cost",
+          "value": 2016000,
+          "proven_optimal": true,
+          "best_bound": 2016000.0,
+          "absolute_gap": 0,
+          "relative_gap": 0.0,
+          "bound_scope": "fixed_optimal_prefix"
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 10
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 0.009055625007022172
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.0455003340030089
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.2076143749873154
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.0020140829728916287
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.0047332909889519215
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 0.00011066696606576443
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.04538587498245761
+            }
+          ]
+        },
+        {
+          "code": "SHORTAGE_BOUND",
+          "message": "不足合計人分の探索下限です。",
+          "json_pointer": "/shortage_summary",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "balance_night"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/1",
+          "related_ids": [
+            "wishes"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 1
+            },
+            {
+              "name": "best_bound",
+              "value": 240.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/2",
+          "related_ids": [
+            "cost"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 2
+            },
+            {
+              "name": "best_bound",
+              "value": 2016000.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": {
+        "plan_id": "first_day",
+        "unit": "slot_components",
+        "work_changes": 16,
+        "role_changes": 16,
+        "total_changes": 32,
+        "comparison_interval": {
+          "start": "2026-10-07T00:00:00+09:00",
+          "end": "2026-10-09T00:00:00+09:00"
+        },
+        "slot_minutes": 30
+      },
+      "continuity_summary": null,
+      "cost_summary": {
+        "currency": "JPY",
+        "units_per_currency": 60,
+        "evaluation_period": {
+          "start": "2026-10-07T00:00:00+09:00",
+          "end": "2026-10-09T00:00:00+09:00"
+        },
+        "total_units": 2016000,
+        "employees": [
+          {
+            "employee_id": "alice",
+            "units_per_minute": 1800,
+            "scheduled_minutes": 480,
+            "cost_units": 864000
+          },
+          {
+            "employee_id": "bob",
+            "units_per_minute": 2400,
+            "scheduled_minutes": 480,
+            "cost_units": 1152000
+          }
+        ]
+      },
+      "duty_balance_summary": [
+        {
+          "duty_id": "night",
+          "label": "夜勤",
+          "evaluation_period": {
+            "start": "2026-10-07T00:00:00+09:00",
+            "end": "2026-10-09T00:00:00+09:00"
+          },
+          "intervals": [
+            {
+              "start": "2026-10-07T20:00:00+09:00",
+              "end": "2026-10-08T00:00:00+09:00"
+            },
+            {
+              "start": "2026-10-08T20:00:00+09:00",
+              "end": "2026-10-09T00:00:00+09:00"
+            }
+          ],
+          "unit": "minutes",
+          "scale": "absolute_deviation",
+          "normalized": false,
+          "total_deviation_minutes": 0,
+          "employees": [
+            {
+              "employee_id": "alice",
+              "target_minutes": 240,
+              "actual_minutes": 240,
+              "deviation_minutes": 0
+            },
+            {
+              "employee_id": "bob",
+              "target_minutes": 240,
+              "actual_minutes": 240,
+              "deviation_minutes": 0
+            }
+          ]
+        }
+      ],
+      "shortage_summary": {
+        "total_person_minutes": 0,
+        "shortages": [],
+        "proven_minimal": true
+      },
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 10,
+        "search_elapsed_seconds": 0.009055625007022172,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.0455003340030089,
+        "backend_loading_elapsed_seconds": 0.2076143749873154,
+        "preparation_elapsed_seconds": 0.0020140829728916287,
+        "verification_elapsed_seconds": 0.0047332909889519215,
+        "candidate_expansion_elapsed_seconds": 0.00011066696606576443,
+        "input_validation_elapsed_seconds": 0.04538587498245761
+      },
+      "assignments": 4,
+      "shifts": 4,
+      "import_seconds": 0.0298102920060046,
+      "input_seconds": 0.00048004096606746316,
+      "elapsed_seconds": 0.31212029204471037,
+      "request_elapsed_seconds": 0.34241062501678243,
+      "engine_elapsed_seconds": 0.3121122500160709,
+      "metadata_seconds": 0.003579457988962531,
+      "peak_rss_mib": 108.3125,
+      "group": 1,
+      "iteration": 1,
+      "mode": "cold",
+      "execution": "cold_initial"
+    }
+  ],
+  "workers": [
+    {
+      "input_file": "examples/scheduled_cost.json",
+      "group": 1,
+      "elapsed_seconds": 0.4623220410430804,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    },
+    {
+      "input_file": "examples/duty_balance.json",
+      "group": 1,
+      "elapsed_seconds": 0.44244241702836007,
+      "completed": 1,
+      "failure": null,
+      "timeout_seconds": 60
+    }
+  ],
+  "summaries": [
+    {
+      "input_file": "examples/scheduled_cost.json",
+      "attempts": 1,
+      "statuses": {
+        "OPTIMAL": 1
+      },
+      "verified_solutions": 1,
+      "complete_solutions": 1,
+      "solution_rate": 1.0,
+      "verified_suggestions": 0,
+      "statistics": {
+        "elapsed_seconds": {
+          "samples": 1,
+          "mean": 0.3127403339603916,
+          "median": 0.3127403339603916,
+          "p95": 0.3127403339603916,
+          "maximum": 0.3127403339603916
+        },
+        "request_elapsed_seconds": {
+          "samples": 1,
+          "mean": 0.36366633395664394,
+          "median": 0.36366633395664394,
+          "p95": 0.36366633395664394,
+          "maximum": 0.36366633395664394
+        },
+        "peak_rss_mib": {
+          "samples": 1,
+          "mean": 108.1875,
+          "median": 108.1875,
+          "p95": 108.1875,
+          "maximum": 108.1875
+        }
+      },
+      "first_request_elapsed_seconds": {
+        "samples": 1,
+        "mean": 0.36366633395664394,
+        "median": 0.36366633395664394,
+        "p95": 0.36366633395664394,
+        "maximum": 0.36366633395664394
+      },
+      "continued_request_elapsed_seconds": {
+        "samples": 0,
+        "mean": null,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "process_elapsed_seconds": {
+        "samples": 1,
+        "mean": 0.4623220410430804,
+        "median": 0.4623220410430804,
+        "p95": 0.4623220410430804,
+        "maximum": 0.4623220410430804
+      },
+      "objective_quality": [
+        {
+          "id": "cost",
+          "metric": "scheduled_cost",
+          "observed_values": {
+            "samples": 1,
+            "mean": 108000,
+            "median": 108000,
+            "p95": 108000,
+            "maximum": 108000
+          },
+          "proven_count": 1,
+          "relative_gap": {
+            "samples": 1,
+            "mean": 0.0,
+            "median": 0.0,
+            "p95": 0.0,
+            "maximum": 0.0
+          }
+        },
+        {
+          "id": "wishes",
+          "metric": "preference_penalty",
+          "observed_values": {
+            "samples": 1,
+            "mean": 60,
+            "median": 60,
+            "p95": 60,
+            "maximum": 60
+          },
+          "proven_count": 1,
+          "relative_gap": {
+            "samples": 1,
+            "mean": 0.0,
+            "median": 0.0,
+            "p95": 0.0,
+            "maximum": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "input_file": "examples/duty_balance.json",
+      "attempts": 1,
+      "statuses": {
+        "OPTIMAL": 1
+      },
+      "verified_solutions": 1,
+      "complete_solutions": 1,
+      "solution_rate": 1.0,
+      "verified_suggestions": 0,
+      "statistics": {
+        "elapsed_seconds": {
+          "samples": 1,
+          "mean": 0.31212029204471037,
+          "median": 0.31212029204471037,
+          "p95": 0.31212029204471037,
+          "maximum": 0.31212029204471037
+        },
+        "request_elapsed_seconds": {
+          "samples": 1,
+          "mean": 0.34241062501678243,
+          "median": 0.34241062501678243,
+          "p95": 0.34241062501678243,
+          "maximum": 0.34241062501678243
+        },
+        "peak_rss_mib": {
+          "samples": 1,
+          "mean": 108.3125,
+          "median": 108.3125,
+          "p95": 108.3125,
+          "maximum": 108.3125
+        }
+      },
+      "first_request_elapsed_seconds": {
+        "samples": 1,
+        "mean": 0.34241062501678243,
+        "median": 0.34241062501678243,
+        "p95": 0.34241062501678243,
+        "maximum": 0.34241062501678243
+      },
+      "continued_request_elapsed_seconds": {
+        "samples": 0,
+        "mean": null,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "process_elapsed_seconds": {
+        "samples": 1,
+        "mean": 0.44244241702836007,
+        "median": 0.44244241702836007,
+        "p95": 0.44244241702836007,
+        "maximum": 0.44244241702836007
+      },
+      "objective_quality": [
+        {
+          "id": "balance_night",
+          "metric": "duty_deviation_minutes",
+          "observed_values": {
+            "samples": 1,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "maximum": 0
+          },
+          "proven_count": 1,
+          "relative_gap": {
+            "samples": 1,
+            "mean": 0.0,
+            "median": 0.0,
+            "p95": 0.0,
+            "maximum": 0.0
+          }
+        },
+        {
+          "id": "wishes",
+          "metric": "preference_penalty",
+          "observed_values": {
+            "samples": 1,
+            "mean": 240,
+            "median": 240,
+            "p95": 240,
+            "maximum": 240
+          },
+          "proven_count": 1,
+          "relative_gap": {
+            "samples": 1,
+            "mean": 0.0,
+            "median": 0.0,
+            "p95": 0.0,
+            "maximum": 0.0
+          }
+        },
+        {
+          "id": "cost",
+          "metric": "scheduled_cost",
+          "observed_values": {
+            "samples": 1,
+            "mean": 2016000,
+            "median": 2016000,
+            "p95": 2016000,
+            "maximum": 2016000
+          },
+          "proven_count": 1,
+          "relative_gap": {
+            "samples": 1,
+            "mean": 0.0,
+            "median": 0.0,
+            "p95": 0.0,
+            "maximum": 0.0
+          }
+        }
+      ]
+    }
+  ]
+}

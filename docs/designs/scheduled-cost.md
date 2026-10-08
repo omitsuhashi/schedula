@@ -1,6 +1,7 @@
 # 明示した勤務費用の契約案
 
-[#69](https://github.com/omitsuhashi/schedula/issues/69)の仕様案。
+[#69](https://github.com/omitsuhashi/schedula/issues/69)の採用仕様。
+[#77](https://github.com/omitsuhashi/schedula/issues/77)で[契約0.9](../io-contract-roster-metrics.md)へ実装した。
 同じ不足・必須条件の下で勤務費用を比較する `scheduled_cost` を `roster` に追加する。
 給与計算ではなく、利用者が指定した係数による計画評価である。
 
@@ -16,7 +17,7 @@
 
 ## 入力と意味検証
 
-以下は新版Requestに加える部分の例で、現行契約には未対応。
+以下は契約0.9のRequestに加える部分の例。
 
 ```json
 {

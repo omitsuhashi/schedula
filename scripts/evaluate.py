@@ -112,6 +112,8 @@ def measure(path, backend, time_limit_seconds=None):
         "fairness_summary": response.get("fairness_summary"),
         "change_summary": response.get("change_summary"),
         "continuity_summary": response.get("continuity_summary"),
+        "cost_summary": response.get("cost_summary"),
+        "duty_balance_summary": response.get("duty_balance_summary"),
         "shortage_summary": response.get("shortage_summary"),
         "diagnosis_result": response.get("diagnosis_result"),
         "search_stats": search_stats,

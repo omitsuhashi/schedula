@@ -1,0 +1,636 @@
+{
+  "schema_version": "0.9",
+  "request_id": "duty_balance",
+  "problem_type": "roster",
+  "planning_window": {
+    "start": "2026-10-07T00:00:00+09:00",
+    "end": "2026-10-09T00:00:00+09:00",
+    "timezone": "Asia/Tokyo",
+    "slot_minutes": 30
+  },
+  "skills": [],
+  "roles": [
+    {
+      "id": "kitchen",
+      "label": "kitchen",
+      "required_skills": []
+    },
+    {
+      "id": "hall",
+      "label": "hall",
+      "required_skills": []
+    }
+  ],
+  "employees": [
+    {
+      "id": "alice",
+      "label": "alice",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-07T10:00:00+09:00",
+          "end": "2026-10-08T00:00:00+09:00"
+        },
+        {
+          "start": "2026-10-08T10:00:00+09:00",
+          "end": "2026-10-09T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "bob",
+      "label": "bob",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-07T10:00:00+09:00",
+          "end": "2026-10-08T00:00:00+09:00"
+        },
+        {
+          "start": "2026-10-08T10:00:00+09:00",
+          "end": "2026-10-09T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    }
+  ],
+  "demand": [
+    {
+      "id": "need_0_600_kitchen",
+      "role_id": "kitchen",
+      "interval": {
+        "start": "2026-10-07T10:00:00+09:00",
+        "end": "2026-10-07T14:00:00+09:00"
+      },
+      "required_people": 1
+    },
+    {
+      "id": "need_0_1200_kitchen",
+      "role_id": "kitchen",
+      "interval": {
+        "start": "2026-10-07T20:00:00+09:00",
+        "end": "2026-10-08T00:00:00+09:00"
+      },
+      "required_people": 1
+    },
+    {
+      "id": "need_1_600_kitchen",
+      "role_id": "kitchen",
+      "interval": {
+        "start": "2026-10-08T10:00:00+09:00",
+        "end": "2026-10-08T14:00:00+09:00"
+      },
+      "required_people": 1
+    },
+    {
+      "id": "need_1_1200_kitchen",
+      "role_id": "kitchen",
+      "interval": {
+        "start": "2026-10-08T20:00:00+09:00",
+        "end": "2026-10-09T00:00:00+09:00"
+      },
+      "required_people": 1
+    }
+  ],
+  "shift_candidates": [
+    {
+      "id": "shift_alice_0_600_840",
+      "employee_id": "alice",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-07T10:00:00+09:00",
+            "end": "2026-10-07T14:00:00+09:00"
+          },
+          "breaks": []
+        }
+      ]
+    },
+    {
+      "id": "shift_alice_0_1200_1440",
+      "employee_id": "alice",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-07T20:00:00+09:00",
+            "end": "2026-10-08T00:00:00+09:00"
+          },
+          "breaks": []
+        }
+      ]
+    },
+    {
+      "id": "shift_alice_1_600_840",
+      "employee_id": "alice",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-08T10:00:00+09:00",
+            "end": "2026-10-08T14:00:00+09:00"
+          },
+          "breaks": []
+        }
+      ]
+    },
+    {
+      "id": "shift_alice_1_1200_1440",
+      "employee_id": "alice",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-08T20:00:00+09:00",
+            "end": "2026-10-09T00:00:00+09:00"
+          },
+          "breaks": []
+        }
+      ]
+    },
+    {
+      "id": "shift_bob_0_600_840",
+      "employee_id": "bob",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-07T10:00:00+09:00",
+            "end": "2026-10-07T14:00:00+09:00"
+          },
+          "breaks": []
+        }
+      ]
+    },
+    {
+      "id": "shift_bob_0_1200_1440",
+      "employee_id": "bob",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-07T20:00:00+09:00",
+            "end": "2026-10-08T00:00:00+09:00"
+          },
+          "breaks": []
+        }
+      ]
+    },
+    {
+      "id": "shift_bob_1_600_840",
+      "employee_id": "bob",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-08T10:00:00+09:00",
+            "end": "2026-10-08T14:00:00+09:00"
+          },
+          "breaks": []
+        }
+      ]
+    },
+    {
+      "id": "shift_bob_1_1200_1440",
+      "employee_id": "bob",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-08T20:00:00+09:00",
+            "end": "2026-10-09T00:00:00+09:00"
+          },
+          "breaks": []
+        }
+      ]
+    }
+  ],
+  "constraints": [
+    {
+      "id": "cap",
+      "type": "min_rest_minutes",
+      "employee_ids": [
+        "alice",
+        "bob"
+      ],
+      "limit_minutes": 600
+    }
+  ],
+  "preferences": [
+    {
+      "id": "avoid_day",
+      "type": "avoid_work",
+      "employee_ids": [
+        "alice"
+      ],
+      "interval": {
+        "start": "2026-10-08T10:00:00+09:00",
+        "end": "2026-10-08T14:00:00+09:00"
+      },
+      "penalty_per_minute": 1
+    }
+  ],
+  "objectives": [
+    {
+      "id": "balance_night",
+      "metric": "duty_deviation_minutes",
+      "duty_id": "night"
+    },
+    {
+      "id": "wishes",
+      "metric": "preference_penalty"
+    },
+    {
+      "id": "cost",
+      "metric": "scheduled_cost"
+    }
+  ],
+  "solver": {
+    "backend": "auto",
+    "time_limit_seconds": 10,
+    "seed": 0
+  },
+  "duty_balance": [
+    {
+      "id": "night",
+      "label": "夜勤",
+      "evaluation_period": {
+        "start": "2026-10-07T00:00:00+09:00",
+        "end": "2026-10-09T00:00:00+09:00"
+      },
+      "intervals": [
+        {
+          "start": "2026-10-07T20:00:00+09:00",
+          "end": "2026-10-08T00:00:00+09:00"
+        },
+        {
+          "start": "2026-10-08T20:00:00+09:00",
+          "end": "2026-10-09T00:00:00+09:00"
+        }
+      ],
+      "employee_targets": [
+        {
+          "employee_id": "alice",
+          "target_minutes": 240
+        },
+        {
+          "employee_id": "bob",
+          "target_minutes": 240
+        }
+      ]
+    }
+  ],
+  "baseline": {
+    "plan_id": "first_day",
+    "source_request": {
+      "schema_version": "0.9",
+      "request_id": "duty_balance",
+      "problem_type": "roster",
+      "planning_window": {
+        "start": "2026-10-07T00:00:00+09:00",
+        "end": "2026-10-09T00:00:00+09:00",
+        "timezone": "Asia/Tokyo",
+        "slot_minutes": 30
+      },
+      "skills": [],
+      "roles": [
+        {
+          "id": "kitchen",
+          "label": "kitchen",
+          "required_skills": []
+        },
+        {
+          "id": "hall",
+          "label": "hall",
+          "required_skills": []
+        }
+      ],
+      "employees": [
+        {
+          "id": "alice",
+          "label": "alice",
+          "skills": [],
+          "availability": [
+            {
+              "start": "2026-10-07T10:00:00+09:00",
+              "end": "2026-10-08T00:00:00+09:00"
+            },
+            {
+              "start": "2026-10-08T10:00:00+09:00",
+              "end": "2026-10-09T00:00:00+09:00"
+            }
+          ],
+          "history": {
+            "last_shift_end": null,
+            "consecutive_work_days_before_window": 0,
+            "last_work_day": null
+          }
+        },
+        {
+          "id": "bob",
+          "label": "bob",
+          "skills": [],
+          "availability": [
+            {
+              "start": "2026-10-07T10:00:00+09:00",
+              "end": "2026-10-08T00:00:00+09:00"
+            },
+            {
+              "start": "2026-10-08T10:00:00+09:00",
+              "end": "2026-10-09T00:00:00+09:00"
+            }
+          ],
+          "history": {
+            "last_shift_end": null,
+            "consecutive_work_days_before_window": 0,
+            "last_work_day": null
+          }
+        }
+      ],
+      "demand": [
+        {
+          "id": "need_0_600_kitchen",
+          "role_id": "kitchen",
+          "interval": {
+            "start": "2026-10-07T10:00:00+09:00",
+            "end": "2026-10-07T14:00:00+09:00"
+          },
+          "required_people": 1
+        },
+        {
+          "id": "need_0_1200_kitchen",
+          "role_id": "kitchen",
+          "interval": {
+            "start": "2026-10-07T20:00:00+09:00",
+            "end": "2026-10-08T00:00:00+09:00"
+          },
+          "required_people": 1
+        },
+        {
+          "id": "need_1_600_kitchen",
+          "role_id": "kitchen",
+          "interval": {
+            "start": "2026-10-08T10:00:00+09:00",
+            "end": "2026-10-08T14:00:00+09:00"
+          },
+          "required_people": 1
+        },
+        {
+          "id": "need_1_1200_kitchen",
+          "role_id": "kitchen",
+          "interval": {
+            "start": "2026-10-08T20:00:00+09:00",
+            "end": "2026-10-09T00:00:00+09:00"
+          },
+          "required_people": 1
+        }
+      ],
+      "shift_candidates": [
+        {
+          "id": "shift_alice_0_600_840",
+          "employee_id": "alice",
+          "segments": [
+            {
+              "interval": {
+                "start": "2026-10-07T10:00:00+09:00",
+                "end": "2026-10-07T14:00:00+09:00"
+              },
+              "breaks": []
+            }
+          ]
+        },
+        {
+          "id": "shift_alice_0_1200_1440",
+          "employee_id": "alice",
+          "segments": [
+            {
+              "interval": {
+                "start": "2026-10-07T20:00:00+09:00",
+                "end": "2026-10-08T00:00:00+09:00"
+              },
+              "breaks": []
+            }
+          ]
+        },
+        {
+          "id": "shift_alice_1_600_840",
+          "employee_id": "alice",
+          "segments": [
+            {
+              "interval": {
+                "start": "2026-10-08T10:00:00+09:00",
+                "end": "2026-10-08T14:00:00+09:00"
+              },
+              "breaks": []
+            }
+          ]
+        },
+        {
+          "id": "shift_alice_1_1200_1440",
+          "employee_id": "alice",
+          "segments": [
+            {
+              "interval": {
+                "start": "2026-10-08T20:00:00+09:00",
+                "end": "2026-10-09T00:00:00+09:00"
+              },
+              "breaks": []
+            }
+          ]
+        },
+        {
+          "id": "shift_bob_0_600_840",
+          "employee_id": "bob",
+          "segments": [
+            {
+              "interval": {
+                "start": "2026-10-07T10:00:00+09:00",
+                "end": "2026-10-07T14:00:00+09:00"
+              },
+              "breaks": []
+            }
+          ]
+        },
+        {
+          "id": "shift_bob_0_1200_1440",
+          "employee_id": "bob",
+          "segments": [
+            {
+              "interval": {
+                "start": "2026-10-07T20:00:00+09:00",
+                "end": "2026-10-08T00:00:00+09:00"
+              },
+              "breaks": []
+            }
+          ]
+        },
+        {
+          "id": "shift_bob_1_600_840",
+          "employee_id": "bob",
+          "segments": [
+            {
+              "interval": {
+                "start": "2026-10-08T10:00:00+09:00",
+                "end": "2026-10-08T14:00:00+09:00"
+              },
+              "breaks": []
+            }
+          ]
+        },
+        {
+          "id": "shift_bob_1_1200_1440",
+          "employee_id": "bob",
+          "segments": [
+            {
+              "interval": {
+                "start": "2026-10-08T20:00:00+09:00",
+                "end": "2026-10-09T00:00:00+09:00"
+              },
+              "breaks": []
+            }
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "id": "cap",
+          "type": "min_rest_minutes",
+          "employee_ids": [
+            "alice",
+            "bob"
+          ],
+          "limit_minutes": 600
+        }
+      ],
+      "preferences": [],
+      "objectives": [
+        {
+          "id": "balance_night",
+          "metric": "duty_deviation_minutes",
+          "duty_id": "night"
+        }
+      ],
+      "solver": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      },
+      "duty_balance": [
+        {
+          "id": "night",
+          "label": "夜勤",
+          "evaluation_period": {
+            "start": "2026-10-07T00:00:00+09:00",
+            "end": "2026-10-09T00:00:00+09:00"
+          },
+          "intervals": [
+            {
+              "start": "2026-10-07T20:00:00+09:00",
+              "end": "2026-10-08T00:00:00+09:00"
+            },
+            {
+              "start": "2026-10-08T20:00:00+09:00",
+              "end": "2026-10-09T00:00:00+09:00"
+            }
+          ],
+          "employee_targets": [
+            {
+              "employee_id": "alice",
+              "target_minutes": 240
+            },
+            {
+              "employee_id": "bob",
+              "target_minutes": 240
+            }
+          ]
+        }
+      ]
+    },
+    "source_solution": {
+      "assignments": [
+        {
+          "employee_id": "alice",
+          "role_id": "kitchen",
+          "interval": {
+            "start": "2026-10-07T20:00:00+09:00",
+            "end": "2026-10-08T00:00:00+09:00"
+          }
+        },
+        {
+          "employee_id": "bob",
+          "role_id": "kitchen",
+          "interval": {
+            "start": "2026-10-07T10:00:00+09:00",
+            "end": "2026-10-07T14:00:00+09:00"
+          }
+        }
+      ],
+      "shifts": [
+        {
+          "candidate_id": "shift_alice_0_1200_1440",
+          "employee_id": "alice",
+          "segments": [
+            {
+              "interval": {
+                "start": "2026-10-07T20:00:00+09:00",
+                "end": "2026-10-08T00:00:00+09:00"
+              },
+              "breaks": []
+            }
+          ],
+          "work_day": "2026-10-07"
+        },
+        {
+          "candidate_id": "shift_bob_0_600_840",
+          "employee_id": "bob",
+          "segments": [
+            {
+              "interval": {
+                "start": "2026-10-07T10:00:00+09:00",
+                "end": "2026-10-07T14:00:00+09:00"
+              },
+              "breaks": []
+            }
+          ],
+          "work_day": "2026-10-07"
+        }
+      ]
+    },
+    "source_fixed_states": [],
+    "snapshot_origin": {
+      "request_id": "duty_balance",
+      "baseline_plan_id": null,
+      "replan_mode": null
+    }
+  },
+  "fixed_parts": [
+    {
+      "id": "first_night",
+      "employee_id": "alice",
+      "interval": {
+        "start": "2026-10-07T20:00:00+09:00",
+        "end": "2026-10-08T00:00:00+09:00"
+      },
+      "components": [
+        "work",
+        "role"
+      ]
+    }
+  ],
+  "costs": {
+    "currency": "JPY",
+    "units_per_currency": 60,
+    "employee_rates": [
+      {
+        "employee_id": "alice",
+        "units_per_minute": 1800
+      },
+      {
+        "employee_id": "bob",
+        "units_per_minute": 2400
+      }
+    ]
+  }
+}

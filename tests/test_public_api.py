@@ -49,7 +49,7 @@ def test_public_validation_reuses_entry_checks_without_solving(assignment_reques
 
 def test_public_types_match_version_fields_and_literals():
     for version, request_type in zip(
-        ("0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8"),
+        ("0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9"),
         (
             types.Request01,
             types.Request02,
@@ -59,6 +59,7 @@ def test_public_types_match_version_fields_and_literals():
             types.Request06,
             types.Request07,
             types.Request08,
+            types.Request09,
         ),
         strict=True,
     ):
@@ -75,6 +76,7 @@ def test_public_types_match_version_fields_and_literals():
         "0.6",
         "0.7",
         "0.8",
+        "0.9",
     }
     assert "PARTIAL" not in get_args(get_type_hints(types.Response01Success)["status"])
     assert "PARTIAL" in get_args(get_type_hints(types.Response04Success)["status"])
@@ -136,6 +138,25 @@ def test_installed_wheel_types_check_consumer_and_reject_typos(tmp_path):
         encoding="utf-8",
     )
     run(str(python), "-m", "mypy", "--strict", str(refinement_consumer))
+    metrics_consumer = tmp_path / "metrics_consumer.py"
+    metrics_consumer.write_text(
+        "from shift_schedula import make_baseline, solve, verify\n"
+        "from shift_schedula.types import Request09, CostObjective, DutyObjective\n"
+        "def evaluate(request: Request09) -> None:\n"
+        '    cost: CostObjective = {"id": "cost", "metric": "scheduled_cost"}\n'
+        '    duty: DutyObjective = {"id": "night", "metric": "duty_deviation_minutes", '
+        '"duty_id": "night"}\n'
+        '    request["objectives"] = [cost, duty]\n'
+        "    result = solve(request)\n"
+        '    if result["schema_version"] == "0.9" and '
+        'result["status"] in {"OPTIMAL", "FEASIBLE", "PARTIAL"}:\n'
+        '        make_baseline(request, result["solution"], "saved")\n'
+        '        checked = verify(request, result["solution"])\n'
+        '        print(result["cost_summary"], result["duty_balance_summary"], '
+        'checked.get("cost_summary"))\n',
+        encoding="utf-8",
+    )
+    run(str(python), "-m", "mypy", "--strict", str(metrics_consumer))
     invalid = tmp_path / "invalid_consumer.py"
     invalid.write_text(
         "from shift_schedula import Response\n"

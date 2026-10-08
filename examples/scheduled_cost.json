@@ -1,0 +1,138 @@
+{
+  "schema_version": "0.9",
+  "request_id": "scheduled_cost",
+  "problem_type": "roster",
+  "planning_window": {
+    "start": "2026-10-07T00:00:00+09:00",
+    "end": "2026-10-08T00:00:00+09:00",
+    "timezone": "Asia/Tokyo",
+    "slot_minutes": 30
+  },
+  "skills": [],
+  "roles": [
+    {
+      "id": "kitchen",
+      "label": "kitchen",
+      "required_skills": []
+    },
+    {
+      "id": "hall",
+      "label": "hall",
+      "required_skills": []
+    }
+  ],
+  "employees": [
+    {
+      "id": "alice",
+      "label": "alice",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-07T10:00:00+09:00",
+          "end": "2026-10-07T11:30:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "bob",
+      "label": "bob",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-07T10:00:00+09:00",
+          "end": "2026-10-07T11:30:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    }
+  ],
+  "demand": [
+    {
+      "id": "need_0_600_kitchen",
+      "role_id": "kitchen",
+      "interval": {
+        "start": "2026-10-07T10:00:00+09:00",
+        "end": "2026-10-07T11:00:00+09:00"
+      },
+      "required_people": 1
+    }
+  ],
+  "shift_candidates": [
+    {
+      "id": "shift_alice_0_600_660",
+      "employee_id": "alice",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-07T10:00:00+09:00",
+            "end": "2026-10-07T11:00:00+09:00"
+          },
+          "breaks": []
+        }
+      ]
+    },
+    {
+      "id": "shift_bob_0_600_660",
+      "employee_id": "bob",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-07T10:00:00+09:00",
+            "end": "2026-10-07T11:00:00+09:00"
+          },
+          "breaks": []
+        }
+      ]
+    }
+  ],
+  "constraints": [],
+  "preferences": [
+    {
+      "id": "avoid_alice",
+      "type": "avoid_role",
+      "employee_ids": [
+        "alice"
+      ],
+      "role_id": "kitchen",
+      "penalty_per_minute": 1
+    }
+  ],
+  "objectives": [
+    {
+      "id": "cost",
+      "metric": "scheduled_cost"
+    },
+    {
+      "id": "wishes",
+      "metric": "preference_penalty"
+    }
+  ],
+  "solver": {
+    "backend": "auto",
+    "time_limit_seconds": 10,
+    "seed": 0
+  },
+  "costs": {
+    "currency": "JPY",
+    "units_per_currency": 60,
+    "employee_rates": [
+      {
+        "employee_id": "alice",
+        "units_per_minute": 1800
+      },
+      {
+        "employee_id": "bob",
+        "units_per_minute": 2400
+      }
+    ]
+  }
+}
