@@ -67,3 +67,10 @@ Ruff hooks、Node構文確認、bash構文確認、git diff --checkは成功。
 最終全体実行は1723件・6 subtestsが成功、557.17秒。skipは0だった。
 配布用sdistから再構築したwheelの中核テストも成功した。
 その実行中に変更した診断参照先の絞り込みは、新規機能64件を再実行して成功した。
+
+PR #94のcommit `d938ac8300f98aa3031ce13dc29a8a6f98866507`に対するGitHub CIは、
+全体1724件・6 subtestsが成功、526.35秒、skip 0だった。
+Ubuntu/Windowsと通常/CP-SAT依存の4ジョブも各89件成功した。
+[初回CI](https://github.com/omitsuhashi/schedula/actions/runs/37740030346)は
+Chromium確認中にジョブの10分上限で中断した。全体回帰・配布物・ブラウザー確認を
+完走できるよう当該ジョブの上限を15分へ調整し、再実行する。
