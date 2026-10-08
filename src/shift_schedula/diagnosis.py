@@ -43,7 +43,7 @@ def validate_options(request):
             minimum_edit = (
                 name == "demand"
                 and field == "minimum_people"
-                and request["schema_version"] == "0.12"
+                and request["schema_version"] in {"0.12", "0.13"}
             )
             if (
                 number >= len(request[name])
@@ -82,7 +82,7 @@ def conditions(request):
     add(
         "DEMAND_LIMIT_AND_SINGLE_ASSIGNMENT"
         if request["schema_version"]
-        in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"}
+        in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13"}
         else "EXACT_DEMAND_AND_SINGLE_ASSIGNMENT",
         "/problem_type",
     )
@@ -131,6 +131,8 @@ def conditions(request):
             add(code, f"/{name}/{i}", [item["id"]], item.get("interval"))
     if request.get("baseline"):
         add("BASELINE_STATES", "/baseline", [request["baseline"]["plan_id"]])
+    for i, category in enumerate(request.get("shift_categories", [])):
+        add("SHIFT_CATEGORY_BACKGROUND", f"/shift_categories/{i}", [category["id"]])
     if request.get("replan_mode") == "preserve_assigned":
         add("PRESERVE_ASSIGNED", "/replan_mode", [request["baseline"]["plan_id"]])
     return result
@@ -156,6 +158,7 @@ def condition_groups(request):
         "fairness",
         "costs",
         "duty_balance",
+        "shift_categories",
         "baseline",
         "fixed_parts",
         "replan_mode",
@@ -172,6 +175,10 @@ def condition_groups(request):
         "scheduled_minutes_bounds",
         "work_days_bounds",
         "days_off_bounds",
+        "forbidden_shift_successions",
+        "days_off_after_shift",
+        "min_consecutive_days_off",
+        "worked_date_groups_limit",
     }
     if request.keys() - supported_fields or any(
         rule["type"] not in supported_rules for rule in request["constraints"]
@@ -186,7 +193,9 @@ def condition_groups(request):
             if code == "CONSTRAINT":
                 rule = request["constraints"][int(path.rsplit("/", 1)[1])]
                 item["related_ids"] = [rule["id"], *rule["employee_ids"]]
-                item["interval"] = deepcopy(rule.get("interval", window))
+                item["interval"] = deepcopy(
+                    rule.get("evaluation_period", rule.get("interval", window))
+                )
             elif code == "FIXED_PART":
                 part = request["fixed_parts"][int(path.rsplit("/", 1)[1])]
                 item["related_ids"] = [part["id"], part["employee_id"]]
@@ -434,7 +443,7 @@ def diagnose(request, status, solve, *, problem=None, num_workers=2):
         if time.monotonic() >= deadline:
             result["status"] = "TIME_LIMIT"
         else:
-            if request["schema_version"] in {"0.8", "0.9", "0.10", "0.11", "0.12"}:
+            if request["schema_version"] in {"0.8", "0.9", "0.10", "0.11", "0.12", "0.13"}:
                 groups, background = condition_groups(request)
                 if config.get("conflict_refinement"):
                     refine(
@@ -491,7 +500,7 @@ def diagnose(request, status, solve, *, problem=None, num_workers=2):
                 break
             accepted = (
                 {"OPTIMAL", "FEASIBLE", "PARTIAL"}
-                if request["schema_version"] == "0.12"
+                if request["schema_version"] in {"0.12", "0.13"}
                 else {"OPTIMAL", "FEASIBLE"}
             )
             if response["status"] in accepted and response["verification"]["valid"]:
@@ -589,7 +598,7 @@ def validate_result(request, response):
             fail()
         return errors
     if result["conflict"] is not None:
-        if request["schema_version"] in {"0.8", "0.9", "0.10", "0.11", "0.12"}:
+        if request["schema_version"] in {"0.8", "0.9", "0.10", "0.11", "0.12", "0.13"}:
             if not valid_group_conflict(
                 request, result["conflict"], failed=result["status"] == "ERROR"
             ):

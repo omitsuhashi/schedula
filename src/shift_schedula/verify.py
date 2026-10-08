@@ -55,13 +55,23 @@ def verify(request: dict, solution: dict) -> dict:
         "diagnostics": [],
         "stats": {"elapsed_seconds": 0.0},
     }
-    if result["schema_version"] in {"0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"}:
+    if result["schema_version"] in {
+        "0.5",
+        "0.6",
+        "0.7",
+        "0.8",
+        "0.9",
+        "0.10",
+        "0.11",
+        "0.12",
+        "0.13",
+    }:
         result["priority_summary"] = None
-    if result["schema_version"] in {"0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"}:
+    if result["schema_version"] in {"0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13"}:
         result["continuity_summary"] = None
-    if result["schema_version"] in {"0.9", "0.10", "0.11", "0.12"}:
+    if result["schema_version"] in {"0.9", "0.10", "0.11", "0.12", "0.13"}:
         result.update(cost_summary=None, duty_balance_summary=None)
-    if result["schema_version"] in {"0.11", "0.12"}:
+    if result["schema_version"] in {"0.11", "0.12", "0.13"}:
         result["day_count_summary"] = None
     try:
         problem = normalize(request)
@@ -96,6 +106,7 @@ def verify(request: dict, solution: dict) -> dict:
                 "0.10",
                 "0.11",
                 "0.12",
+                "0.13",
             }:
                 result["priority_summary"] = priority_summary(request, shortage)
     except InvalidInput as error:
@@ -121,16 +132,19 @@ def verify(request: dict, solution: dict) -> dict:
             diagnostics=[diagnostic("INTERNAL_ERROR", "独立検証の処理に失敗しました。")],
         )
     if (
-        result["schema_version"] in {"0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"}
+        result["schema_version"] in {"0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13"}
         and result["status"] == "INTERNAL_ERROR"
     ):
         result["continuity_summary"] = None
     if (
-        result["schema_version"] in {"0.9", "0.10", "0.11", "0.12"}
+        result["schema_version"] in {"0.9", "0.10", "0.11", "0.12", "0.13"}
         and result["status"] == "INTERNAL_ERROR"
     ):
         result.update(cost_summary=None, duty_balance_summary=None)
-    if result["schema_version"] in {"0.11", "0.12"} and result["status"] == "INTERNAL_ERROR":
+    if (
+        result["schema_version"] in {"0.11", "0.12", "0.13"}
+        and result["status"] == "INTERNAL_ERROR"
+    ):
         result["day_count_summary"] = None
     result["stats"]["elapsed_seconds"] = time.perf_counter() - started
     if result["schema_version"] in {
@@ -142,6 +156,7 @@ def verify(request: dict, solution: dict) -> dict:
         "0.10",
         "0.11",
         "0.12",
+        "0.13",
     } and result["status"] not in {
         "VALID",
         "PARTIAL",
@@ -178,6 +193,7 @@ def verify_shifts(request, grid, shifts, fail, active_groups=None):
         "0.10",
         "0.11",
         "0.12",
+        "0.13",
     }
     for index, shift in enumerate(shifts):
         path = f"/shifts/{index}"
@@ -391,10 +407,14 @@ def verify_plan(problem, solution, *, require_complete=False, active_groups=None
         if roster
         else ({}, {}, {})
     )
-    if request["schema_version"] in {"0.11", "0.12"} and roster and not violations:
+    if request["schema_version"] in {"0.11", "0.12", "0.13"} and roster and not violations:
         from .day_counts import evaluate as evaluate_day_counts
 
         evaluate_day_counts(request, grid, solution, fail, active_groups)
+    if request["schema_version"] == "0.13" and roster and not violations:
+        from .shift_patterns import evaluate as evaluate_patterns
+
+        evaluate_patterns(request, grid, solution, fail, active_groups)
     if not roster and solution["shifts"]:
         fail("UNEXPECTED_SHIFTS", "assignment の勤務結果は空にします。", "/shifts")
     employees = {employee["id"]: employee for employee in request["employees"]}
@@ -535,7 +555,11 @@ def verify_plan(problem, solution, *, require_complete=False, active_groups=None
                 "required_people": required,
                 "assigned_people": assigned,
                 "missing_people": required - assigned,
-                **({"minimum_people": minimum} if request["schema_version"] == "0.12" else {}),
+                **(
+                    {"minimum_people": minimum}
+                    if request["schema_version"] in {"0.12", "0.13"}
+                    else {}
+                ),
             }
             for a, b, assigned in runs
         )
@@ -547,7 +571,19 @@ def verify_plan(problem, solution, *, require_complete=False, active_groups=None
             assigned < required
             and (
                 request["schema_version"]
-                not in {"0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12"}
+                not in {
+                    "0.3",
+                    "0.4",
+                    "0.5",
+                    "0.6",
+                    "0.7",
+                    "0.8",
+                    "0.9",
+                    "0.10",
+                    "0.11",
+                    "0.12",
+                    "0.13",
+                }
                 or require_complete
             )
         ):
@@ -621,6 +657,7 @@ def verify_plan(problem, solution, *, require_complete=False, active_groups=None
         "0.10",
         "0.11",
         "0.12",
+        "0.13",
     }:
         from .extensions import evaluate
 

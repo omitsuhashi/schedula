@@ -78,7 +78,7 @@ def test_invalid_minimum_rejected(value):
     assert validate(data)["diagnostics"][0]["json_pointer"].startswith("/demand/0")
 
 
-@pytest.mark.parametrize("version", [v for v in SCHEMA_VERSIONS if v != "0.12"])
+@pytest.mark.parametrize("version", [v for v in SCHEMA_VERSIONS if v not in {"0.12", "0.13"}])
 def test_old_versions_reject_minimum_even_zero(assignment_request, version):
     assignment_request["schema_version"] = version
     assignment_request["demand"][0]["minimum_people"] = 0
