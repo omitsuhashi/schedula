@@ -66,6 +66,7 @@ def prepare(problem):
                 "0.8",
                 "0.9",
                 "0.10",
+                "0.11",
             }:
                 return [], diagnostic(
                     "INSUFFICIENT_QUALIFIED_EMPLOYEES",
@@ -167,6 +168,7 @@ def run(problem):
         "0.8",
         "0.9",
         "0.10",
+        "0.11",
     }
     completed = True
     for slot, graph, arcs, required in networks:

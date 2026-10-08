@@ -328,9 +328,10 @@ function acceptResponse(response, request, requestBoundaries = boundaries) {
   if (success && !response.solution.assignments.every(item => item && request.employees.some(employee => employee.id === item.employee_id) &&
       request.roles.some(role => role.id === item.role_id) && requestBoundaries.some(value => Date.parse(value) === Date.parse(item.interval?.start)) &&
       requestBoundaries.some(value => Date.parse(value) === Date.parse(item.interval?.end)) && Date.parse(item.interval.start) < Date.parse(item.interval.end))) throw new Error("担当配置の参照または日時が不正です。");
-  const hasPriority = ["0.5", "0.6", "0.7", "0.8", "0.9", "0.10"].includes(request.schema_version);
-  if (["0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10"].includes(request.schema_version)) {
-    if (!success && ["0.9", "0.10"].includes(request.schema_version) && (response.cost_summary !== null || response.duty_balance_summary !== null)) throw new Error("計画がない応答に費用・指定区間の集計があります。");
+  if (!success && request.schema_version === "0.11" && response.day_count_summary !== null) throw new Error("計画がない応答に日数集計があります。");
+  const hasPriority = ["0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"].includes(request.schema_version);
+  if (["0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"].includes(request.schema_version)) {
+    if (!success && ["0.9", "0.10", "0.11"].includes(request.schema_version) && (response.cost_summary !== null || response.duty_balance_summary !== null)) throw new Error("計画がない応答に費用・指定区間の集計があります。");
     if (!success) { if (hasPriority && response.priority_summary !== null) throw new Error("計画がない応答にpriority集計があります。"); if (response.shortage_summary !== null) throw new Error("計画がない応答に不足集計があります。"); return; }
     const summary = response.shortage_summary;
     if (!summary || typeof summary.proven_minimal !== "boolean" || !Number.isSafeInteger(summary.total_person_minutes) || !Array.isArray(summary.shortages)) throw new Error("不足集計が不正です。");
@@ -549,6 +550,9 @@ function renderJSONResult() {
   area.replaceChildren();
   if (validPair(pair)) {
     area.append(renderShortages(pair));
+    for (const summary of result.day_count_summary || []) {
+      area.append(node("p", `${summary.constraint_id} (${summary.interval.start}〜${summary.interval.end})：${summary.employees.map(e => `${e.employee_id} 勤務${e.work_days}日・占有${e.occupied_days}日・完全休日${e.days_off}日`).join(" / ")}`));
+    }
     const grid = jsonSlots(pair.input);
     area.append(node("p", `${pair.input.employees.length}人 · ${new Set(grid.map(slot => slot.date)).size}日 · ${pair.input.planning_window.slot_minutes}分刻み · ${grid.length}時間枠 · ${verificationText(result)} · 総処理時間 ${result.stats.elapsed_seconds.toFixed(2)}秒`));
     const select = node("select", "", {id: "json-day"});
@@ -589,7 +593,7 @@ async function calculateJSON() {
     ]);
     if (token !== generation) return;
     const input = JSON.parse(text);
-    const expected = {...input, schema_version: ["0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10"].includes(input?.schema_version) ? input.schema_version : "0.1", request_id: typeof input?.request_id === "string" ? input.request_id : null};
+    const expected = {...input, schema_version: ["0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11"].includes(input?.schema_version) ? input.schema_version : "0.1", request_id: typeof input?.request_id === "string" ? input.request_id : null};
     const requestBoundaries = ["OPTIMAL", "FEASIBLE", "PARTIAL"].includes(result.status) ?
       [input.planning_window.start, ...jsonSlots(input).map(slot => new Date(slot.end).toISOString())] : [];
     acceptResponse(result, expected, requestBoundaries);
