@@ -6,6 +6,7 @@
   <title>配置プレイグラウンド | shift-schedula</title>
   <link rel="stylesheet" href="/style.css">
   <script src="/app.js" defer></script>
+  <script src="/adapter.js" defer></script>
 </head>
 <body>
 <header>
@@ -15,6 +16,38 @@
   <p class="note">2026-10-06 · 11:00〜14:00 · 30分ごと · 架空データのみ</p>
 </header>
 <main>
+  <details id="adapter-demo">
+    <summary>基本情報を再利用し、入力を確認・保存する</summary>
+    <p>入力候補のJSONを修正し、必要な入力元を一件ずつ確認します。週を変えたら今回の日付付き条件を明示更新してください。原履歴・基準計画の日付は動かしません。</p>
+    <div class="toolbar">
+      <label for="adapter-sample">分割入力サンプル</label>
+      <select id="adapter-sample">
+        <option value="assignment">担当配置</option><option value="roster">勤務計画</option>
+        <option value="partial_roster">不足付き勤務計画</option>
+        <option value="continuity_week">原履歴と確定勤務</option>
+        <option value="unconfirmed">未確認の修正</option>
+      </select>
+      <button id="adapter-load" type="button">分割サンプルを読み込む</button>
+      <label for="adapter-file">Draft・実行記録ファイル</label>
+      <input id="adapter-file" type="file" accept=".json,application/json">
+      <button id="adapter-import" type="button">既存JSONを取り込む</button>
+      <button id="adapter-split" type="button">既存JSONを区分へ分ける</button>
+    </div>
+    <p class="note">アップロードは2 MiB、表示は100人・30日・3000枠まで。ファイル参照manifestはCLI専用です。採用・セッション管理は別アプリが担当します。</p>
+    <label for="adapter-input">入力候補 RequestDraft</label>
+    <textarea id="adapter-input" rows="12" spellcheck="false"></textarea>
+    <div class="toolbar">
+      <button id="adapter-check" type="button">入力を検査</button>
+      <label for="adapter-source">確認する入力元</label><select id="adapter-source"></select>
+      <button id="adapter-confirm" type="button">この入力元を確認</button>
+      <button id="adapter-run" class="primary" type="button">確定入力で計算</button>
+      <button id="adapter-save-draft" type="button">Draftを保存</button>
+      <button id="adapter-save-record" type="button" disabled>実行記録を保存</button>
+      <button id="adapter-reverify" type="button" disabled>保存記録を再検証</button>
+    </div>
+    <p id="adapter-status" role="status" aria-live="polite">分割サンプルを読み込んでください。</p>
+    <div id="adapter-output"></div>
+  </details>
   <details id="json-demo">
     <summary>JSON で担当配置・勤務計画を計算する</summary>
     <form id="json-editor">

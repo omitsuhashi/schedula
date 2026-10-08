@@ -1202,3 +1202,129 @@ class Validation(TypedDict):
     status: Literal["VALID", "INVALID_INPUT", "INTERNAL_ERROR"]
     diagnostics: list[Diagnostic]
     stats: Stats
+
+
+class SourceConfirmation(TypedDict):
+    digest: str
+    provenance: Literal["declared", "unknown"]
+
+
+class InputSource(TypedDict):
+    file: NotRequired[str]
+    id: str
+    revision: str
+    section: Literal["basic", "common", "period", "history", "replanning", "execution", "imported"]
+    origin: Literal["declared", "unknown"]
+    data: dict[str, JSONValue]
+    references: list[str]
+    applies_to: dict[str, JSONValue] | None
+    confirmation: SourceConfirmation | None
+
+
+class UnresolvedInput(TypedDict):
+    source_id: str
+    json_pointer: str
+    message: str
+
+
+class ConstraintOverride(TypedDict):
+    source_id: str
+    target_source_id: str
+    constraint_id: str
+    before: dict[str, JSONValue]
+    reason: str
+
+
+class RequestDraft(TypedDict):
+    adapter_version: Literal["1.0"]
+    schema_version: SchemaVersion
+    sources: list[InputSource]
+    unresolved: list[UnresolvedInput]
+    assumptions: list[str]
+    overrides: list[ConstraintOverride]
+    order: dict[str, list[str]]
+
+
+class SourceLocation(TypedDict):
+    file: NotRequired[str]
+    source_id: str
+    revision: str
+    section: str
+    json_pointer: str
+
+
+class AdapterDiagnostic(Diagnostic):
+    sources: NotRequired[list[SourceLocation]]
+
+
+class ConfirmationState(TypedDict):
+    source_id: str
+    digest: str
+    saved_digest: str | None
+    state: Literal["confirmed", "unconfirmed", "stale"]
+
+
+class Assembly(TypedDict):
+    status: Literal["VALID", "INVALID_INPUT", "INTERNAL_ERROR"]
+    request: Request | None
+    provenance: dict[str, list[SourceLocation]]
+    diagnostics: list[AdapterDiagnostic]
+    confirmations: list[ConfirmationState]
+
+
+class ExecutionSettings(TypedDict):
+    num_workers: int
+
+
+class RecordedSource(TypedDict):
+    source: InputSource
+    content_hash: str
+
+
+class EngineIdentity(TypedDict):
+    version: str
+    dependencies: dict[str, str | None]
+
+
+class DraftMetadata(TypedDict):
+    adapter_version: Literal["1.0"]
+    schema_version: SchemaVersion
+    unresolved: list[UnresolvedInput]
+    assumptions: list[str]
+    overrides: list[ConstraintOverride]
+    order: dict[str, list[str]]
+
+
+class RunRecord(TypedDict):
+    draft_metadata: DraftMetadata | None
+    record_version: Literal["1.0"]
+    run_id: str
+    created_at: str
+    request: Request
+    response: Response
+    execution: ExecutionSettings
+    engine: EngineIdentity
+    sources: list[RecordedSource]
+    provenance: dict[str, list[SourceLocation]]
+    content_hash: str
+
+
+class RecordVerification(TypedDict):
+    record: RunRecord
+    current_verification: Verification | None
+    current_solution: Solution | None
+
+
+class RecordView(TypedDict):
+    run_id: str
+    record_hash: str
+    request_id: str
+    original_status: str
+    current_status: str
+    verification: VerificationDetails | None
+    demand_satisfied: bool | None
+    planning_window: PlanningWindow
+    solution: Solution | None
+    metrics: dict[str, JSONValue]
+    diagnostics: list[AdapterDiagnostic]
+    original_evidence: Response

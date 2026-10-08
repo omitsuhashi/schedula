@@ -1,0 +1,365 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:schedula:adapter:record:1.0",
+  "type": "object",
+  "properties": {
+    "record_version": {
+      "const": "1.0"
+    },
+    "run_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "request": {
+      "type": "object"
+    },
+    "response": {
+      "type": "object"
+    },
+    "execution": {
+      "type": "object",
+      "properties": {
+        "num_workers": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32
+        }
+      },
+      "required": [
+        "num_workers"
+      ],
+      "additionalProperties": false
+    },
+    "engine": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400
+        },
+        "dependencies": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "required": [
+        "version",
+        "dependencies"
+      ],
+      "additionalProperties": false
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "revision": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "section": {
+                "enum": [
+                  "basic",
+                  "common",
+                  "period",
+                  "history",
+                  "replanning",
+                  "execution",
+                  "imported"
+                ]
+              },
+              "origin": {
+                "enum": [
+                  "declared",
+                  "unknown"
+                ]
+              },
+              "data": {
+                "type": "object"
+              },
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 2000
+                }
+              },
+              "applies_to": {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              },
+              "confirmation": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "digest": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{64}$"
+                      },
+                      "provenance": {
+                        "enum": [
+                          "declared",
+                          "unknown"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "digest",
+                      "provenance"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              },
+              "file": {
+                "type": "string",
+                "maxLength": 2000
+              }
+            },
+            "required": [
+              "id",
+              "revision",
+              "section",
+              "origin",
+              "data",
+              "references",
+              "applies_to",
+              "confirmation"
+            ],
+            "additionalProperties": false
+          },
+          "content_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "source",
+          "content_hash"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "source_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            },
+            "revision": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            },
+            "section": {
+              "enum": [
+                "basic",
+                "common",
+                "period",
+                "history",
+                "replanning",
+                "execution",
+                "imported"
+              ]
+            },
+            "json_pointer": {
+              "type": "string"
+            },
+            "file": {
+              "type": "string",
+              "maxLength": 2000
+            }
+          },
+          "required": [
+            "source_id",
+            "revision",
+            "section",
+            "json_pointer"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "content_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "draft_metadata": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "adapter_version": {
+              "const": "1.0"
+            },
+            "schema_version": {
+              "enum": [
+                "0.1",
+                "0.2",
+                "0.3",
+                "0.4",
+                "0.5",
+                "0.6",
+                "0.7",
+                "0.8",
+                "0.9",
+                "0.10",
+                "0.11",
+                "0.12",
+                "0.13",
+                "0.14",
+                "0.15"
+              ]
+            },
+            "unresolved": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "source_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 400
+                  },
+                  "json_pointer": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 400
+                  }
+                },
+                "required": [
+                  "source_id",
+                  "json_pointer",
+                  "message"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "assumptions": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 2000
+              }
+            },
+            "overrides": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "source_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 400
+                  },
+                  "target_source_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 400
+                  },
+                  "constraint_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 400
+                  },
+                  "before": {
+                    "type": "object"
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 400
+                  }
+                },
+                "required": [
+                  "source_id",
+                  "target_source_id",
+                  "constraint_id",
+                  "before",
+                  "reason"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "order": {
+              "type": "object",
+              "properties": {
+                "constraints": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 400
+                  },
+                  "uniqueItems": true
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "adapter_version",
+            "schema_version",
+            "unresolved",
+            "assumptions",
+            "overrides",
+            "order"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "required": [
+    "record_version",
+    "run_id",
+    "created_at",
+    "request",
+    "response",
+    "execution",
+    "engine",
+    "sources",
+    "provenance",
+    "content_hash",
+    "draft_metadata"
+  ],
+  "additionalProperties": false
+}

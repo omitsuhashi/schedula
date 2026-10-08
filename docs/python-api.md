@@ -136,3 +136,14 @@ spawnと終了処理は[Python 3.14公式文書](https://docs.python.org/3.14/li
 契約0.15の`Request015` / `ShiftCountBalance` / `ShiftCountObjective` / `ShiftCountBalanceSummary`は、
 [勤務回数の明示目標](io-contract-shift-counts.md)を扱う。`balance_id`で目的と対応させ、
 `shift_count_balance_summary`をsolve・verifyで読み取れる。独立検証の結果に最適性は付与しない。
+
+
+## 分割入力と実行記録
+
+外側の入力候補/記録は[Adapter形式1.0](input-adapter.md)で管理します。
+`split_request` / `import_request`、`confirm_source` / `confirmation_state` / `assemble`、
+`read_draft` / `run_draft`、`create_record` / `check_record` / `reverify_record` / `record_view`
+と `get_adapter_schema` / `save_json` を公開します。従来のRequest/solve/verifyは変更しません。
+公開型は `RequestDraft`、`Assembly`、`RunRecord`、`RecordVerification`、`RecordView`。
+[型付き利用例](../examples/typed_adapter.py)をmypy strictで検査できます。
+確認や保存設定を実行Requestへ混入させず、来歴不明と業務値の有効性を分けます。

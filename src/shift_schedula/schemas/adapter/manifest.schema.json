@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:schedula:adapter:manifest:1.0",
+  "type": "object",
+  "properties": {
+    "manifest_version": {
+      "const": "1.0"
+    },
+    "draft": {
+      "type": "object",
+      "properties": {
+        "adapter_version": {
+          "const": "1.0"
+        },
+        "schema_version": {
+          "enum": [
+            "0.1",
+            "0.2",
+            "0.3",
+            "0.4",
+            "0.5",
+            "0.6",
+            "0.7",
+            "0.8",
+            "0.9",
+            "0.10",
+            "0.11",
+            "0.12",
+            "0.13",
+            "0.14",
+            "0.15"
+          ]
+        },
+        "unresolved": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "source_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "json_pointer": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              }
+            },
+            "required": [
+              "source_id",
+              "json_pointer",
+              "message"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "overrides": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "source_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "target_source_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "constraint_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "before": {
+                "type": "object"
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              }
+            },
+            "required": [
+              "source_id",
+              "target_source_id",
+              "constraint_id",
+              "before",
+              "reason"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "order": {
+          "type": "object",
+          "properties": {
+            "constraints": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "uniqueItems": true
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "adapter_version",
+        "schema_version",
+        "unresolved",
+        "assumptions",
+        "overrides",
+        "order"
+      ],
+      "additionalProperties": false
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 400
+      },
+      "minItems": 1,
+      "maxItems": 32,
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "manifest_version",
+    "draft",
+    "files"
+  ],
+  "additionalProperties": false
+}

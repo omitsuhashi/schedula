@@ -376,3 +376,28 @@ def test_json_sample_100_people_30_days(http_server, monkeypatch, standby):
     violations, values = verify_solution(problem, result["solution"])
     assert violations == []
     assert values == tuple(item["value"] for item in result["objectives"])
+
+
+def test_adapter_http_is_inline_and_reverify_preserves_record(http_server):
+    from shift_schedula import check_record, confirm_source, split_request
+
+    draft = split_request(BASELINE)
+    status, result = call(http_server, draft, path="/adapter/check")
+    assert status == 200 and result["status"] == "INVALID_INPUT"
+    for source in draft["sources"]:
+        draft = confirm_source(draft, source["id"])
+    status, result = call(http_server, draft, path="/adapter/run")
+    assert status == 200
+    record = check_record(result["record"])
+    assert result["view"]["current_status"] == "VALID"
+    assert all(not o["proven_optimal"] for o in result["view"]["metrics"]["objectives"])
+    status, restored = call(http_server, record, path="/adapter/verify")
+    assert status == 200 and restored["record"] == record
+    assert restored["view"]["run_id"] == record["run_id"]
+    assert restored["draft"] == draft
+    status, result = call(
+        http_server, {"manifest_version": "1.0", "files": ["/etc/passwd"]}, path="/adapter/run"
+    )
+    assert status == 200 and result["status"] == "INVALID_INPUT"
+    assert call(http_server, body=b'{"a":1,"a":2}', path="/adapter/check")[0] == 400
+    assert call(http_server, method="GET", path="/samples/assignment.draft.json")[0] == 200
