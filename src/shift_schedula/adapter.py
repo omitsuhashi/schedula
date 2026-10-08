@@ -190,7 +190,7 @@ def _confirmation_digest(draft, source):
     return content_hash(
         {
             "schema_version": draft["schema_version"],
-            "source": {k: v for k, v in source.items() if k != "confirmation"},
+            "source": {k: v for k, v in source.items() if k not in {"confirmation", "file"}},
             "applicability": _applicability(draft, source),
             "dependencies": _dependencies(draft, source),
             "overrides": [
@@ -307,6 +307,7 @@ def split_request(request):
 
 def _locations(source, path):
     return {
+        **({"file": source["file"]} if "file" in source else {}),
         "source_id": source["id"],
         "revision": source["revision"],
         "section": source["section"],

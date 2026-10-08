@@ -96,6 +96,8 @@ def read_draft(path):
             size += count
             if size > MAX_TOTAL_BYTES:
                 _reject("TOTAL_TOO_LARGE", "入力ファイルの合計上限を超えました。")
+            if isinstance(source, dict):
+                source["file"] = str(source_path.relative_to(Path(path).resolve().parent))
             value["sources"].append(source)
     check_adapter("draft", value)
     return value

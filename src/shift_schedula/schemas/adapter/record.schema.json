@@ -135,6 +135,10 @@
                     "additionalProperties": false
                   }
                 ]
+              },
+              "file": {
+                "type": "string",
+                "maxLength": 2000
               }
             },
             "required": [
@@ -191,6 +195,10 @@
             },
             "json_pointer": {
               "type": "string"
+            },
+            "file": {
+              "type": "string",
+              "maxLength": 2000
             }
           },
           "required": [

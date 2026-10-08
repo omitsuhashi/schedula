@@ -79,6 +79,8 @@ periodは参照者の技能と役割の必要技能、分類参照は分類値�
 status（VALID / INVALID_INPUT / INTERNAL_ERROR）を返します。ファイル・DB・ネットワーク・
 ソルバーにはアクセスしません。受理したRequestの実行可能性はsolveへ委ねます。
 診断のcode/json_pointer/related_ids/factsを保ち、sourcesに元ID/改訂/区分/元pointerを付けます。
+manifestから読んだ入力元には任意のfile欄を付け、診断/保存記録から元ファイルも特定できます。
+fileは搬送元の位置であり、移動だけでは業務値の確認を失効させません。
 複数所有競合では双方を示します。provenanceは確定Requestのpointerから入力元へ対応します。
 
 ## ファイルとCLI

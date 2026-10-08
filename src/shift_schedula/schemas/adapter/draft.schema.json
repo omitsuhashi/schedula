@@ -205,6 +205,10 @@
               "additionalProperties": false
             }
           ]
+        },
+        "file": {
+          "type": "string",
+          "maxLength": 2000
         }
       },
       "required": [

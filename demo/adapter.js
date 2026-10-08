@@ -70,7 +70,7 @@ async function adapterOperation(action) {
       $("adapter-save-record").disabled = true;
       const area = $("adapter-output");
       area.replaceChildren(details("確認対象・値と改訂・期間・依存情報のdigest", value.confirmations || []),
-        ...((value.diagnostics || []).map(item => node("p", `${item.code}：${item.message} (${item.json_pointer || ""}) 入力元：${(item.sources || []).map(s => `${s.source_id} ${s.json_pointer}`).join(" / ")}`))),
+        ...((value.diagnostics || []).map(item => node("p", `${item.code}：${item.message} (${item.json_pointer || ""}) 入力元：${(item.sources || []).map(s => `${s.file || s.source_id} ${s.json_pointer}`).join(" / ")}`))),
         details("確定Request・入力元対応・診断", value));
       adapterStatus(value.status === "VALID" ? "入力はVALIDです。実行可能性は計算で確認します。" : `${value.status}：必要情報・確認・入力箇所を修正してください。`);
     }

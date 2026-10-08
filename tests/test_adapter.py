@@ -323,7 +323,9 @@ def test_file_boundaries_atomic_save_and_input_protection(tmp_path, monkeypatch)
     }
     path = tmp_path / "manifest.json"
     save_json(path, manifest)
-    assert read_draft(path) == original
+    loaded = read_draft(path)
+    assert loaded == original
+    assert assemble(loaded)["provenance"]["/demand"][0]["file"] == "period.json"
     original_bytes = path.read_bytes()
     with pytest.raises(InvalidInput):
         save_json(path, original, overwrite=True, protected=[path])

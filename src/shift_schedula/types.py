@@ -1210,6 +1210,7 @@ class SourceConfirmation(TypedDict):
 
 
 class InputSource(TypedDict):
+    file: NotRequired[str]
     id: str
     revision: str
     section: Literal["basic", "common", "period", "history", "replanning", "execution", "imported"]
@@ -1245,6 +1246,7 @@ class RequestDraft(TypedDict):
 
 
 class SourceLocation(TypedDict):
+    file: NotRequired[str]
     source_id: str
     revision: str
     section: str
