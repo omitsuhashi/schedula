@@ -330,6 +330,7 @@ function acceptResponse(response, request, requestBoundaries = boundaries) {
       requestBoundaries.some(value => Date.parse(value) === Date.parse(item.interval?.end)) && Date.parse(item.interval.start) < Date.parse(item.interval.end))) throw new Error("担当配置の参照または日時が不正です。");
   const hasPriority = ["0.5", "0.6", "0.7", "0.8", "0.9"].includes(request.schema_version);
   if (["0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9"].includes(request.schema_version)) {
+    if (!success && request.schema_version === "0.9" && (response.cost_summary !== null || response.duty_balance_summary !== null)) throw new Error("計画がない応答に費用・指定区間の集計があります。");
     if (!success) { if (hasPriority && response.priority_summary !== null) throw new Error("計画がない応答にpriority集計があります。"); if (response.shortage_summary !== null) throw new Error("計画がない応答に不足集計があります。"); return; }
     const summary = response.shortage_summary;
     if (!summary || typeof summary.proven_minimal !== "boolean" || !Number.isSafeInteger(summary.total_person_minutes) || !Array.isArray(summary.shortages)) throw new Error("不足集計が不正です。");

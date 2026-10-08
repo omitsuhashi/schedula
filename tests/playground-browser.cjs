@@ -239,6 +239,19 @@ async function jsonInputChecks(page) {
         response.objectives[0].duty_id = "other_duty";
         try { acceptResponse(response, input); return ""; } catch (error) { return error.message; }
       }), /目的が入力と一致しません/);
+      for (const status of ["INFEASIBLE", "UNKNOWN", "INVALID_INPUT", "BACKEND_UNAVAILABLE", "INTERNAL_ERROR"]) {
+        for (const retained of [null, "cost_summary", "duty_balance_summary"]) {
+          const message = await page.evaluate(({status, retained}) => {
+            const {input, response} = structuredClone(jsonPair);
+            Object.assign(response, {status, solution: null, objectives: [], fairness_summary: null, change_summary: null, continuity_summary: null, shortage_summary: null, priority_summary: null, cost_summary: null, duty_balance_summary: null, verification: {performed: false, valid: null, violations: []}});
+            if (retained) response[retained] = jsonPair.response[retained];
+            try { acceptResponse(response, input); return ""; } catch (error) { return error.message; }
+          }, {status, retained});
+          if (retained) assert.match(message, /計画がない応答に費用・指定区間の集計があります/, `${status}/${retained}`);
+          else assert.equal(message, "", status);
+        }
+      }
+      report.response_samples.push("契約0.9の全5失敗状態：費用・指定区間の集計を個別に残すと拒否、両方nullなら受理");
     }
   }
   for (const schema_version of ["0.6", "0.7", "0.8", "0.9"]) {
