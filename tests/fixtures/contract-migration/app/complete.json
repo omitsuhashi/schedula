@@ -1080,7 +1080,7 @@
           "duty_balance_summary": null
         },
         "execution": {
-          "num_workers": 1
+          "num_workers": 2
         },
         "engine": {
           "version": "0.1.6",
