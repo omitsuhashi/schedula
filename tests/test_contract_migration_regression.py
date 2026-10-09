@@ -1,6 +1,7 @@
 """旧版の意味の比較と、現行0.15の独立した回帰基準。"""
 
 import copy
+import hashlib
 import itertools
 from pathlib import Path
 
@@ -15,13 +16,19 @@ from tests.test_objectives import METRICS, control_search, tradeoff_request
 from tests.test_roster import exhaustive_value as exhaustive_roster_value
 
 FIXTURES = Path(__file__).parent / "fixtures/contract-migration"
-CASES = tuple(
-    row["name"] for row in load_json((FIXTURES / "cases.json").read_text(encoding="utf-8"))["cases"]
-)
+MANIFEST = load_json((FIXTURES / "cases.json").read_text(encoding="utf-8"))
+CASES = tuple(row["name"] for row in MANIFEST["cases"])
 
 
 def read_case(name, kind):
     return load_json((FIXTURES / f"{name}.{kind}.json").read_text(encoding="utf-8"))
+
+
+@pytest.mark.parametrize("case", MANIFEST["cases"], ids=CASES)
+def test_representative_bytes_match_recorded_hashes(case):
+    for kind, field in (("legacy", "legacy_sha256"), ("015", "target_sha256")):
+        path = FIXTURES / f"{case['name']}.{kind}.json"
+        assert hashlib.sha256(path.read_bytes()).hexdigest() == case[field], path.name
 
 
 def test_representatives_cover_every_legacy_version():

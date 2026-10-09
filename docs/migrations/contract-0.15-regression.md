@@ -24,6 +24,7 @@ verifyが最適性を付与しないことも確認する。
 [比較fixture](../../tests/fixtures/contract-migration/cases.json) は0.1〜0.14の全版を含む16組。
 各 `.legacy.json` は基点examplesの原bytes、`.015.json` はレビュー可能な明示した比較入力である。
 原SHA・移行先SHA・由来・旧版を対応付け、原本のexamplesを更新しても旧代表を失わない。
+テストで両fixtureの原bytesのSHA-256を記録値と照合し、比較基準の意図しない変更を検出する。
 これは移行処理の実装ではなく、#109 が実装する変換の期待入力としても使う。
 
 | 導入版 | 代表 | 維持する条件・観察 |
