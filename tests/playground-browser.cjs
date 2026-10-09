@@ -808,13 +808,25 @@ async function main() {
   await page.locator('#restore').click();
   initial = await verified(page, {status: 'OPTIMAL', assigned_slots: 22});
 
+  for (const state of ["INTERNAL_ERROR", "UNKNOWN"]) {
+    const message = await page.evaluate(state => {
+      const response = structuredClone(current.response);
+      Object.assign(response, {status: state, solution: null, objectives: [], verification: {performed: true, valid: false, violations: [{code: "PLAN_INVALID", message: "原条件に違反", related_ids: [], facts: []}]}});
+      for (const key of Object.keys(response)) if (key.endsWith("_summary")) response[key] = null;
+      try { acceptResponse(response, current.input); return ""; } catch (error) { return error.message; }
+    }, state);
+    if (state === "INTERNAL_ERROR") assert.equal(message, "");
+    else assert.match(message, /検証状態が不正/);
+  }
+
   // 以下は実エンジンの実測ではなく、表示・応答失効を確認する応答サンプル。
-  for (const state of ["INFEASIBLE", "UNKNOWN", "INVALID_INPUT", "BACKEND_UNAVAILABLE", "INTERNAL_ERROR"]) {
+  for (const [state, performed] of [["INFEASIBLE", false], ["UNKNOWN", false], ["INVALID_INPUT", false], ["BACKEND_UNAVAILABLE", false], ["INTERNAL_ERROR", false], ["INTERNAL_ERROR", true]]) {
     await page.route("**/solve", async route => {
       const result = structuredClone(initial.response);
       result.request_id = route.request().postDataJSON().request_id;
       result.status = state;
       if (state !== "FEASIBLE") { result.shortage_summary = null; result.priority_summary = null; result.solution = null; result.objectives = []; result.verification = {performed: false, valid: null, violations: []}; }
+      if (performed) result.verification = {performed: true, valid: false, violations: []};
       result.diagnostics = [{code: "DISPLAY_SAMPLE", message: "表示確認用の応答サンプル", json_pointer: "/demand/0/required_people", related_ids: [], facts: []}];
       await route.fulfill({json: result});
     });
@@ -824,7 +836,7 @@ async function main() {
     if (state !== "FEASIBLE") assert.ok(!(await page.locator("#comparison").innerText()).includes("担当差分："));
     await page.getByRole("button", {name: /入力欄へ/}).click();
     assert.equal(await page.evaluate(() => document.activeElement.dataset.pointer), "/demand/0/required_people");
-    report.response_samples.push(state);
+    report.response_samples.push(performed ? `${state}_VERIFIED` : state);
     await page.unroute("**/solve");
   }
   for (const kind of ["http-error", "communication", "request-id", "verification", "malformed", "shortage", "double"]) {

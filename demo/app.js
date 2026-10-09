@@ -328,7 +328,8 @@ function acceptResponse(response, request, requestBoundaries = boundaries) {
   if (!response.diagnostics.every(item => item && typeof item.code === "string" && typeof item.message === "string") ||
       !response.objectives.every(item => item && typeof item.proven_optimal === "boolean" && Number.isFinite(item.value))) throw new Error("応答の診断または評価値が不正です。");
   if (!success) {
-    if (response.verification.performed !== false || response.verification.valid !== null) throw new Error("解なし応答の検証状態が不正です。");
+    const failedVerification = response.status === "INTERNAL_ERROR" && response.verification.performed === true && response.verification.valid === false;
+    if (!failedVerification && (response.verification.performed !== false || response.verification.valid !== null)) throw new Error("解なし応答の検証状態が不正です。");
     if (response.cost_summary !== null || response.duty_balance_summary !== null) throw new Error("計画がない応答に費用・指定区間の集計があります。");
     if (response.priority_summary !== null) throw new Error("計画がない応答にpriority集計があります。");
     if (response.shortage_summary !== null) throw new Error("計画がない応答に不足集計があります。");
