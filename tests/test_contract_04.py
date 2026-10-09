@@ -1,4 +1,4 @@
-"""契約0.4の業務条件・再計画・公開検証を外部入口から確認する。"""
+"""0.4由来の業務条件・再計画・公開検証を0.15で確認し、旧版境界を分ける。"""
 
 import copy
 import itertools
@@ -13,18 +13,21 @@ from shift_schedula import cp_sat, get_schema, make_baseline, solve, verify
 from shift_schedula.contract import SCHEMA_VERSIONS, InvalidInput, schema_errors
 from shift_schedula.engine import validate_response
 from shift_schedula.model import normalize
-from tests.roster_support import demand, interval, stamp
-from tests.roster_support import legacy_request as request
-from tests.roster_support import legacy_template as template
-from tests.support import assert_response
-from tests.test_extensions import legacy_extended as extended
-from tests.test_extensions import selected
+from tests.roster_support import (
+    demand,
+    interval,
+    legacy_request,
+    legacy_template,
+    request,
+    stamp,
+    template,
+)
+from tests.support import assert_response, require_complete_demand
+from tests.test_extensions import legacy_extended, selected
 
 
 def current(data=None):
-    data = extended(request() if data is None else data)
-    data["schema_version"] = "0.4"
-    return data
+    return copy.deepcopy(request() if data is None else data)
 
 
 def bounds(
@@ -57,14 +60,17 @@ def preference(
 
 @pytest.mark.parametrize("version", SCHEMA_VERSIONS)
 def test_candidate_count_removed_for_explicit_generated_and_selected_shifts(version):
-    data = request()
-    if version != "0.1":
-        data = extended(data)
+    make_request = request if version == "0.15" else legacy_request
+    data = make_request()
+    if version not in {"0.1", "0.15"}:
+        data = legacy_extended(data)
     data["schema_version"] = version
     data["shift_candidates"] = [
         {**data["shift_candidates"][0], "id": f"choice_{i}"} for i in range(5001)
     ]
     data["demand"] = [demand()]
+    if version == "0.15":
+        require_complete_demand(data)
     original = copy.deepcopy(data)
     result = solve(data)
     assert_response(result, "OPTIMAL")
@@ -72,27 +78,28 @@ def test_candidate_count_removed_for_explicit_generated_and_selected_shifts(vers
     assert data == original
     data["shift_candidates"][0]["employee_id"] = "missing"
     assert_response(solve(data), "INVALID_INPUT")
-    many = request(days=21, employees=tuple(f"e{i}" for i in range(239)))
-    if version != "0.1":
-        many = extended(many)
+    many = make_request(days=21, employees=tuple(f"e{i}" for i in range(239)))
+    if version not in {"0.1", "0.15"}:
+        many = legacy_extended(many)
     many["schema_version"] = version
     solution = {"assignments": [], "shifts": [selected(c) for c in many["shift_candidates"]]}
     assert len(solution["shifts"]) == 5019
     assert not schema_errors("solution", solution, version)
     assert verify(many, solution)["status"] == "VALID"
-    generated = request(days=30, employees=tuple(f"e{i}" for i in range(100)))
+    generated = make_request(days=30, employees=tuple(f"e{i}" for i in range(100)))
     generated["roles"] = generated["roles"][:1]
     generated["shift_candidates"] = []
+    make_template = template if version == "0.15" else legacy_template
     generated["shift_templates"] = [
-        template(
+        make_template(
             tuple(e["id"] for e in generated["employees"]),
             tuple(stamp(d)[:10] for d in range(30)),
             starts=("10:00", "10:30"),
             durations=(60,),
         )
     ]
-    if version != "0.1":
-        generated = extended(generated)
+    if version not in {"0.1", "0.15"}:
+        generated = legacy_extended(generated)
         t = generated["shift_templates"][0]
         t.pop("duration_minutes_options")
         t.pop("break_options")
@@ -104,7 +111,7 @@ def test_candidate_count_removed_for_explicit_generated_and_selected_shifts(vers
 @pytest.mark.parametrize("version", ["0.1", "0.2", "0.3"])
 @pytest.mark.parametrize("field", ["replan_mode", "bounds", "preference"])
 def test_new_conditions_rejected_by_old_versions(version, field):
-    data = request() if version == "0.1" else extended(request())
+    data = legacy_request() if version == "0.1" else legacy_extended(legacy_request())
     data["schema_version"] = version
     if field == "replan_mode":
         data[field] = "rebuild"
@@ -156,6 +163,7 @@ def test_bounds_validation(mutation, code):
     assert result["diagnostics"][0]["code"] == code
 
 
+@pytest.mark.parametrize("complete", [False, True])
 @pytest.mark.parametrize(
     "minimum,maximum,status",
     [
@@ -167,9 +175,13 @@ def test_bounds_validation(mutation, code):
         (0, 0, "PARTIAL"),
     ],
 )
-def test_bounds_boundary_and_standby_are_hard(minimum, maximum, status):
+def test_bounds_boundary_and_standby_are_hard(minimum, maximum, status, complete):
     data = current()
     data["demand"] = [demand()]
+    if complete:
+        require_complete_demand(data)
+        if status == "PARTIAL":
+            status = "INFEASIBLE"
     data["constraints"] = [bounds(minimum=minimum, maximum=maximum)]
     result = solve(data)
     assert_response(result, status)
@@ -367,6 +379,29 @@ def test_preserve_vs_rebuild_comparison_and_repeated_snapshots():
         assert min((2 - sum(x is not None for x in pair)) * 30 for pair in choices) == expected
 
 
+@pytest.mark.parametrize(
+    "mode,status", [("preserve_assigned", "INFEASIBLE"), ("rebuild", "OPTIMAL")]
+)
+def test_current_minimum_is_hard_without_changing_partial_baseline(mode, status):
+    data = replan_case()
+    saved = copy.deepcopy(data["baseline"])
+    assert saved["source_request"]["schema_version"] == "0.15"
+    checked = verify(saved["source_request"], saved["source_solution"])
+    assert checked["status"] == "PARTIAL"
+    assert checked["shortage_summary"]["proven_minimal"] is False
+    require_complete_demand(data)
+    data["replan_mode"] = mode
+    original = copy.deepcopy(data)
+    result = solve(data)
+    assert_response(result, status)
+    assert data == original and data["baseline"] == saved
+    if result["solution"] is not None:
+        assert verify(data, result["solution"])["status"] == "VALID"
+    empty = verify(data, {"assignments": [], "shifts": []})
+    assert empty["status"] == "INVALID_PLAN"
+    assert any(v["code"] == "MINIMUM_DEMAND_VIOLATION" for v in empty["diagnostics"])
+
+
 @pytest.mark.parametrize("conflict", ["availability", "removed_employee"])
 def test_fixed_new_conditions_are_infeasible_and_never_unfixed(conflict):
     data = replan_case()
@@ -452,10 +487,17 @@ def test_preserved_assignments_over_1000_do_not_expand_fixed_parts():
     assert data["fixed_parts"] == []
 
 
-@pytest.mark.parametrize("version", SCHEMA_VERSIONS)
-def test_verification_has_no_solver_call_or_proofs(version, monkeypatch, legacy_assignment_request):
-    data = copy.deepcopy(legacy_assignment_request)
+@pytest.mark.parametrize(
+    "version,complete", [(v, False) for v in SCHEMA_VERSIONS] + [("0.15", True)]
+)
+def test_verification_has_no_solver_call_or_proofs(
+    version, complete, monkeypatch, assignment_request, legacy_assignment_request
+):
+    data = copy.deepcopy(assignment_request if version == "0.15" else legacy_assignment_request)
     data["schema_version"] = version
+    if version == "0.15":
+        for item in data["demand"]:
+            item["minimum_people"] = item["required_people"] if complete else 0
     result = solve(data)
 
     def forbidden(*args):
@@ -473,24 +515,7 @@ def test_verification_has_no_solver_call_or_proofs(version, monkeypatch, legacy_
     assert verify(data, result["solution"])["status"] == "INVALID_PLAN"
     checked = verify(data, {"assignments": [], "shifts": []})
     assert checked["status"] == (
-        "PARTIAL"
-        if version
-        in {
-            "0.3",
-            "0.4",
-            "0.5",
-            "0.6",
-            "0.7",
-            "0.8",
-            "0.9",
-            "0.10",
-            "0.11",
-            "0.12",
-            "0.13",
-            "0.14",
-            "0.15",
-        }
-        else "INVALID_PLAN"
+        "INVALID_PLAN" if version in {"0.1", "0.2"} or complete else "PARTIAL"
     )
 
 
@@ -561,8 +586,10 @@ def test_verification_invalid_input_and_internal_failure_are_not_valid(monkeypat
     assert result["verification"]["valid"] is not True
 
 
-def test_public_schema_and_cli_verify(tmp_path):
+@pytest.mark.parametrize("version", ["0.4", "0.15"])
+def test_public_schema_and_cli_verify(tmp_path, version):
     data = current()
+    data["schema_version"] = version
     data["demand"] = [demand()]
     solution = solve(data)["solution"]
     req, sol = tmp_path / "request.json", tmp_path / "solution.json"
@@ -570,12 +597,12 @@ def test_public_schema_and_cli_verify(tmp_path):
     sol.write_text(json.dumps(solution))
     for kind in ("request", "response", "solution", "verification"):
         proc = subprocess.run(
-            [sys.executable, "-m", "shift_schedula", "schema", kind, "--schema-version", "0.4"],
+            [sys.executable, "-m", "shift_schedula", "schema", kind, "--schema-version", version],
             capture_output=True,
             text=True,
         )
         assert proc.returncode == 0
-        assert json.loads(proc.stdout) == get_schema(kind, "0.4")
+        assert json.loads(proc.stdout) == get_schema(kind, version)
     proc = subprocess.run(
         [sys.executable, "-m", "shift_schedula", "verify", str(req), str(sol)],
         capture_output=True,
@@ -708,5 +735,5 @@ def test_cli_malformed_solution_keeps_request_version_and_identity(tmp_path):
     )
     checked = json.loads(result.stdout)
     assert result.returncode == 2 and checked["status"] == "INVALID_INPUT"
-    assert checked["schema_version"] == "0.4" and checked["request_id"] == data["request_id"]
+    assert checked["schema_version"] == "0.15" and checked["request_id"] == data["request_id"]
     assert not schema_errors("verification", checked)
