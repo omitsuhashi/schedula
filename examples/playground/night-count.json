@@ -1,0 +1,184 @@
+{
+  "schema_version": "0.15",
+  "request_id": "demo_shift_count_balance",
+  "problem_type": "roster",
+  "planning_window": {
+    "start": "2026-10-06T00:00:00+09:00",
+    "end": "2026-10-07T00:00:00+09:00",
+    "timezone": "Asia/Tokyo",
+    "slot_minutes": 30
+  },
+  "skills": [],
+  "roles": [
+    {
+      "id": "kitchen",
+      "label": "kitchen",
+      "required_skills": []
+    }
+  ],
+  "employees": [
+    {
+      "id": "alice",
+      "label": "Alice",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-06T00:00:00+09:00",
+          "end": "2026-10-08T00:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "id": "bob",
+      "label": "Bob",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-06T00:00:00+09:00",
+          "end": "2026-10-08T00:00:00+09:00"
+        }
+      ]
+    }
+  ],
+  "demand": [
+    {
+      "id": "night_need",
+      "role_id": "kitchen",
+      "interval": {
+        "start": "2026-10-06T20:00:00+09:00",
+        "end": "2026-10-07T00:00:00+09:00"
+      },
+      "required_people": 1,
+      "priority": 10
+    }
+  ],
+  "shift_candidates": [
+    {
+      "id": "alice_night",
+      "employee_id": "alice",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-06T20:00:00+09:00",
+            "end": "2026-10-07T00:00:00+09:00"
+          },
+          "breaks": []
+        }
+      ]
+    },
+    {
+      "id": "bob_night",
+      "employee_id": "bob",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-06T20:00:00+09:00",
+            "end": "2026-10-07T00:00:00+09:00"
+          },
+          "breaks": []
+        }
+      ]
+    }
+  ],
+  "constraints": [],
+  "preferences": [],
+  "objectives": [
+    {
+      "id": "balance_count",
+      "metric": "shift_count_deviation",
+      "balance_id": "night_count"
+    },
+    {
+      "id": "work",
+      "metric": "scheduled_minutes"
+    }
+  ],
+  "solver": {
+    "backend": "cp_sat",
+    "time_limit_seconds": 5,
+    "seed": 0
+  },
+  "continuity": {
+    "context_window": {
+      "start": "2026-10-05T00:00:00+09:00",
+      "end": "2026-10-08T00:00:00+09:00"
+    },
+    "employees": [
+      {
+        "employee_id": "alice",
+        "before_context": {
+          "last_shift_end": null,
+          "last_work_day": null,
+          "consecutive_work_days_before_window": 0
+        },
+        "past_complete": true,
+        "actual_shifts": [
+          {
+            "id": "past_alice",
+            "segments": [
+              {
+                "interval": {
+                  "start": "2026-10-05T20:00:00+09:00",
+                  "end": "2026-10-06T00:00:00+09:00"
+                },
+                "breaks": []
+              }
+            ]
+          }
+        ],
+        "commitments_complete": true,
+        "committed_shifts": []
+      },
+      {
+        "employee_id": "bob",
+        "before_context": {
+          "last_shift_end": null,
+          "last_work_day": null,
+          "consecutive_work_days_before_window": 0
+        },
+        "past_complete": true,
+        "actual_shifts": [],
+        "commitments_complete": true,
+        "committed_shifts": []
+      }
+    ]
+  },
+  "shift_categories": [
+    {
+      "id": "night",
+      "label": "夜勤",
+      "intervals": [
+        {
+          "start": "2026-10-05T20:00:00+09:00",
+          "end": "2026-10-06T00:00:00+09:00"
+        },
+        {
+          "start": "2026-10-06T20:00:00+09:00",
+          "end": "2026-10-07T00:00:00+09:00"
+        }
+      ],
+      "min_overlap_minutes": 60
+    }
+  ],
+  "shift_count_balance": [
+    {
+      "id": "night_count",
+      "label": "夜勤回数",
+      "category_id": "night",
+      "evaluation_period": {
+        "start": "2026-10-05T00:00:00+09:00",
+        "end": "2026-10-08T00:00:00+09:00"
+      },
+      "employee_targets": [
+        {
+          "employee_id": "alice",
+          "target_count": 1
+        },
+        {
+          "employee_id": "bob",
+          "target_count": 1
+        }
+      ]
+    }
+  ]
+}

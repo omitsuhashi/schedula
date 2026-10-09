@@ -88,7 +88,11 @@ def work_runs(request, solution):
     return longest, first_runs
 
 
-@pytest.mark.parametrize("lesson", LESSONS, ids=lambda item: item["id"])
+@pytest.mark.parametrize(
+    "lesson",
+    [item for item in LESSONS if item["operation"] == "solve"],
+    ids=lambda item: item["id"],
+)
 def test_lesson_initial_changes_history_and_restore(lesson):
     baseline = json.loads((SAMPLES / lesson["request_file"]).read_text(encoding="utf-8"))
     saved = copy.deepcopy(baseline)
@@ -127,7 +131,7 @@ def test_lesson_initial_changes_history_and_restore(lesson):
                 assert {s["demand_id"] for s in result["shortage_summary"]["shortages"]} <= set(
                     needs
                 )
-        else:
+        elif lesson["id"] == "consecutive_days":
             assert request["demand"] == baseline["demand"]
             assert request["shift_templates"] == baseline["shift_templates"]
             assert request["preferences"] == baseline["preferences"]
@@ -149,6 +153,26 @@ def test_lesson_initial_changes_history_and_restore(lesson):
                     for s in result["solution"]["shifts"]
                     if s["work_day"] < "2026-10-10"
                 } <= {"a"}
+        else:
+            assert request["demand"] == baseline["demand"]
+            assert request["shift_candidates"] == baseline["shift_candidates"]
+            assert request["continuity"] == baseline["continuity"]
+            summary = result["shift_count_balance_summary"][0]
+            assert summary == checked["shift_count_balance_summary"][0]
+            assert summary["total_deviation_count"] == expected["total_deviation_count"]
+            if "actual_counts" in expected:
+                assert {
+                    e["employee_id"]: e["actual_count"] for e in summary["employees"]
+                } == expected["actual_counts"]
+            if step["id"] == "goals":
+                unchanged = copy.deepcopy(request)
+                unchanged["shift_count_balance"] = baseline["shift_count_balance"]
+                assert unchanged == baseline
+            if step["id"] == "zero":
+                assert all(e["target_count"] == 0 for e in summary["employees"])
+            if step["id"] == "unspecified":
+                assert {e["employee_id"] for e in summary["employees"]} == {"bob"}
+            assert summary["unit"] == "shifts" and summary["scale"] == "absolute_deviation"
         if step["id"] == "restored" or step["id"] == "initial":
             assert request == baseline
     assert baseline == saved
@@ -163,3 +187,52 @@ def test_invalid_input_and_required_minimum_are_not_partial_plans():
     assert solve(request)["status"] == "INFEASIBLE"
     request["demand"][0]["required_people"] = -1
     assert solve(request)["status"] == "INVALID_INPUT"
+
+
+def test_manual_verify_invalid_partial_repair_and_restore():
+    from shift_schedula.contract import schema_errors
+
+    lesson = next(item for item in LESSONS if item["id"] == "verify")
+    request = json.loads((SAMPLES / lesson["request_file"]).read_text())
+    initial = json.loads((SAMPLES / lesson["solution_file"]).read_text())
+    solution = copy.deepcopy(initial)
+    original_request = copy.deepcopy(request)
+    for step in lesson["steps"]:
+        if step["restore"]:
+            solution = copy.deepcopy(initial)
+        if "kitchen_employee" in step["changes"]:
+            solution["assignments"] = [
+                a for a in solution["assignments"] if a["role_id"] != "kitchen"
+            ]
+            employee = step["changes"]["kitchen_employee"]
+            if employee:
+                solution["assignments"].insert(
+                    0, {**copy.deepcopy(initial["assignments"][0]), "employee_id": employee}
+                )
+        saved = copy.deepcopy(solution)
+        result = verify(request, solution)
+        assert result["status"] == step["expected"]["status"]
+        assert not schema_errors("verification", result)
+        assert solution == saved and request == original_request
+        assert result["verification"]["valid"] == (result["status"] != "INVALID_PLAN")
+        if result["status"] == "INVALID_PLAN":
+            assert all(
+                v["code"] == "DOUBLE_ASSIGNMENT" and v["json_pointer"] == "/assignments/1"
+                for v in result["verification"]["violations"]
+            )
+            assert result["shortage_summary"] is None
+        else:
+            assert (
+                result["shortage_summary"]["total_person_minutes"]
+                == step["expected"]["total_person_minutes"]
+            )
+            assert not result["shortage_summary"]["proven_minimal"]
+            assert all(not g["proven_minimal"] for g in result["priority_summary"]["groups"])
+        assert all(not o["proven_optimal"] for o in result["objectives"])
+        assert solution["shifts"] == initial["shifts"]
+        if step["id"] in {"initial", "restored"}:
+            assert solution == initial
+    request["demand"][0]["required_people"] = -1
+    result = verify(request, initial)
+    assert result["status"] == "INVALID_INPUT"
+    assert not result["verification"]["performed"] and result["verification"]["valid"] is None

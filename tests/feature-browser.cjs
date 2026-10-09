@@ -14,7 +14,7 @@ module.exports = async (browser, url, report) => {
   assert.equal(await page.locator("#feature-list .feature-cards li").count(), 44);
   assert.equal(requests, 0);
   assert.equal(await page.locator("#editor").isVisible(), false);
-  for (const lesson of lessons) {
+  for (const lesson of lessons.filter(item => item.operation === "solve")) {
     await page.goto(`${url}#${lesson.id}`);
     await ready(page);
     const initial = await page.evaluate(() => structuredClone(feature.current));
@@ -33,6 +33,14 @@ module.exports = async (browser, url, report) => {
       assert.equal(pair.response.status, step.expected.status);
       assert.equal(pair.response.shortage_summary.total_person_minutes, step.expected.total_person_minutes);
       assert.equal(pair.response.verification.valid, true);
+      if (step.expected.total_deviation_count !== undefined) {
+        const summary = pair.response.shift_count_balance_summary[0];
+        assert.equal(summary.total_deviation_count, step.expected.total_deviation_count);
+        if (step.expected.actual_counts) assert.deepEqual(Object.fromEntries(summary.employees.map(item => [item.employee_id, item.actual_count])), step.expected.actual_counts);
+        if (step.id === "unspecified") assert.match(await page.locator("#feature-output").innerText(), /目標未指定・対象外/);
+        if (step.id === "zero") assert.match(await page.locator("#feature-output").innerText(), /目標0回/);
+        if (step.id === "classification") assert.match(await page.locator("#feature-output").innerText(), /22:00.*重なり300分/);
+      }
       if (step.expected.max_consecutive_days) {
         assert.equal(await page.evaluate(() => Math.max(...consecutiveRuns(feature.current).map(item => item.maximum))), step.expected.max_consecutive_days);
       }
@@ -48,7 +56,7 @@ module.exports = async (browser, url, report) => {
     await page.locator("#feature-run").click(); await ready(page);
     await page.setViewportSize({width: 390, height: 844});
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
-    await page.getByRole("region", {name: lesson.id === "demand" ? "JSON の担当配置表" : "日別の勤務表", exact: true}).focus();
+    await page.getByRole("region", {name: lesson.id === "consecutive_days" ? "日別の勤務表" : "JSON の担当配置表", exact: true}).focus();
     await page.keyboard.press("ArrowRight");
     await page.screenshot({path: `test-results/feature-${lesson.id}-mobile.png`, fullPage: true});
     await page.setViewportSize({width: 1440, height: 1000});
@@ -58,6 +66,7 @@ module.exports = async (browser, url, report) => {
     report.feature_measurements ||= [];
     report.feature_measurements.push(...await page.evaluate(() => featureMeasurements.splice(0)));
   }
+  await require("./verify-browser.cjs")(page, url, report);
   // 初期解なし→編集→実再試行。制御応答の証拠として記録する。
   let first = true;
   await page.route("**/solve-json", async route => {
@@ -82,9 +91,11 @@ module.exports = async (browser, url, report) => {
   assert.match(await page.locator("#feature-status").innerText(), /BUSY/);
   await page.unroute("**/solve-json");
   await page.locator("#feature-run").click(); await ready(page);
-  let release, started;
+  let release, started, captured = false;
   const waiting = new Promise(resolve => { started = resolve; });
   await page.route("**/solve-json", async route => {
+    if (captured) return route.continue();
+    captured = true;
     const response = await route.fetch(); started();
     await new Promise(resolve => { release = resolve; });
     await route.fulfill({response}).catch(() => {});
@@ -94,7 +105,8 @@ module.exports = async (browser, url, report) => {
   await page.evaluate(() => { runFeature(); runFeature(); });
   assert.equal(requests, beforeRetry);
   await page.evaluate(() => { location.hash = "consecutive_days"; });
-  await page.unroute("**/solve-json"); release(); await ready(page);
+  await page.waitForFunction(() => lesson?.id === "consecutive_days");
+  release(); await page.unrouteAll({behavior: "wait"}); await ready(page);
   assert.equal(await page.evaluate(() => feature.current.input.request_id), "demo_consecutive_days");
   const differences = await page.evaluate(() => {
     const before = {employees: [{id: "a", skills: [{skill_id: "s", level: 1}], availability: [{start: "2026-10-01T09:00:00+09:00", end: "2026-10-01T10:00:00+09:00"}]}], objectives: [{metric: "scheduled_cost"}, {metric: "preference_penalty"}]};
