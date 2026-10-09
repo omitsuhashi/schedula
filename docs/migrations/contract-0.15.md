@@ -16,6 +16,10 @@
 利用者回答により、利用側は `omitsuhashi/schedula` と `omitsuhashi/schedula-app` に限定する。
 この範囲外の利用を仮定した移行基盤は作らない。
 
+過去版の利用はリリース版の再インストールで対応し、未リリース版は固定commitと既存lockから再構築する。
+旧環境のwheel・lock・ソースを別途複製して保管したり、その保存物や復旧を常設検証したりする作業は行わない。
+今回の検証は0.15での機能維持と、対象データの変換・再検証・原本を上書きしない失敗処理に絞る。
+
 | 対象 | 固定した基点と確認方法 |
 | --- | --- |
 | エンジン | main `bbb7a93b757cc3272943bbc09f9f2dcb359bd457`、配布版0.1.6、契約0.1〜0.15、Adapter/manifest/record 1.0。契約文書、ADR-0001〜0009、公開型、求解・検証、CLI、例・テストを照合 |
@@ -81,7 +85,7 @@ priorityは必須充足の代替にならない。正の需要が全て完全充
 0.1の `{"id":"c","employee_id":"alice","interval":I,"breaks":B}` は
 `{"id":"c","employee_id":"alice","segments":[{"interval":I,"breaks":B}]}` へ移す。
 テンプレートは元の開始時刻×勤務長×休憩位置の直積をsegment_optionsへ移し、
-旧版と同じ生成ID・候補集合・フィルタリングを固定旧環境で比較する。
+基点commitの例と維持テストを使い、旧版と同じ生成ID・候補集合・フィルタリングを確認する。
 日時やavailabilityを動かさず、旧版で不正だったテンプレートを新形状で救済しない。
 
 旧0.1の履歴が `last_shift_end: null`、連勤数0なら確認済み空履歴なので、
@@ -122,13 +126,13 @@ diagnosis・suggestionsは元Responseの過去証拠を保持し、移行した�
 | RequestDraft | examples/adapterのdraft、testsで生成。outer 1.0、inner 0.1/0.3/0.4/0.6等 | 確認済み空と未確認、assumptions/unresolvedを保全。内版・意味・値・依存が変わる入力元のdigest/確認を失効。無変更部分の確認を一律失効させない |
 | manifest/入力元 | assignment.manifest.jsonと明示された4参照ファイル、outer 1.0、inner 0.1 | 一つの参照単位として別出力へ。改訂・applies_to・順序・override・referencesを追跡し、追加下限や履歴を所有する元だけ更新。パス境界を緩めない |
 | record | tests/test_adapter.pyとデモ操作で生成、常設保存recordは未確認 | 原Request/Response/実行設定/source/provenance、元run_idを保持。内容変更後は別run_id、元証拠とcurrent_verificationを別保存。外側形状が変わる場合だけ版を変更 |
-| アプリJSON | schedula-app/1、engine pin、input文字列、plans、selected/baseline、edit。後述の合成代表1件を保存 | 旧restoreで全解を再検証→明示移行→新pinの新JSON/新セッションへ。未完成input/editを勝手に正規化しない。元証拠をevidenceへ、現在結果をresultへ |
-| アプリSQLite | DB Schema 1、metadata.engine、sessionsとplans。合成代表は1セッション/2計画、実保存先は確認中 | 標準backupで整合した旧DBを保存。旧pinの読取・再検証後、新しい専用ディレクトリへ新pinのDBを作る。稼働原本/既存セッションを上書きしない |
+| アプリJSON | schedula-app/1、engine pin、input文字列、plans、selected/baseline、edit。実保存先は確認中 | 対象の旧pinを確認して明示移行し、新pinの新JSON/新セッションで全解を再検証する。未完成input/editを勝手に正規化しない。元証拠をevidenceへ、現在結果をresultへ |
+| アプリSQLite | DB Schema 1、metadata.engine、sessionsとplans。実保存先は確認中 | 実データを移行する場合は既存の標準backupで整合した読取元を得る。新しい専用ディレクトリへ新pinのDBを作り、稼働原本/既存セッションを上書きしない |
 | 過去測定・参照原本 | docs/evaluations/results、docs/reference | 歴史資料として版・当時の結果を保持。通常回帰と再実行入力だけ #107/#124へ対応付ける。過去の成功を新契約の証明に読み替えない |
 
 実保存データがない形式にも意味の対応と各旧版の代表移行試験を残す。
-発見時に元版に対応する固定環境で確認し、不正は拒否、不足事実は要確認、
-変換できない元証拠は旧環境で保管する。汎用移行サービス・自動探索・通常入口の暗黙変換は作らない。
+不正は拒否、不足事実は要確認とし、変換できない元証拠は原本データとして保持する。
+旧版での照合が必要な場合だけ当時の版を一時導入する。汎用移行サービス・自動探索・通常入口の暗黙変換は作らない。
 
 ## 公開入口と実行環境
 
@@ -146,8 +150,6 @@ diagnosis・suggestionsは元Responseの過去証拠を保持し、移行した�
 
 詳細は[Python公開API](../python-api.md)、[配布方針](../distribution.md)、
 [入力Adapter](../input-adapter.md)、[CI](https://github.com/omitsuhashi/schedula/blob/bbb7a93b757cc3272943bbc09f9f2dcb359bd457/.github/workflows/ci.yml)に対応付ける。
-旧固定環境は通常配布のwheel/sdistから除外し、
-[Git保存した復旧用成果物](https://github.com/omitsuhashi/schedula/tree/74424c0a3658c21a4f1cf3afdb2cfea3f817faac/docs/migrations/legacy)から取得する。
 旧Schemaの常設再同梱で移行を解決しない。
 
 ## schedula-appの接続と保存の決定
@@ -160,10 +162,10 @@ diagnosis・suggestionsは元Responseの過去証拠を保持し、移行した�
 | 編集・計算 | vendor wheel/manifest/依存パス/lock、公開Schemaを0.15の候補へまとめて更新。form/サンプル/JSON/HTTPの契約を揃え、文字列inputは未完成のまま保存できる |
 | 比較・採用 | 同じ新条件でpreserve_assigned/rebuildを別実行。原Request/解は不変、採用前に公開verify。PARTIALの採用を完全充足や実績としない |
 | 月次・個人別・比較 | 元Request/原勤務/現在verifyの不足・全summaryを渡す。分数・日数・回数・費用・状態差と証明範囲を区別。表示のための再求解や別業務集計器を作らない |
-| JSON取込・保存 | engineのversion/schema_version/commit/sha256は引き続き完全一致。旧JSONを通常restoreで黙って受け入れない。明示移行入口が旧pinを旧環境で照合して別ファイルを作り、その後通常restoreへ渡す |
+| JSON取込・保存 | engineのversion/schema_version/commit/sha256は引き続き完全一致。旧JSONを通常restoreで黙って受け入れない。明示移行入口が対象の旧pinを確認して別ファイルを作り、その後通常restoreへ渡す |
 | SQLite | DBのテーブル形状が同じならDB Schema 1を保つ。metadata.engineだけの書換えは禁止。新pinの新DBへ検証済みセッションを明示取込。保存競合のexpected_version・トランザクションと無変更失敗を維持 |
 | 元証拠 | evidenceを旧Responseとして保持、resultを現在verifyにする。selected/baseline参照とplan IDの対応を保持、取込先session IDは新規。不正・未確認editは採用可能に変えない |
-| 復旧 | 旧wheel/lock/pinと整合バックアップを別配置へ復元して全計画を再検証。旧/新DBを混在させず、更新後入力・未保存編集の消失を伴う切戻しは所有者の判断対象 |
+| 移行失敗 | 不正入力・pin不一致・変換失敗・保存競合で原本/既存セッションを変更しない。原本を保持して再実行できることを確認 |
 
 外側のschedula-app/1とDB Schema 1は、保存項目・意味を増減しない上記の契約移行では維持できる。
 厳密なpin照合が旧新の混同を防ぐ。#125で項目追加が必要と判明した場合は、
@@ -172,45 +174,26 @@ diagnosis・suggestionsは元Responseの過去証拠を保持し、移行した�
 今回の既存操作維持のために一律追加しない。app #30の別機能開発として残す。
 
 #125では最終wheelの完成を待たず候補commit/SHAで、代表旧JSON/DBの
-復元→再検証→再計画→保存→再読込、完全/PARTIAL、pin不一致・不正・保存競合・失敗からの復旧を通す。
+明示移行→取込→再検証→再計画→保存→再読込、完全/PARTIAL、pin不一致・不正・保存競合で原本不変を確認する。
 原本SHA・候補pin・期待値・結果を #105/#111/#115へ渡す。
-実データ未入手なら保存した合成代表を暫定証拠とし、実在すると確認した未移行データを残してゲートを閉じない。
+実データ未入手なら既存fixtureや必要最小限の合成入力で変更する移行処理を検証し、実データ移行完了とは扱わない。
+実在すると確認した未移行データを残してゲートを閉じない。
 #115は #114 の最終固定wheelで実Chromium・採用・再起動・保存を再確認し、app #30全体とは別に判定する。
-
-## 旧固定環境の保管と再現
-
-復旧用Gitディレクトリには0.1.6の新規固定wheel、0.1.5の既存wheel原bytes、
-それぞれのuv.lock、ハッシュ付きruntime requirements、アプリbackend固定source archive、
-合成代表JSON/SQLite、SHA/版/構築条件manifestを保存した。アプリのruntimeとエンジンbase/extraを分け、
-開発機のeditable導入や別checkoutを検証環境に使わない。
-
-0.1.6は基点commitの `SOURCE_DATE_EPOCH=1791463601 uv build --wheel` で構築した。
-過去PRの候補wheelと同一bytesであるとは主張しない。アプリ0.1.5は既存SHAと一致する。
-CPython3.14.8、uv0.12.23、macOS ARM64の隔離導入で以下を確認した。
-
-| 固定環境 | 今回の期待値と確認結果 |
-| --- | --- |
-| 0.1.6 | assignment: OPTIMAL/不足0、partial_assignment: PARTIAL/不足60人分、combined_conditions: PARTIAL/不足120人分。各解の公開verify成功。Adapter recordの再検証成功 |
-| app 0.1.5 | 合成代表の完全/PARTIAL二案を求解して旧restoreへ通し、VALID/PARTIALへ再検証。証明フラグfalse、元JSON不変。SQLiteはDB Schema 1、1セッション/2計画、quick_check成功・外部キー違反なし。固定archiveから展開したbackendのcheck_savedと別保存先へのrestore_backupも成功 |
-
-これは旧環境の再作成と期待値の保存であり、0.15へのデータ変換・アプリ更新・新旧保存往復の完了証拠ではない。
-取得・SHA照合・再作成コマンドは保存ディレクトリのREADMEを使う。
-依存wheel全bytesのオフラインミラーは作らず、再導入にはlockした配布元への接続が必要。
 
 ## 後続Issueへの引き渡しと除去条件
 
 | 担当Issue | この棚卸しから渡す条件 |
 | --- | --- |
-| #107 | 表の全維持テスト、各0.1〜0.14代表移行fixture、共通0.15 fixture、現行0.15の独立した意味/既定値回帰。基点commit/成果物を使い、測定前に性能/解品質の許容範囲と責任者を固定 |
+| #107 | 表の全維持テスト、各0.1〜0.14代表移行fixture、共通0.15 fixture、現行0.15の独立した意味/既定値回帰。基点commitと既存lockを使い、測定前に性能/解品質の許容範囲と責任者を固定 |
 | #108 | 独立assignmentの全正需要が完全充足か全下限0のflow。一般下限やCP-SATの制約/priority/診断へ拡張しない。依存なしwheelと競合需要も検証 |
 | #109 | 全旧版の代表、0.1形状・履歴要確認、0.1/0.2完全充足、基準/固定/許可編集。確認済み対象の一回限りの明示変換、原本非上書きと失敗/再実行を検証 |
 | #110 | Draft/manifest/入力元/recordの全所有項目、確認失効、新run_id、旧証拠と現在検証、原子保存とパス境界を保持 |
 | #124 | 棚卸しの現行examples/評価再実行入力、フォーム/JSON/型付き例と通常回帰を0.15へ移す。旧代表は移行fixtureへ、過去測定は履歴として保持 |
-| #125 | app #30の上記接続/保存仕様、合成代表と実保存先調査結果、固定旧環境。候補wheelで旧版除去前に保存往復。最終wheelを待たない |
+| #125 | app #30の上記接続/保存仕様と実保存先調査結果。候補wheelで旧版除去前に移行・保存往復と失敗時の原本不変を確認。最終wheelを待たない |
 | #111 | 上記準備完了後、内部整理と最終拒否を複数PRで実施。schema_versionの0.1 fallback、旧型/Schema/デモ失敗応答まで追跡。全summary/null/0と不正応答契約を0.15へ揃える |
 | #112/#113 | 最終画面/拒否と文書整合。ADR-0003/0004/0005/0009、io-contract-next、distributionの旧常設保証を履歴と区別して改訂。次回契約追加時の互換・移行・終了条件も記録 |
 | #114/#115 | 破壊的変更を識別する新配布版、固定成果物SHA/lock、隔離base/extra/wheel/sdistと既存OS。最終アプリ受け入れを候補成功と区別 |
-| #116 | 対応表全行、旧→新と現行0.15維持の別比較、性能/解品質・全CI/main・実Chromium・保存/復旧。未解決の退行を残して全体完了としない |
+| #116 | 対応表全行、旧→新と現行0.15維持の別比較、性能/解品質・全CI/main・実Chromium・移行/保存と原本保護。未解決の退行を残して全体完了としない |
 
 旧版除去を妨げる事項は、完全充足flowの補完、明示移行/確認失効の実装、通常callerの0.15化、
 候補アプリ保存往復、実保存先確認である。実保存先・件数は確認中として #105/#106へ記録し、
