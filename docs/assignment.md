@@ -1,5 +1,8 @@
 # 担当配置の利用手順
 
+> 導入時の実装・設計記録です。本文の旧契約・旧型・当時の対応範囲は現在の通常サポートではありません。業務機能は維持し、現在の入力・候補・履歴・再計画・診断・証明は[現行契約0.15](io-contract-current.md)、APIと実行例は[Python公開API](python-api.md)を参照してください。
+
+
 schedula 0.1.3 は独立した配置と、担当時間上限・担当切替を含む `assignment` を解く。
 飲食店の架空の例を [examples/assignment.json](../examples/assignment.json) と
 [examples/linked_assignment.json](../examples/linked_assignment.json) に用意した。

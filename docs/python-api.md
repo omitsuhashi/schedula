@@ -9,8 +9,8 @@ JSONのdict/list境界を維持する。公開型は標準 `typing` の `TypedDi
 | `validate(request: object) -> Validation` | 構造・参照・時刻・候補・baselineの意味を探索なしで検証 | JSON結果の `VALID` / `INVALID_INPUT` / `INTERNAL_ERROR` |
 | `solve(request: Request, *, num_workers: int = 2) -> Response` | 求解と独立検証 | 入力不備・依存不足・内部障害を既存Responseの状態で返す |
 | `verify(request: Request, solution: Solution) -> Verification` | 保存・編集した解の独立検証。最適性は認定しない | `VALID` / `PARTIAL` / `INVALID_INPUT` / `INVALID_PLAN` / `INTERNAL_ERROR` |
-| `get_schema(kind, schema_version="0.1")` | `request` / `response` / `solution` / `verification` のSchema | 未知の種類・版は `ValueError` |
-| `make_baseline(request: Request04 \| Request05 \| Request06 \| Request07 \| Request08 \| Request09 \| Request010 \| Request011 \| Request012 \| Request013 \| Request014 \| Request015, solution: ExtendedSolution \| ContinuitySolution, plan_id: str) -> Baseline` | 契約0.4〜0.15のrosterから検証済み基準計画を作る | 入力・解の不備は `InvalidInput`。環境・内部例外は呼び出し側で扱う |
+| `get_schema(kind, schema_version="0.15")` | `request` / `response` / `solution` / `verification` のSchema | 未知の種類・版は `ValueError` |
+| `make_baseline(request: Request, solution: Solution, plan_id: str) -> Baseline` | 現行0.15のrosterから検証済み基準計画を作る | 入力・解の不備は `InvalidInput`。環境・内部例外は呼び出し側で扱う |
 
 `InvalidInput` は `ValueError` の派生で、`diagnostics` に既存形式の診断配列を持つ。
 公開関数は入力を書き換えない。make_baselineは返すスナップショットをコピーして作る。
@@ -41,18 +41,11 @@ else:
 
 ## 型付きの利用と状態分岐
 
-`Request` は `Request01` / `Request02` / `Request03` / `Request04` / `Request05` / `Request06` / `Request07` / `Request08` / `Request09` / `Request010` / `Request011` / `Request012` のunion。
-[契約0.6](io-contract-continuity.md)は実績・確定勤務と独立集計を扱い、移動Wの比較・固定は[契約0.7](io-contract-overlap.md)で扱います。
-[契約0.8](diagnosis.md#契約08の条件グループ縮小)の `DiagnosisOptions08` と `Conflict08` は条件グループの縮小と証明範囲を扱う。
-[契約0.9](io-contract-roster-metrics.md)の `Costs` / `CostObjective` / `DutyBalance` / `DutyObjective` は勤務費用と指定区間の目標偏差を扱う。
-各版の構築用型と入れ子の型は `shift_schedula.types` にある。
-[契約0.10](io-contract-duty-continuity.md)の `Request010` は確認済みの文脈期間へ指定区間の評価を広げる。
-[契約0.11](io-contract-day-counts.md)の `Request011` は勤務日数・完全休日数の上下限を扱う。
-
-[契約0.12](io-contract-minimum-demand.md)の `Request012` / `MinimumDemand` は必須の最低充足人数を扱う。
-
-`schema_version` で契約版、`Response.status` で成功と失敗を分岐できる。
-`PARTIAL` は0.3以降だけに存在し、成功状態では `solution` の内容を型付きで参照できる。
+`Request` は `Request015`、`Response` は現在の成功/失敗のunion、`Solution` は原区間を保つ現在の解です。
+`SchemaVersion` は `Literal["0.15"]`。旧版専用の構築型は提供しません。
+全業務機能の意味・既定値・公開構造は[現行契約](io-contract-current.md)にあり、
+共通の入れ子型は `shift_schedula.types` にあります。
+`Response.status` で成功と失敗を分岐し、`PARTIAL`を含む有効な解を型付きで参照できます。
 
 文字列の長さ、整数の範囲、boolと整数の区別、時間の整合や参照先は静的な型だけでは保証しない。
 JSONを読んだ後は `validate` を通し、`VALID` を確認した境界で `cast(Request, value)` を使う。
@@ -124,19 +117,10 @@ OSのプロセス起動・終了、親のIPC読み取りや再検証は即時に
 macOSのローカル検証とWindows/LinuxのCIで正常完了・段階別の期限/取消・異常終了・並行実行を確認する。
 spawnと終了処理は[Python 3.14公式文書](https://docs.python.org/3.14/library/multiprocessing.html)に基づく。
 
-契約0.5の `PriorityDemand.priority` と `Response05Success.priority_summary` は
-[需要priorityの契約](io-contract-priority.md)を参照する。独立検証の同集計は最小性の証明を付けない。
-
-契約0.13の `Request013` / `ShiftCategory` / `Constraint013` は、勤務分類と4種類の必須パターンを扱う。
-[契約・境界](io-contract-shift-patterns.md)に従い、原勤務と判定余白を入力する。
-
-契約0.14の`Request014` / `Constraint014` / `RequiredCoworkers` / `IncompatibleEmployees`は、
-[同時勤務条件](io-contract-coworkers.md)を扱う。勤務状態に対する必須条件で、待機を含み休憩を除く。
-
-契約0.15の`Request015` / `ShiftCountBalance` / `ShiftCountObjective` / `ShiftCountBalanceSummary`は、
-[勤務回数の明示目標](io-contract-shift-counts.md)を扱う。`balance_id`で目的と対応させ、
-`shift_count_balance_summary`をsolve・verifyで読み取れる。独立検証の結果に最適性は付与しない。
-
+需要priority、勤務分類/パターン、同時勤務条件、分数/回数の明示目標はすべて現行0.15で利用できます。
+`PriorityDemand` / `ShiftCategory` / `Constraint` / `RequiredCoworkers` / `IncompatibleEmployees` /
+`ShiftCountBalance` / `ShiftCountObjective` / `ShiftCountBalanceSummary`を使い、
+solveとverifyの集計を読み取れます。独立検証の結果に最適性は付与しません。
 
 ## 分割入力と実行記録
 

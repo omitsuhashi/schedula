@@ -1,5 +1,7 @@
 # 契約0.9の勤務費用と指定区間の目標偏差
 
+> 契約導入時の履歴仕様です。以下にある旧版の受付・型・コマンドは現在のサポート範囲ではありません。現在の全機能と意味は[現行契約0.15](io-contract-current.md)、変更と終了の条件は[サポート方針](contract-support.md)を参照してください。
+
 [Issue #77](https://github.com/omitsuhashi/schedula/issues/77)と
 [Issue #78](https://github.com/omitsuhashi/schedula/issues/78)を契約 `0.9` にまとめた。
 0.8の継続計画・再計画・需要priority・診断を引き継ぎ、`roster` に評価項目を追加する。

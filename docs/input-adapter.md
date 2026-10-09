@@ -1,12 +1,10 @@
 # 分割入力・確認と実行記録
 
 [マイルストーン8](https://github.com/omitsuhashi/schedula/milestone/8)の共通Adapterです。
-実行契約0.1〜0.15、エンジン基点 `cd0787c194b1d3f592742f3a975d647aee694202`、
-配布版0.1.6を対象とします。Python 3.14.8、jsonschema 4.26.0、
-OR-Tools 9.15.6755、tzdata 2026.5は `uv.lock` の版です。
-外側の `adapter_version: "1.0"` は実行契約とは独立しています。
-旧Draft・manifest・実行記録を0.15へ移す操作は [Adapterの明示移行](migrations/contract-0.15-adapter.md)
-に記載します。通常入口は移行を代行せず、変更箇所の確認と元実行の証拠を保持します。
+実行契約は0.15だけ、外側のadapter/manifest/record形式は1.0です。
+全業務機能は[現行契約](io-contract-current.md)、現在の配布版と固定成果物は[配布方針](distribution.md)に記載します。
+旧Draft・manifest・実行記録の明示移行は[検証履歴](migrations/contract-0.15-adapter.md)として保持します。
+一時変換スクリプトは検証後に撤去し、通常入口は移行を代行しません。
 
 ## 入力と所有元
 
@@ -18,7 +16,7 @@ RequestDraftは `schema_version`、`sources`、`unresolved`、`assumptions`、
 
 | Requestの項目 | 所有元 | 必要情報・保存/表示 |
 | --- | --- | --- |
-| schema_version | Draft直下 | 0.1〜0.15。自動移行しない |
+| schema_version | Draft直下 | 0.15のみ。自動移行しない |
 | skills, roles | basic | 必須。空も明示。全項目を保存 |
 | employees.id/label/skills | basic | 全員の順序と技能を保存 |
 | employees.availability | period | 全員に明示。`[]` は勤務不可、欠落は未入力 |
@@ -32,7 +30,7 @@ RequestDraftは `schema_version`、`sources`、`unresolved`、`assumptions`、
 | baseline, fixed_parts, replan_mode | replanning | 原基準期間と固定状態を保持 |
 | objectives, solver, fairness, costs, duty_balance, shift_count_balance, diagnosis | execution | 目的の配列順・明示0・対象外・探索設定を保持 |
 
-この表は0.1〜0.15の全トップレベル項目とemployeeの全項目を含みます。
+この表は現行0.15の全トップレベル項目とemployeeの全項目を含みます。
 ネストした全フィールドの型・必須性・上限・業務意味は選んだ実行版のSchemaと
 既存validateが正本です。constraintsは利用者が明示した必須条件、preferencesと
 objectivesは選好です。新しい制約判定器や候補展開器は追加しません。
@@ -157,7 +155,7 @@ PARTIAL/完全、FEASIBLE/OPTIMAL、UNKNOWN/INFEASIBLEを区別し、0とnullを
 ## アプリへの引き継ぎ
 
 [schedula-app #30](https://github.com/omitsuhashi/schedula-app/issues/30)でアプリ利用を別管理します。
-採用候補はエンジン0.1.6/契約0.1〜0.15と本形式1.0。
+引渡対象は新配布版0.2.0/契約0.15と本形式1.0です。候補0.1.6の先行検証と、最終固定成果物のアプリ受け入れは[結合記録](migrations/contract-0.15-integration.md)で区別します。
 Draftはアプリの入力候補保存先、run_idはアプリの計画案へ関連付ける外部実行識別子です。
 月次/個人別/比較Queryには確定Request・原Solution・現在verify・元Response・provenanceを渡します。
 session_id/version/plan_idは既存アプリ保存層で所有し、エンジンRequestへ混入させません。

@@ -1,5 +1,7 @@
 # 勤務回数の明示目標の契約0.15
 
+> 契約導入時の履歴仕様です。以下にある旧版の受付・型・コマンドは現在のサポート範囲ではありません。現在の全機能と意味は[現行契約0.15](io-contract-current.md)、変更と終了の条件は[サポート方針](contract-support.md)を参照してください。
+
 [Issue #90](https://github.com/omitsuhashi/schedula/issues/90)の仕様として、0.14の必須条件と目的順を継承する。
 勤務分類は[契約0.13](io-contract-shift-patterns.md)、実績と確定勤務は既存のcontinuityを使う。
 有限候補と担当配置の同時最適化・原区間保持・独立検証を維持し、既存ADRの判断は変更しない。

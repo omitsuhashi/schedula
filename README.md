@@ -154,34 +154,34 @@ uv run --locked python -m shift_schedula verify examples/roster_conditions.json 
 実績・確定勤務を引き継ぐ週・月境界の集計は[契約0.6](docs/io-contract-continuity.md)で利用できます。
 月末夜勤420分を過去120分・計画内300分へ分け、原区間と休憩を保持します。
 
-詳細と保存・再計画の使い方は[契約0.4](docs/io-contract-replanning.md)、
+詳細と保存・再計画の使い方は[現行契約0.15](docs/io-contract-current.md)、
 合成入力の実測は[結合・規模評価](docs/evaluations/roster-conditions.md)を参照してください。
 
 ## 入力を作る
 
-連続休日・夜勤後の休み・禁止する勤務の並び・週末交代は[契約0.13](docs/io-contract-shift-patterns.md)で指定できます。
+連続休日・夜勤後の休み・禁止する勤務の並び・週末交代は[現行契約0.15](docs/io-contract-current.md)で指定できます。
 [入力例](examples/shift_patterns.json)は、必須最低人数を守って不足30人分・勤務780分のPARTIALを返します。
-新人と指導者の同時勤務・従業員間の同時勤務禁止は[契約0.14](docs/io-contract-coworkers.md)で指定できます。
-夜勤・休日等の勤務回数は[契約0.15](docs/io-contract-shift-counts.md)で明示目標へ近づけられます。
+新人と指導者の同時勤務・従業員間の同時勤務禁止は[現行契約0.15](docs/io-contract-current.md)で指定できます。
+夜勤・休日等の勤務回数は[現行契約0.15](docs/io-contract-current.md)で明示目標へ近づけられます。
 [履歴付き夜勤回数](examples/shift_count_balance.json)、[休憩交代と全5機能](examples/combined_conditions.json)、
 [週の勤務日数と月の完全休日](examples/combined_month.json)をそのまま実行できます。
 
 | 機能 | 入力 | 対応版 | 意味 |
 | --- | --- | --- | --- |
-| 勤務日数・完全休日数の必須上下限 | `work_days_bounds` / `days_off_bounds` | 0.11以降 | 開始日の日数と、原区間が一度も触れない完全休日を別に制限 |
-| 需要の必須最低人数 | `minimum_people` | 0.12以降 | 元の`required_people`を保持し、明示下限を守る範囲で不足を許容 |
-| 分類・勤務パターン | `shift_categories`と4種類の必須ルール | 0.13以降 | 連続休日・勤務後の休み・禁止する並び・明示日群を判定 |
-| 同時勤務の必要・禁止 | `required_coworkers` / `incompatible_employees` | 0.14以降 | 待機を含み休憩・分割間の非勤務を除く各勤務枠で判定 |
+| 勤務日数・完全休日数の必須上下限 | `work_days_bounds` / `days_off_bounds` | 0.15 | 開始日の日数と、原区間が一度も触れない完全休日を別に制限 |
+| 需要の必須最低人数 | `minimum_people` | 0.15 | 元の`required_people`を保持し、明示下限を守る範囲で不足を許容 |
+| 分類・勤務パターン | `shift_categories`と4種類の必須ルール | 0.15 | 連続休日・勤務後の休み・禁止する並び・明示日群を判定 |
+| 同時勤務の必要・禁止 | `required_coworkers` / `incompatible_employees` | 0.15 | 待機を含み休憩・分割間の非勤務を除く各勤務枠で判定 |
 | 勤務回数の明示目標 | `shift_count_balance` / `shift_count_deviation` | 0.15 | 原勤務1件を開始日時で1回と数え、目標との絶対偏差を評価 |
 
 8時間の1勤務と4時間の2勤務は、勤務分数が同じでも勤務日数・回数が異なります。
 夜勤明けの朝に原勤務が残る日は完全休日ではありません。
 `required_people`は元の必要人数、`minimum_people`は必須の下限であり、priorityや回数目標は代用になりません。
 入力→求解→不足・評価の確認→手修正の検証→基準保存→再計画の手順は
-[契約0.15の利用例](docs/io-contract-shift-counts.md#入力から再計画まで)、結果と性能の制限は
+[現行契約の利用例](docs/io-contract-current.md#実行例とサポート)、結果と性能の制限は
 [結合・規模評価](docs/evaluations/added-conditions.md)を参照してください。
 
-需要の必須最低人数は[契約0.12](docs/io-contract-minimum-demand.md)で指定できます。
+需要の必須最低人数は[現行契約0.15](docs/io-contract-current.md)で指定できます。
 `required_people: 3` / `minimum_people: 1` は最低1人を必須にし、残る不足を返します。
 `priority` は不足総量が同じ計画の比較順であり、必須充足の代用にはなりません。
 
@@ -190,7 +190,7 @@ uv run --locked --extra cp-sat python -m shift_schedula solve examples/minimum_a
 uv run --locked --extra cp-sat python -m shift_schedula solve examples/minimum_roster.json
 ```
 
-勤務日数と完全休日数の上下限は[契約0.11](docs/io-contract-day-counts.md)で指定できます。
+勤務日数と完全休日数の上下限は[現行契約0.15](docs/io-contract-current.md)で指定できます。
 夜勤の開始日と、休憩を含む原勤務区間が占有する暦日を別々に数えます。
 
 ```sh
@@ -332,9 +332,10 @@ uv run --locked --extra cp-sat python -m shift_schedula solve examples/invalid-i
 
 ## 対応範囲と実行上限
 
-`assignment` は `max_assigned_minutes` / `max_role_switches`、
-`roster` はさらに `max_scheduled_minutes` / `min_rest_minutes` / `max_consecutive_days` を扱います。
-選好は `avoid_role`、目的は選好ペナルティ・担当切替と、勤務計画の勤務量です。
+担当資格・availability・需要下限・二重配置禁止に加え、担当時間/切替、勤務量/休息/連勤、
+夜勤/分割、希望日時、公平性、継続計画、重複期間の固定/全体再計画、矛盾縮小と許可変更案、
+費用・指定区間分数・日数・勤務パターン・同僚条件・勤務回数の明示目標を扱います。
+全入力と尺度・出力・拒否条件は[現行契約0.15](docs/io-contract-current.md)を参照してください。
 `auto` は入力条件から一つの方式を選び、未対応条件は `INVALID_INPUT` として拒否します。
 必須条件を無断で減らしたり緩和したりしません。
 
@@ -344,8 +345,8 @@ uv run --locked --extra cp-sat python -m shift_schedula solve examples/invalid-i
 入力検証・依存読み込み・候補展開・モデル構築・結果検証を含む総時間は
 `stats.elapsed_seconds`、探索時間は `SEARCH_STATS` の `facts` で確認できます。
 
-夜勤・分割勤務、明示目標に対する公平性・変更最小化は契約0.2・0.3で利用できます。
-候補外の時刻、契約時間に対する公平性、給与計算・法令判定、詳細な矛盾原因・自動緩和は未対応です。外部 API・LLM・PyPI 公開・production デプロイは対象外です。
+給与計算・法令判定・候補外の連続時刻探索・自動緩和・LLM生成コードの実行は対象外です。
+外部 API・LLM・PyPI 公開・production デプロイは今回の完了に含めません。
 ブラウザーの利用入口は、上記のローカル担当配置・JSON デモに限定します。
 参照 ZIP のコードは参照元のライセンス未選定のため取り込まず、採用した業務仕様から独自実装しています。
 公開条件は [開発・検証方針](docs/development-policy.md)に記載しています。
@@ -390,18 +391,10 @@ Git には採用判断で使う入力・条件・集計・失敗を含む生デ�
 | --- | --- |
 | [全体像](docs/overview.md) | 目的、利用例、対象範囲、構成、公開物 |
 | [設計方針](docs/design-policy.md) | アルゴリズム選択、制約・選好、検証、LLM の境界 |
-| [入出力契約0.1](docs/io-contract.md)・[契約0.2](docs/io-contract-next.md) | JSON の意味、日時、履歴、目的順序、結果状態と移行 |
-| [再計画・勤務量・希望日時の契約0.4](docs/io-contract-replanning.md) | 新条件、基準スナップショット、公開検証API/CLIと移行 |
-| [重複期間の基準比較・固定再計画の契約0.7](docs/io-contract-overlap.md) | 元の基準を保持した移動期間の比較・固定・変更集計 |
-| [継続計画・診断・費用・夜勤休日評価の設計案](docs/planning-extensions.md) | Issue #67〜#70の仕様案、数値例、検証計画、実装の依存関係。継続計画・重複期間の再計画・矛盾縮小は実装済み |
-| [勤務分類・勤務パターンの契約0.13](docs/io-contract-shift-patterns.md) | 原勤務の分類、連続休日・夜勤後の休み・禁止する並び・日群と境界 |
-| [同時勤務条件の契約0.14](docs/io-contract-coworkers.md) | 必要同僚人数、同時勤務禁止、休憩・待機・確定勤務と独立検証 |
-| [勤務回数の契約0.15](docs/io-contract-shift-counts.md) | 原勤務の開始日時で数える明示目標・履歴・分類・分数との違い |
-| [契約0.15への移行対応表](docs/migrations/contract-0.15.md) | 全業務機能・旧データ・アプリ保存の移行範囲と除去前の条件 |
-| [必須最低人数の契約0.12](docs/io-contract-minimum-demand.md) | 必須の需要下限と元需要の不足許容、診断・独立検証 |
-| [勤務日数・完全休日数の契約0.11](docs/io-contract-day-counts.md) | 期間別の日数上下限、確認済み実績、原勤務区間と独立集計 |
-| [履歴を含む夜勤休日評価の契約0.10](docs/io-contract-duty-continuity.md) | 確認済み実績・確定勤務と指定区間の目標偏差の接続 |
-| [不足を伴う計画の契約0.3](docs/io-contract-partial.md) | 元需要を保持した不足集計・独立検証・両ソルバー・CLI・デモと証明範囲 |
+| [現行契約0.15](docs/io-contract-current.md) | 全機能の入力・原区間・既定値・必須条件・目的・状態・証明・実行上限 |
+| [分割入力と実行記録](docs/input-adapter.md) | 所有元、確認失効、純粋な組立、記録・保存・現在の再検証 |
+| [契約サポート方針](docs/contract-support.md) | 次回変更の互換性判断、旧契約対応・移行・終了条件 |
+| [契約移行の履歴と機能対応表](docs/migrations/contract-0.15.md) | 全業務機能・固定commit・原SHA・移行検証・利用側の記録 |
 | [開発・検証方針](docs/development-policy.md) | 開発順序、完了条件、公開条件、未決定事項 |
 | [参照実装の評価](docs/evaluations/engine-introduction.md) | CP-SAT を含む実測、導入時の修正、コードの採用可否と公開入口 |
 | [用語集](GLOSSARY.md) | single-context の共通用語 |
@@ -439,6 +432,5 @@ main の force push と削除は禁止します。ruleset の bypass は許可�
 デプロイ先です。デプロイの入口と CI はセットアップ PR で導入し、
 merge 後に main で利用できるようになります。
 
-契約0.5では需要の任意 `priority`（省略時0）を指定できる。不足総量を先に最小化し、
-同量の計画では高いpriority群の不足、利用者の目的の順に比較する。
-[契約と証明範囲](docs/io-contract-priority.md)、[1人・2役割の例](examples/demand_priority.json)を参照する。
+需要priorityは省略0。不足総量を先に最小化し、同量ならpriority群の降順、指定目的の順に比較します。
+[現行契約](docs/io-contract-current.md#日時担当配置需要)と[1人・2役割の例](examples/demand_priority.json)を参照してください。

@@ -1,5 +1,7 @@
 # 再計画・勤務量・希望日時の契約0.4
 
+> 契約導入時の履歴仕様です。以下にある旧版の受付・型・コマンドは現在のサポート範囲ではありません。現在の全機能と意味は[現行契約0.15](io-contract-current.md)、変更と終了の条件は[サポート方針](contract-support.md)を参照してください。
+
 [Issue #45](https://github.com/omitsuhashi/schedula/issues/45)の既定案を実装した契約である。
 [契約0.3](io-contract-partial.md)の不足最優先・状態・証明範囲を継承する。
 候補件数の撤廃以外、旧版の業務上の意味は変更しない。
