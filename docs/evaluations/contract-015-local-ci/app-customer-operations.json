@@ -1,0 +1,31 @@
+{
+  "at": "2026-10-09T13:02:03.404292+00:00",
+  "os": "Linux",
+  "checks": [
+    "SSH鍵を許可し、暗号化トンネル経由で実際の比較・復元を確認",
+    "Shell、別接続先、別顧客の鍵、失効済み鍵を拒否",
+    "保存ファイルと版記録をバックアップし、ソース喪失から別の配備先へ復旧",
+    "非互換更新では旧ファイルを拒否し、新しい計画を別に保存",
+    "SSH: 新規セッションの取込・Query・出力と整合したSQLiteバックアップを確認",
+    "update: 入力・比較基準・両方の解を独立検証",
+    "rollback: 入力・比較基準・両方の解を独立検証",
+    "別顧客の保存領域を変更せず、不正な計画・版を拒否し、容量を読取可能"
+  ],
+  "previous_app_commit": "41ffe8ee7c5c66ee89d1b8cf570f259390839397",
+  "current_app_commit": "2a27357efff63d1d048ae7fb038175acef8f281e",
+  "saved_sha256": "eb140c5751c61d4ba1c867b3068ded7887970c75e82b7b89c7341d3d79450fbf",
+  "engine": {
+    "version": "0.1.5",
+    "schema_version": "0.10",
+    "commit": "fd8c140ff0dae8c8cefa82b5d3857ec0e0e90eaf",
+    "sha256": "3b8256c0d277da253cd79252683727c65c9ab7265c02aec93ff26a24006e9195"
+  },
+  "current_engine": {
+    "version": "0.1.6",
+    "schema_version": "0.15",
+    "commit": "58c304ff0f3c7f151a000f57de19825b9ecd63c0",
+    "sha256": "59daf999fc59163074b760a9d8320c57232a96e8029f7afd817a77d5f2b31afa"
+  },
+  "elapsed_seconds": 14.66,
+  "limits": "単一ホストの合成データ、独立した2組のソースarchiveとvenvによる検証。各ファイルは対応するエンジン・Schemaで再検証した。非互換更新では別の新計画、rollbackでは以前のファイルを使う。実顧客の本番運用やホスト間の災害復旧は未検証。"
+}

@@ -32,6 +32,16 @@ def schema_version_of(value):
     return version if version in SCHEMA_VERSIONS else "0.1"
 
 
+@lru_cache
+def summary_fields(schema_version):
+    """応答Schemaが定める集計欄を返す。値や探索の証明は生成しない。"""
+    return tuple(
+        name
+        for name in get_schema("response", schema_version)["properties"]
+        if name.endswith("_summary")
+    )
+
+
 def diagnostic(code, message, pointer="", related_ids=(), **facts):
     return {
         "code": code,
@@ -164,28 +174,9 @@ def get_schema(kind, schema_version="0.1"):
                 "shortage_summary",
             )
         }
-        if schema_version in {
-            "0.6",
-            "0.7",
-            "0.8",
-            "0.9",
-            "0.10",
-            "0.11",
-            "0.12",
-            "0.13",
-            "0.14",
-            "0.15",
-        }:
-            properties["continuity_summary"] = schema["properties"]["continuity_summary"]
-        if schema_version in {"0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"}:
-            for name in ("cost_summary", "duty_balance_summary"):
+        for name in summary_fields(schema_version):
+            if name != "priority_summary":
                 properties[name] = schema["properties"][name]
-        if schema_version in {"0.11", "0.12", "0.13", "0.14", "0.15"}:
-            properties["day_count_summary"] = schema["properties"]["day_count_summary"]
-        if schema_version == "0.15":
-            properties["shift_count_balance_summary"] = schema["properties"][
-                "shift_count_balance_summary"
-            ]
         properties.update(
             schema_version={"const": schema_version},
             status={
@@ -193,19 +184,7 @@ def get_schema(kind, schema_version="0.1"):
             },
             demand_satisfied={"type": ["boolean", "null"]},
         )
-        if schema_version in {
-            "0.5",
-            "0.6",
-            "0.7",
-            "0.8",
-            "0.9",
-            "0.10",
-            "0.11",
-            "0.12",
-            "0.13",
-            "0.14",
-            "0.15",
-        }:
+        if "priority_summary" in summary_fields(schema_version):
             properties["priority_summary"] = schema["properties"]["priority_summary"]
         properties["objectives"]["items"]["properties"]["proven_optimal"] = {"const": False}
         definitions = {k: v for k, v in schema["$defs"].items() if k != "solution"}
@@ -254,37 +233,12 @@ def get_schema(kind, schema_version="0.1"):
                         for name in ("shortage_summary", "fairness_summary", "change_summary")
                     }
                 )
-            if schema_version in {
-                "0.5",
-                "0.6",
-                "0.7",
-                "0.8",
-                "0.9",
-                "0.10",
-                "0.11",
-                "0.12",
-                "0.13",
-                "0.14",
-                "0.15",
-            }:
+            if "priority_summary" in properties:
                 expected["priority_summary"] = {"type": "object" if valid else "null"}
-            if (
-                schema_version
-                in {"0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"}
-                and not valid
-            ):
-                expected["continuity_summary"] = {"type": "null"}
-            if (
-                schema_version in {"0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"}
-                and not valid
-            ):
+            if not valid:
                 expected.update(
-                    cost_summary={"type": "null"}, duty_balance_summary={"type": "null"}
+                    {name: {"type": "null"} for name in properties if name.endswith("_summary")}
                 )
-            if schema_version in {"0.11", "0.12", "0.13", "0.14", "0.15"} and not valid:
-                expected["day_count_summary"] = {"type": "null"}
-            if schema_version == "0.15" and not valid:
-                expected["shift_count_balance_summary"] = {"type": "null"}
             rules.append(
                 {
                     "if": {"properties": {"status": {"enum": statuses}}},

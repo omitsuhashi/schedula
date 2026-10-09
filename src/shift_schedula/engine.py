@@ -9,6 +9,7 @@ from .contract import (
     diagnostic,
     schema_errors,
     schema_version_of,
+    summary_fields,
 )
 from .model import TimezoneDataError, flow_requires_complete_demand, minute_datetime, normalize
 from .verify import priority_summary, verify_plan, verify_solution
@@ -24,9 +25,11 @@ def response(
     verification=None,
     selection_reason="NOT_SELECTED",
     library_version=None,
+    *,
+    schema_version="0.1",
 ):
-    return {
-        "schema_version": "0.1",
+    result = {
+        "schema_version": schema_version,
         "request_id": request_id,
         "status": status,
         "solver": {
@@ -41,6 +44,10 @@ def response(
         "verification": verification or {"performed": False, "valid": None, "violations": []},
         "stats": {"elapsed_seconds": 0.0},
     }
+    result.update(dict.fromkeys(summary_fields(schema_version)))
+    if schema_version != "0.1":
+        result["diagnosis_result"] = None
+    return result
 
 
 def validate_response(result, request=None):
@@ -369,76 +376,6 @@ def solve(request: dict, *, num_workers: int = 2) -> dict:
     verification = None
     schema_version = schema_version_of(request)
 
-    def extend(result):
-        result["schema_version"] = schema_version
-        if schema_version in {
-            "0.2",
-            "0.3",
-            "0.4",
-            "0.5",
-            "0.6",
-            "0.7",
-            "0.8",
-            "0.9",
-            "0.10",
-            "0.11",
-            "0.12",
-            "0.13",
-            "0.14",
-            "0.15",
-        }:
-            result.update(fairness_summary=None, change_summary=None, diagnosis_result=None)
-        if schema_version in {
-            "0.3",
-            "0.4",
-            "0.5",
-            "0.6",
-            "0.7",
-            "0.8",
-            "0.9",
-            "0.10",
-            "0.11",
-            "0.12",
-            "0.13",
-            "0.14",
-            "0.15",
-        }:
-            result["shortage_summary"] = None
-        if schema_version in {
-            "0.5",
-            "0.6",
-            "0.7",
-            "0.8",
-            "0.9",
-            "0.10",
-            "0.11",
-            "0.12",
-            "0.13",
-            "0.14",
-            "0.15",
-        }:
-            result["priority_summary"] = None
-        if schema_version in {
-            "0.6",
-            "0.7",
-            "0.8",
-            "0.9",
-            "0.10",
-            "0.11",
-            "0.12",
-            "0.13",
-            "0.14",
-            "0.15",
-        }:
-            result["continuity_summary"] = None
-        if schema_version in {"0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"}:
-            result.update(cost_summary=None, duty_balance_summary=None)
-        if schema_version in {"0.11", "0.12", "0.13", "0.14", "0.15"}:
-            result["day_count_summary"] = None
-        if schema_version == "0.15":
-            result["shift_count_balance_summary"] = None
-        return result
-
     try:
         if type(num_workers) is not int or not 1 <= num_workers <= 2**31 - 1:
             raise InvalidInput(
@@ -481,7 +418,9 @@ def solve(request: dict, *, num_workers: int = 2) -> dict:
             }
         ):
             raise RuntimeError("Unexpected flow outcome")
-        result = extend(response(request_id, outcome.status, outcome.diagnostics, backend))
+        result = response(
+            request_id, outcome.status, outcome.diagnostics, backend, schema_version=schema_version
+        )
         if outcome.status in {"OPTIMAL", "FEASIBLE"}:
             shortage = None
             if schema_version in {
@@ -575,8 +514,13 @@ def solve(request: dict, *, num_workers: int = 2) -> dict:
                     ]
             verification = {"performed": True, "valid": not violations, "violations": violations}
             if violations:
-                result = extend(
-                    response(request_id, "INTERNAL_ERROR", violations, backend, verification)
+                result = response(
+                    request_id,
+                    "INTERNAL_ERROR",
+                    violations,
+                    backend,
+                    verification,
+                    schema_version=schema_version,
                 )
             else:
                 result["solution"] = outcome.solution
@@ -769,6 +713,7 @@ def solve(request: dict, *, num_workers: int = 2) -> dict:
             "INTERNAL_ERROR",
             [diagnostic("TIMEZONE_DATA_UNAVAILABLE", "OSのTZDBまたはtzdataの導入を確認します。")],
             backend,
+            schema_version=schema_version,
         )
     except cp_sat.BackendUnavailable:
         result = response(
@@ -782,15 +727,23 @@ def solve(request: dict, *, num_workers: int = 2) -> dict:
                 )
             ],
             backend,
+            schema_version=schema_version,
         )
     except InvalidInput as error:
         if backend == "none":
-            result = response(request_id, "INVALID_INPUT", error.diagnostics)
+            result = response(
+                request_id, "INVALID_INPUT", error.diagnostics, schema_version=schema_version
+            )
         else:
             logger.debug("求解結果の検証に失敗しました。", exc_info=True)
             verification = {"performed": True, "valid": False, "violations": error.diagnostics}
             result = response(
-                request_id, "INTERNAL_ERROR", error.diagnostics, backend, verification
+                request_id,
+                "INTERNAL_ERROR",
+                error.diagnostics,
+                backend,
+                verification,
+                schema_version=schema_version,
             )
     except Exception:
         logger.debug("求解で内部例外が発生しました。", exc_info=True)
@@ -800,8 +753,8 @@ def solve(request: dict, *, num_workers: int = 2) -> dict:
             "INTERNAL_ERROR",
             [diagnostic("INTERNAL_ERROR", "エンジン内部の処理に失敗しました。")],
             backend,
+            schema_version=schema_version,
         )
-    extend(result)
     result["solver"]["selection_reason"] = selection_reason
     result["solver"]["library_version"] = library_version
     validate_response(result)

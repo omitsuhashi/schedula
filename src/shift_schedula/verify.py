@@ -10,6 +10,7 @@ from .contract import (
     parse_datetime,
     schema_errors,
     schema_version_of,
+    summary_fields,
 )
 
 logger = logging.getLogger(__name__)
@@ -34,12 +35,8 @@ def priority_summary(request, shortage):
     }
 
 
-def verify(request: dict, solution: dict) -> dict:
-    """JSON 型の編集解を検証する。探索と最適性の認定は行わない。"""
-    from .extensions import evaluate
-    from .model import TimezoneDataError, normalize
-
-    started = time.perf_counter()
+def verification_response(request, diagnostics=()):
+    """入力を補完・検証せず、独立検証の未実施応答を作る。"""
     result = {
         "schema_version": schema_version_of(request),
         "request_id": request.get("request_id")
@@ -52,42 +49,20 @@ def verify(request: dict, solution: dict) -> dict:
         "shortage_summary": None,
         "fairness_summary": None,
         "change_summary": None,
-        "diagnostics": [],
+        "diagnostics": list(diagnostics),
         "stats": {"elapsed_seconds": 0.0},
     }
-    if result["schema_version"] in {
-        "0.5",
-        "0.6",
-        "0.7",
-        "0.8",
-        "0.9",
-        "0.10",
-        "0.11",
-        "0.12",
-        "0.13",
-        "0.14",
-        "0.15",
-    }:
-        result["priority_summary"] = None
-    if result["schema_version"] in {
-        "0.6",
-        "0.7",
-        "0.8",
-        "0.9",
-        "0.10",
-        "0.11",
-        "0.12",
-        "0.13",
-        "0.14",
-        "0.15",
-    }:
-        result["continuity_summary"] = None
-    if result["schema_version"] in {"0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"}:
-        result.update(cost_summary=None, duty_balance_summary=None)
-    if result["schema_version"] in {"0.11", "0.12", "0.13", "0.14", "0.15"}:
-        result["day_count_summary"] = None
-    if result["schema_version"] == "0.15":
-        result["shift_count_balance_summary"] = None
+    result.update(dict.fromkeys(summary_fields(result["schema_version"])))
+    return result
+
+
+def verify(request: dict, solution: dict) -> dict:
+    """JSON 型の編集解を検証する。探索と最適性の認定は行わない。"""
+    from .extensions import evaluate
+    from .model import TimezoneDataError, normalize
+
+    started = time.perf_counter()
+    result = verification_response(request)
     try:
         problem = normalize(request)
         violations, values, shortage = verify_plan(problem, solution)
@@ -148,42 +123,11 @@ def verify(request: dict, solution: dict) -> dict:
             verification={"performed": False, "valid": None, "violations": []},
             diagnostics=[diagnostic("INTERNAL_ERROR", "独立検証の処理に失敗しました。")],
         )
-    if (
-        result["schema_version"]
-        in {"0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"}
-        and result["status"] == "INTERNAL_ERROR"
-    ):
-        result["continuity_summary"] = None
-    if (
-        result["schema_version"] in {"0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"}
-        and result["status"] == "INTERNAL_ERROR"
-    ):
-        result.update(cost_summary=None, duty_balance_summary=None)
-    if (
-        result["schema_version"] in {"0.11", "0.12", "0.13", "0.14", "0.15"}
-        and result["status"] == "INTERNAL_ERROR"
-    ):
-        result["day_count_summary"] = None
+    if result["status"] not in {"VALID", "PARTIAL"}:
+        for name in result:
+            if name.endswith("_summary"):
+                result[name] = None
     result["stats"]["elapsed_seconds"] = time.perf_counter() - started
-    if result["schema_version"] == "0.15" and result["status"] not in {"VALID", "PARTIAL"}:
-        result["shift_count_balance_summary"] = None
-    if result["schema_version"] in {
-        "0.5",
-        "0.6",
-        "0.7",
-        "0.8",
-        "0.9",
-        "0.10",
-        "0.11",
-        "0.12",
-        "0.13",
-        "0.14",
-        "0.15",
-    } and result["status"] not in {
-        "VALID",
-        "PARTIAL",
-    }:
-        result["priority_summary"] = None
     errors = schema_errors("verification", result)
     if errors:
         raise InvalidInput(errors)
