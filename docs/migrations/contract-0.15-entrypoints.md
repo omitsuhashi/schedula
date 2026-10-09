@@ -272,3 +272,70 @@ PRの [CI 37915936701](https://github.com/omitsuhashi/schedula/actions/runs/3791
 | `examples/adapter/week-next.draft.json` | `788563fd69d5ab3245703568be822dab7e0367be169a4e77c74fac481ea01987` | `c0de5ea0d2fa61889a380e1284abefaaeb213e7cf8c3370796c44578f663a6e6` |
 | `examples/adapter/week-next-stale.draft.json` | `a70ffe8e157f88adc6227cf3e78e804fbf7c27ebe981dd666dd98fb32dc54503` | `6b3bc7d491f34ffe94966baadf2284e392df7d8e859c5702bbb06c35a1bacadf` |
 | `examples/adapter/week-next.request.json` | `fe454f3584b176cea6c34dcded4539ea3f8f56ad22abbc221e8508a207a86bd6` | `fe45ad0290243c4d80c32cd65e2dda88a1df374b9e584a8d2ac0ec55a39af916` |
+
+## 評価再実行入力・設計例と通常入口の棚卸し
+
+基点 `d634741aff115a6a4212eedf3427f6b1f5552bdf`（PR #152）の旧版評価入力22件を、
+既存の `scripts/migrate_contract.py:migrate_request` で0.15へ移した。
+既存0.15の規模比較入力4件と、過去の測定結果JSONは変更していない。
+旧0.1/0.2の完全充足には必要人数と同じ最低人数を明示し、診断の人数編集にも同じ下限編集を付けた。
+0.4/0.10の下限省略による不足許容を保ち、入れ子基準の元Request・元解も移した。
+候補ID・勤務日・原区間・休憩・勤務枠を正規化前後で照合し、日付・固定・履歴・目的順・予算を保持した。
+
+旧0.1の6件の勤務テンプレートは、旧IDを持つ有限候補へ展開した。
+週の5件は各560候補、2週間は2,240候補。候補は1行1件で記録し、行数を抑えた。
+エンジンのテンプレート機能は残し、現行形式の候補生成は通常の業務回帰で引き続き検証する。
+不正例は有効な構造で明示変換した後、期間上限超過と未確認履歴を元の値へ戻した。
+`roster-input-limit.json` は `INPUT_LIMIT /planning_window`、
+`continuity-duty-invalid.json` は `INCOMPLETE_HISTORY /continuity/employees/1` のまま拒否する。
+不正例を有効入力として移行できたとは扱わない。
+
+`combined-legacy-010.json` は0.10由来を示すファイル名を保持し、現在の内容を0.15へ移した。
+過去の測定に使った原bytesはこの基点commitの同じパスで参照する。
+過去の測定結果の入力SHAと現在の入力SHAは異なる。新入力の測定を過去の再現・性能同等の証拠にしない。
+
+| 検証内容 | 今回の行先・維持した判定 |
+| --- | --- |
+| 全評価入力と入れ子基準の0.15・必須下限・不正例拒否 | `test_evaluation.test_current_evaluation_inputs_keep_contract_and_required_conditions`。26入力、原ファイル非変更、公開verifyと現在の証明非付与 |
+| 夜勤/分割・固定・公平性・許可変更後の解 | 既存 `test_combined` の原JSON全探索。必要人数と下限を共に編集し、元入力のINFEASIBLEと変更後の検証済み解を区別 |
+| 評価器のJSON・SHA・単独/継続/並行・外部期限・障害 | 既存 `test_evaluation` の全検査。通常の診断例は0.15を明示し、旧パッケージ名の測定は版互換専用の検査として保持 |
+| 現在の設計JSON部分例 | `scheduled-cost` / `duty-balance` を完全な0.15例へ追加して公開validate。既存の他目的を保持 |
+| 設計の数値・矛盾・仮定の検算 | 既存 `docs/designs/check_examples.py` の数値・全列挙・CP-SAT検算を通常pytestから実行。方式比較・導入版は履歴として保持 |
+
+通常例・フォーム/JSON/HTTP・Adapter・共通fixture・各業務回帰の移行はPR #144〜#152と本変更に対応する。
+残る旧版依存は、公開Schema/型/エンジンの受付、版固有の受付・拒否比較、
+移行専用fixture/スクリプト/検証、過去の設計判断・測定記録である。
+#111では版固有の受付を拒否へ置き換え、混在する通常の業務回帰を保持した上で移行専用資産を撤去する。
+全公開仕様・配布参照の統合は#113/#114の責務とする。
+
+mainと本PRの必須CI成功、#125のアプリ保存往復は別の受け入れ条件であり、
+#124/#105の完了や#111の旧版除去の許可には代えない。
+最新基点mainの [CI 37918082896](https://github.com/omitsuhashi/schedula/actions/runs/37918082896) は、
+GitHub Actionsの支払い・利用上限により全5ジョブが検査開始前に失敗した。
+
+### 評価入力の原bytesと更新後bytesのSHA-256
+
+| パス | 導入契約 | 原SHA-256 | 更新後SHA-256 |
+| --- | --- | --- | --- |
+| `docs/evaluations/inputs/assignment-week.json` | 0.1 | `57bb786b8f98b3d708105246d7058179f4a0945e1c08dc8f75144a7f58ecd854` | `d47c98335aa495e254f6bbec81a65d30b5e1f09a13ff360ed785866f7498aa35` |
+| `docs/evaluations/inputs/combined-legacy-010.json` | 0.10 | `feb5ab26f23200561e37e7b19d064e534b09197daca138b8367c17c31543619f` | `6cf1de0fc7cc7176eb45f22917e0e6e10ea470927383e6841e131a991caba1af` |
+| `docs/evaluations/inputs/combined-overnight.json` | 0.4 | `a8769f82901e379f698ae6426beda23d9d5cc6389a02f5a794165e595106525b` | `d66d234329d1baf838a5f7cb44692f9a13ccd242007e653db9bd85a5831f896b` |
+| `docs/evaluations/inputs/combined-split_roster.json` | 0.4 | `caa2d146ca3cc958e3a605d1e1750db4528b24eee3961ed777efa6631e9a911c` | `001066c60bcb2674885496fe402fa20fa8ee500220815d6176d44e8adedd9b09` |
+| `docs/evaluations/inputs/continuity-duty-conflict.json` | 0.10 | `db9c2c682a6542e780ecb586aaa14a4b5734650d6925a8c92cff9e9dc2ee5c93` | `89d4a390c4b3ce040a65a2c88d3e50fefdb441a21f418bbee15b73b430174d83` |
+| `docs/evaluations/inputs/continuity-duty-invalid.json` | 0.10 | `f85f6f1a614fd3077237e08fbdbbea30aeffefb4e55f41b8918ff6b1d38cc14b` | `80dca1320c9240de481bffb05bd9048fe897f43001cc7c2b3b404c32c9b5c11b` |
+| `docs/evaluations/inputs/continuity-duty-partial.json` | 0.10 | `6390f6fd9bd98a18285f4e5742f63f1809cb0361b28a581b6458c294e16450bc` | `bc151d51bd507829515b228ff22d95ef33e5be1090ec28b068d24d169744f8bd` |
+| `docs/evaluations/inputs/continuity-duty-timeout.json` | 0.10 | `e218b8025a85f1cf8a1231f329fbf7596649f424ce8ac7172095e25d41266e67` | `4fd07f8f0022ecad317a75d4cf3f0d52db4f68e3d5113e4d8002eeb042f49ffb` |
+| `docs/evaluations/inputs/replan-equal-rebuild.json` | 0.4 | `b7207614100962f4d5d453a9094e8016b0ff09eccdd2626bbaafb7719661c2b0` | `38ae99a61fe80792f698e1baf31e91de7709f8a3b6d2410e48dcacc968ea6446` |
+| `docs/evaluations/inputs/replan-equal.json` | 0.4 | `2460ddba36021d74c4ec58ea92e02aab44bf737bdad427f25cc5bbe5a3324358` | `17b7a370250c42dd9f644685a9ea75daa2547962ec6e51f0414ca2edd142368f` |
+| `docs/evaluations/inputs/replan-fixed-impossible-rebuild.json` | 0.4 | `3118bcc318f65b6c26e219792ffbdc2477887592ccbbf37edd10d60138683e3d` | `18d9085b0c249759be5dcc4dde502a3c92b9474316774e67884d781e3ffedfe3` |
+| `docs/evaluations/inputs/replan-fixed-impossible.json` | 0.4 | `b01139da19fd39da18aabad354087986521a55cf91ada116a0b910ef03c3a38d` | `e8fa795484c967f5900b9e16ccecc5880feb6313f420e652cac7c2751d02823a` |
+| `docs/evaluations/inputs/roster-conditions-12000.json` | 0.4 | `ab795677ccf3d68e334555aa305a322b880dbf5e619872599fe578aeb443010c` | `33be6ca5501a7e7a60b9d43085d10ec879b42e26cb5878d8eaf24ba19044776a` |
+| `docs/evaluations/inputs/roster-conditions-3000.json` | 0.4 | `4e30feb0504c4fc337780fb12eb4277eb9b796dd9b80e58d9a755502e607f0fc` | `ecbd104e5b231ca8761fb0cab85624a12289991012253a7fcedc4d666d43fd6a` |
+| `docs/evaluations/inputs/roster-conditions-6000.json` | 0.4 | `0a81160efe7d8a301678733752698c26146bcf021027794e8858fa60fbad248d` | `38e8e124f85c5e6c913bcbb5e064ebf860cc59ce48c64478504e895b53a81b06` |
+| `docs/evaluations/inputs/roster-extended.json` | 0.2 | `a8d05d7f57b57a59c732f99782225af37d201f7ddb0e63bd985e1df89295a06f` | `4409754225e2c4dd1a0b1cc6b21f0b31840781c26f6a062d6f250b7ab6db4722` |
+| `docs/evaluations/inputs/roster-fortnight-large.json` | 0.1 | `ae4f89e8be42368213533ea8da508c514e33a49a034a74c301f921cd29b0fec1` | `9561cc71bfe87a622b714e52fee12ffebcf6a678ea54a2a9a7e2563024e3ec78` |
+| `docs/evaluations/inputs/roster-input-limit.json` | 0.1 | `57b477b0867067a06a7cd9c190163a1b71b6854b869593588a809b1b887c0e3f` | `c3cf4434294c421c79ab370b0ff8f9b88dc4f4630bf833f13524097db38c3712` |
+| `docs/evaluations/inputs/roster-week-15min.json` | 0.1 | `68e1a1d94e0af9c4b4d2d14b2fe9adf6c6e8eb5df021807be6eafc6a9eb42f6e` | `5d95b4cf1cdda07f1094963dfc9fa948c3d64c2e49bdf23fcf33bd3ecc164d8c` |
+| `docs/evaluations/inputs/roster-week-infeasible.json` | 0.1 | `e31ebe900d24cc5807c3feb5aa5c7ecada944e4633a433ea18959b2facd22bc1` | `c60869bb4f07d311d8b7f55c0b24fe0a7e85a5dff28b5b4807b4b3500d7ae004` |
+| `docs/evaluations/inputs/roster-week-timeout.json` | 0.1 | `729cbc9307d8567b0cf9729563befa9f15df86afee0e3a797cb1a5121dbb771c` | `eca3e11d12290feb0f073164054220bb1a082754869eedc60e490b236469ec73` |
+| `docs/evaluations/inputs/roster-week.json` | 0.1 | `b9c3f1f9713027b9534b304fd4f9e0366aecbb97d9d90a01aab105ac1ef9941c` | `f63768b0004748b1886302899955aec2039e5174da54af2e0827ca9d65cb97bb` |

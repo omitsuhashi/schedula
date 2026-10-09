@@ -1,5 +1,7 @@
 import hashlib
 import json
+import re
+import runpy
 import shutil
 import subprocess
 import sys
@@ -7,9 +9,69 @@ from pathlib import Path
 
 import pytest
 
+from shift_schedula import validate, verify
+
 pytestmark = pytest.mark.repository
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+@pytest.mark.parametrize(
+    "path", sorted((ROOT / "docs/evaluations/inputs").glob("*.json")), ids=lambda p: p.name
+)
+def test_current_evaluation_inputs_keep_contract_and_required_conditions(path):
+    request = json.loads(path.read_text(encoding="utf-8"))
+    raw = path.read_bytes()
+    nested = request
+    while nested is not None:
+        assert nested["schema_version"] == "0.15"
+        if path.name.startswith("roster-week") or path.name in {
+            "assignment-week.json",
+            "roster-fortnight-large.json",
+            "roster-input-limit.json",
+            "roster-extended.json",
+        }:
+            assert all(d["minimum_people"] == d["required_people"] for d in nested["demand"])
+        baseline = nested.get("baseline")
+        if baseline:
+            checked = verify(baseline["source_request"], baseline["source_solution"])
+            assert checked["status"] in {"VALID", "PARTIAL"}
+            assert all(not o["proven_optimal"] for o in checked["objectives"])
+            assert not checked["shortage_summary"]["proven_minimal"]
+        nested = (baseline or {}).get("source_request")
+    result = validate(request)
+    expected = {
+        "roster-input-limit.json": ("INPUT_LIMIT", "/planning_window"),
+        "continuity-duty-invalid.json": ("INCOMPLETE_HISTORY", "/continuity/employees/1"),
+    }.get(path.name)
+    if expected:
+        assert result["status"] == "INVALID_INPUT"
+        assert [(d["code"], d["json_pointer"]) for d in result["diagnostics"]] == [expected]
+    else:
+        assert result["status"] == "VALID", result["diagnostics"]
+    assert path.read_bytes() == raw
+
+
+@pytest.mark.parametrize("name", ["scheduled-cost", "duty-balance"])
+def test_current_design_json_fragments_validate_with_complete_examples(name):
+    document = (ROOT / f"docs/designs/{name}.md").read_text(encoding="utf-8")
+    (fragment,) = re.findall(r"```json\n(.*?)\n```", document, re.DOTALL)
+    request = json.loads((ROOT / f"examples/{name.replace('-', '_')}.json").read_text())
+    addition = json.loads(fragment)
+    metrics = {o["metric"] for o in addition["objectives"]}
+    objectives = [o for o in request["objectives"] if o["metric"] not in metrics]
+    request.update(addition)
+    request["objectives"] = objectives + addition["objectives"]
+    assert request["schema_version"] == "0.15"
+    result = validate(request)
+    assert result["status"] == "VALID", result["diagnostics"]
+
+
+def test_design_examples_keep_arithmetic_and_conflict_witnesses():
+    checks = runpy.run_path(str(ROOT / "docs/designs/check_examples.py"))
+    checks["check_numbers"]()
+    checks["check_conflicts"]()
+    checks["check_cp_sat"]()
 
 
 def test_evaluation_records_verified_result_and_process_measurements(tmp_path):
@@ -311,7 +373,7 @@ def test_external_source_directory_is_used_and_identified(tmp_path):
 def test_evaluation_keeps_original_infeasibility_and_verified_suggestions(tmp_path):
     report = run_evaluation(tmp_path, ROOT / "docs/evaluations/inputs/roster-extended.json")
     row = report["measurements"][0]
-    assert row["schema_version"] == "0.2" and row["status"] == "INFEASIBLE"
+    assert row["schema_version"] == "0.15" and row["status"] == "INFEASIBLE"
     suggestion = row["diagnosis_result"]["suggestions"][0]
     assert suggestion["option_id"] == "restore_one_person"
     assert suggestion["response"]["verification"]["valid"] is True
