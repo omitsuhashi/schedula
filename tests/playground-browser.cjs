@@ -450,7 +450,10 @@ async function jsonInputChecks(page) {
       const result = await (await route.fetch()).json();
       result.status = state;
       result.objectives.forEach(o => { o.proven_optimal = false; });
-      if (state === 'PARTIAL') result.shortage_summary.proven_minimal = false;
+      if (state === 'PARTIAL') {
+        result.shortage_summary.proven_minimal = false;
+        result.priority_summary.groups.forEach(group => { group.proven_minimal = false; });
+      }
       await route.fulfill({json: result});
     });
     await page.locator('#json-calculate').click();

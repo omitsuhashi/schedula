@@ -70,7 +70,7 @@ def test_linked_example(backend):
     assert result["solver"]["backend"] == "cp_sat"
     assert result["solver"]["library_version"] == ortools_version
     assert result["solver"]["selection_reason"] == (
-        "ASSIGNMENT_CONSTRAINTS" if backend == "auto" else "EXPLICIT_BACKEND"
+        "MANDATORY_DEMAND" if backend == "auto" else "EXPLICIT_BACKEND"
     )
     assert result["objectives"][0]["value"] == 0
     assert verify_solution(normalize(request), result["solution"]) == ([], (0,))
