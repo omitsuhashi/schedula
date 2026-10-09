@@ -16,7 +16,7 @@ from ortools.sat.python import cp_model
 from shift_schedula import cp_sat, flow, solve
 from shift_schedula.model import normalize
 from shift_schedula.verify import verify_solution
-from tests.support import assert_response
+from tests.support import assert_response, require_complete_demand
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -48,6 +48,8 @@ def small_request(base, sequence, employees=1):
     ]
     request["preferences"] = []
     request["objectives"] = []
+    if request["schema_version"] == "0.15":
+        require_complete_demand(request)
     return request
 
 
@@ -101,7 +103,9 @@ def test_switch_definition_objective_and_limit(assignment_request, sequence, swi
     request["objectives"] = [{"id": "changes", "metric": "role_switches"}]
     result = solve(request)
     assert_response(result, "OPTIMAL")
-    assert result["solver"]["selection_reason"] == "ROLE_SWITCH_OBJECTIVE"
+    assert result["solver"]["selection_reason"] == (
+        "MANDATORY_DEMAND" if request["demand"] else "ROLE_SWITCH_OBJECTIVE"
+    )
     assert result["objectives"][0]["value"] == switches
     # 上限だけでも正確に数える。目的がなくても無断で切替を認めない。
     request["objectives"] = []
@@ -193,6 +197,7 @@ def test_invalid_linked_input_rejected_before_solver(assignment_request, monkeyp
     assert result["solver"]["backend"] == "none"
 
 
+@pytest.mark.parametrize("assignment_request", ["0.1", "0.15"], indirect=True)
 @pytest.mark.parametrize(
     "backend, constraints, metric, selected, reason",
     [
@@ -214,6 +219,8 @@ def test_only_one_backend_is_called(
         request["constraints"] = [limit("max_assigned_minutes", 60)]
     if metric:
         request["objectives"] = [{"id": "goal", "metric": metric}]
+    if request["schema_version"] == "0.15" and backend == "auto" and selected == "cp_sat":
+        reason = "MANDATORY_DEMAND"
     calls = Counter()
     original_flow, original_sat = flow.run, cp_sat.run
 
@@ -298,7 +305,9 @@ def test_switch_objective_mismatch_is_blocked(assignment_request, monkeypatch):
     request["objectives"] = [{"id": "goal", "metric": "role_switches"}]
     solution = solve(request)["solution"]
     monkeypatch.setattr(
-        cp_sat, "run", lambda *_: cp_sat.SatResult("OPTIMAL", solution, (0,), (True,))
+        cp_sat,
+        "run",
+        lambda *_: cp_sat.SatResult("OPTIMAL", solution, (0,), (True,), shortage_person_minutes=0),
     )
     result = solve(request)
     assert_response(result, "INTERNAL_ERROR")

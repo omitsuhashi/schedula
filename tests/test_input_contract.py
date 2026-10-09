@@ -164,9 +164,9 @@ def test_overlap_rejected_even_for_zero_demand(assignment_request, field):
         ),
     ],
 )
-def test_unsupported_conditions_are_not_dropped(assignment_request, path, value):
-    replace(assignment_request, path, value)
-    assert_response(solve(assignment_request), "INVALID_INPUT")
+def test_unsupported_conditions_are_not_dropped(legacy_assignment_request, path, value):
+    replace(legacy_assignment_request, path, value)
+    assert_response(solve(legacy_assignment_request), "INVALID_INPUT")
 
 
 @pytest.mark.parametrize(

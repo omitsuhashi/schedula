@@ -97,7 +97,7 @@ def test_assignment_priority_changes_the_selected_plan(assignment_request, rever
     data["objectives"] = [{"id": m, "metric": m} for m in order]
     result = solve(data)
     assert_response(result, "OPTIMAL")
-    assert result["solver"]["selection_reason"] == "ROLE_SWITCH_OBJECTIVE"
+    assert result["solver"]["selection_reason"] == "MANDATORY_DEMAND"
     actual = {o["metric"]: o["value"] for o in result["objectives"]}
     assert actual == {
         "preference_penalty": 30 if reverse else 0,

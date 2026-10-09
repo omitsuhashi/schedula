@@ -45,8 +45,10 @@ def roster():
 
 @pytest.mark.parametrize("kind", ["assignment", "roster"])
 @pytest.mark.parametrize("people", [0, 1, 2, 3])
-def test_minimum_is_hard_and_original_target_is_retained(assignment_request, kind, people):
-    data = roster() if kind == "roster" else small_request(assignment_request, ["kitchen"], 3)
+def test_minimum_is_hard_and_original_target_is_retained(legacy_assignment_request, kind, people):
+    data = (
+        roster() if kind == "roster" else small_request(legacy_assignment_request, ["kitchen"], 3)
+    )
     data["schema_version"] = "0.12"
     data["demand"][0].update(required_people=3, minimum_people=1)
     for employee in data["employees"][people:]:
@@ -90,19 +92,19 @@ def test_invalid_minimum_rejected(value):
 @pytest.mark.parametrize(
     "version", [v for v in SCHEMA_VERSIONS if v not in {"0.12", "0.13", "0.14", "0.15"}]
 )
-def test_old_versions_reject_minimum_even_zero(assignment_request, version):
-    assignment_request["schema_version"] = version
-    assignment_request["demand"][0]["minimum_people"] = 0
-    assert_response(solve(assignment_request), "INVALID_INPUT")
+def test_old_versions_reject_minimum_even_zero(legacy_assignment_request, version):
+    legacy_assignment_request["schema_version"] = version
+    legacy_assignment_request["demand"][0]["minimum_people"] = 0
+    assert_response(solve(legacy_assignment_request), "INVALID_INPUT")
     assert any(
         d["json_pointer"].startswith("/demand/0")
-        for d in schema_errors("request", assignment_request)
+        for d in schema_errors("request", legacy_assignment_request)
     )
 
 
 @pytest.mark.parametrize("minimum", [None, 0])
-def test_zero_and_omission_keep_flow_and_priority_order(assignment_request, minimum):
-    data = small_request(assignment_request, ["kitchen"], 1)
+def test_zero_and_omission_keep_flow_and_priority_order(legacy_assignment_request, minimum):
+    data = small_request(legacy_assignment_request, ["kitchen"], 1)
     data["schema_version"] = "0.12"
     data["demand"][0]["required_people"] = 3
     if minimum is not None:
@@ -117,8 +119,8 @@ def test_zero_and_omission_keep_flow_and_priority_order(assignment_request, mini
     assert solve(data)["diagnostics"][0]["code"] == "UNSUPPORTED_BACKEND"
 
 
-def test_zero_target_equal_minimum_and_qualification_competition(assignment_request):
-    data = small_request(assignment_request, ["kitchen"])
+def test_zero_target_equal_minimum_and_qualification_competition(legacy_assignment_request):
+    data = small_request(legacy_assignment_request, ["kitchen"])
     data["schema_version"] = "0.12"
     data["demand"][0].update(required_people=0, minimum_people=0)
     assert_response(solve(data), "OPTIMAL")
@@ -352,8 +354,8 @@ def diagnosis_options():
     }
 
 
-def test_diagnosis_removes_both_bounds_and_only_explicit_edits(assignment_request):
-    data = small_request(assignment_request, ["kitchen"])
+def test_diagnosis_removes_both_bounds_and_only_explicit_edits(legacy_assignment_request):
+    data = small_request(legacy_assignment_request, ["kitchen"])
     data["schema_version"] = "0.12"
     data["demand"][0].update(required_people=3, minimum_people=1)
     data["employees"][0]["availability"] = []
@@ -378,8 +380,8 @@ def test_diagnosis_removes_both_bounds_and_only_explicit_edits(assignment_reques
         assert verify(modified, suggestion["response"]["solution"])["verification"]["valid"]
 
 
-def test_relaxation_keeps_assignment_variables_and_background(assignment_request):
-    data = small_request(assignment_request, ["kitchen"], 2)
+def test_relaxation_keeps_assignment_variables_and_background(legacy_assignment_request):
+    data = small_request(legacy_assignment_request, ["kitchen"], 2)
     data["schema_version"] = "0.12"
     data["demand"][0]["minimum_people"] = 1
     module, _ = cp_sat.load_backend()
@@ -430,8 +432,10 @@ def test_day_bounds_and_committed_background_survive_mandatory_demand():
 
 @pytest.mark.parametrize("minimums", [(0, 0), (1, 0), (0, 1), (1, 1)])
 @pytest.mark.parametrize("priorities", [(10, 0), (0, 10)])
-def test_assignment_matches_independent_small_enumeration(assignment_request, minimums, priorities):
-    data = assignment(assignment_request, priorities, employees=2)
+def test_assignment_matches_independent_small_enumeration(
+    legacy_assignment_request, minimums, priorities
+):
+    data = assignment(legacy_assignment_request, priorities, employees=2)
     data["schema_version"] = "0.12"
     for d, minimum in zip(data["demand"], minimums, strict=True):
         d["minimum_people"] = minimum
