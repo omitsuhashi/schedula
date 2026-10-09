@@ -4,6 +4,7 @@
 [scripts/migrate_contract.py](../../scripts/migrate_contract.py)。通常のsolve/validateへ暗黙変換を追加しない。
 所有者の2026-10-09回答により、例・テスト以外の保存済み実データはない。
 現行例の一括切替は #124、Draft・manifest・実行記録は #110、アプリの保存往復は #125 が担当する。
+Draft・manifest・実行記録の入口は [Adapterの明示移行](contract-0.15-adapter.md) を参照する。
 このスクリプトはRequestと、そのRequestに属する解またはResponseを対象とする。
 不正入力を補完したり、保存先を探索したり、DBや既存セッションを変更したりしない。
 
