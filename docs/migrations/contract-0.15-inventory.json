@@ -7,8 +7,9 @@
     "omitsuhashi/schedula",
     "omitsuhashi/schedula-app"
   ],
-  "consumer_scope_basis": "2026-10-09の利用者回答により、上記以外での利用なし。保存済み実データの有無は別確認。",
-  "production_data": "unconfirmed",
+  "consumer_scope_basis": "2026-10-09の利用者回答により、上記以外での利用なし。",
+  "production_data": "none_confirmed_by_owner",
+  "production_data_basis": "2026-10-09にリポジトリ所有者が、例・テスト以外のschedula / schedula-appの保存済みJSON・SQLiteはないと回答。対象はリポジトリ内データと代表移行試験に限定する。",
   "files": [
     {
       "repository": "schedula",

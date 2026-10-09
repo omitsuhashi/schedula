@@ -1494,7 +1494,7 @@
                   "additionalProperties": false
                 },
                 "minItems": 1,
-                "maxItems": 10
+                "maxItems": 20
               }
             },
             "required": [
