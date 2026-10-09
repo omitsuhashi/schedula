@@ -14,10 +14,15 @@ from shift_schedula import InvalidInput, load_json, make_baseline, solve, valida
 from shift_schedula.adapter import content_hash
 from shift_schedula.model import normalize
 from tests.roster_support import demand, interval, request, stamp, template
-from tests.test_contract_migration_regression import CASES, FIXTURES, read_case
 from tests.test_extended_roster import extended_request
 
 ROOT = Path(__file__).resolve().parents[1]
+FIXTURES = ROOT / "tests/fixtures/contract-migration"
+CASES = tuple(row["name"] for row in load_json((FIXTURES / "cases.json").read_text())["cases"])
+
+
+def read_case(name, kind):
+    return load_json((FIXTURES / f"{name}.{kind}.json").read_text(encoding="utf-8"))
 
 
 @pytest.mark.parametrize("name", CASES)
