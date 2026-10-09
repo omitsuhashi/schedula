@@ -40,8 +40,8 @@ def assignment(data, priorities=(10, 0), employees=1):
 
 
 @pytest.mark.parametrize("reverse", [False, True])
-def test_important_demand_beats_preference_and_id_order(assignment_request, reverse):
-    data = assignment(assignment_request)
+def test_important_demand_beats_preference_and_id_order(legacy_assignment_request, reverse):
+    data = assignment(legacy_assignment_request)
     if reverse:
         data["demand"].reverse()
         data["roles"].reverse()
@@ -107,8 +107,8 @@ def test_total_shortage_precedes_priority_and_survives_replanning(version):
 
 @pytest.mark.parametrize("priorities", [(0, 1), (1, 0), (3, 2), (0, 0)])
 @pytest.mark.parametrize("employees", [1, 2])
-def test_small_exhaustive_oracle(assignment_request, priorities, employees):
-    data = assignment(assignment_request, priorities, employees)
+def test_small_exhaustive_oracle(legacy_assignment_request, priorities, employees):
+    data = assignment(legacy_assignment_request, priorities, employees)
     window = data["planning_window"]
     window["end"] = window["end"].replace("11:30", "12:00")
     for d in data["demand"]:
@@ -167,9 +167,9 @@ def test_small_exhaustive_oracle(assignment_request, priorities, employees):
 )
 @pytest.mark.parametrize("version", ["0.5", "0.7", "0.8"])
 def test_time_limit_proves_only_reached_prefix(
-    assignment_request, monkeypatch, statuses, proofs, version
+    legacy_assignment_request, monkeypatch, statuses, proofs, version
 ):
-    data = assignment(assignment_request)
+    data = assignment(legacy_assignment_request)
     data["schema_version"] = version
     calls, _ = control_search(monkeypatch, statuses)
     result = solve(data)
@@ -185,8 +185,8 @@ def test_time_limit_proves_only_reached_prefix(
     assert reached == min(2, len(statuses) - 1)
 
 
-def test_shared_budget_and_tampered_priority_rejected(assignment_request, monkeypatch):
-    data = assignment(assignment_request)
+def test_shared_budget_and_tampered_priority_rejected(legacy_assignment_request, monkeypatch):
+    data = assignment(legacy_assignment_request)
     module, _ = cp_sat.load_backend()
     search = module.CpSolver.solve
     clock, limits = [0], []
@@ -229,8 +229,8 @@ def test_shared_budget_and_tampered_priority_rejected(assignment_request, monkey
     assert broken["diagnostics"][0]["code"] == "PRIORITY_SHORTAGE_MISMATCH"
 
 
-def test_old_contracts_reject_priority_and_default_is_compatible(assignment_request):
-    data = assignment(assignment_request, (0, 0))
+def test_old_contracts_reject_priority_and_default_is_compatible(legacy_assignment_request):
+    data = assignment(legacy_assignment_request, (0, 0))
     for version in ("0.1", "0.2", "0.3", "0.4"):
         assert solve({**data, "schema_version": version})["status"] == "INVALID_INPUT"
     for value in (-1, True, 1.5, "1"):
@@ -254,8 +254,8 @@ def test_old_contracts_reject_priority_and_default_is_compatible(assignment_requ
     assert solve(empty)["priority_summary"] == {"groups": []}
 
 
-def test_priority_cli_and_schemas(assignment_request, tmp_path):
-    data = assignment(assignment_request)
+def test_priority_cli_and_schemas(legacy_assignment_request, tmp_path):
+    data = assignment(legacy_assignment_request)
     path = tmp_path / "request.json"
     path.write_text(json.dumps(data), encoding="utf-8")
     result = cli("solve", str(path))

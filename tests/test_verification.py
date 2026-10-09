@@ -15,7 +15,7 @@ from tests.support import assert_response, require_complete_demand
     [
         ("skill", "SKILL_VIOLATION"),
         ("double", "DOUBLE_ASSIGNMENT"),
-        ("shortage", "DEMAND_SHORTAGE"),
+        ("shortage", "MINIMUM_DEMAND_VIOLATION"),
         ("excess", "DEMAND_EXCESS"),
         ("availability", "AVAILABILITY_VIOLATION"),
         ("reference", "UNKNOWN_REFERENCE"),
@@ -53,8 +53,13 @@ def test_corrupt_solutions_detected_and_blocked(assignment_request, monkeypatch,
             {
                 "candidate_id": "shift",
                 "employee_id": "alice",
-                "interval": assignment_request["employees"][0]["availability"][0],
-                "breaks": [],
+                "work_day": "2026-10-05",
+                "segments": [
+                    {
+                        "interval": assignment_request["employees"][0]["availability"][0],
+                        "breaks": [],
+                    }
+                ],
             }
         ]
     violations, _ = verify_solution(normalize(assignment_request), solution)
@@ -92,7 +97,11 @@ def test_objective_recomputed_and_mismatch_blocks_solution(assignment_request, m
     assignment_request["preferences"][0]["penalty_per_minute"] = 2
     solution = solve(assignment_request)["solution"]
     assert verify_solution(normalize(assignment_request), solution) == ([], (240,))
-    monkeypatch.setattr(flow, "run", lambda _: flow.FlowResult("OPTIMAL", solution, (0,), (True,)))
+    monkeypatch.setattr(
+        flow,
+        "run",
+        lambda _: flow.FlowResult("OPTIMAL", solution, (0,), (True,), shortage_person_minutes=0),
+    )
     result = solve(assignment_request)
     assert_response(result, "INTERNAL_ERROR")
     assert result["diagnostics"][0]["code"] == "OBJECTIVE_VALUE_MISMATCH"

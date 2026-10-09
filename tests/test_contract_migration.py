@@ -243,8 +243,8 @@ def test_maximum_ten_legacy_edits_fit_twenty_target_edits_and_overflow_is_reject
     assert validate(source)["status"] == "INVALID_INPUT"
 
 
-def test_invalid_plan_and_tampered_response_are_rejected(assignment_request):
-    source = assignment_request
+def test_invalid_plan_and_tampered_response_are_rejected(legacy_assignment_request):
+    source = legacy_assignment_request
     response = solve(source)
     corrupt = copy.deepcopy(response["solution"])
     corrupt["assignments"].pop()
@@ -256,8 +256,8 @@ def test_invalid_plan_and_tampered_response_are_rejected(assignment_request):
 
 
 @pytest.mark.parametrize("mutation", ["missing", "unknown", "type", "cycle", "nonfinite"])
-def test_invalid_input_is_rejected_without_changing_original(assignment_request, mutation):
-    source = assignment_request
+def test_invalid_input_is_rejected_without_changing_original(legacy_assignment_request, mutation):
+    source = legacy_assignment_request
     if mutation == "missing":
         del source["schema_version"]
     elif mutation == "unknown":

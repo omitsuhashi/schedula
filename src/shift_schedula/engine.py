@@ -514,7 +514,7 @@ def solve(request: dict, *, num_workers: int = 2) -> dict:
             else:
                 violations, values = verify_solution(problem, outcome.solution)
             priorities = None
-            if schema_version in {
+            if shortage is not None and schema_version in {
                 "0.5",
                 "0.6",
                 "0.7",

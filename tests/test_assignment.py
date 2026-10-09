@@ -36,13 +36,14 @@ def test_empty_demand_and_objectives(assignment_request, backend, demand):
     assignment_request["solver"]["backend"] = backend
     if demand == "zero":
         for item in assignment_request["demand"]:
-            item["required_people"] = 0
+            item.update(required_people=0, minimum_people=0)
     else:
         assignment_request["demand"] = []
     assignment_request["preferences"] = []
     assignment_request["objectives"] = []
     result = solve(assignment_request)
     assert_response(result, "OPTIMAL")
+    assert result["schema_version"] == "0.15"
     assert result["solution"] == {"assignments": [], "shifts": []}
     assert result["objectives"] == []
 
@@ -140,6 +141,7 @@ def test_assignment_merging_preserves_gaps_and_role_changes(assignment_request):
             "required_people": 1,
         },
     ]
+    require_complete_demand(assignment_request)
     result = solve(assignment_request)
     assert_response(result, "OPTIMAL")
     assert len(result["solution"]["assignments"]) == 2

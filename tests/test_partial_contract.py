@@ -253,57 +253,59 @@ def test_baseline_requires_complete_plan_and_preserves_old_version_boundary():
     assert any(d["code"] == "DEMAND_SHORTAGE" for d in error.value.diagnostics)
 
 
-def test_partial_diagnosis_never_searches_changes(assignment_request):
-    assignment_request["schema_version"] = "0.3"
-    assignment_request["diagnosis"] = {
+def test_partial_diagnosis_never_searches_changes(legacy_assignment_request):
+    legacy_assignment_request["schema_version"] = "0.3"
+    legacy_assignment_request["diagnosis"] = {
         "time_limit_seconds": 1,
         "max_suggestions": 1,
         "allowed_changes": [],
     }
     result = result_example("PARTIAL")
     result["diagnosis_result"] = diagnosis.diagnose(
-        assignment_request, "PARTIAL", lambda _: pytest.fail("変更案を探索してはいけません。")
+        legacy_assignment_request,
+        "PARTIAL",
+        lambda _: pytest.fail("変更案を探索してはいけません。"),
     )
     detail = result["diagnosis_result"]
     assert detail["status"] == "NOT_APPLICABLE" and detail["reason"] == "ORIGINAL_PARTIAL"
     assert detail["conflict"] is None and detail["suggestions"] == []
-    codes = {item["code"] for item in diagnosis.conditions(assignment_request)}
+    codes = {item["code"] for item in diagnosis.conditions(legacy_assignment_request)}
     assert "DEMAND_LIMIT_AND_SINGLE_ASSIGNMENT" in codes
     assert "EXACT_DEMAND_AND_SINGLE_ASSIGNMENT" not in codes
     validate_response(result)
-    assert diagnosis.validate_result(assignment_request, result) == []
+    assert diagnosis.validate_result(legacy_assignment_request, result) == []
     detail["reason"] = "ORIGINAL_FEASIBLE"
-    assert diagnosis.validate_result(assignment_request, result)
+    assert diagnosis.validate_result(legacy_assignment_request, result)
     assert schema_errors("response", result)
 
 
-def test_full_response_with_original_request_and_legacy_boundaries(assignment_request):
-    assignment_request["schema_version"] = "0.2"
-    result = solve(assignment_request)
-    result["schema_version"] = assignment_request["schema_version"] = "0.3"
+def test_full_response_with_original_request_and_legacy_boundaries(legacy_assignment_request):
+    legacy_assignment_request["schema_version"] = "0.2"
+    result = solve(legacy_assignment_request)
+    result["schema_version"] = legacy_assignment_request["schema_version"] = "0.3"
     result["shortage_summary"] = {
         "total_person_minutes": 0,
         "proven_minimal": True,
         "shortages": [],
     }
-    validate_response(result, assignment_request)
-    assert verify_solution(normalize(assignment_request), result["solution"])[0] == []
+    validate_response(result, legacy_assignment_request)
+    assert verify_solution(normalize(legacy_assignment_request), result["solution"])[0] == []
     for version in ("0.1", "0.2"):
         result["schema_version"] = version
         assert schema_errors("response", result)
-    legacy = solve({**assignment_request, "schema_version": "0.2"})
+    legacy = solve({**legacy_assignment_request, "schema_version": "0.2"})
     with pytest.raises(InvalidInput, match="契約版"):
-        validate_response(legacy, assignment_request)
+        validate_response(legacy, legacy_assignment_request)
     # 元入力と合わない合成応答は独立検証で拒否する。
     with pytest.raises(InvalidInput):
-        validate_response(result_example("PARTIAL"), assignment_request)
+        validate_response(result_example("PARTIAL"), legacy_assignment_request)
     # 完全な配置に架空の不足一覧を付けても照合をすり抜けさせない。
     legacy["schema_version"] = "0.3"
     legacy["status"] = "PARTIAL"
     legacy["shortage_summary"] = result_example("PARTIAL")["shortage_summary"]
     legacy["shortage_summary"]["proven_minimal"] = True
     with pytest.raises(InvalidInput) as error:
-        validate_response(legacy, assignment_request)
+        validate_response(legacy, legacy_assignment_request)
     assert error.value.diagnostics[0]["code"] == "SHORTAGE_MISMATCH"
 
 

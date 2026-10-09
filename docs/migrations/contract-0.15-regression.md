@@ -66,8 +66,21 @@ rosterの比較入力は旧テンプレートで生成した有限候補を旧ID
 `assignment_request015` は固定した完全充足の担当配置。
 `tests.roster_support.request015` はsegmentsと明示空履歴を持つ0.15勤務計画で、需要下限は既定0。
 完全充足を検証する呼び出し側だけが `tests.support.require_complete_demand` を使う。
-既存の `assignment_request` は通常の0.1 fixtureを維持し、入力境界・実行制御の明示パラメータで
-0.15の下限省略入力も試す。後者は現行0.15の既定値回帰であり、完全充足への移行とは区別する。
+`assignment_request` の通常利用は同じ0.15の完全充足fixtureへ移した。
+技能・需要競合・残余経路・加算選好・勤務量/役割切替・独立検証・入力境界・
+CLI/API・実行制御・logging・タイムゾーンの回帰は、この共通fixtureを使う。
+完全充足の需要を組み直す `tests.test_cp_sat.small_request` は0.15に明示下限を付ける。
+需要0への編集は下限も0にし、故意の不足違反は `MINIMUM_DEMAND_VIOLATION` で検出する。
+不正な解のSchemaを独立検証した際に不足集計が作れない場合はpriority集計を行わず、
+検出した違反と検証済み/無効の結果を保って解を拒否する。
+
+旧版と0.15を比較する明示パラメータは残す。
+旧版固有の受理範囲・移行元・各版のSchema/型検査と、後続で移す不足/priorityの回帰は
+`legacy_assignment_request` を明示する。`test_partial_plans`、`test_partial_contract`、
+`test_demand_priority`、`test_contract_04`、`test_minimum_demand` の旧版部分、
+`test_contract_migration` と旧版の条件拒否が該当する。
+これらの業務回帰の0.15化と旧版受理の拒否への置換は、対応表の後続責務を維持する。
+下限省略/明示0の既定値は `test_current_015_defaults_and_empty_output_structure` が別に検証する。
 
 | テスト群 | 残す業務挙動 | 移す形状・統合できる重複 | 旧版除去後の行先 |
 | --- | --- | --- | --- |

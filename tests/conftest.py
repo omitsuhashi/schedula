@@ -8,14 +8,21 @@ ROOT = Path(__file__).resolve().parents[1]
 
 @pytest.fixture
 def assignment_request(request):
-    data = json.loads(
+    name = "legacy" if getattr(request, "param", "0.15") == "0.1" else "015"
+    return json.loads(
+        (ROOT / f"tests/fixtures/contract-migration/assignment.{name}.json").read_text(
+            encoding="utf-8"
+        )
+    )
+
+
+@pytest.fixture
+def legacy_assignment_request():
+    return json.loads(
         (ROOT / "tests/fixtures/contract-migration/assignment.legacy.json").read_text(
             encoding="utf-8"
         )
     )
-    if getattr(request, "param", "0.1") == "0.15":
-        data["schema_version"] = "0.15"
-    return data
 
 
 @pytest.fixture

@@ -450,8 +450,8 @@ def test_preserved_assignments_over_1000_do_not_expand_fixed_parts():
 
 
 @pytest.mark.parametrize("version", SCHEMA_VERSIONS)
-def test_verification_has_no_solver_call_or_proofs(version, monkeypatch, assignment_request):
-    data = copy.deepcopy(assignment_request)
+def test_verification_has_no_solver_call_or_proofs(version, monkeypatch, legacy_assignment_request):
+    data = copy.deepcopy(legacy_assignment_request)
     data["schema_version"] = version
     result = solve(data)
 
