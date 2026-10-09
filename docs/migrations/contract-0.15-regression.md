@@ -100,7 +100,7 @@ CLI/API・実行制御・logging・タイムゾーンの回帰は、この共通
 勤務計画でも `legacy_request` / `legacy_candidate` / `legacy_template` を明示し、
 `test_roster_contract` の0.1固有の受理範囲、`test_contract_migration` の旧入力、
 objectives/extensionsの通常回帰は0.15へ移し、旧形式の比較・基準受理は
-legacyヘルパーを呼出側で明示する。後続で移す継続/診断/勤務評価/日数の形状を保つ。
+legacyヘルパーを呼出側で明示する。後続で移す診断/日数/勤務分類/同僚の形状を保つ。
 診断と移行が使う0.2入力は `legacy_extended_request` として残す。
 これらは通常の0.15fixtureの代替ではなく、#124の後続と#111の拒否への切替対象である。
 `test_roster_metrics.cost_request` / `night_request` と継続勤務評価の通常回帰は0.15へ移した。
