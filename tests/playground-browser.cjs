@@ -71,7 +71,7 @@ async function reviewRegressions(page, url) {
         await route.fulfill({json: result});
       } else await route.fulfill({status: 500, json: {error: {code: "SERVER_ERROR", message: "初回失敗の応答サンプル", json_pointer: null}}});
     });
-    await page.goto(url);
+    await page.reload();
     await status(page, kind === "initial-unknown-baseline" ? "UNKNOWN" : "結果を取得できませんでした");
     assert.equal(await page.evaluate(() => baseline), null);
     assert.ok(!(await page.locator("#comparison").innerText()).includes("計算結果を待っています"));
@@ -114,7 +114,7 @@ async function reviewRegressions(page, url) {
     report.response_samples.push(kind);
     await page.unroute("**/solve");
   }
-  await page.goto(url);
+  await page.reload();
 }
 
 async function largeShortageRendering(page) {
@@ -172,7 +172,8 @@ async function jsonInputChecks(page) {
   const waitJSON = text => page.waitForFunction(value =>
     document.getElementById("json-status").textContent.includes(value) && !busy,
   text, {timeout: 120000});
-  await page.locator("#json-demo summary").first().click();
+  await page.evaluate(() => { location.hash = "json"; });
+  await page.locator("#json-demo").waitFor({state: "visible"});
   await page.locator("#json-load-sample").click();
   await waitJSON("読み込みました");
   const sample = JSON.parse(await page.locator("#json-input").inputValue());
@@ -496,7 +497,8 @@ async function jsonInputChecks(page) {
 
 async function adapterChecks(page) {
   const wait = text => page.waitForFunction(value => document.getElementById("adapter-status").textContent.includes(value) && !document.getElementById("adapter-check").disabled, text, {timeout: 120000});
-  await page.locator("#adapter-demo > summary").click();
+  await page.evaluate(() => { location.hash = "records"; });
+  await page.locator("#adapter-demo").waitFor({state: "visible"});
   const staleWeek = JSON.parse(readFileSync("examples/adapter/week-next-stale.draft.json", "utf8"));
   const nextWeek = JSON.parse(readFileSync("examples/adapter/week-next.draft.json", "utf8"));
   await page.locator("#adapter-file").setInputFiles("examples/adapter/week-next-stale.draft.json");
@@ -680,6 +682,8 @@ async function main() {
   page.on("pageerror", error => errors.push(error.message));
   let acceptDialog = true;
   page.on("dialog", dialog => acceptDialog ? dialog.accept() : dialog.dismiss());
+  await require("./feature-browser.cjs")(browser, url, report);
+  url += "#combined";
   await page.goto(url);
   let initial = await verified(page, {status: "OPTIMAL", assigned_slots: 22});
   await page.screenshot({path: "test-results/playground-desktop.png", fullPage: true});
@@ -762,7 +766,7 @@ async function main() {
   initial = await verified(page, {status: "OPTIMAL", assigned_slots: 22});
   for (const width of [1440, 390]) {
     await page.setViewportSize({width, height: 844});
-    const geometry = await page.evaluate(() => ({width: innerWidth, document: document.documentElement.scrollWidth, columns: getComputedStyle(document.querySelector(".layout")).gridTemplateColumns.split(" ").length}));
+    const geometry = await page.evaluate(() => ({width: innerWidth, document: document.documentElement.scrollWidth, columns: getComputedStyle(document.querySelector("#editor .layout")).gridTemplateColumns.split(" ").length}));
     assert.ok(geometry.document <= geometry.width);
     assert.equal(geometry.columns, width === 1440 ? 2 : 1);
     await page.locator("#demand").focus();

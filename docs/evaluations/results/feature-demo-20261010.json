@@ -1,0 +1,717 @@
+{
+  "browser": "151.0.7922.34",
+  "runs": [
+    {
+      "repeat": 0,
+      "measurements": [
+        {
+          "id": "demand",
+          "initial": true,
+          "elapsed_ms": 137.10000002384186,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "min_cost_flow",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+          },
+          "stats": {
+            "elapsed_seconds": 0.10999912500847131
+          }
+        },
+        {
+          "id": "demand",
+          "initial": false,
+          "elapsed_ms": 39.60000002384186,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "min_cost_flow",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+          },
+          "stats": {
+            "elapsed_seconds": 0.00795208290219307
+          }
+        },
+        {
+          "id": "demand",
+          "initial": false,
+          "elapsed_ms": 47.799999952316284,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "min_cost_flow",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+          },
+          "stats": {
+            "elapsed_seconds": 0.007660332950763404
+          }
+        },
+        {
+          "id": "demand",
+          "initial": false,
+          "elapsed_ms": 47.89999997615814,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "min_cost_flow",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+          },
+          "stats": {
+            "elapsed_seconds": 0.0068047919776290655
+          }
+        },
+        {
+          "id": "demand",
+          "initial": false,
+          "elapsed_ms": 47.5,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "min_cost_flow",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+          },
+          "stats": {
+            "elapsed_seconds": 0.007081290939822793
+          }
+        },
+        {
+          "id": "demand",
+          "initial": false,
+          "elapsed_ms": 47.5,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "min_cost_flow",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+          },
+          "stats": {
+            "elapsed_seconds": 0.006851083016954362
+          }
+        },
+        {
+          "id": "demand",
+          "initial": false,
+          "elapsed_ms": 47.90000009536743,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "min_cost_flow",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+          },
+          "stats": {
+            "elapsed_seconds": 0.006569167017005384
+          }
+        },
+        {
+          "id": "consecutive_days",
+          "initial": true,
+          "elapsed_ms": 294.39999997615814,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "EXPLICIT_BACKEND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.2622860000701621
+          }
+        },
+        {
+          "id": "consecutive_days",
+          "initial": false,
+          "elapsed_ms": 64.29999995231628,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "EXPLICIT_BACKEND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.030651750043034554
+          }
+        },
+        {
+          "id": "consecutive_days",
+          "initial": false,
+          "elapsed_ms": 48,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "EXPLICIT_BACKEND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.02315287501551211
+          }
+        },
+        {
+          "id": "consecutive_days",
+          "initial": false,
+          "elapsed_ms": 64.79999995231628,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "EXPLICIT_BACKEND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.031405458925291896
+          }
+        },
+        {
+          "id": "consecutive_days",
+          "initial": false,
+          "elapsed_ms": 64.5,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "EXPLICIT_BACKEND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.030658291070722044
+          }
+        },
+        {
+          "id": "consecutive_days",
+          "initial": false,
+          "elapsed_ms": 48,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "EXPLICIT_BACKEND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.028491833014413714
+          }
+        },
+        {
+          "id": "consecutive_days",
+          "initial": false,
+          "elapsed_ms": 64.60000002384186,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "EXPLICIT_BACKEND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.030703165917657316
+          }
+        },
+        {
+          "id": "consecutive_days",
+          "initial": false,
+          "elapsed_ms": 64.59999990463257,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "EXPLICIT_BACKEND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.032895084004849195
+          }
+        }
+      ]
+    },
+    {
+      "repeat": 1,
+      "measurements": [
+        {
+          "id": "demand",
+          "initial": true,
+          "elapsed_ms": 141.89999997615814,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "min_cost_flow",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+          },
+          "stats": {
+            "elapsed_seconds": 0.10774420795496553
+          }
+        },
+        {
+          "id": "demand",
+          "initial": false,
+          "elapsed_ms": 40.800000071525574,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "min_cost_flow",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+          },
+          "stats": {
+            "elapsed_seconds": 0.007919416995719075
+          }
+        },
+        {
+          "id": "demand",
+          "initial": false,
+          "elapsed_ms": 48.299999952316284,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "min_cost_flow",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+          },
+          "stats": {
+            "elapsed_seconds": 0.006864416995085776
+          }
+        },
+        {
+          "id": "demand",
+          "initial": false,
+          "elapsed_ms": 48.10000002384186,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "min_cost_flow",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+          },
+          "stats": {
+            "elapsed_seconds": 0.00654616707470268
+          }
+        },
+        {
+          "id": "demand",
+          "initial": false,
+          "elapsed_ms": 47.90000009536743,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "min_cost_flow",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+          },
+          "stats": {
+            "elapsed_seconds": 0.006594583974219859
+          }
+        },
+        {
+          "id": "demand",
+          "initial": false,
+          "elapsed_ms": 48.200000047683716,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "min_cost_flow",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+          },
+          "stats": {
+            "elapsed_seconds": 0.006538290996104479
+          }
+        },
+        {
+          "id": "demand",
+          "initial": false,
+          "elapsed_ms": 48,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "min_cost_flow",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+          },
+          "stats": {
+            "elapsed_seconds": 0.006576500018127263
+          }
+        },
+        {
+          "id": "consecutive_days",
+          "initial": true,
+          "elapsed_ms": 278.7000000476837,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "EXPLICIT_BACKEND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.2492522499524057
+          }
+        },
+        {
+          "id": "consecutive_days",
+          "initial": false,
+          "elapsed_ms": 65,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "EXPLICIT_BACKEND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.03082500002346933
+          }
+        },
+        {
+          "id": "consecutive_days",
+          "initial": false,
+          "elapsed_ms": 48.10000002384186,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "EXPLICIT_BACKEND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.02198625006712973
+          }
+        },
+        {
+          "id": "consecutive_days",
+          "initial": false,
+          "elapsed_ms": 64.79999995231628,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "EXPLICIT_BACKEND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.031005084048956633
+          }
+        },
+        {
+          "id": "consecutive_days",
+          "initial": false,
+          "elapsed_ms": 64.70000004768372,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "EXPLICIT_BACKEND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.03153779194690287
+          }
+        },
+        {
+          "id": "consecutive_days",
+          "initial": false,
+          "elapsed_ms": 64.70000004768372,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "EXPLICIT_BACKEND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.030764624942094088
+          }
+        },
+        {
+          "id": "consecutive_days",
+          "initial": false,
+          "elapsed_ms": 64.70000004768372,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "EXPLICIT_BACKEND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.0303957499563694
+          }
+        },
+        {
+          "id": "consecutive_days",
+          "initial": false,
+          "elapsed_ms": 64.60000002384186,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "EXPLICIT_BACKEND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.03285524994134903
+          }
+        }
+      ]
+    },
+    {
+      "repeat": 2,
+      "measurements": [
+        {
+          "id": "demand",
+          "initial": true,
+          "elapsed_ms": 142.5,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "min_cost_flow",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+          },
+          "stats": {
+            "elapsed_seconds": 0.10895445896312594
+          }
+        },
+        {
+          "id": "demand",
+          "initial": false,
+          "elapsed_ms": 39.89999997615814,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "min_cost_flow",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+          },
+          "stats": {
+            "elapsed_seconds": 0.00816262501757592
+          }
+        },
+        {
+          "id": "demand",
+          "initial": false,
+          "elapsed_ms": 48,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "min_cost_flow",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+          },
+          "stats": {
+            "elapsed_seconds": 0.006864457973279059
+          }
+        },
+        {
+          "id": "demand",
+          "initial": false,
+          "elapsed_ms": 48,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "min_cost_flow",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+          },
+          "stats": {
+            "elapsed_seconds": 0.006795416935347021
+          }
+        },
+        {
+          "id": "demand",
+          "initial": false,
+          "elapsed_ms": 48,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "min_cost_flow",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+          },
+          "stats": {
+            "elapsed_seconds": 0.006606374983675778
+          }
+        },
+        {
+          "id": "demand",
+          "initial": false,
+          "elapsed_ms": 48.10000002384186,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "min_cost_flow",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+          },
+          "stats": {
+            "elapsed_seconds": 0.00662608293350786
+          }
+        },
+        {
+          "id": "demand",
+          "initial": false,
+          "elapsed_ms": 48,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "min_cost_flow",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "INDEPENDENT_ADDITIVE_ASSIGNMENTS"
+          },
+          "stats": {
+            "elapsed_seconds": 0.006634666933678091
+          }
+        },
+        {
+          "id": "consecutive_days",
+          "initial": true,
+          "elapsed_ms": 278.7999999523163,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "EXPLICIT_BACKEND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.25032816699240357
+          }
+        },
+        {
+          "id": "consecutive_days",
+          "initial": false,
+          "elapsed_ms": 64.89999997615814,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "EXPLICIT_BACKEND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.03060704201925546
+          }
+        },
+        {
+          "id": "consecutive_days",
+          "initial": false,
+          "elapsed_ms": 48.09999990463257,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "EXPLICIT_BACKEND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.022808250039815903
+          }
+        },
+        {
+          "id": "consecutive_days",
+          "initial": false,
+          "elapsed_ms": 64.59999990463257,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "EXPLICIT_BACKEND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.031783082988113165
+          }
+        },
+        {
+          "id": "consecutive_days",
+          "initial": false,
+          "elapsed_ms": 64.70000004768372,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "EXPLICIT_BACKEND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.032454874948598444
+          }
+        },
+        {
+          "id": "consecutive_days",
+          "initial": false,
+          "elapsed_ms": 64.5,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "EXPLICIT_BACKEND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.02904874994419515
+          }
+        },
+        {
+          "id": "consecutive_days",
+          "initial": false,
+          "elapsed_ms": 64.89999997615814,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "EXPLICIT_BACKEND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.03037675004452467
+          }
+        },
+        {
+          "id": "consecutive_days",
+          "initial": false,
+          "elapsed_ms": 64.70000004768372,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "EXPLICIT_BACKEND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.03251516597811133
+          }
+        }
+      ]
+    }
+  ],
+  "environment": {
+    "date": "2026-10-10",
+    "os": "macOS arm64",
+    "python": "3.14.8",
+    "ortools": "9.15.6755",
+    "node": "24.21.0",
+    "playwright": "1.62.1",
+    "timezone": "UTC",
+    "lesson_timezone": "Asia/Tokyo",
+    "num_workers": 2,
+    "source_base": "8624f944f5b662590fc9811664c8048ed308b881",
+    "timing_scope": "POST開始からHTTP・DOM更新・2回のrequestAnimationFrameまで。教材GETとページ読込を除く。"
+  },
+  "file_sha256": {
+    "demo/features.js": "932895f3ac1d3c0ec67cb62619d89f6c58aba668b48097194435e8732b1628d9",
+    "demo/feature-state.js": "c994c41663b872d820e2f7d81cac1c39cde626ec5e0ca603be34fb1fafb09ffc",
+    "demo/server.py": "ae93b8701a1d8eca1f5f18b269cedb39b0a16371aeb0c1a2cf7f1571ff7d7429",
+    "examples/playground/lessons.json": "e47194fc431dc4aa64fdced4f77907422c0caa38331c0519a9b407bb00bd22ea",
+    "examples/playground/demand-adjustment.json": "523c6ad122a8c8b102f6a0bb81dc95735df6a824d7210d589cabde72134ce73d",
+    "examples/playground/consecutive-days.json": "73ba2739f16c0c425a5fa6501fc2148924d6970e0fb1efc135ffffdd44d4fa68",
+    "uv.lock": "3d6d83bd66434684b333cd2534d601e9be4c0a935fb4f4515699eb00f16e23b7"
+  }
+}

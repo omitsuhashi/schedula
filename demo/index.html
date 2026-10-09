@@ -3,20 +3,50 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>配置プレイグラウンド | shift-schedula</title>
+  <title>機能を試す | shift-schedula</title>
   <link rel="stylesheet" href="/style.css">
   <script src="/app.js" defer></script>
   <script src="/adapter.js" defer></script>
+  <script src="/feature-state.js" defer></script>
+  <script src="/features.js" defer></script>
 </head>
 <body>
 <header>
-  <p class="eyebrow">shift-schedula / 架空の飲食店</p>
-  <h1>配置プレイグラウンド</h1>
-  <p>技能・勤務可能時間・必要人数を変えて、担当配置を試してみましょう。</p>
-  <p class="note">2026-10-06 · 11:00〜14:00 · 30分ごと · 架空データのみ</p>
+  <p class="eyebrow">shift-schedula / 架空データ</p>
+  <h1>担当配置と勤務計画の機能を試す</h1>
+  <p>機能を選び、条件を一種類変えて、結果の変化を確かめます。</p>
+  <nav aria-label="デモの移動"><a href="#">機能一覧</a> · <a href="#demand">必要人数</a> · <a href="#consecutive_days">連続勤務日数</a></nav>
+  <p class="note">移動・復元すると編集中の条件と結果は失われます。固定日付・Asia/Tokyoの教材です。</p>
 </header>
 <main>
-  <details id="adapter-demo">
+  <section id="feature-list" aria-label="機能一覧"></section>
+  <section id="feature-demo" hidden aria-labelledby="feature-title">
+    <h2 id="feature-title" tabindex="-1"></h2>
+    <p id="feature-intro"></p>
+    <div class="layout">
+      <div>
+        <form id="feature-form">
+          <fieldset id="feature-controls">
+            <legend>この機能の条件</legend>
+            <div id="feature-fields"></div>
+            <div id="feature-guide" class="guide"></div>
+            <div class="actions">
+              <button id="feature-run" class="primary" type="submit">再計算</button>
+              <button id="feature-restore" type="button">初期条件へ戻す</button>
+            </div>
+          </fieldset>
+        </form>
+        <details><summary>この例の前提・目的順序</summary><div id="feature-premises"></div></details>
+      </div>
+      <div>
+        <section id="feature-result" aria-busy="false" aria-label="機能の結果">
+          <p id="feature-status" role="status" aria-live="polite"></p>
+          <div id="feature-output"></div>
+        </section>
+      </div>
+    </div>
+  </section>
+  <details id="adapter-demo" hidden>
     <summary>基本情報を再利用し、入力を確認・保存する</summary>
     <p>入力候補のJSONを修正し、必要な入力元を一件ずつ確認します。週を変えたら今回の日付付き条件を明示更新してください。原履歴・基準計画の日付は動かしません。</p>
     <div class="toolbar">
@@ -48,7 +78,7 @@
     <p id="adapter-status" role="status" aria-live="polite">分割サンプルを読み込んでください。</p>
     <div id="adapter-output"></div>
   </details>
-  <details id="json-demo">
+  <details id="json-demo" hidden>
     <summary>JSON で担当配置・勤務計画を計算する</summary>
     <form id="json-editor">
       <fieldset id="json-controls" disabled>
@@ -82,7 +112,7 @@
       <div id="json-output"></div>
     </section>
   </details>
-  <form id="editor">
+  <form id="editor" hidden>
     <fieldset id="controls" disabled>
       <legend class="sr-only">配置の条件と操作</legend>
       <div class="toolbar">
@@ -124,6 +154,6 @@
     </fieldset>
   </form>
 </main>
-<footer>保存・登録は不要です。再読み込みで通常サンプルに戻ります。担当なしは欠勤・退勤・休憩を意味しません。</footer>
+<footer>架空入力を使うローカルデモです。試験値は就業規則や法令の推奨値ではありません。全44主題の展開と利用者評価は進行中です。</footer>
 </body>
 </html>
