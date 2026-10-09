@@ -107,7 +107,11 @@ def test_roundtrip_matches_complete_request_and_same_solution(name):
 
 @pytest.mark.parametrize("version", SCHEMA_VERSIONS)
 def test_all_contract_versions_and_ownership_table(version):
-    value = request("assignment")
+    value = json.loads(
+        (ROOT / "tests/fixtures/contract-migration/assignment.legacy.json").read_text(
+            encoding="utf-8"
+        )
+    )
     value["schema_version"] = version
     assert validate(value)["status"] == "VALID"
     draft = confirmed(value)

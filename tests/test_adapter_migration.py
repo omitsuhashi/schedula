@@ -29,8 +29,14 @@ from shift_schedula import (
     verify,
 )
 from shift_schedula.adapter import EMPLOYEE_FIELDS, SECTIONS, get_schema
-from tests.test_adapter import confirmed, request, source
+from tests.test_adapter import confirmed, source
+from tests.test_adapter import request as current_request
 from tests.test_contract_migration import CASES, read_case
+
+
+def request(name):
+    return read_case(name, "legacy") if name == "assignment" else current_request(name)
+
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -228,7 +234,9 @@ def test_cli_manifest_tracks_all_inputs_preserves_originals_and_refuses_overwrit
         "period.json",
         "execution.json",
     ]:
-        (source_dir / name).write_bytes((ROOT / "examples/adapter" / name).read_bytes())
+        (source_dir / name).write_bytes(
+            (ROOT / "tests/fixtures/contract-migration/adapter" / name).read_bytes()
+        )
     originals = {p: p.read_bytes() for p in source_dir.iterdir()}
     manifest = source_dir / "assignment.manifest.json"
     output = tmp_path / "migration.json"
@@ -271,7 +279,9 @@ def test_cli_rejects_invalid_json_without_output(tmp_path, raw):
     ],
 )
 def test_cli_manifest_rejects_unsafe_and_cyclic_paths(tmp_path, path):
-    manifest = json.loads((ROOT / "examples/adapter/assignment.manifest.json").read_text())
+    manifest = json.loads(
+        (ROOT / "tests/fixtures/contract-migration/adapter/assignment.manifest.json").read_text()
+    )
     manifest["files"] = [path]
     source_file, output = tmp_path / "self.json", tmp_path / "output.json"
     source_file.write_text(json.dumps(manifest))
@@ -284,18 +294,24 @@ def test_cli_manifest_rejects_unsafe_and_cyclic_paths(tmp_path, path):
 @pytest.mark.parametrize("fail_at", ["file_size", "total_size", "symlink", "fsync", "interrupted"])
 def test_cli_io_failure_protects_original_and_cleans_partial_output(tmp_path, monkeypatch, fail_at):
     source_file, output = tmp_path / "input.json", tmp_path / "output.json"
-    source_file.write_bytes((ROOT / "examples/adapter/assignment.draft.json").read_bytes())
+    source_file.write_bytes(
+        (ROOT / "tests/fixtures/contract-migration/adapter/assignment.draft.json").read_bytes()
+    )
     raw = source_file.read_bytes()
     if fail_at == "file_size":
         source_file.write_bytes(raw + b" " * records.MAX_FILE_BYTES)
         raw = source_file.read_bytes()
     elif fail_at == "total_size":
-        source_file.write_bytes((ROOT / "examples/adapter/assignment.manifest.json").read_bytes())
+        source_file.write_bytes(
+            (
+                ROOT / "tests/fixtures/contract-migration/adapter/assignment.manifest.json"
+            ).read_bytes()
+        )
         raw = source_file.read_bytes()
         monkeypatch.setattr(records, "MAX_TOTAL_BYTES", len(raw))
         for name in ("basic", "common", "period", "execution"):
             (tmp_path / f"{name}.json").write_bytes(
-                (ROOT / f"examples/adapter/{name}.json").read_bytes()
+                (ROOT / f"tests/fixtures/contract-migration/adapter/{name}.json").read_bytes()
             )
     elif fail_at == "symlink":
         monkeypatch.setattr(records.Path, "is_symlink", lambda self: self == source_file)

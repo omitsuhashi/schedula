@@ -14,6 +14,8 @@ async function status(page, value) {
 async function verified(page, expected) {
   await status(page, expected.status);
   const pair = await page.evaluate(() => structuredClone(current));
+  assert.equal(pair.input.schema_version, "0.15");
+  assert.equal(pair.response.schema_version, "0.15");
   assert.equal(pair.response.status, expected.status);
   if (["OPTIMAL", "PARTIAL"].includes(expected.status)) {
     assert.deepEqual([pair.response.verification.performed, pair.response.verification.valid], [true, true]);
@@ -23,7 +25,7 @@ async function verified(page, expected) {
     if (expected.status === "PARTIAL") {
       assert.equal(pair.response.shortage_summary.total_person_minutes, expected.total_person_minutes);
       assert.ok((await page.locator("#output").innerText()).includes("不足1人"));
-      assert.ok((await page.locator("#output").innerText()).includes("需要以外の必須条件"));
+      assert.ok((await page.locator("#output").innerText()).includes("最低人数を含む必須条件"));
       assert.ok((await page.locator("#comparison").innerText()).includes("担当差分："));
     }
   } else {
@@ -65,7 +67,7 @@ async function reviewRegressions(page, url) {
       if (requests !== 1) { await route.continue(); return; }
       if (kind === "initial-unknown-baseline") {
         const result = await (await route.fetch()).json();
-        Object.assign(result, {status: "UNKNOWN", solution: null, objectives: [], shortage_summary: null, verification: {performed: false, valid: null, violations: []}});
+        Object.assign(result, {status: "UNKNOWN", solution: null, objectives: [], shortage_summary: null, priority_summary: null, verification: {performed: false, valid: null, violations: []}});
         await route.fulfill({json: result});
       } else await route.fulfill({status: 500, json: {error: {code: "SERVER_ERROR", message: "初回失敗の応答サンプル", json_pointer: null}}});
     });
@@ -424,7 +426,8 @@ async function jsonInputChecks(page) {
     }
   }
   report.interactions.push("契約0.9・0.10の費用・夜勤評価をJSON貼り付けで実行、0.6〜0.10の不足・priority・証明・解なし応答を検証");
-  const request = {...JSON.parse(readFileSync('examples/assignment.json', 'utf8')), schema_version: '0.3'};
+  const request = JSON.parse(readFileSync('examples/assignment.json', 'utf8'));
+  request.demand.forEach(demand => { demand.minimum_people = 0; });
   // 夏時間終了で同じ壁時計時刻が繰り返されても、実際の不足区間を区別する。
   const clockChange = structuredClone(request);
   Object.assign(clockChange.planning_window, {start: '2026-11-01T00:00:00-04:00', end: '2026-11-01T03:00:00-05:00', timezone: 'America/New_York'});
@@ -447,7 +450,10 @@ async function jsonInputChecks(page) {
       const result = await (await route.fetch()).json();
       result.status = state;
       result.objectives.forEach(o => { o.proven_optimal = false; });
-      if (state === 'PARTIAL') result.shortage_summary.proven_minimal = false;
+      if (state === 'PARTIAL') {
+        result.shortage_summary.proven_minimal = false;
+        result.priority_summary.groups.forEach(group => { group.proven_minimal = false; });
+      }
       await route.fulfill({json: result});
     });
     await page.locator('#json-calculate').click();
@@ -604,7 +610,7 @@ async function adapterChecks(page) {
   await page.setViewportSize({width:1440,height:1000});
   report.interactions.push("分割入力の未確認修正・個別確認・実計算・記録ダウンロード/再読み込み・失敗時の入力保持・再検証・PARTIALと過去の証明・古い応答の排除・キーボード/狭い画面");
   const migration = spawnSync(process.env.PYTHON || ".venv/bin/python", ["-c",
-    "import json; from scripts.migrate_adapter import migrate_draft; from shift_schedula import read_draft; print(json.dumps(migrate_draft(read_draft('examples/adapter/assignment.manifest.json'))['draft']))"
+    "import json; from scripts.migrate_adapter import migrate_draft; from shift_schedula import read_draft; print(json.dumps(migrate_draft(read_draft('tests/fixtures/contract-migration/adapter/assignment.manifest.json'))['draft']))"
   ], {encoding:"utf8"});
   assert.equal(migration.status, 0, migration.stderr + migration.stdout);
   await page.locator("#adapter-input").fill(migration.stdout);
@@ -790,7 +796,7 @@ async function main() {
       const result = structuredClone(initial.response);
       result.request_id = route.request().postDataJSON().request_id;
       result.status = state;
-      if (state !== "FEASIBLE") { result.shortage_summary = null; result.solution = null; result.objectives = []; result.verification = {performed: false, valid: null, violations: []}; }
+      if (state !== "FEASIBLE") { result.shortage_summary = null; result.priority_summary = null; result.solution = null; result.objectives = []; result.verification = {performed: false, valid: null, violations: []}; }
       result.diagnostics = [{code: "DISPLAY_SAMPLE", message: "表示確認用の応答サンプル", json_pointer: "/demand/0/required_people", related_ids: [], facts: []}];
       await route.fulfill({json: result});
     });

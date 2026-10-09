@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.3",
+  "schema_version": "0.15",
   "request_id": "roster_100_people_30_days",
   "problem_type": "roster",
   "planning_window": {

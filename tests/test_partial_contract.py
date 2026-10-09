@@ -175,7 +175,12 @@ def test_shortages_are_not_limited_by_diagnostic_count():
     "name", ["assignment", "overnight", "split_roster", "fairness", "replan", "diagnosis"]
 )
 def test_version_three_preserves_extended_input_semantics(name):
-    old = json.loads((ROOT / "examples" / f"{name}.json").read_text())
+    path = (
+        ROOT / "tests/fixtures/contract-migration/assignment.legacy.json"
+        if name == "assignment"
+        else ROOT / "examples" / f"{name}.json"
+    )
+    old = json.loads(path.read_text())
     request = copy.deepcopy(old)
     request["schema_version"] = "0.3"
     original = copy.deepcopy(request)
