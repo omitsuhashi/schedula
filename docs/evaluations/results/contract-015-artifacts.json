@@ -1,0 +1,23 @@
+{
+  "engine": {
+    "repository": "https://github.com/omitsuhashi/schedula",
+    "commit": "6f96300dc6830f1132c1c6330b1ed5e2f27288b0",
+    "version": "0.2.0",
+    "schema_version": "0.15",
+    "wheel": "shift_schedula-0.2.0-py3-none-any.whl",
+    "sha256": "f011b1af77535739dfd36899af4011d31d5f906a8a20efa65653f618f2ad48c6",
+    "license": "MIT",
+    "build_command": "SOURCE_DATE_EPOCH=1791556851 uv build --wheel",
+    "supported_schema_versions": [
+      "0.15"
+    ],
+    "adapter_version": "1.0"
+  },
+  "source_date_epoch": 1791556851,
+  "uv_lock_sha256": "3d6d83bd66434684b333cd2534d601e9be4c0a935fb4f4515699eb00f16e23b7",
+  "sdist": "shift_schedula-0.2.0.tar.gz",
+  "sdist_sha256": "7e6347387d23afc213752a4df340a1c2774ef190c2d795051565d6c5446350cb",
+  "wheel_rebuilds_identical": true,
+  "source_tree_sha256": "4d44c7cfd56bf4cf188a28b41b21d43d120baa0eca67694ae6ec11d15d82e78f",
+  "source_pr": "https://github.com/omitsuhashi/schedula/pull/156"
+}

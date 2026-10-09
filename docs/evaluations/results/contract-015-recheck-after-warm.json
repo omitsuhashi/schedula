@@ -1,0 +1,6477 @@
+{
+  "measured_at": "2026-10-09T14:25:07.263103+00:00",
+  "command": [
+    "scripts/evaluate.py",
+    "docs/evaluations/inputs/combined-100-30-normal.json",
+    "--repeat",
+    "3",
+    "--mode",
+    "warm",
+    "--source-ref",
+    "21db474777ef8372081136634d7ca8c65f30caf4",
+    "--timeout-seconds",
+    "120",
+    "--output",
+    "docs/evaluations/results/contract-015-recheck-after-warm.json"
+  ],
+  "source": {
+    "commit": "21db474777ef8372081136634d7ca8c65f30caf4",
+    "dirty": false,
+    "snapshot": "git_archive",
+    "source_directory": null,
+    "source_tree_sha256": "4d44c7cfd56bf4cf188a28b41b21d43d120baa0eca67694ae6ec11d15d82e78f",
+    "runner_sha256": "c87729d79ac6b244ab4564b4871e05af2074a7939e36e319407af7e5248df959",
+    "uv_lock_sha256": "3d6d83bd66434684b333cd2534d601e9be4c0a935fb4f4515699eb00f16e23b7",
+    "package_version": "0.2.0"
+  },
+  "conditions": {
+    "mode": "warm",
+    "repeat": 3,
+    "processes": 1,
+    "worker_processes_started": 1,
+    "worker_timeout_seconds": 120.0,
+    "time_limit_seconds_override": null,
+    "quantile_method": "nearest_rank",
+    "cold_definition": "新規 Python プロセス。OS のファイルキャッシュは消去しない。"
+  },
+  "environment": {
+    "platform": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "cpu_count": 8,
+    "python": "3.14.8 (main, Oct  3 2026, 00:54:40) [Clang 22.1.3 ]",
+    "uv": "uv 0.12.23 (46b84fd0b 2026-10-03 aarch64-apple-darwin)",
+    "packages": {
+      "PyYAML": "6.0.3",
+      "Pygments": "2.21.0",
+      "absl-py": "2.5.0",
+      "ast_serialize": "0.12.1",
+      "attrs": "26.1.0",
+      "cfgv": "3.5.0",
+      "distlib": "0.4.3",
+      "filelock": "4.0.10",
+      "identify": "2.6.20",
+      "immutabledict": "4.3.1",
+      "iniconfig": "2.3.0",
+      "jsonschema": "4.26.0",
+      "jsonschema-specifications": "2025.9.1",
+      "librt": "0.16.0",
+      "mypy": "2.4.0",
+      "mypy_extensions": "1.1.0",
+      "nodeenv": "1.11.0",
+      "numpy": "2.5.3",
+      "ortools": "9.15.6755",
+      "packaging": "26.3",
+      "pandas": "3.0.6",
+      "pathspec": "1.1.1",
+      "platformdirs": "4.12.3",
+      "pluggy": "1.6.0",
+      "pre_commit": "4.6.2",
+      "protobuf": "6.33.6",
+      "pytest": "9.1.1",
+      "python-dateutil": "2.9.0.post0",
+      "python-discovery": "1.6.1",
+      "referencing": "0.37.0",
+      "rpds-py": "2026.6.3",
+      "ruff": "0.16.10",
+      "shift-schedula": "0.2.0",
+      "six": "1.17.0",
+      "typing_extensions": "4.16.0",
+      "tzdata": "2026.5",
+      "virtualenv": "21.14.5"
+    }
+  },
+  "measurements": [
+    {
+      "input_file": "docs/evaluations/inputs/combined-100-30-normal.json",
+      "input_sha256": "335b3dcadb731b729c2f46a527c4af596b64435d6ee1cc52d90be8c7a8b349e2",
+      "problem_type": "roster",
+      "employees": 100,
+      "roles": 2,
+      "days": 32.0,
+      "slot_minutes": 30,
+      "slots": 1536,
+      "candidates": 3000,
+      "objective_order": [
+        "scheduled_minutes",
+        "shift_count_deviation"
+      ],
+      "constraint_types": [
+        "max_scheduled_minutes",
+        "min_rest_minutes",
+        "max_consecutive_days",
+        "work_days_bounds",
+        "days_off_bounds",
+        "forbidden_shift_successions",
+        "required_coworkers",
+        "incompatible_employees"
+      ],
+      "shift_category_ids": [
+        "day"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 30,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 30,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.2.0",
+        "library_version": "9.15.6755",
+        "selection_reason": "MANDATORY_DEMAND"
+      },
+      "schema_version": "0.15",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "FEASIBLE",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 540000,
+          "proven_optimal": false
+        },
+        {
+          "id": "count",
+          "metric": "shift_count_deviation",
+          "balance_id": "days",
+          "value": 398,
+          "proven_optimal": false
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 540000,
+          "proven_optimal": false,
+          "best_bound": 0.0,
+          "absolute_gap": 540000.0,
+          "relative_gap": 1.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "count",
+          "metric": "shift_count_deviation",
+          "balance_id": "days",
+          "value": 398,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "OPTIMALITY_UNPROVEN",
+          "message": "上位目的の最適性が未証明のため、後続の目的は探索しません。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 30
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 30.05125958402641
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.21668174990918487
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 0.20801154104992747
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.7866742080077529
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.4898644160712138
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 0.047547166934236884
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.16912666603457183
+            }
+          ]
+        },
+        {
+          "code": "PRIORITY_SHORTAGE_BOUND",
+          "message": "上位段階を固定したpriority群の不足下限です。",
+          "json_pointer": "/priority_summary/groups/0",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "PRIORITY_SHORTAGE_BOUND",
+          "message": "上位段階を固定したpriority群の不足下限です。",
+          "json_pointer": "/priority_summary/groups/1",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "SHORTAGE_BOUND",
+          "message": "不足合計人分の探索下限です。",
+          "json_pointer": "/shortage_summary",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "work"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": null,
+      "day_count_summary": [
+        {
+          "constraint_id": "work_days",
+          "type": "work_days_bounds",
+          "interval": {
+            "start": "2026-10-01T00:00:00+09:00",
+            "end": "2026-10-31T00:00:00+09:00"
+          },
+          "min_days": 0,
+          "max_days": 20,
+          "employees": [
+            {
+              "employee_id": "employee_001",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_002",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_003",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_004",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_005",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_006",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_007",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_008",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_009",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_010",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_011",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_012",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_013",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_014",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_015",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_016",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_017",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_018",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_019",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_020",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_021",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_022",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_023",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_024",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_025",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_026",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_027",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_028",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_029",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_030",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_031",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_032",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_033",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_034",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_035",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_036",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_037",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_038",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_039",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_040",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_041",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_042",
+              "work_days": 2,
+              "occupied_days": 2,
+              "days_off": 28
+            },
+            {
+              "employee_id": "employee_043",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_044",
+              "work_days": 1,
+              "occupied_days": 1,
+              "days_off": 29
+            },
+            {
+              "employee_id": "employee_045",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_046",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_047",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_048",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_049",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_050",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_051",
+              "work_days": 9,
+              "occupied_days": 9,
+              "days_off": 21
+            },
+            {
+              "employee_id": "employee_052",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_053",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_054",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_055",
+              "work_days": 11,
+              "occupied_days": 11,
+              "days_off": 19
+            },
+            {
+              "employee_id": "employee_056",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_057",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_058",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_059",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_060",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_061",
+              "work_days": 12,
+              "occupied_days": 12,
+              "days_off": 18
+            },
+            {
+              "employee_id": "employee_062",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_063",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_064",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_065",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_066",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_067",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_068",
+              "work_days": 11,
+              "occupied_days": 11,
+              "days_off": 19
+            },
+            {
+              "employee_id": "employee_069",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_070",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_071",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_072",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_073",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_074",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_075",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_076",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_077",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_078",
+              "work_days": 12,
+              "occupied_days": 12,
+              "days_off": 18
+            },
+            {
+              "employee_id": "employee_079",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_080",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_081",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_082",
+              "work_days": 12,
+              "occupied_days": 12,
+              "days_off": 18
+            },
+            {
+              "employee_id": "employee_083",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_084",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_085",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_086",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_087",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_088",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_089",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_090",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_091",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_092",
+              "work_days": 2,
+              "occupied_days": 2,
+              "days_off": 28
+            },
+            {
+              "employee_id": "employee_093",
+              "work_days": 10,
+              "occupied_days": 10,
+              "days_off": 20
+            },
+            {
+              "employee_id": "employee_094",
+              "work_days": 8,
+              "occupied_days": 8,
+              "days_off": 22
+            },
+            {
+              "employee_id": "employee_095",
+              "work_days": 2,
+              "occupied_days": 2,
+              "days_off": 28
+            },
+            {
+              "employee_id": "employee_096",
+              "work_days": 1,
+              "occupied_days": 1,
+              "days_off": 29
+            },
+            {
+              "employee_id": "employee_097",
+              "work_days": 8,
+              "occupied_days": 8,
+              "days_off": 22
+            },
+            {
+              "employee_id": "employee_098",
+              "work_days": 2,
+              "occupied_days": 2,
+              "days_off": 28
+            },
+            {
+              "employee_id": "employee_099",
+              "work_days": 8,
+              "occupied_days": 8,
+              "days_off": 22
+            },
+            {
+              "employee_id": "employee_100",
+              "work_days": 2,
+              "occupied_days": 2,
+              "days_off": 28
+            }
+          ]
+        },
+        {
+          "constraint_id": "days_off",
+          "type": "days_off_bounds",
+          "interval": {
+            "start": "2026-10-01T00:00:00+09:00",
+            "end": "2026-10-31T00:00:00+09:00"
+          },
+          "min_days": 10,
+          "max_days": 30,
+          "employees": [
+            {
+              "employee_id": "employee_001",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_002",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_003",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_004",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_005",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_006",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_007",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_008",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_009",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_010",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_011",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_012",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_013",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_014",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_015",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_016",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_017",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_018",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_019",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_020",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_021",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_022",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_023",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_024",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_025",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_026",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_027",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_028",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_029",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_030",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_031",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_032",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_033",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_034",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_035",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_036",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_037",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_038",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_039",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_040",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_041",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_042",
+              "work_days": 2,
+              "occupied_days": 2,
+              "days_off": 28
+            },
+            {
+              "employee_id": "employee_043",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_044",
+              "work_days": 1,
+              "occupied_days": 1,
+              "days_off": 29
+            },
+            {
+              "employee_id": "employee_045",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_046",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_047",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_048",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_049",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_050",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_051",
+              "work_days": 9,
+              "occupied_days": 9,
+              "days_off": 21
+            },
+            {
+              "employee_id": "employee_052",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_053",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_054",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_055",
+              "work_days": 11,
+              "occupied_days": 11,
+              "days_off": 19
+            },
+            {
+              "employee_id": "employee_056",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_057",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_058",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_059",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_060",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_061",
+              "work_days": 12,
+              "occupied_days": 12,
+              "days_off": 18
+            },
+            {
+              "employee_id": "employee_062",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_063",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_064",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_065",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_066",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_067",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_068",
+              "work_days": 11,
+              "occupied_days": 11,
+              "days_off": 19
+            },
+            {
+              "employee_id": "employee_069",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_070",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_071",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_072",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_073",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_074",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_075",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_076",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_077",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_078",
+              "work_days": 12,
+              "occupied_days": 12,
+              "days_off": 18
+            },
+            {
+              "employee_id": "employee_079",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_080",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_081",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_082",
+              "work_days": 12,
+              "occupied_days": 12,
+              "days_off": 18
+            },
+            {
+              "employee_id": "employee_083",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_084",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_085",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_086",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_087",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_088",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_089",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_090",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_091",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_092",
+              "work_days": 2,
+              "occupied_days": 2,
+              "days_off": 28
+            },
+            {
+              "employee_id": "employee_093",
+              "work_days": 10,
+              "occupied_days": 10,
+              "days_off": 20
+            },
+            {
+              "employee_id": "employee_094",
+              "work_days": 8,
+              "occupied_days": 8,
+              "days_off": 22
+            },
+            {
+              "employee_id": "employee_095",
+              "work_days": 2,
+              "occupied_days": 2,
+              "days_off": 28
+            },
+            {
+              "employee_id": "employee_096",
+              "work_days": 1,
+              "occupied_days": 1,
+              "days_off": 29
+            },
+            {
+              "employee_id": "employee_097",
+              "work_days": 8,
+              "occupied_days": 8,
+              "days_off": 22
+            },
+            {
+              "employee_id": "employee_098",
+              "work_days": 2,
+              "occupied_days": 2,
+              "days_off": 28
+            },
+            {
+              "employee_id": "employee_099",
+              "work_days": 8,
+              "occupied_days": 8,
+              "days_off": 22
+            },
+            {
+              "employee_id": "employee_100",
+              "work_days": 2,
+              "occupied_days": 2,
+              "days_off": 28
+            }
+          ]
+        }
+      ],
+      "cost_summary": null,
+      "duty_balance_summary": null,
+      "shift_count_balance_summary": [
+        {
+          "id": "days",
+          "label": "勤務回数",
+          "evaluation_period": {
+            "start": "2026-10-01T00:00:00+09:00",
+            "end": "2026-10-31T00:00:00+09:00"
+          },
+          "category_id": "day",
+          "unit": "shifts",
+          "scale": "absolute_deviation",
+          "normalized": false,
+          "total_deviation_count": 398,
+          "employees": [
+            {
+              "employee_id": "employee_001",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_002",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_003",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_004",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_005",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_006",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_007",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_008",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_009",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_010",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_011",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_012",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_013",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_014",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_015",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_016",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_017",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_018",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_019",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_020",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_021",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_022",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_023",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_024",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_025",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_026",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_027",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_028",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_029",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_030",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_031",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_032",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_033",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_034",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_035",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_036",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_037",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_038",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_039",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_040",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_041",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_042",
+              "target_count": 12,
+              "actual_count": 2,
+              "deviation_count": 10
+            },
+            {
+              "employee_id": "employee_043",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_044",
+              "target_count": 12,
+              "actual_count": 1,
+              "deviation_count": 11
+            },
+            {
+              "employee_id": "employee_045",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_046",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_047",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_048",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_049",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_050",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_051",
+              "target_count": 12,
+              "actual_count": 9,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_052",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_053",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_054",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_055",
+              "target_count": 12,
+              "actual_count": 11,
+              "deviation_count": 1
+            },
+            {
+              "employee_id": "employee_056",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_057",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_058",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_059",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_060",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_061",
+              "target_count": 12,
+              "actual_count": 12,
+              "deviation_count": 0
+            },
+            {
+              "employee_id": "employee_062",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_063",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_064",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_065",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_066",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_067",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_068",
+              "target_count": 12,
+              "actual_count": 11,
+              "deviation_count": 1
+            },
+            {
+              "employee_id": "employee_069",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_070",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_071",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_072",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_073",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_074",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_075",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_076",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_077",
+              "target_count": 12,
+              "actual_count": 13,
+              "deviation_count": 1
+            },
+            {
+              "employee_id": "employee_078",
+              "target_count": 12,
+              "actual_count": 12,
+              "deviation_count": 0
+            },
+            {
+              "employee_id": "employee_079",
+              "target_count": 12,
+              "actual_count": 13,
+              "deviation_count": 1
+            },
+            {
+              "employee_id": "employee_080",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_081",
+              "target_count": 12,
+              "actual_count": 13,
+              "deviation_count": 1
+            },
+            {
+              "employee_id": "employee_082",
+              "target_count": 12,
+              "actual_count": 12,
+              "deviation_count": 0
+            },
+            {
+              "employee_id": "employee_083",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_084",
+              "target_count": 12,
+              "actual_count": 13,
+              "deviation_count": 1
+            },
+            {
+              "employee_id": "employee_085",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_086",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_087",
+              "target_count": 12,
+              "actual_count": 13,
+              "deviation_count": 1
+            },
+            {
+              "employee_id": "employee_088",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_089",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_090",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_091",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_092",
+              "target_count": 12,
+              "actual_count": 2,
+              "deviation_count": 10
+            },
+            {
+              "employee_id": "employee_093",
+              "target_count": 12,
+              "actual_count": 10,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_094",
+              "target_count": 12,
+              "actual_count": 8,
+              "deviation_count": 4
+            },
+            {
+              "employee_id": "employee_095",
+              "target_count": 12,
+              "actual_count": 2,
+              "deviation_count": 10
+            },
+            {
+              "employee_id": "employee_096",
+              "target_count": 12,
+              "actual_count": 1,
+              "deviation_count": 11
+            },
+            {
+              "employee_id": "employee_097",
+              "target_count": 12,
+              "actual_count": 8,
+              "deviation_count": 4
+            },
+            {
+              "employee_id": "employee_098",
+              "target_count": 12,
+              "actual_count": 2,
+              "deviation_count": 10
+            },
+            {
+              "employee_id": "employee_099",
+              "target_count": 12,
+              "actual_count": 8,
+              "deviation_count": 4
+            },
+            {
+              "employee_id": "employee_100",
+              "target_count": 12,
+              "actual_count": 2,
+              "deviation_count": 10
+            }
+          ]
+        }
+      ],
+      "shortage_summary": {
+        "total_person_minutes": 0,
+        "shortages": [],
+        "proven_minimal": true
+      },
+      "priority_summary": {
+        "groups": [
+          {
+            "priority": 1,
+            "total_person_minutes": 0,
+            "proven_minimal": true
+          },
+          {
+            "priority": 0,
+            "total_person_minutes": 0,
+            "proven_minimal": true
+          }
+        ]
+      },
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 30,
+        "search_elapsed_seconds": 30.05125958402641,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.21668174990918487,
+        "backend_loading_elapsed_seconds": 0.20801154104992747,
+        "preparation_elapsed_seconds": 0.7866742080077529,
+        "verification_elapsed_seconds": 0.4898644160712138,
+        "candidate_expansion_elapsed_seconds": 0.047547166934236884,
+        "input_validation_elapsed_seconds": 0.16912666603457183
+      },
+      "assignments": 2400,
+      "shifts": 1200,
+      "import_seconds": 0.054775958065874875,
+      "input_seconds": 0.0031874169362708926,
+      "elapsed_seconds": 32.76966483308934,
+      "request_elapsed_seconds": 32.82762820809148,
+      "engine_elapsed_seconds": 32.76816999993753,
+      "metadata_seconds": 0.14944495796225965,
+      "peak_rss_mib": 982.0625,
+      "group": 1,
+      "iteration": 1,
+      "mode": "warm",
+      "execution": "cold_initial"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/combined-100-30-normal.json",
+      "input_sha256": "335b3dcadb731b729c2f46a527c4af596b64435d6ee1cc52d90be8c7a8b349e2",
+      "problem_type": "roster",
+      "employees": 100,
+      "roles": 2,
+      "days": 32.0,
+      "slot_minutes": 30,
+      "slots": 1536,
+      "candidates": 3000,
+      "objective_order": [
+        "scheduled_minutes",
+        "shift_count_deviation"
+      ],
+      "constraint_types": [
+        "max_scheduled_minutes",
+        "min_rest_minutes",
+        "max_consecutive_days",
+        "work_days_bounds",
+        "days_off_bounds",
+        "forbidden_shift_successions",
+        "required_coworkers",
+        "incompatible_employees"
+      ],
+      "shift_category_ids": [
+        "day"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 30,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 30,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.2.0",
+        "library_version": "9.15.6755",
+        "selection_reason": "MANDATORY_DEMAND"
+      },
+      "schema_version": "0.15",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "FEASIBLE",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 540000,
+          "proven_optimal": false
+        },
+        {
+          "id": "count",
+          "metric": "shift_count_deviation",
+          "balance_id": "days",
+          "value": 404,
+          "proven_optimal": false
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 540000,
+          "proven_optimal": false,
+          "best_bound": 0.0,
+          "absolute_gap": 540000.0,
+          "relative_gap": 1.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "count",
+          "metric": "shift_count_deviation",
+          "balance_id": "days",
+          "value": 404,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "OPTIMALITY_UNPROVEN",
+          "message": "上位目的の最適性が未証明のため、後続の目的は探索しません。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 30
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 30.051672625006177
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.15039995801635087
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 8.584000170230865e-06
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.8116696249926463
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.4826712079811841
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 0.047663999954238534
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.10272716614417732
+            }
+          ]
+        },
+        {
+          "code": "PRIORITY_SHORTAGE_BOUND",
+          "message": "上位段階を固定したpriority群の不足下限です。",
+          "json_pointer": "/priority_summary/groups/0",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "PRIORITY_SHORTAGE_BOUND",
+          "message": "上位段階を固定したpriority群の不足下限です。",
+          "json_pointer": "/priority_summary/groups/1",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "SHORTAGE_BOUND",
+          "message": "不足合計人分の探索下限です。",
+          "json_pointer": "/shortage_summary",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "work"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": null,
+      "day_count_summary": [
+        {
+          "constraint_id": "work_days",
+          "type": "work_days_bounds",
+          "interval": {
+            "start": "2026-10-01T00:00:00+09:00",
+            "end": "2026-10-31T00:00:00+09:00"
+          },
+          "min_days": 0,
+          "max_days": 20,
+          "employees": [
+            {
+              "employee_id": "employee_001",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_002",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_003",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_004",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_005",
+              "work_days": 12,
+              "occupied_days": 12,
+              "days_off": 18
+            },
+            {
+              "employee_id": "employee_006",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_007",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_008",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_009",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_010",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_011",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_012",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_013",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_014",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_015",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_016",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_017",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_018",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_019",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_020",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_021",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_022",
+              "work_days": 12,
+              "occupied_days": 12,
+              "days_off": 18
+            },
+            {
+              "employee_id": "employee_023",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_024",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_025",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_026",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_027",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_028",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_029",
+              "work_days": 11,
+              "occupied_days": 11,
+              "days_off": 19
+            },
+            {
+              "employee_id": "employee_030",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_031",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_032",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_033",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_034",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_035",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_036",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_037",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_038",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_039",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_040",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_041",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_042",
+              "work_days": 9,
+              "occupied_days": 9,
+              "days_off": 21
+            },
+            {
+              "employee_id": "employee_043",
+              "work_days": 3,
+              "occupied_days": 3,
+              "days_off": 27
+            },
+            {
+              "employee_id": "employee_044",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_045",
+              "work_days": 3,
+              "occupied_days": 3,
+              "days_off": 27
+            },
+            {
+              "employee_id": "employee_046",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_047",
+              "work_days": 3,
+              "occupied_days": 3,
+              "days_off": 27
+            },
+            {
+              "employee_id": "employee_048",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_049",
+              "work_days": 2,
+              "occupied_days": 2,
+              "days_off": 28
+            },
+            {
+              "employee_id": "employee_050",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_051",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_052",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_053",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_054",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_055",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_056",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_057",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_058",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_059",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_060",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_061",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_062",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_063",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_064",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_065",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_066",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_067",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_068",
+              "work_days": 12,
+              "occupied_days": 12,
+              "days_off": 18
+            },
+            {
+              "employee_id": "employee_069",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_070",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_071",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_072",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_073",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_074",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_075",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_076",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_077",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_078",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_079",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_080",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_081",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_082",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_083",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_084",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_085",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_086",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_087",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_088",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_089",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_090",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_091",
+              "work_days": 2,
+              "occupied_days": 2,
+              "days_off": 28
+            },
+            {
+              "employee_id": "employee_092",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_093",
+              "work_days": 1,
+              "occupied_days": 1,
+              "days_off": 29
+            },
+            {
+              "employee_id": "employee_094",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_095",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_096",
+              "work_days": 2,
+              "occupied_days": 2,
+              "days_off": 28
+            },
+            {
+              "employee_id": "employee_097",
+              "work_days": 4,
+              "occupied_days": 4,
+              "days_off": 26
+            },
+            {
+              "employee_id": "employee_098",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_099",
+              "work_days": 5,
+              "occupied_days": 5,
+              "days_off": 25
+            },
+            {
+              "employee_id": "employee_100",
+              "work_days": 5,
+              "occupied_days": 5,
+              "days_off": 25
+            }
+          ]
+        },
+        {
+          "constraint_id": "days_off",
+          "type": "days_off_bounds",
+          "interval": {
+            "start": "2026-10-01T00:00:00+09:00",
+            "end": "2026-10-31T00:00:00+09:00"
+          },
+          "min_days": 10,
+          "max_days": 30,
+          "employees": [
+            {
+              "employee_id": "employee_001",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_002",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_003",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_004",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_005",
+              "work_days": 12,
+              "occupied_days": 12,
+              "days_off": 18
+            },
+            {
+              "employee_id": "employee_006",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_007",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_008",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_009",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_010",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_011",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_012",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_013",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_014",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_015",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_016",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_017",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_018",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_019",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_020",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_021",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_022",
+              "work_days": 12,
+              "occupied_days": 12,
+              "days_off": 18
+            },
+            {
+              "employee_id": "employee_023",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_024",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_025",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_026",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_027",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_028",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_029",
+              "work_days": 11,
+              "occupied_days": 11,
+              "days_off": 19
+            },
+            {
+              "employee_id": "employee_030",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_031",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_032",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_033",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_034",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_035",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_036",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_037",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_038",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_039",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_040",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_041",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_042",
+              "work_days": 9,
+              "occupied_days": 9,
+              "days_off": 21
+            },
+            {
+              "employee_id": "employee_043",
+              "work_days": 3,
+              "occupied_days": 3,
+              "days_off": 27
+            },
+            {
+              "employee_id": "employee_044",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_045",
+              "work_days": 3,
+              "occupied_days": 3,
+              "days_off": 27
+            },
+            {
+              "employee_id": "employee_046",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_047",
+              "work_days": 3,
+              "occupied_days": 3,
+              "days_off": 27
+            },
+            {
+              "employee_id": "employee_048",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_049",
+              "work_days": 2,
+              "occupied_days": 2,
+              "days_off": 28
+            },
+            {
+              "employee_id": "employee_050",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_051",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_052",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_053",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_054",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_055",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_056",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_057",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_058",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_059",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_060",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_061",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_062",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_063",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_064",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_065",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_066",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_067",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_068",
+              "work_days": 12,
+              "occupied_days": 12,
+              "days_off": 18
+            },
+            {
+              "employee_id": "employee_069",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_070",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_071",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_072",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_073",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_074",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_075",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_076",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_077",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_078",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_079",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_080",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_081",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_082",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_083",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_084",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_085",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_086",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_087",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_088",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_089",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_090",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_091",
+              "work_days": 2,
+              "occupied_days": 2,
+              "days_off": 28
+            },
+            {
+              "employee_id": "employee_092",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_093",
+              "work_days": 1,
+              "occupied_days": 1,
+              "days_off": 29
+            },
+            {
+              "employee_id": "employee_094",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_095",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_096",
+              "work_days": 2,
+              "occupied_days": 2,
+              "days_off": 28
+            },
+            {
+              "employee_id": "employee_097",
+              "work_days": 4,
+              "occupied_days": 4,
+              "days_off": 26
+            },
+            {
+              "employee_id": "employee_098",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_099",
+              "work_days": 5,
+              "occupied_days": 5,
+              "days_off": 25
+            },
+            {
+              "employee_id": "employee_100",
+              "work_days": 5,
+              "occupied_days": 5,
+              "days_off": 25
+            }
+          ]
+        }
+      ],
+      "cost_summary": null,
+      "duty_balance_summary": null,
+      "shift_count_balance_summary": [
+        {
+          "id": "days",
+          "label": "勤務回数",
+          "evaluation_period": {
+            "start": "2026-10-01T00:00:00+09:00",
+            "end": "2026-10-31T00:00:00+09:00"
+          },
+          "category_id": "day",
+          "unit": "shifts",
+          "scale": "absolute_deviation",
+          "normalized": false,
+          "total_deviation_count": 404,
+          "employees": [
+            {
+              "employee_id": "employee_001",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_002",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_003",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_004",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_005",
+              "target_count": 12,
+              "actual_count": 12,
+              "deviation_count": 0
+            },
+            {
+              "employee_id": "employee_006",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_007",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_008",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_009",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_010",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_011",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_012",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_013",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_014",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_015",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_016",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_017",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_018",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_019",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_020",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_021",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_022",
+              "target_count": 12,
+              "actual_count": 12,
+              "deviation_count": 0
+            },
+            {
+              "employee_id": "employee_023",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_024",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_025",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_026",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_027",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_028",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_029",
+              "target_count": 12,
+              "actual_count": 11,
+              "deviation_count": 1
+            },
+            {
+              "employee_id": "employee_030",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_031",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_032",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_033",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_034",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_035",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_036",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_037",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_038",
+              "target_count": 12,
+              "actual_count": 13,
+              "deviation_count": 1
+            },
+            {
+              "employee_id": "employee_039",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_040",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_041",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_042",
+              "target_count": 12,
+              "actual_count": 9,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_043",
+              "target_count": 12,
+              "actual_count": 3,
+              "deviation_count": 9
+            },
+            {
+              "employee_id": "employee_044",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_045",
+              "target_count": 12,
+              "actual_count": 3,
+              "deviation_count": 9
+            },
+            {
+              "employee_id": "employee_046",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_047",
+              "target_count": 12,
+              "actual_count": 3,
+              "deviation_count": 9
+            },
+            {
+              "employee_id": "employee_048",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_049",
+              "target_count": 12,
+              "actual_count": 2,
+              "deviation_count": 10
+            },
+            {
+              "employee_id": "employee_050",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_051",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_052",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_053",
+              "target_count": 12,
+              "actual_count": 13,
+              "deviation_count": 1
+            },
+            {
+              "employee_id": "employee_054",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_055",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_056",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_057",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_058",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_059",
+              "target_count": 12,
+              "actual_count": 13,
+              "deviation_count": 1
+            },
+            {
+              "employee_id": "employee_060",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_061",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_062",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_063",
+              "target_count": 12,
+              "actual_count": 13,
+              "deviation_count": 1
+            },
+            {
+              "employee_id": "employee_064",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_065",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_066",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_067",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_068",
+              "target_count": 12,
+              "actual_count": 12,
+              "deviation_count": 0
+            },
+            {
+              "employee_id": "employee_069",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_070",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_071",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_072",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_073",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_074",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_075",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_076",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_077",
+              "target_count": 12,
+              "actual_count": 13,
+              "deviation_count": 1
+            },
+            {
+              "employee_id": "employee_078",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_079",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_080",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_081",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_082",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_083",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_084",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_085",
+              "target_count": 12,
+              "actual_count": 13,
+              "deviation_count": 1
+            },
+            {
+              "employee_id": "employee_086",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_087",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_088",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_089",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_090",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_091",
+              "target_count": 12,
+              "actual_count": 2,
+              "deviation_count": 10
+            },
+            {
+              "employee_id": "employee_092",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_093",
+              "target_count": 12,
+              "actual_count": 1,
+              "deviation_count": 11
+            },
+            {
+              "employee_id": "employee_094",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_095",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_096",
+              "target_count": 12,
+              "actual_count": 2,
+              "deviation_count": 10
+            },
+            {
+              "employee_id": "employee_097",
+              "target_count": 12,
+              "actual_count": 4,
+              "deviation_count": 8
+            },
+            {
+              "employee_id": "employee_098",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_099",
+              "target_count": 12,
+              "actual_count": 5,
+              "deviation_count": 7
+            },
+            {
+              "employee_id": "employee_100",
+              "target_count": 12,
+              "actual_count": 5,
+              "deviation_count": 7
+            }
+          ]
+        }
+      ],
+      "shortage_summary": {
+        "total_person_minutes": 0,
+        "shortages": [],
+        "proven_minimal": true
+      },
+      "priority_summary": {
+        "groups": [
+          {
+            "priority": 1,
+            "total_person_minutes": 0,
+            "proven_minimal": true
+          },
+          {
+            "priority": 0,
+            "total_person_minutes": 0,
+            "proven_minimal": true
+          }
+        ]
+      },
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 30,
+        "search_elapsed_seconds": 30.051672625006177,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.15039995801635087,
+        "backend_loading_elapsed_seconds": 8.584000170230865e-06,
+        "preparation_elapsed_seconds": 0.8116696249926463,
+        "verification_elapsed_seconds": 0.4826712079811841,
+        "candidate_expansion_elapsed_seconds": 0.047663999954238534,
+        "input_validation_elapsed_seconds": 0.10272716614417732
+      },
+      "assignments": 2400,
+      "shifts": 1200,
+      "import_seconds": 1.7291982658207417e-05,
+      "input_seconds": 0.003156375023536384,
+      "elapsed_seconds": 32.471763457986526,
+      "request_elapsed_seconds": 32.47493712499272,
+      "engine_elapsed_seconds": 32.47012891701888,
+      "metadata_seconds": 0.15166362491436303,
+      "peak_rss_mib": 1007.90625,
+      "group": 1,
+      "iteration": 2,
+      "mode": "warm",
+      "execution": "continued"
+    },
+    {
+      "input_file": "docs/evaluations/inputs/combined-100-30-normal.json",
+      "input_sha256": "335b3dcadb731b729c2f46a527c4af596b64435d6ee1cc52d90be8c7a8b349e2",
+      "problem_type": "roster",
+      "employees": 100,
+      "roles": 2,
+      "days": 32.0,
+      "slot_minutes": 30,
+      "slots": 1536,
+      "candidates": 3000,
+      "objective_order": [
+        "scheduled_minutes",
+        "shift_count_deviation"
+      ],
+      "constraint_types": [
+        "max_scheduled_minutes",
+        "min_rest_minutes",
+        "max_consecutive_days",
+        "work_days_bounds",
+        "days_off_bounds",
+        "forbidden_shift_successions",
+        "required_coworkers",
+        "incompatible_employees"
+      ],
+      "shift_category_ids": [
+        "day"
+      ],
+      "solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 30,
+        "seed": 0
+      },
+      "input_solver_request": {
+        "backend": "auto",
+        "time_limit_seconds": 30,
+        "seed": 0
+      },
+      "solver_response": {
+        "backend": "cp_sat",
+        "engine_version": "0.2.0",
+        "library_version": "9.15.6755",
+        "selection_reason": "MANDATORY_DEMAND"
+      },
+      "schema_version": "0.15",
+      "replan_mode": null,
+      "baseline_plan_id": null,
+      "status": "FEASIBLE",
+      "verification": {
+        "performed": true,
+        "valid": true,
+        "violations": []
+      },
+      "objectives": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 540000,
+          "proven_optimal": false
+        },
+        {
+          "id": "count",
+          "metric": "shift_count_deviation",
+          "balance_id": "days",
+          "value": 416,
+          "proven_optimal": false
+        }
+      ],
+      "objective_quality": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "value": 540000,
+          "proven_optimal": false,
+          "best_bound": 0.0,
+          "absolute_gap": 540000.0,
+          "relative_gap": 1.0,
+          "bound_scope": "fixed_optimal_prefix"
+        },
+        {
+          "id": "count",
+          "metric": "shift_count_deviation",
+          "balance_id": "days",
+          "value": 416,
+          "proven_optimal": false,
+          "best_bound": null,
+          "absolute_gap": null,
+          "relative_gap": null,
+          "bound_scope": null
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "OPTIMALITY_UNPROVEN",
+          "message": "上位目的の最適性が未証明のため、後続の目的は探索しません。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [],
+          "facts": []
+        },
+        {
+          "code": "SEARCH_STATS",
+          "message": "探索予算・探索開始後の所要時間は呼び出し全体の所要時間と区別します。",
+          "json_pointer": "/solver/time_limit_seconds",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "time_limit_seconds",
+              "value": 30
+            },
+            {
+              "name": "search_elapsed_seconds",
+              "value": 30.05089004104957
+            },
+            {
+              "name": "num_workers",
+              "value": 2
+            },
+            {
+              "name": "workers_applied",
+              "value": true
+            },
+            {
+              "name": "normalization_elapsed_seconds",
+              "value": 0.15144670801237226
+            },
+            {
+              "name": "backend_loading_elapsed_seconds",
+              "value": 7.041962817311287e-06
+            },
+            {
+              "name": "preparation_elapsed_seconds",
+              "value": 0.8145141249988228
+            },
+            {
+              "name": "verification_elapsed_seconds",
+              "value": 0.4708923330763355
+            },
+            {
+              "name": "candidate_expansion_elapsed_seconds",
+              "value": 0.04841358296107501
+            },
+            {
+              "name": "input_validation_elapsed_seconds",
+              "value": 0.10302570799831301
+            }
+          ]
+        },
+        {
+          "code": "PRIORITY_SHORTAGE_BOUND",
+          "message": "上位段階を固定したpriority群の不足下限です。",
+          "json_pointer": "/priority_summary/groups/0",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "PRIORITY_SHORTAGE_BOUND",
+          "message": "上位段階を固定したpriority群の不足下限です。",
+          "json_pointer": "/priority_summary/groups/1",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "SHORTAGE_BOUND",
+          "message": "不足合計人分の探索下限です。",
+          "json_pointer": "/shortage_summary",
+          "related_ids": [],
+          "facts": [
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "code": "OBJECTIVE_BOUND",
+          "message": "この目的の下限です。上位目的を固定した探索だけに適用します。",
+          "json_pointer": "/objectives/0",
+          "related_ids": [
+            "work"
+          ],
+          "facts": [
+            {
+              "name": "objective_index",
+              "value": 0
+            },
+            {
+              "name": "best_bound",
+              "value": 0.0
+            }
+          ]
+        }
+      ],
+      "fairness_summary": null,
+      "change_summary": null,
+      "continuity_summary": null,
+      "day_count_summary": [
+        {
+          "constraint_id": "work_days",
+          "type": "work_days_bounds",
+          "interval": {
+            "start": "2026-10-01T00:00:00+09:00",
+            "end": "2026-10-31T00:00:00+09:00"
+          },
+          "min_days": 0,
+          "max_days": 20,
+          "employees": [
+            {
+              "employee_id": "employee_001",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_002",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_003",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_004",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_005",
+              "work_days": 11,
+              "occupied_days": 11,
+              "days_off": 19
+            },
+            {
+              "employee_id": "employee_006",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_007",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_008",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_009",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_010",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_011",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_012",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_013",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_014",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_015",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_016",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_017",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_018",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_019",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_020",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_021",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_022",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_023",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_024",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_025",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_026",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_027",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_028",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_029",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_030",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_031",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_032",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_033",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_034",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_035",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_036",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_037",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_038",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_039",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_040",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_041",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_042",
+              "work_days": 3,
+              "occupied_days": 3,
+              "days_off": 27
+            },
+            {
+              "employee_id": "employee_043",
+              "work_days": 6,
+              "occupied_days": 6,
+              "days_off": 24
+            },
+            {
+              "employee_id": "employee_044",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_045",
+              "work_days": 1,
+              "occupied_days": 1,
+              "days_off": 29
+            },
+            {
+              "employee_id": "employee_046",
+              "work_days": 1,
+              "occupied_days": 1,
+              "days_off": 29
+            },
+            {
+              "employee_id": "employee_047",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_048",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_049",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_050",
+              "work_days": 4,
+              "occupied_days": 4,
+              "days_off": 26
+            },
+            {
+              "employee_id": "employee_051",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_052",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_053",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_054",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_055",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_056",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_057",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_058",
+              "work_days": 11,
+              "occupied_days": 11,
+              "days_off": 19
+            },
+            {
+              "employee_id": "employee_059",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_060",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_061",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_062",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_063",
+              "work_days": 10,
+              "occupied_days": 10,
+              "days_off": 20
+            },
+            {
+              "employee_id": "employee_064",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_065",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_066",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_067",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_068",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_069",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_070",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_071",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_072",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_073",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_074",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_075",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_076",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_077",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_078",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_079",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_080",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_081",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_082",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_083",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_084",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_085",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_086",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_087",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_088",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_089",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_090",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_091",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_092",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_093",
+              "work_days": 5,
+              "occupied_days": 5,
+              "days_off": 25
+            },
+            {
+              "employee_id": "employee_094",
+              "work_days": 5,
+              "occupied_days": 5,
+              "days_off": 25
+            },
+            {
+              "employee_id": "employee_095",
+              "work_days": 4,
+              "occupied_days": 4,
+              "days_off": 26
+            },
+            {
+              "employee_id": "employee_096",
+              "work_days": 6,
+              "occupied_days": 6,
+              "days_off": 24
+            },
+            {
+              "employee_id": "employee_097",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_098",
+              "work_days": 1,
+              "occupied_days": 1,
+              "days_off": 29
+            },
+            {
+              "employee_id": "employee_099",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_100",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            }
+          ]
+        },
+        {
+          "constraint_id": "days_off",
+          "type": "days_off_bounds",
+          "interval": {
+            "start": "2026-10-01T00:00:00+09:00",
+            "end": "2026-10-31T00:00:00+09:00"
+          },
+          "min_days": 10,
+          "max_days": 30,
+          "employees": [
+            {
+              "employee_id": "employee_001",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_002",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_003",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_004",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_005",
+              "work_days": 11,
+              "occupied_days": 11,
+              "days_off": 19
+            },
+            {
+              "employee_id": "employee_006",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_007",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_008",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_009",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_010",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_011",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_012",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_013",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_014",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_015",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_016",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_017",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_018",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_019",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_020",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_021",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_022",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_023",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_024",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_025",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_026",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_027",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_028",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_029",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_030",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_031",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_032",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_033",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_034",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_035",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_036",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_037",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_038",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_039",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_040",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_041",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_042",
+              "work_days": 3,
+              "occupied_days": 3,
+              "days_off": 27
+            },
+            {
+              "employee_id": "employee_043",
+              "work_days": 6,
+              "occupied_days": 6,
+              "days_off": 24
+            },
+            {
+              "employee_id": "employee_044",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_045",
+              "work_days": 1,
+              "occupied_days": 1,
+              "days_off": 29
+            },
+            {
+              "employee_id": "employee_046",
+              "work_days": 1,
+              "occupied_days": 1,
+              "days_off": 29
+            },
+            {
+              "employee_id": "employee_047",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_048",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_049",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_050",
+              "work_days": 4,
+              "occupied_days": 4,
+              "days_off": 26
+            },
+            {
+              "employee_id": "employee_051",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_052",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_053",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_054",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_055",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_056",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_057",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_058",
+              "work_days": 11,
+              "occupied_days": 11,
+              "days_off": 19
+            },
+            {
+              "employee_id": "employee_059",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_060",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_061",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_062",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_063",
+              "work_days": 10,
+              "occupied_days": 10,
+              "days_off": 20
+            },
+            {
+              "employee_id": "employee_064",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_065",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_066",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_067",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_068",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_069",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_070",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_071",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_072",
+              "work_days": 13,
+              "occupied_days": 13,
+              "days_off": 17
+            },
+            {
+              "employee_id": "employee_073",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_074",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_075",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_076",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_077",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_078",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_079",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_080",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_081",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_082",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_083",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_084",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_085",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_086",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_087",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_088",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_089",
+              "work_days": 14,
+              "occupied_days": 14,
+              "days_off": 16
+            },
+            {
+              "employee_id": "employee_090",
+              "work_days": 15,
+              "occupied_days": 15,
+              "days_off": 15
+            },
+            {
+              "employee_id": "employee_091",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_092",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_093",
+              "work_days": 5,
+              "occupied_days": 5,
+              "days_off": 25
+            },
+            {
+              "employee_id": "employee_094",
+              "work_days": 5,
+              "occupied_days": 5,
+              "days_off": 25
+            },
+            {
+              "employee_id": "employee_095",
+              "work_days": 4,
+              "occupied_days": 4,
+              "days_off": 26
+            },
+            {
+              "employee_id": "employee_096",
+              "work_days": 6,
+              "occupied_days": 6,
+              "days_off": 24
+            },
+            {
+              "employee_id": "employee_097",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_098",
+              "work_days": 1,
+              "occupied_days": 1,
+              "days_off": 29
+            },
+            {
+              "employee_id": "employee_099",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            },
+            {
+              "employee_id": "employee_100",
+              "work_days": 0,
+              "occupied_days": 0,
+              "days_off": 30
+            }
+          ]
+        }
+      ],
+      "cost_summary": null,
+      "duty_balance_summary": null,
+      "shift_count_balance_summary": [
+        {
+          "id": "days",
+          "label": "勤務回数",
+          "evaluation_period": {
+            "start": "2026-10-01T00:00:00+09:00",
+            "end": "2026-10-31T00:00:00+09:00"
+          },
+          "category_id": "day",
+          "unit": "shifts",
+          "scale": "absolute_deviation",
+          "normalized": false,
+          "total_deviation_count": 416,
+          "employees": [
+            {
+              "employee_id": "employee_001",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_002",
+              "target_count": 12,
+              "actual_count": 13,
+              "deviation_count": 1
+            },
+            {
+              "employee_id": "employee_003",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_004",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_005",
+              "target_count": 12,
+              "actual_count": 11,
+              "deviation_count": 1
+            },
+            {
+              "employee_id": "employee_006",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_007",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_008",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_009",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_010",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_011",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_012",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_013",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_014",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_015",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_016",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_017",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_018",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_019",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_020",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_021",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_022",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_023",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_024",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_025",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_026",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_027",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_028",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_029",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_030",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_031",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_032",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_033",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_034",
+              "target_count": 12,
+              "actual_count": 13,
+              "deviation_count": 1
+            },
+            {
+              "employee_id": "employee_035",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_036",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_037",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_038",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_039",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_040",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_041",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_042",
+              "target_count": 12,
+              "actual_count": 3,
+              "deviation_count": 9
+            },
+            {
+              "employee_id": "employee_043",
+              "target_count": 12,
+              "actual_count": 6,
+              "deviation_count": 6
+            },
+            {
+              "employee_id": "employee_044",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_045",
+              "target_count": 12,
+              "actual_count": 1,
+              "deviation_count": 11
+            },
+            {
+              "employee_id": "employee_046",
+              "target_count": 12,
+              "actual_count": 1,
+              "deviation_count": 11
+            },
+            {
+              "employee_id": "employee_047",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_048",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_049",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_050",
+              "target_count": 12,
+              "actual_count": 4,
+              "deviation_count": 8
+            },
+            {
+              "employee_id": "employee_051",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_052",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_053",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_054",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_055",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_056",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_057",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_058",
+              "target_count": 12,
+              "actual_count": 11,
+              "deviation_count": 1
+            },
+            {
+              "employee_id": "employee_059",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_060",
+              "target_count": 12,
+              "actual_count": 13,
+              "deviation_count": 1
+            },
+            {
+              "employee_id": "employee_061",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_062",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_063",
+              "target_count": 12,
+              "actual_count": 10,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_064",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_065",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_066",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_067",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_068",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_069",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_070",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_071",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_072",
+              "target_count": 12,
+              "actual_count": 13,
+              "deviation_count": 1
+            },
+            {
+              "employee_id": "employee_073",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_074",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_075",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_076",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_077",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_078",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_079",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_080",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_081",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_082",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_083",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_084",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_085",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_086",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_087",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_088",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_089",
+              "target_count": 12,
+              "actual_count": 14,
+              "deviation_count": 2
+            },
+            {
+              "employee_id": "employee_090",
+              "target_count": 12,
+              "actual_count": 15,
+              "deviation_count": 3
+            },
+            {
+              "employee_id": "employee_091",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_092",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_093",
+              "target_count": 12,
+              "actual_count": 5,
+              "deviation_count": 7
+            },
+            {
+              "employee_id": "employee_094",
+              "target_count": 12,
+              "actual_count": 5,
+              "deviation_count": 7
+            },
+            {
+              "employee_id": "employee_095",
+              "target_count": 12,
+              "actual_count": 4,
+              "deviation_count": 8
+            },
+            {
+              "employee_id": "employee_096",
+              "target_count": 12,
+              "actual_count": 6,
+              "deviation_count": 6
+            },
+            {
+              "employee_id": "employee_097",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_098",
+              "target_count": 12,
+              "actual_count": 1,
+              "deviation_count": 11
+            },
+            {
+              "employee_id": "employee_099",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            },
+            {
+              "employee_id": "employee_100",
+              "target_count": 12,
+              "actual_count": 0,
+              "deviation_count": 12
+            }
+          ]
+        }
+      ],
+      "shortage_summary": {
+        "total_person_minutes": 0,
+        "shortages": [],
+        "proven_minimal": true
+      },
+      "priority_summary": {
+        "groups": [
+          {
+            "priority": 1,
+            "total_person_minutes": 0,
+            "proven_minimal": true
+          },
+          {
+            "priority": 0,
+            "total_person_minutes": 0,
+            "proven_minimal": true
+          }
+        ]
+      },
+      "diagnosis_result": null,
+      "search_stats": {
+        "time_limit_seconds": 30,
+        "search_elapsed_seconds": 30.05089004104957,
+        "num_workers": 2,
+        "workers_applied": true,
+        "normalization_elapsed_seconds": 0.15144670801237226,
+        "backend_loading_elapsed_seconds": 7.041962817311287e-06,
+        "preparation_elapsed_seconds": 0.8145141249988228,
+        "verification_elapsed_seconds": 0.4708923330763355,
+        "candidate_expansion_elapsed_seconds": 0.04841358296107501,
+        "input_validation_elapsed_seconds": 0.10302570799831301
+      },
+      "assignments": 2400,
+      "shifts": 1200,
+      "import_seconds": 1.6042031347751617e-05,
+      "input_seconds": 0.003217000048607588,
+      "elapsed_seconds": 32.460680624935776,
+      "request_elapsed_seconds": 32.46391366701573,
+      "engine_elapsed_seconds": 32.45896929199807,
+      "metadata_seconds": 0.15218525007367134,
+      "peak_rss_mib": 1016.484375,
+      "group": 1,
+      "iteration": 3,
+      "mode": "warm",
+      "execution": "continued"
+    }
+  ],
+  "workers": [
+    {
+      "input_file": "docs/evaluations/inputs/combined-100-30-normal.json",
+      "group": 1,
+      "elapsed_seconds": 98.3446160829626,
+      "completed": 3,
+      "failure": null,
+      "timeout_seconds": 120.0
+    }
+  ],
+  "summaries": [
+    {
+      "input_file": "docs/evaluations/inputs/combined-100-30-normal.json",
+      "attempts": 3,
+      "statuses": {
+        "FEASIBLE": 3
+      },
+      "verified_solutions": 3,
+      "complete_solutions": 3,
+      "solution_rate": 1.0,
+      "verified_suggestions": 0,
+      "statistics": {
+        "elapsed_seconds": {
+          "samples": 3,
+          "mean": 32.56736963867055,
+          "median": 32.471763457986526,
+          "p95": 32.76966483308934,
+          "maximum": 32.76966483308934
+        },
+        "request_elapsed_seconds": {
+          "samples": 3,
+          "mean": 32.58882633336665,
+          "median": 32.47493712499272,
+          "p95": 32.82762820809148,
+          "maximum": 32.82762820809148
+        },
+        "peak_rss_mib": {
+          "samples": 3,
+          "mean": 1002.1510416666666,
+          "median": 1007.90625,
+          "p95": 1016.484375,
+          "maximum": 1016.484375
+        }
+      },
+      "first_request_elapsed_seconds": {
+        "samples": 1,
+        "mean": 32.82762820809148,
+        "median": 32.82762820809148,
+        "p95": 32.82762820809148,
+        "maximum": 32.82762820809148
+      },
+      "continued_request_elapsed_seconds": {
+        "samples": 2,
+        "mean": 32.469425396004226,
+        "median": 32.469425396004226,
+        "p95": 32.47493712499272,
+        "maximum": 32.47493712499272
+      },
+      "process_elapsed_seconds": {
+        "samples": 1,
+        "mean": 98.3446160829626,
+        "median": 98.3446160829626,
+        "p95": 98.3446160829626,
+        "maximum": 98.3446160829626
+      },
+      "objective_quality": [
+        {
+          "id": "work",
+          "metric": "scheduled_minutes",
+          "observed_values": {
+            "samples": 3,
+            "mean": 540000,
+            "median": 540000,
+            "p95": 540000,
+            "maximum": 540000
+          },
+          "proven_count": 0,
+          "relative_gap": {
+            "samples": 3,
+            "mean": 1.0,
+            "median": 1.0,
+            "p95": 1.0,
+            "maximum": 1.0
+          }
+        },
+        {
+          "id": "count",
+          "metric": "shift_count_deviation",
+          "observed_values": {
+            "samples": 3,
+            "mean": 406,
+            "median": 404,
+            "p95": 416,
+            "maximum": 416
+          },
+          "proven_count": 0,
+          "relative_gap": {
+            "samples": 0,
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "maximum": null
+          }
+        }
+      ]
+    }
+  ]
+}

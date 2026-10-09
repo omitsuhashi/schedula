@@ -1,0 +1,32 @@
+{
+  "before_commit": "bbb7a93b757cc3272943bbc09f9f2dcb359bd457",
+  "after_commit": "21db474777ef8372081136634d7ca8c65f30caf4",
+  "ortools": "9.15.6755",
+  "input_model_and_objectives_identical": true,
+  "models": [
+    {
+      "input": "normal",
+      "proto_sha256": "c791b7b5afd9a8cfbfe76f9486a604a959109e3d743f27bb2569ad8d6de46354",
+      "bytes": 6733239,
+      "objective_expressions_sha256": "859e0b57c1f358eb985775e38a86d70301fd9d0ea030b9f83c12aec892558e19"
+    },
+    {
+      "input": "partial",
+      "proto_sha256": "1523ce9ea94a5139ef2fa207fd6a75b67adec0cfe3a184d12af360cc3dc50ba8",
+      "bytes": 6733239,
+      "objective_expressions_sha256": "859e0b57c1f358eb985775e38a86d70301fd9d0ea030b9f83c12aec892558e19"
+    },
+    {
+      "input": "conflict",
+      "proto_sha256": "39b2a03182caadbcc60e56cff0bdad17998bf1879d151a4e3711bbf3839f094f",
+      "bytes": 6733239,
+      "objective_expressions_sha256": "859e0b57c1f358eb985775e38a86d70301fd9d0ea030b9f83c12aec892558e19"
+    },
+    {
+      "input": "timeout",
+      "proto_sha256": "c791b7b5afd9a8cfbfe76f9486a604a959109e3d743f27bb2569ad8d6de46354",
+      "bytes": 6733239,
+      "objective_expressions_sha256": "859e0b57c1f358eb985775e38a86d70301fd9d0ea030b9f83c12aec892558e19"
+    }
+  ]
+}

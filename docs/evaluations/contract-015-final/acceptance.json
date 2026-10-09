@@ -1,0 +1,31 @@
+{
+  "app_source_commit": "a99b51012fe87ab1c8ce1849d20b25f384358ebf",
+  "engine": {
+    "repository": "https://github.com/omitsuhashi/schedula",
+    "commit": "6f96300dc6830f1132c1c6330b1ed5e2f27288b0",
+    "version": "0.2.0",
+    "schema_version": "0.15",
+    "wheel": "shift_schedula-0.2.0-py3-none-any.whl",
+    "sha256": "f011b1af77535739dfd36899af4011d31d5f906a8a20efa65653f618f2ad48c6",
+    "license": "MIT",
+    "build_command": "SOURCE_DATE_EPOCH=1791556851 uv build --wheel",
+    "supported_schema_versions": [
+      "0.15"
+    ],
+    "adapter_version": "1.0"
+  },
+  "backend_passed": 189,
+  "frontend_passed": 4,
+  "failure_error_skip": 0,
+  "ruff_biome_types_build": "PASS",
+  "sqlite_real_http_restart_backup_customer_isolation": "PASS",
+  "browser_built_checks": 35,
+  "browser_vite_checks": 35,
+  "page_errors": 0,
+  "ssh_linux_checks": 8,
+  "ssh_source_commit": "7d8f5fdd3673fa7ebb613eaf5c8a12b4ad0eeb87",
+  "ssh_source_difference": "ブラウザー期待値の更新だけ。アプリ実装・固定wheel・lockは同一。",
+  "local_ci_accepted_by_owner": true,
+  "data_scope": "所有者確認済みのリポジトリ内例・fixture。保存済み実データなし。",
+  "external_customer_deployment": false
+}
