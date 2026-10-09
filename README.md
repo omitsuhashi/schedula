@@ -36,6 +36,9 @@ uv run --locked --extra cp-sat python -m shift_schedula solve examples/roster.js
 `proven_optimal` で目的ごとの証明範囲を確認できます。
 
 最小費用流だけを使う場合は `--extra cp-sat` を省略できます。
+契約0.15の独立した配置でも、すべての正の需要に `minimum_people = required_people` を
+明示すれば完全充足を最小費用流で求められます。下限がすべて省略または0なら不足を許容します。
+中間下限・両者の混在・明示制約・担当切替目的・非既定priority・診断には CP-SAT が必要です。
 探索なしの入力検証、厳密JSON読み取り、型情報は[Python公開API](docs/python-api.md)を参照してください。
 CP-SAT が必要な入力を依存なしで解くと `BACKEND_UNAVAILABLE` になります。
 標準出力は JSON のみで、結果は `> result.json` で保存できます。

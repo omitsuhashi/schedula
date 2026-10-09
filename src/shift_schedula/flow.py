@@ -4,6 +4,7 @@ import time
 from dataclasses import dataclass
 
 from .contract import diagnostic
+from .model import flow_requires_complete_demand
 
 
 @dataclass
@@ -37,6 +38,7 @@ def add_edge(graph, source, target, capacity, cost):
 def prepare(problem):
     """各時間枠の二部グラフを探索予算の開始前に構築する。"""
     networks = []
+    complete_demand = flow_requires_complete_demand(problem.request)
     for slot, demand in enumerate(problem.demand):
         roles = sorted(role for role, count in demand.items() if count)
         if not roles:
@@ -57,21 +59,7 @@ def prepare(problem):
                     arcs.append((employee, role, edge))
         for role_node, role in enumerate(roles, len(employees) + 1):
             qualified = sum(role in problem.qualified[employee] for employee in employees)
-            if qualified < demand[role] and problem.request["schema_version"] not in {
-                "0.3",
-                "0.4",
-                "0.5",
-                "0.6",
-                "0.7",
-                "0.8",
-                "0.9",
-                "0.10",
-                "0.11",
-                "0.12",
-                "0.13",
-                "0.14",
-                "0.15",
-            }:
+            if qualified < demand[role] and complete_demand:
                 return [], diagnostic(
                     "INSUFFICIENT_QUALIFIED_EMPLOYEES",
                     "この役割の勤務可能な有資格者が不足しています。",
@@ -150,6 +138,7 @@ def make_solution(grid, assignments):
 
 def run(problem):
     preparation_start = time.perf_counter()
+    complete_demand = flow_requires_complete_demand(problem.request)
     networks, shortage = prepare(problem)
     preparation_elapsed = time.perf_counter() - preparation_start
     if shortage:
@@ -181,7 +170,7 @@ def run(problem):
     completed = True
     for slot, graph, arcs, required in networks:
         status, slot_cost = augment(graph, required, deadline)
-        if status != "OPTIMAL" and not partial:
+        if status != "OPTIMAL" and complete_demand:
             code = "TIME_LIMIT" if status == "UNKNOWN" else "COMPETING_ROLE_DEMAND"
             message = (
                 "探索予算内に完全な解を得られませんでした。"

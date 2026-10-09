@@ -5,14 +5,19 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from shift_schedula import solve
+from shift_schedula import solve, verify
 from shift_schedula.contract import get_schema
 from shift_schedula.model import normalize
 from shift_schedula.verify import verify_solution
-from tests.support import assert_response
+from tests.support import assert_response, require_complete_demand
 
 
-def test_restaurant_example(assignment_request):
+@pytest.mark.parametrize("assignment_request", ["0.1", "0.15"], indirect=True)
+@pytest.mark.parametrize("backend", ["auto", "min_cost_flow"])
+def test_restaurant_example(assignment_request, backend):
+    assignment_request["solver"]["backend"] = backend
+    if assignment_request["schema_version"] == "0.15":
+        require_complete_demand(assignment_request)
     original = copy.deepcopy(assignment_request)
     result = solve(assignment_request)
     assert_response(result, "OPTIMAL")
@@ -22,6 +27,7 @@ def test_restaurant_example(assignment_request):
     assert result["solution"]["shifts"] == []
     assert assignment_request == original
     assert verify_solution(normalize(assignment_request), result["solution"]) == ([], (0,))
+    assert verify(assignment_request, result["solution"])["status"] == "VALID"
 
 
 @pytest.mark.parametrize("backend", ["auto", "min_cost_flow"])
@@ -191,6 +197,7 @@ def exhaustive_value(request):
 
 @pytest.mark.parametrize("backend", ["min_cost_flow", "cp_sat"])
 @pytest.mark.parametrize("seed", range(150))
+@pytest.mark.parametrize("assignment_request", ["0.1", "0.15"], indirect=True)
 def test_optimum_and_infeasibility_match_exhaustive_search(assignment_request, seed, backend):
     randomizer = random.Random(seed)
     request = assignment_request
@@ -242,11 +249,16 @@ def test_optimum_and_infeasibility_match_exhaustive_search(assignment_request, s
         }
         for index, employee in enumerate(request["employees"])
     ]
+    if request["schema_version"] == "0.15":
+        require_complete_demand(request)
+    saved = copy.deepcopy(request)
     expected = exhaustive_value(request)
     result = solve(request)
     assert_response(result, "INFEASIBLE" if expected is None else "OPTIMAL")
     if expected is not None:
         assert result["objectives"][0]["value"] == expected
+        assert verify(request, result["solution"])["status"] == "VALID"
+    assert request == saved
 
 
 def test_schema_identity_and_meta_validation():

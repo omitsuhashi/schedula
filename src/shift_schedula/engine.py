@@ -10,7 +10,7 @@ from .contract import (
     schema_errors,
     schema_version_of,
 )
-from .model import TimezoneDataError, minute_datetime, normalize
+from .model import TimezoneDataError, flow_requires_complete_demand, minute_datetime, normalize
 from .verify import priority_summary, verify_plan, verify_solution
 
 logger = logging.getLogger(__name__)
@@ -336,7 +336,14 @@ def validate(request: object) -> dict:
 def choose_backend(request):
     if request["solver"]["backend"] != "auto":
         return request["solver"]["backend"], "EXPLICIT_BACKEND"
-    if any(d.get("minimum_people", 0) for d in request["demand"]):
+    if any(d.get("minimum_people", 0) for d in request["demand"]) and not (
+        flow_requires_complete_demand(request)
+        and request["problem_type"] == "assignment"
+        and not request["constraints"]
+        and not request.get("diagnosis")
+        and not any(d.get("priority", 0) for d in request["demand"])
+        and not any(o["metric"] == "role_switches" for o in request["objectives"])
+    ):
         return "cp_sat", "MANDATORY_DEMAND"
     if any(d.get("priority", 0) for d in request["demand"]):
         return "cp_sat", "DEMAND_PRIORITY"
