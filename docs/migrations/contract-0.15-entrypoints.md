@@ -222,6 +222,16 @@ CLI/Schema・最低人数編集の現行版追加6件の計18件。
 GitHub Actionsのアカウントの支払い・利用上限を理由に全5ジョブが開始されなかった。
 テストの実行失敗とは区別し、必須CI成功の証拠として扱わない。
 
+[Draft PR #152](https://github.com/omitsuhashi/schedula/pull/152) の実装commit
+`0b2b1edcefc7185c418afe715ef16a8a9465034c` で、手元の全体回帰は
+`uv run --locked --extra cp-sat pytest -q -ra --junitxml=test-results/pytest.xml` により
+2,618 passed, 6 subtests passed in 685.06s、JUnitのfailure/error/skip 0。
+対象8テスト群は417 passed、隔離wheel/sdist・公開型・base/cp-satの回帰も全体に含む。
+pre-commitとstrict mypy（`examples/typed_api.py` / `examples/typed_adapter.py`）が成功し、
+実Chromiumは10 scenarios / 21 interactions / 25 response samples / page errors 0だった。
+PRの [CI 37915936701](https://github.com/omitsuhashi/schedula/actions/runs/37915936701) も
+同じ支払い・利用上限の理由で全5ジョブが開始されず、main反映後の受け入れは未完了である。
+
 ## 原bytesと更新後bytesのSHA-256
 
 原本は上記基点commitの各パスを参照する。JSONをcanonical化した内容ハッシュとは区別する。
