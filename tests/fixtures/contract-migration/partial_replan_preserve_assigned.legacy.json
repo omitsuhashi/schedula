@@ -1,0 +1,268 @@
+{
+  "schema_version": "0.4",
+  "request_id": "partial_replan_preserve_assigned",
+  "problem_type": "roster",
+  "planning_window": {
+    "start": "2026-10-05T00:00:00+09:00",
+    "end": "2026-10-06T00:00:00+09:00",
+    "timezone": "Asia/Tokyo",
+    "slot_minutes": 30
+  },
+  "skills": [
+    {
+      "id": "hall_skill",
+      "label": "ホール技能"
+    }
+  ],
+  "roles": [
+    {
+      "id": "kitchen",
+      "label": "kitchen",
+      "required_skills": []
+    },
+    {
+      "id": "hall",
+      "label": "hall",
+      "required_skills": [
+        {
+          "skill_id": "hall_skill",
+          "min_level": 1
+        }
+      ]
+    }
+  ],
+  "employees": [
+    {
+      "id": "alice",
+      "label": "alice",
+      "skills": [
+        {
+          "skill_id": "hall_skill",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T11:30:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "bob",
+      "label": "bob",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T11:30:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    }
+  ],
+  "demand": [
+    {
+      "id": "need_0_600_kitchen",
+      "role_id": "kitchen",
+      "interval": {
+        "start": "2026-10-05T10:00:00+09:00",
+        "end": "2026-10-05T10:30:00+09:00"
+      },
+      "required_people": 1
+    },
+    {
+      "id": "need_0_600_hall",
+      "role_id": "hall",
+      "interval": {
+        "start": "2026-10-05T10:00:00+09:00",
+        "end": "2026-10-05T10:30:00+09:00"
+      },
+      "required_people": 1
+    }
+  ],
+  "shift_candidates": [
+    {
+      "id": "shift_alice_0_600_690",
+      "employee_id": "alice",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-05T10:00:00+09:00",
+            "end": "2026-10-05T11:30:00+09:00"
+          },
+          "breaks": []
+        }
+      ]
+    },
+    {
+      "id": "shift_bob_0_600_690",
+      "employee_id": "bob",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-05T10:00:00+09:00",
+            "end": "2026-10-05T11:30:00+09:00"
+          },
+          "breaks": []
+        }
+      ]
+    }
+  ],
+  "constraints": [],
+  "preferences": [],
+  "objectives": [
+    {
+      "id": "work",
+      "metric": "scheduled_minutes"
+    }
+  ],
+  "solver": {
+    "backend": "auto",
+    "time_limit_seconds": 10,
+    "seed": 0
+  },
+  "baseline": {
+    "plan_id": "partial_plan",
+    "source_request": {
+      "schema_version": "0.4",
+      "request_id": "roster_test",
+      "problem_type": "roster",
+      "planning_window": {
+        "start": "2026-10-05T00:00:00+09:00",
+        "end": "2026-10-06T00:00:00+09:00",
+        "timezone": "Asia/Tokyo",
+        "slot_minutes": 30
+      },
+      "skills": [],
+      "roles": [
+        {
+          "id": "kitchen",
+          "label": "kitchen",
+          "required_skills": []
+        },
+        {
+          "id": "hall",
+          "label": "hall",
+          "required_skills": []
+        }
+      ],
+      "employees": [
+        {
+          "id": "alice",
+          "label": "alice",
+          "skills": [],
+          "availability": [
+            {
+              "start": "2026-10-05T10:00:00+09:00",
+              "end": "2026-10-05T11:30:00+09:00"
+            }
+          ],
+          "history": {
+            "last_shift_end": null,
+            "consecutive_work_days_before_window": 0,
+            "last_work_day": null
+          }
+        },
+        {
+          "id": "bob",
+          "label": "bob",
+          "skills": [],
+          "availability": [],
+          "history": {
+            "last_shift_end": null,
+            "consecutive_work_days_before_window": 0,
+            "last_work_day": null
+          }
+        }
+      ],
+      "demand": [
+        {
+          "id": "need_0_600_kitchen",
+          "role_id": "kitchen",
+          "interval": {
+            "start": "2026-10-05T10:00:00+09:00",
+            "end": "2026-10-05T10:30:00+09:00"
+          },
+          "required_people": 1
+        },
+        {
+          "id": "need_0_600_hall",
+          "role_id": "hall",
+          "interval": {
+            "start": "2026-10-05T10:00:00+09:00",
+            "end": "2026-10-05T10:30:00+09:00"
+          },
+          "required_people": 1
+        }
+      ],
+      "shift_candidates": [
+        {
+          "id": "shift_alice_0_600_690",
+          "employee_id": "alice",
+          "segments": [
+            {
+              "interval": {
+                "start": "2026-10-05T10:00:00+09:00",
+                "end": "2026-10-05T11:30:00+09:00"
+              },
+              "breaks": []
+            }
+          ]
+        }
+      ],
+      "constraints": [],
+      "preferences": [],
+      "objectives": [],
+      "solver": {
+        "backend": "auto",
+        "time_limit_seconds": 10,
+        "seed": 0
+      }
+    },
+    "source_solution": {
+      "assignments": [
+        {
+          "employee_id": "alice",
+          "role_id": "kitchen",
+          "interval": {
+            "start": "2026-10-05T10:00:00+09:00",
+            "end": "2026-10-05T10:30:00+09:00"
+          }
+        }
+      ],
+      "shifts": [
+        {
+          "candidate_id": "shift_alice_0_600_690",
+          "employee_id": "alice",
+          "segments": [
+            {
+              "interval": {
+                "start": "2026-10-05T10:00:00+09:00",
+                "end": "2026-10-05T11:30:00+09:00"
+              },
+              "breaks": []
+            }
+          ],
+          "work_day": "2026-10-05"
+        }
+      ]
+    },
+    "source_fixed_states": [],
+    "snapshot_origin": {
+      "request_id": "roster_test",
+      "baseline_plan_id": null,
+      "replan_mode": null
+    }
+  },
+  "replan_mode": "preserve_assigned"
+}

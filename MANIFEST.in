@@ -1,7 +1,7 @@
 include README.md LICENSE THIRD_PARTY_NOTICES.md AGENTS.md GLOSSARY.md
 include pyproject.toml uv.lock .python-version .pre-commit-config.yaml .gitignore
 recursive-include src *.py *.pyi *.json py.typed
-recursive-include tests *.py *.cjs
+recursive-include tests *.py *.cjs *.json
 recursive-include examples *.json *.py
 recursive-include demo *.py *.html *.css *.js
 recursive-include scripts *.py

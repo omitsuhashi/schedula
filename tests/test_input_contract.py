@@ -17,6 +17,7 @@ def replace(request, path, value):
     target[path[-1]] = value
 
 
+@pytest.mark.parametrize("assignment_request", ["0.1", "0.15"], indirect=True)
 @pytest.mark.parametrize(
     ("path", "value"),
     [
@@ -77,6 +78,7 @@ def test_non_request_objects(value):
     assert_response(solve(value), "INVALID_INPUT")
 
 
+@pytest.mark.parametrize("assignment_request", ["0.1", "0.15"], indirect=True)
 @pytest.mark.parametrize(
     "field", ["skills", "roles", "employees", "demand", "preferences", "objectives"]
 )
@@ -85,6 +87,7 @@ def test_duplicate_ids(assignment_request, field):
     assert_response(solve(assignment_request), "INVALID_INPUT")
 
 
+@pytest.mark.parametrize("assignment_request", ["0.1", "0.15"], indirect=True)
 @pytest.mark.parametrize("path", [["employees", 0, "skills"], ["roles", 0, "required_skills"]])
 def test_duplicate_skill_entries(assignment_request, path):
     target = assignment_request
@@ -99,6 +102,7 @@ def test_duplicate_metrics_with_different_ids(assignment_request):
     assert_response(solve(assignment_request), "INVALID_INPUT")
 
 
+@pytest.mark.parametrize("assignment_request", ["0.1", "0.15"], indirect=True)
 @pytest.mark.parametrize("field", ["demand", "availability"])
 def test_overlap_rejected_even_for_zero_demand(assignment_request, field):
     if field == "demand":

@@ -77,3 +77,19 @@ def demand(day=0, start=600, end=630, role="kitchen", people=1):
         "interval": interval(day, start, end),
         "required_people": people,
     }
+
+
+def request015(days=1, employees=("alice",)):
+    data = request(days, employees)
+    data["schema_version"] = "0.15"
+    for employee in data["employees"]:
+        employee["history"]["last_work_day"] = None
+    data["shift_candidates"] = [
+        {
+            "id": c["id"],
+            "employee_id": c["employee_id"],
+            "segments": [{"interval": c["interval"], "breaks": c["breaks"]}],
+        }
+        for c in data["shift_candidates"]
+    ]
+    return data

@@ -1,6 +1,12 @@
 from shift_schedula.contract import schema_errors
 
 
+def require_complete_demand(request):
+    for item in request["demand"]:
+        item["minimum_people"] = item["required_people"]
+    return request
+
+
 def assert_response(result, status):
     assert result["status"] == status
     assert not schema_errors("response", result)

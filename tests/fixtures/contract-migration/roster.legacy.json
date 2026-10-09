@@ -1,0 +1,308 @@
+{
+  "schema_version": "0.1",
+  "request_id": "restaurant_roster",
+  "problem_type": "roster",
+  "planning_window": {
+    "start": "2026-10-05T00:00:00+09:00",
+    "end": "2026-10-07T00:00:00+09:00",
+    "timezone": "Asia/Tokyo",
+    "slot_minutes": 30
+  },
+  "skills": [
+    {
+      "id": "cooking",
+      "label": "調理技能"
+    },
+    {
+      "id": "service",
+      "label": "接客技能"
+    }
+  ],
+  "roles": [
+    {
+      "id": "kitchen",
+      "label": "調理",
+      "required_skills": [
+        {
+          "skill_id": "cooking",
+          "min_level": 1
+        }
+      ]
+    },
+    {
+      "id": "hall",
+      "label": "ホール",
+      "required_skills": [
+        {
+          "skill_id": "service",
+          "min_level": 1
+        }
+      ]
+    },
+    {
+      "id": "washing",
+      "label": "皿洗い",
+      "required_skills": []
+    }
+  ],
+  "employees": [
+    {
+      "id": "cook",
+      "label": "調理担当",
+      "skills": [
+        {
+          "skill_id": "cooking",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-06T10:00:00+09:00",
+          "end": "2026-10-06T16:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0
+      }
+    },
+    {
+      "id": "server",
+      "label": "接客担当",
+      "skills": [
+        {
+          "skill_id": "service",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-06T10:00:00+09:00",
+          "end": "2026-10-06T16:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0
+      }
+    },
+    {
+      "id": "assistant",
+      "label": "補助担当",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-06T10:00:00+09:00",
+          "end": "2026-10-06T16:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0
+      }
+    },
+    {
+      "id": "versatile",
+      "label": "調理・接客担当",
+      "skills": [
+        {
+          "skill_id": "cooking",
+          "level": 1
+        },
+        {
+          "skill_id": "service",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T16:00:00+09:00"
+        },
+        {
+          "start": "2026-10-06T10:00:00+09:00",
+          "end": "2026-10-06T16:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0
+      }
+    }
+  ],
+  "demand": [
+    {
+      "id": "need_0_600_kitchen",
+      "role_id": "kitchen",
+      "interval": {
+        "start": "2026-10-05T10:00:00+09:00",
+        "end": "2026-10-05T16:00:00+09:00"
+      },
+      "required_people": 1
+    },
+    {
+      "id": "need_0_600_hall",
+      "role_id": "hall",
+      "interval": {
+        "start": "2026-10-05T10:00:00+09:00",
+        "end": "2026-10-05T16:00:00+09:00"
+      },
+      "required_people": 1
+    },
+    {
+      "id": "need_0_600_washing",
+      "role_id": "washing",
+      "interval": {
+        "start": "2026-10-05T10:00:00+09:00",
+        "end": "2026-10-05T16:00:00+09:00"
+      },
+      "required_people": 1
+    },
+    {
+      "id": "need_1_600_kitchen",
+      "role_id": "kitchen",
+      "interval": {
+        "start": "2026-10-06T10:00:00+09:00",
+        "end": "2026-10-06T16:00:00+09:00"
+      },
+      "required_people": 1
+    },
+    {
+      "id": "need_1_600_hall",
+      "role_id": "hall",
+      "interval": {
+        "start": "2026-10-06T10:00:00+09:00",
+        "end": "2026-10-06T16:00:00+09:00"
+      },
+      "required_people": 1
+    },
+    {
+      "id": "need_1_600_washing",
+      "role_id": "washing",
+      "interval": {
+        "start": "2026-10-06T10:00:00+09:00",
+        "end": "2026-10-06T16:00:00+09:00"
+      },
+      "required_people": 1
+    }
+  ],
+  "shift_candidates": [],
+  "constraints": [
+    {
+      "id": "scheduled_cap",
+      "type": "max_scheduled_minutes",
+      "employee_ids": [
+        "cook",
+        "server",
+        "assistant",
+        "versatile"
+      ],
+      "limit_minutes": 660
+    },
+    {
+      "id": "rest",
+      "type": "min_rest_minutes",
+      "employee_ids": [
+        "cook",
+        "server",
+        "assistant",
+        "versatile"
+      ],
+      "limit_minutes": 600
+    },
+    {
+      "id": "consecutive",
+      "type": "max_consecutive_days",
+      "employee_ids": [
+        "cook",
+        "server",
+        "assistant",
+        "versatile"
+      ],
+      "limit_days": 2
+    }
+  ],
+  "preferences": [
+    {
+      "id": "preserve_skills",
+      "type": "avoid_role",
+      "employee_ids": [
+        "cook",
+        "server",
+        "versatile"
+      ],
+      "role_id": "washing",
+      "penalty_per_minute": 1
+    }
+  ],
+  "objectives": [
+    {
+      "id": "preferences",
+      "metric": "preference_penalty"
+    },
+    {
+      "id": "work",
+      "metric": "scheduled_minutes"
+    },
+    {
+      "id": "changes",
+      "metric": "role_switches"
+    }
+  ],
+  "solver": {
+    "backend": "auto",
+    "time_limit_seconds": 10,
+    "seed": 0
+  },
+  "shift_templates": [
+    {
+      "id": "day_shift",
+      "employee_ids": [
+        "cook",
+        "server",
+        "assistant",
+        "versatile"
+      ],
+      "dates": [
+        "2026-10-05",
+        "2026-10-06"
+      ],
+      "start_times": [
+        "10:00"
+      ],
+      "duration_minutes_options": [
+        360
+      ],
+      "break_options": [
+        {
+          "offset_minutes": 120,
+          "duration_minutes": 30
+        },
+        {
+          "offset_minutes": 150,
+          "duration_minutes": 30
+        },
+        {
+          "offset_minutes": 180,
+          "duration_minutes": 30
+        },
+        {
+          "offset_minutes": 210,
+          "duration_minutes": 30
+        }
+      ]
+    }
+  ]
+}
