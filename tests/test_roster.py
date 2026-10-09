@@ -14,7 +14,8 @@ from ortools.sat.python import cp_model
 from shift_schedula import cp_sat, flow, solve
 from shift_schedula.model import normalize
 from shift_schedula.verify import verify_solution
-from tests.roster_support import candidate, demand, interval, request, rule, stamp
+from tests.roster_support import candidate, interval, request, rule, stamp, template
+from tests.roster_support import complete_demand as demand
 from tests.support import assert_response
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -98,6 +99,7 @@ def test_rest_boundary_with_history(minutes, history):
         data["demand"] = [demand(0)]
         data["employees"][0]["history"] = {
             "last_shift_end": stamp(-1, 780),
+            "last_work_day": "2026-10-04",
             "consecutive_work_days_before_window": 1,
         }
     else:
@@ -124,10 +126,10 @@ def test_rest_model_stays_linear_with_5000_distinct_candidates():
     ]
     data["constraints"] = [rule("min_rest_minutes", 1020)]
     model, *_ = cp_sat.prepare(normalize(data), cp_model)
-    # 翌朝まで16時間、必要休息17時間。ペア制約なら625万件になる入力。
-    assert sum(c.has_interval() for c in model.proto.constraints) == 5000
-    assert sum(c.has_no_overlap() for c in model.proto.constraints) == 1
-    assert len(model.proto.constraints) < 10000
+    # 翌朝まで16時間、必要休息17時間。0.15は勤務の重複と休息を各1本で検査する。
+    assert sum(c.has_interval() for c in model.proto.constraints) == 10000
+    assert sum(c.has_no_overlap() for c in model.proto.constraints) == 2
+    assert len(model.proto.constraints) < 15000
 
 
 @pytest.mark.parametrize("limit", [0, 1, 2, 3, 4])
@@ -135,6 +137,7 @@ def test_consecutive_days_inherit_history(limit):
     data = request(days=2)
     data["employees"][0]["history"] = {
         "last_shift_end": stamp(-1, 780),
+        "last_work_day": "2026-10-04",
         "consecutive_work_days_before_window": 1,
     }
     data["demand"] = [demand(0), demand(1)]
@@ -146,6 +149,7 @@ def test_day_off_resets_history_even_when_history_exceeds_limit():
     data = request(days=3)
     data["employees"][0]["history"] = {
         "last_shift_end": stamp(-1, 780),
+        "last_work_day": "2026-10-04",
         "consecutive_work_days_before_window": 5,
     }
     data["demand"] = [demand(1), demand(2)]
@@ -253,6 +257,8 @@ def exhaustive_value(data):
     # normalize・候補展開・独立検証器・ソルバーの表は使用しない。
     parse = datetime.fromisoformat
     candidates = data["shift_candidates"]
+    # shortcut: 単一区間の日勤の全探索。夜勤・分割を加えるときはextended側の全探索を使う。
+    assert all(len(c.get("segments", [c])) == 1 for c in candidates)
     employees = {e["id"]: e for e in data["employees"]}
     role_skills = {r["id"]: r["required_skills"] for r in data["roles"]}
     first = parse(data["planning_window"]["start"])
@@ -271,7 +277,12 @@ def exhaustive_value(data):
         valid = True
         scheduled = Counter()
         for c in selected:
-            e, a, b = c["employee_id"], parse(c["interval"]["start"]), parse(c["interval"]["end"])
+            segment = c["segments"][0] if "segments" in c else c
+            e, a, b = (
+                c["employee_id"],
+                parse(segment["interval"]["start"]),
+                parse(segment["interval"]["end"]),
+            )
             key = e, a.date()
             if key in dates:
                 valid = False
@@ -279,7 +290,7 @@ def exhaustive_value(data):
             by_employee[e].append((a, b))
             scheduled[e] += int((b - a).total_seconds() // 60) - sum(
                 int((parse(i["end"]) - parse(i["start"])).total_seconds() // 60)
-                for i in c["breaks"]
+                for i in segment["breaks"]
             )
         for c in data["constraints"]:
             for e in c["employee_ids"]:
@@ -314,10 +325,11 @@ def exhaustive_value(data):
                     continue
                 if any(
                     c["employee_id"] == e
-                    and parse(c["interval"]["start"]) <= a
-                    and a + timedelta(minutes=30) <= parse(c["interval"]["end"])
-                    and not any(parse(b["start"]) <= a < parse(b["end"]) for b in c["breaks"])
+                    and parse(segment["interval"]["start"]) <= a
+                    and a + timedelta(minutes=30) <= parse(segment["interval"]["end"])
+                    and not any(parse(b["start"]) <= a < parse(b["end"]) for b in segment["breaks"])
                     for c in selected
+                    for segment in [c["segments"][0] if "segments" in c else c]
                 ):
                     eligible.append(e)
             options.append(eligible)
@@ -360,6 +372,32 @@ def exhaustive_value(data):
     return best
 
 
+def test_current_template_duration_and_break_alternatives_keep_complete_demand():
+    data = request()
+    data["employees"][0]["availability"] = [interval(end=750)]
+    data["shift_candidates"] = []
+    data["shift_templates"] = [template(durations=(120, 150), breaks=((30, 30), (60, 30)))]
+    data["demand"] = [demand()]
+    original = copy.deepcopy(data)
+    candidates = normalize(data).candidates
+    assert {(c.end, c.breaks) for c in candidates} == {
+        (24, ((21, 22),)),
+        (24, ((22, 23),)),
+        (25, ((21, 22),)),
+        (25, ((22, 23),)),
+    }
+    data["shift_templates"][0]["segment_options"].reverse()
+    assert normalize(data).candidates == candidates
+    result = solve(data)
+    assert_response(result, "OPTIMAL")
+    assert result["objectives"][0]["value"] == 90
+    assert verify_solution(normalize(data), result["solution"]) == ([], (90,))
+    original["shift_templates"][0]["segment_options"].reverse()
+    assert data == original
+    data["demand"][0]["required_people"] = data["demand"][0]["minimum_people"] = 2
+    assert_response(solve(data), "INFEASIBLE")
+
+
 @pytest.mark.parametrize("seed", range(60))
 def test_optimum_matches_independent_enumeration(seed):
     rng = random.Random(seed)
@@ -389,6 +427,7 @@ def test_optimum_matches_independent_enumeration(seed):
     if rng.randrange(2):
         data["employees"][0]["history"] = {
             "last_shift_end": stamp(-1, 690),
+            "last_work_day": "2026-10-04",
             "consecutive_work_days_before_window": 1,
         }
     metrics = rng.sample(

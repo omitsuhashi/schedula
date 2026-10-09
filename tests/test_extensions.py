@@ -9,7 +9,9 @@ from shift_schedula import solve
 from shift_schedula.extensions import evaluate
 from shift_schedula.model import normalize
 from shift_schedula.verify import verify_solution
-from tests.roster_support import candidate, demand, interval, request, rule
+from tests.roster_support import demand, interval, rule
+from tests.roster_support import legacy_candidate as candidate
+from tests.roster_support import legacy_request as request
 
 ROOT = Path(__file__).resolve().parents[1]
 

@@ -46,6 +46,28 @@ Adapter例の確認は作成時に移行前後の条件を照合し、以前確�
 共通fixtureの全面移行、残る通常回帰の形状整理、評価再実行入力・設計例は #124 の後続変更で扱う。
 #112では旧版除去後の全入口・旧版拒否・全画面回帰を最終確認する。
 
+## 勤務計画の共通fixtureと通常回帰
+
+基点 `4cdb5a3fbd15f3ee4153dd65c81a7aea2ec4eef7`（PR #146）から、共通の
+`tests.roster_support.request` / `candidate` / `template` を0.15へ移した。
+従来の `request015` と通常の `request` を統合し、不足許容は需要下限の省略で保持する。
+完全充足を求める試験だけが `complete_demand` で必要人数と同じ下限を明示する。
+既存のテスト関数と固定した旧/新比較fixture・SHAを削除・変更していない。
+
+| 検証内容 | 今回の行先・維持した判定 |
+| --- | --- |
+| 勤務量、待機・休憩、資格、役割切替、休息・連勤、候補の同日選択 | `test_roster` の通常fixtureを0.15化。全需要を必須にし、矛盾はINFEASIBLEのまま |
+| 5,000候補の休息モデル | `test_rest_model_stays_linear_with_5000_distinct_candidates`。0.15の勤務重複と休息に各5,000区間・各1本のNoOverlap、全制約15,000未満 |
+| 需要と目的順の独立した全探索 | 日勤60組の `test_optimum_matches_independent_enumeration` と、既存の目的順の全探索。日勤は単一区間をassertし、夜勤・分割は別の原JSON全探索24組を保持 |
+| 候補・区間・休憩・勤務日・履歴・勤務条件の改ざん拒否 | `test_roster_verification` / `test_extended_roster`。ソルバー用表を消しても元入力から検証し、違反解の返却を阻止 |
+| テンプレートの勤務長・休憩位置の選択肢 | 既存の分割テンプレート検査と `test_current_template_duration_and_break_alternatives_keep_complete_demand`。展開順の不変、必要人数の必須下限、元入力非変更を確認 |
+| 夜勤・分割間・日跨ぎ・勤務日・DST | `test_extended_roster` の通常fixtureを0.15化。原区間・休憩・開始日の帰属・実経過分数を保持 |
+| 旧版受理と移行元 | `legacy_request` / `legacy_candidate` / `legacy_template` / `legacy_extended_request` を呼出側で明示。旧Schema・型・実行受付を維持 |
+
+目的段階の打切り・証明接頭辞、旧基準を含む再計画、不足/priority、勤務評価/日数の
+残る通常回帰と評価再実行入力・設計例は#124の後続変更で移す。
+#125のアプリ保存往復と#111の旧版除去・移行専用資産撤去は、この準備の完了には含めない。
+
 ## 原bytesと更新後bytesのSHA-256
 
 原本は上記基点commitの各パスを参照する。JSONをcanonical化した内容ハッシュとは区別する。

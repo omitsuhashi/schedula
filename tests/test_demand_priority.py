@@ -9,7 +9,8 @@ import pytest
 from shift_schedula import cp_sat, get_schema, make_baseline, solve, verify
 from shift_schedula.contract import InvalidInput
 from shift_schedula.engine import validate_response
-from tests.roster_support import demand, interval, request
+from tests.roster_support import demand, interval
+from tests.roster_support import legacy_request as request
 from tests.support import assert_response
 from tests.test_cli import cli
 from tests.test_cp_sat import small_request

@@ -13,8 +13,10 @@ from scripts.migrate_contract import main, migrate, migrate_request
 from shift_schedula import InvalidInput, load_json, make_baseline, solve, validate, verify
 from shift_schedula.adapter import content_hash
 from shift_schedula.model import normalize
-from tests.roster_support import demand, interval, request, stamp, template
-from tests.test_extended_roster import extended_request
+from tests.roster_support import demand, interval, stamp
+from tests.roster_support import legacy_request as request
+from tests.roster_support import legacy_template as template
+from tests.test_extended_roster import legacy_extended_request as extended_request
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "tests/fixtures/contract-migration"

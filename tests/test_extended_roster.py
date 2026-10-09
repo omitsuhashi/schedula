@@ -14,7 +14,8 @@ import pytest
 from shift_schedula import cp_sat, solve
 from shift_schedula.model import normalize
 from shift_schedula.verify import verify_solution
-from tests.roster_support import demand, interval, request, rule, stamp
+from tests.roster_support import complete_demand as demand
+from tests.roster_support import interval, legacy_request, request, rule, stamp
 from tests.support import assert_response, require_complete_demand
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -31,8 +32,8 @@ def shift(segments, employee="alice", identifier="extended"):
     return {"id": identifier, "employee_id": employee, "segments": segments}
 
 
-def extended_request(days=1, employees=("alice",)):
-    data = request(days, employees)
+def legacy_extended_request(days=1, employees=("alice",)):
+    data = legacy_request(days, employees)
     data["schema_version"] = "0.2"
     data["shift_candidates"] = [
         shift([{"interval": c["interval"], "breaks": c["breaks"]}], c["employee_id"], c["id"])
@@ -129,7 +130,7 @@ def test_overnight_end_day_without_new_start_resets_consecutive_days(day, status
 def test_extended_history_inconsistency_is_rejected_before_backend(
     monkeypatch, last, work_day, count
 ):
-    data = extended_request()
+    data = request()
     data["employees"][0]["history"] = {
         "last_shift_end": last,
         "last_work_day": work_day,
@@ -144,7 +145,7 @@ def test_extended_history_inconsistency_is_rejected_before_backend(
 
 
 def test_night_history_start_day_is_not_inferred_from_end():
-    data = extended_request()
+    data = request()
     data["employees"][0]["history"] = {
         "last_shift_end": stamp(-1, 360),
         "last_work_day": "2026-10-03",
@@ -155,7 +156,7 @@ def test_night_history_start_day_is_not_inferred_from_end():
 
 @pytest.mark.parametrize("outside", ["before", "after"])
 def test_extended_explicit_candidate_outside_window_is_not_clipped(outside):
-    data = extended_request(days=2)
+    data = request(days=2)
     data["shift_candidates"] = [
         shift([segment(-1, 1320, 1800) if outside == "before" else segment(1, 1320, 1800)])
     ]
@@ -165,7 +166,7 @@ def test_extended_explicit_candidate_outside_window_is_not_clipped(outside):
 
 
 def test_overnight_ending_at_year_boundary_midnight():
-    data = extended_request()
+    data = request()
     data["planning_window"].update(
         start="2026-12-31T00:00:00+09:00", end="2027-01-01T00:00:00+09:00"
     )
@@ -173,7 +174,13 @@ def test_overnight_ending_at_year_boundary_midnight():
     data["employees"][0]["availability"] = [duty]
     data["shift_candidates"] = [shift([{"interval": duty, "breaks": []}])]
     data["demand"] = [
-        {"id": "year_end", "role_id": "kitchen", "interval": duty, "required_people": 1}
+        {
+            "id": "year_end",
+            "role_id": "kitchen",
+            "interval": duty,
+            "required_people": 1,
+            "minimum_people": 1,
+        }
     ]
     result = solve(data)
     assert_response(result, "OPTIMAL")
@@ -201,7 +208,7 @@ def test_split_rest_starts_after_last_segment(start, status):
 
 
 def test_different_shift_cannot_be_inserted_into_split_gap():
-    data = extended_request(days=2)
+    data = request(days=2)
     data["employees"][0]["availability"] = [interval(0, 1320, 2160)]
     data["shift_candidates"] = [
         shift([segment(0, 1320, 1380), segment(1, 660, 720)], identifier="split_night"),
@@ -226,7 +233,7 @@ def test_different_shift_cannot_be_inserted_into_split_gap():
     ],
 )
 def test_extended_segment_structure_rejected(segments, code):
-    data = extended_request()
+    data = request()
     data["employees"][0]["availability"] = [interval(0, 0, 1440)]
     data["shift_candidates"] = [shift(segments)]
     result = solve(data)
@@ -236,7 +243,7 @@ def test_extended_segment_structure_rejected(segments, code):
 
 @pytest.mark.parametrize("count,status", [(4, "OPTIMAL"), (5, "INVALID_INPUT")])
 def test_split_segment_limit(count, status):
-    data = extended_request()
+    data = request()
     data["employees"][0]["availability"] = [interval(0, 0, 1440)]
     data["shift_candidates"] = [
         shift([segment(start=60 * i, end=60 * i + 30) for i in range(count)])
@@ -261,7 +268,7 @@ def extended_template(employees=("alice",), dates=("2026-10-05",), starts=("09:0
 
 
 def test_extended_template_determinism_and_actual_gaps():
-    data = extended_request(days=2, employees=("alice", "bob"))
+    data = request(days=2, employees=("alice", "bob"))
     for employee in data["employees"]:
         employee["availability"] = [interval(0, 0, 2880)]
     data["shift_candidates"] = []
@@ -300,7 +307,7 @@ def test_extended_template_determinism_and_actual_gaps():
 
 
 def test_extended_templates_filter_but_explicit_candidates_reject():
-    data = extended_request()
+    data = request()
     data["shift_candidates"] = []
     data["shift_templates"] = [extended_template()]
     assert normalize(data).candidates == []
@@ -312,7 +319,7 @@ def test_extended_templates_filter_but_explicit_candidates_reject():
 @pytest.mark.parametrize("days", [100, 101])
 def test_extended_template_accepts_discarded_shapes_without_count_limit(days):
     employees = tuple(f"worker_{i}" for i in range(50))
-    data = extended_request(employees=employees)
+    data = request(employees=employees)
     data["shift_candidates"] = []
     dates = [(datetime(2026, 10, 5) + timedelta(days=i)).date().isoformat() for i in range(days)]
     data["shift_templates"] = [
@@ -328,7 +335,7 @@ def test_extended_template_accepts_discarded_shapes_without_count_limit(days):
 
 @pytest.mark.parametrize("mutation", ["first_offset", "adjacent", "too_many", "break_outside"])
 def test_extended_template_invalid_shape_is_not_discarded(mutation):
-    data = extended_request()
+    data = request()
     data["employees"][0]["availability"] = []
     t = extended_template(dates=("2026-10-04",))
     shapes = t["segment_options"][0]
@@ -351,7 +358,7 @@ def test_extended_template_invalid_shape_is_not_discarded(mutation):
     "day,spring,minutes", [("2026-03-08", True, 180), ("2026-11-01", False, 300)]
 )
 def test_extended_clock_changes_use_elapsed_minutes(day, spring, minutes):
-    data = extended_request()
+    data = request()
     next_day = (datetime.fromisoformat(day) + timedelta(days=1)).date().isoformat()
     start = day + "T00:00:00" + ("-05:00" if spring else "-04:00")
     end = next_day + "T00:00:00" + ("-04:00" if spring else "-05:00")
@@ -359,7 +366,15 @@ def test_extended_clock_changes_use_elapsed_minutes(day, spring, minutes):
     data["planning_window"].update(start=start, end=end, timezone="America/New_York")
     data["employees"][0]["availability"] = [duty]
     data["shift_candidates"] = [shift([{"interval": duty, "breaks": []}])]
-    data["demand"] = [{"id": "clock", "role_id": "kitchen", "interval": duty, "required_people": 1}]
+    data["demand"] = [
+        {
+            "id": "clock",
+            "role_id": "kitchen",
+            "interval": duty,
+            "required_people": 1,
+            "minimum_people": 1,
+        }
+    ]
     result = solve(data)
     assert_response(result, "OPTIMAL")
     assert result["objectives"][0]["value"] == minutes
@@ -418,7 +433,11 @@ def test_broken_extended_solution_detected_and_blocked(monkeypatch, name, mutati
     elif mutation == "gap_assignment":
         assert "UNSELECTED_SHIFT_ASSIGNMENT" in {v["code"] for v in violations}
     monkeypatch.setattr(
-        cp_sat, "run", lambda *_: cp_sat.SatResult("OPTIMAL", solution, (420,), (True,))
+        cp_sat,
+        "run",
+        lambda *_: cp_sat.SatResult(
+            "OPTIMAL", solution, (420,), (True,), shortage_person_minutes=0
+        ),
     )
     assert_response(solve(data), "INTERNAL_ERROR")
 
@@ -447,7 +466,11 @@ def test_extended_rule_violations_in_result_are_detected(monkeypatch, mutation, 
     violations, _ = verify_solution(normalize(data), solution)
     assert code in {v["code"] for v in violations}
     monkeypatch.setattr(
-        cp_sat, "run", lambda *_: cp_sat.SatResult("OPTIMAL", solution, (420,), (True,))
+        cp_sat,
+        "run",
+        lambda *_: cp_sat.SatResult(
+            "OPTIMAL", solution, (420,), (True,), shortage_person_minutes=0
+        ),
     )
     assert_response(solve(data), "INTERNAL_ERROR")
 
@@ -541,7 +564,7 @@ def exhaustive_scheduled_value(data):
 @pytest.mark.parametrize("seed", range(24))
 def test_extended_roster_matches_independent_small_enumeration(seed):
     rng = random.Random(seed)
-    data = extended_request(days=2, employees=("alice", "bob"))
+    data = request(days=2, employees=("alice", "bob"))
     data["shift_candidates"] = []
     for employee in data["employees"]:
         employee["availability"] = [interval(0, 0, 2880)]

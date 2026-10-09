@@ -13,7 +13,7 @@ from shift_schedula.model import normalize
 from shift_schedula.verify import verify_solution
 from tests.roster_support import demand, rule
 from tests.support import assert_response
-from tests.test_extended_roster import extended_request
+from tests.test_extended_roster import legacy_extended_request as extended_request
 
 ROOT = Path(__file__).resolve().parents[1]
 
