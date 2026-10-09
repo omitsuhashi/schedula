@@ -310,6 +310,30 @@ async function jsonInputChecks(page) {
     assert.equal(await page.locator("#json-output table").count(), 0);
   }
   report.interactions.push("契約0.12の担当配置・勤務計画で必須最低人数とPARTIALの不足を表示し、下限違反・集計改ざんを拒否");
+  for (const backend of ["auto", "min_cost_flow"]) {
+    const input = JSON.parse(readFileSync("tests/fixtures/contract-migration/assignment.015.json", "utf8"));
+    input.solver.backend = backend;
+    for (const available of [true, false]) {
+      if (!available) input.employees.forEach(e => { e.availability = []; });
+      await page.locator("#json-input").fill(JSON.stringify(input));
+      await page.locator("#json-calculate").click();
+      await page.waitForFunction(() => !busy);
+      const pair = await page.evaluate(() => jsonPair);
+      assert.ok(pair, await page.locator("#json-status").innerText());
+      assert.equal(pair.response.schema_version, "0.15");
+      assert.equal(pair.response.solver.backend, "min_cost_flow");
+      assert.equal(pair.response.status, available ? "OPTIMAL" : "INFEASIBLE");
+      if (available) {
+        assert.equal(pair.response.verification.valid, true);
+        assert.equal(pair.response.shortage_summary.total_person_minutes, 0);
+      } else {
+        assert.equal(pair.response.solution, null);
+        assert.equal(pair.response.shortage_summary, null);
+        assert.equal(await page.locator("#json-output table").count(), 0);
+      }
+    }
+  }
+  report.interactions.push("契約0.15の完全充足assignmentをauto・明示flowで計算し、不足時は解なしINFEASIBLEを表示");
   await page.locator("#json-sample").selectOption("shift_patterns");
   await page.locator("#json-load-sample").click();
   await page.waitForFunction(() => document.getElementById("json-input").value.includes("shift_patterns_example"));

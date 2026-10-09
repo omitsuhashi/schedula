@@ -7,7 +7,7 @@
 
 本変更は [#106](https://github.com/omitsuhashi/schedula/issues/106) の棚卸しであり、
 通常入口はまだ0.1〜0.15を受理する。0.15の現在の意味・既定値も維持対象とする。
-0.1/0.2の完全充足を移行するための正の下限について、baseの最小費用流に不足がある。
+0.1/0.2の完全充足を移行するための正の下限は、#108で既存の最小費用流へ対応させる。
 補完は #108、明示移行は #109/#110、最終旧版除去は #111 が担当する。
 
 ## 調査対象と基点
@@ -55,7 +55,7 @@
 | 0.9 費用・指定区間偏差 | `costs` と目的、`duty_balance` と `duty_id` の対。全従業員の明示整数単価、明示0と欠落を区別。上界・粒度・参照を検査 | W内勤務の費用、区間和集合と明示目標の分数偏差。`cost_summary/duty_balance_summary`、1分粒度。給与/為替へ拡大せず、CP-SAT | `roster_metrics.py/cp_sat.py/verify.py`、`test_roster_metrics.py` |
 | 0.10 履歴付き偏差 | duty_balance評価期間をC内へ拡張。未確認過去・C外/評価期間外を拒否 | actual/committed/selectedを原区間から一度ずつ数える。費用は引き続きW内。`duty_balance_summary`、CP-SAT | `roster_metrics.py/continuity.py`、`test_continuity_duty_balance.py` |
 | 0.11 日数・完全休日 | 期間別 `work_days_bounds/days_off_bounds`、省略側無制約、null/上下限逆転を拒否 | 開始日に帰属する勤務日、休憩込み原区間が触れる占有日、完全休日を別に数える。`day_count_summary`。日数編集allowed_changesは未対応のまま。CP-SAT | `day_counts.py/verify.py`、`test_day_counts.py` |
-| 0.12 必須最低人数 | `demand.minimum_people`、省略/0は下限なし、required_people以下の非負整数 | 元必要人数・上限と下限を保持。下限違反はINFEASIBLE/UNKNOWN、PARTIALでは通さない。不足行にminimum_people。正の下限は現状CP-SAT、#108で完全充足flowのみ補完 | `model.py/cp_sat.py/flow.py/verify.py/diagnosis.py`、`test_minimum_demand.py` |
+| 0.12 必須最低人数 | `demand.minimum_people`、省略/0は下限なし、required_people以下の非負整数 | 元必要人数・上限と下限を保持。下限違反はINFEASIBLE/UNKNOWN、PARTIALでは通さない。不足行にminimum_people。0.15の独立配置の全正需要が完全充足ならflow、中間下限・混在等はCP-SAT | `model.py/cp_sat.py/flow.py/verify.py/diagnosis.py`、`test_minimum_demand.py` |
 | 0.13 勤務分類・パターン | 明示 `shift_categories`、連続休日/勤務後休み/禁止並び/勤務した日群の4ルール。未入力未来や履歴要約だけで必要な余白を補わない | 原勤務を分類し開始日・占有日・完全休日を各ルールで使い分ける。余白不足はINCOMPLETE_HISTORY。allowed_changesに未対応の編集を追加しない。CP-SAT | `shift_patterns.py/continuity.py/verify.py`、`test_shift_patterns.py` |
 | 0.14 同時勤務 | `required_coworkers` は対象者と同僚の交差不可・正の人数、`incompatible_employees` は2人以上。省略なら追加ルールなし | 待機込み、休憩/分割間なしの勤務枠を使用。同僚は各枠で交代可、禁止集合は最大1人。W内の確定勤務も適用。allowed_changes編集は未対応。CP-SAT | `coworkers.py/verify.py`、`test_coworkers.py` |
 | 0.15 勤務回数 | `shift_count_balance` と `balance_id` 目的が対。対象/分類/期間を明示、評価期間はローカル00:00、目標は非負整数、未知/重複/nullを拒否 | 原勤務の最初の開始日時で1件、分割も1件、分類任意、明示0と対象外を区別。`shift_count_balance_summary`。省略は追加評価なし、空配列の形も保持。CP-SAT | `shift_counts.py/shift_patterns.py/verify.py`、`test_shift_counts.py/test_added_conditions.py` |

@@ -11,13 +11,22 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator
 
-from shift_schedula import InvalidInput, cp_sat, get_schema, make_baseline, solve, validate, verify
+from shift_schedula import (
+    InvalidInput,
+    cp_sat,
+    flow,
+    get_schema,
+    make_baseline,
+    solve,
+    validate,
+    verify,
+)
 from shift_schedula.contract import SCHEMA_VERSIONS, schema_errors
 from shift_schedula.engine import validate_response
 from shift_schedula.model import normalize
 from shift_schedula.verify import verify_plan
 from tests.roster_support import demand, request
-from tests.support import assert_response
+from tests.support import assert_response, require_complete_demand
 from tests.test_cp_sat import small_request
 from tests.test_day_counts import bounds, continuity, example
 from tests.test_demand_priority import assignment, total_first
@@ -122,6 +131,147 @@ def test_zero_target_equal_minimum_and_qualification_competition(assignment_requ
     data["skills"] = [{"id": "license", "label": "担当資格"}]
     data["roles"][0]["required_skills"] = [{"skill_id": "license", "min_level": 1}]
     assert_response(solve(data), "INFEASIBLE")
+
+
+@pytest.mark.parametrize("backend", ["auto", "min_cost_flow"])
+@pytest.mark.parametrize(
+    "case",
+    [
+        "complete",
+        "qualification",
+        "competition",
+        "zero",
+        "zero_with_complete",
+        "empty",
+        "no_objectives",
+    ],
+)
+def test_015_complete_flow_without_cp_sat(assignment_request, monkeypatch, backend, case):
+    data = require_complete_demand(assignment_request | {"schema_version": "0.15"})
+    data["solver"]["backend"] = backend
+    if case == "qualification":
+        data["employees"][0]["skills"] = []
+    elif case == "competition":
+        data["employees"][0]["skills"].append({"skill_id": "service", "level": 1})
+        data["employees"][1]["skills"] = []
+    elif case == "zero":
+        for d in data["demand"]:
+            d.update(required_people=0, minimum_people=0)
+    elif case == "zero_with_complete":
+        data["demand"][-1].update(required_people=0, minimum_people=0)
+    elif case == "empty":
+        data["demand"] = []
+        data["objectives"] = data["preferences"] = []
+    elif case == "no_objectives":
+        data["objectives"] = data["preferences"] = []
+    saved = copy.deepcopy(data)
+    monkeypatch.setattr(cp_sat, "load_backend", lambda: pytest.fail("flowがCP-SATを読み込みました"))
+    assert validate(data)["status"] == "VALID"
+    result = solve(data)
+    infeasible = case in {"qualification", "competition"}
+    assert_response(result, "INFEASIBLE" if infeasible else "OPTIMAL")
+    assert result["solver"]["backend"] == "min_cost_flow"
+    if infeasible:
+        assert result["diagnostics"][0]["code"] == (
+            "INSUFFICIENT_QUALIFIED_EMPLOYEES"
+            if case == "qualification"
+            else "COMPETING_ROLE_DEMAND"
+        )
+        assert result["shortage_summary"] is None
+    else:
+        assert result["shortage_summary"]["total_person_minutes"] == 0
+        assert result["shortage_summary"]["proven_minimal"]
+        checked = verify(data, result["solution"])
+        assert checked["status"] == "VALID"
+        assert not checked["shortage_summary"]["proven_minimal"]
+        assert not any(o["proven_optimal"] for o in checked["objectives"])
+        damaged = copy.deepcopy(result["solution"])
+        if case == "complete":
+            damaged["assignments"] = []
+        else:
+            damaged["assignments"] = [
+                {
+                    "employee_id": "alice",
+                    "role_id": "kitchen",
+                    "interval": {k: data["planning_window"][k] for k in ("start", "end")},
+                }
+            ]
+        assert verify(data, damaged)["status"] == "INVALID_PLAN"
+    assert data == saved
+
+
+@pytest.mark.parametrize("backend", ["auto", "min_cost_flow"])
+@pytest.mark.parametrize("completed_slots", [0, 1])
+def test_015_complete_flow_timeout_discards_prefix(
+    assignment_request, monkeypatch, backend, completed_slots
+):
+    data = require_complete_demand(assignment_request | {"schema_version": "0.15"})
+    data["solver"]["backend"] = backend
+    augment = flow.augment
+    calls = []
+
+    def timed(graph, required, deadline):
+        calls.append(deadline)
+        if len(calls) <= completed_slots:
+            return augment(graph, required, deadline)
+        _, cost = augment(graph, 1, deadline)
+        return "UNKNOWN", cost
+
+    monkeypatch.setattr(flow, "augment", timed)
+    result = solve(data)
+    assert_response(result, "UNKNOWN")
+    assert len(calls) == completed_slots + 1
+    assert result["diagnostics"][0]["code"] == "TIME_LIMIT"
+    assert result["shortage_summary"] is None
+
+
+@pytest.mark.parametrize("minimums", [(0, 0), (0, 1), (1, 1), (1, 2), (2, 2)])
+def test_015_flow_minimum_boundary(assignment_request, monkeypatch, minimums):
+    data = small_request(assignment_request, ["kitchen", "hall"], 3)
+    data["schema_version"] = "0.15"
+    for d, minimum in zip(data["demand"], minimums, strict=True):
+        d.update(required_people=2, minimum_people=minimum)
+    result = solve(data)
+    assert_response(result, "OPTIMAL")
+    supported = minimums in {(0, 0), (2, 2)}
+    assert result["solver"]["backend"] == ("min_cost_flow" if supported else "cp_sat")
+    data["solver"]["backend"] = "min_cost_flow"
+    monkeypatch.setattr(cp_sat, "load_backend", lambda: pytest.fail("不正入力がCP-SATを呼びました"))
+    result = solve(data)
+    assert_response(result, "OPTIMAL" if supported else "INVALID_INPUT")
+    if not supported:
+        assert result["diagnostics"][0]["code"] == "UNSUPPORTED_BACKEND"
+
+
+@pytest.mark.parametrize("case", ["constraint", "switches", "priority", "diagnosis", "roster"])
+def test_015_complete_demand_keeps_cp_sat_conditions(assignment_request, case):
+    data = small_request(assignment_request, ["kitchen"])
+    data["schema_version"] = "0.15"
+    if case == "constraint":
+        data["constraints"] = [
+            {
+                "id": "cap",
+                "type": "max_assigned_minutes",
+                "employee_ids": ["alice"],
+                "limit_minutes": 30,
+            }
+        ]
+    elif case == "switches":
+        data["objectives"] = [{"id": "switches", "metric": "role_switches"}]
+    elif case == "priority":
+        data["demand"][0]["priority"] = 1
+    elif case == "diagnosis":
+        data["diagnosis"] = diagnosis_options() | {"allowed_changes": []}
+    else:
+        data = roster() | {"schema_version": "0.15"}
+        data["demand"][0]["required_people"] = 2
+    require_complete_demand(data)
+    result = solve(data)
+    assert_response(result, "OPTIMAL")
+    assert result["solver"]["backend"] == "cp_sat"
+    assert result["solver"]["selection_reason"] == "MANDATORY_DEMAND"
+    data["solver"]["backend"] = "min_cost_flow"
+    assert solve(data)["diagnostics"][0]["code"] == "UNSUPPORTED_BACKEND"
 
 
 def test_mandatory_short_shift_overrides_total_shortage_and_fixed_baseline():

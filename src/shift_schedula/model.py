@@ -153,6 +153,13 @@ def priority_levels(request):
     return tuple(sorted({d.get("priority", 0) for d in request["demand"]}, reverse=True))
 
 
+def flow_requires_complete_demand(request):
+    return request["schema_version"] in {"0.1", "0.2"} or (
+        request["schema_version"] == "0.15"
+        and all(d.get("minimum_people", 0) == d["required_people"] for d in request["demand"])
+    )
+
+
 def unique(items, field, path):
     seen = set()
     for index, item in enumerate(items):
@@ -258,12 +265,15 @@ def normalize(request):
         or "role_switches" in metrics
         or request.get("diagnosis")
         or any(d.get("priority", 0) for d in request["demand"])
-        or any(d.get("minimum_people", 0) for d in request["demand"])
+        or (
+            any(d.get("minimum_people", 0) for d in request["demand"])
+            and not flow_requires_complete_demand(request)
+        )
     ):
         reject(
             "UNSUPPORTED_BACKEND",
             "min_cost_flow は roster・明示制約・role_switches 目的・"
-            "非既定priority・必須最低人数を扱えません。",
+            "診断・非既定priority・0.15の完全充足以外の正の最低人数を扱えません。",
             "/solver/backend",
         )
 

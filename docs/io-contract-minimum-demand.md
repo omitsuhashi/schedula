@@ -31,11 +31,19 @@
 必須充足の代用にはならない。最低人数のために不足総量が増える場合もある。
 勤務可能時間・技能・固定・確定勤務・日数上下限を自動解除しない。
 
-`minimum_people > 0` があれば `auto` はCP-SATを選び、
+契約0.12〜0.14で `minimum_people > 0` があれば `auto` はCP-SATを選び、
 `solver.selection_reason: MANDATORY_DEMAND` を返す。`min_cost_flow` の明示は
 `INVALID_INPUT` と診断 `UNSUPPORTED_BACKEND`。すべて0または省略なら、従来の
 最小費用流の適用範囲を維持する。CP-SATが未導入なら `BACKEND_UNAVAILABLE`。
 新しいソルバーは追加しない。
+
+契約0.15では、独立したassignmentの全正需要が `minimum_people = required_people` の場合も
+`auto` / 明示 `min_cost_flow` で完全充足を求められる。0需要の下限は0であり、空需要も受理する。
+明示制約・担当切替目的・非既定priority・診断を含む場合は従来どおりCP-SATとする。
+中間下限や、完全充足と不足許容を混在させた需要もCP-SATであり、明示flowは拒否する。
+完全充足flowは有資格者不足・役割間競合をINFEASIBLEとし、探索予算切れの途中配置を返さずUNKNOWNとする。
+全下限0のflowは従来どおり検証済みPARTIALを返せる。返却解は既存の独立検証を必ず通す。
+完全充足flowの自動選択理由は `INDEPENDENT_ADDITIVE_ASSIGNMENTS`、明示時は `EXPLICIT_BACKEND`。
 
 ## 状態と検証
 

@@ -528,6 +528,33 @@ request = json.loads((root / 'examples/assignment.json').read_text(encoding='utf
 result = shift_schedula.solve(request)
 assert result['status'] == 'OPTIMAL' and result['verification']['valid'] is True
 assert result['solver']['backend'] == 'min_cost_flow' and not schema_errors('response', result)
+complete = json.loads((root / 'tests/fixtures/contract-migration/assignment.015.json').read_text())
+for backend in ('auto', 'min_cost_flow'):
+    complete['solver']['backend'] = backend
+    assert validate(complete)['status'] == 'VALID'
+    result = shift_schedula.solve(complete)
+    assert result['status'] == 'OPTIMAL' and result['solver']['backend'] == 'min_cost_flow'
+    assert not schema_errors('response', result)
+    assert result['shortage_summary']['total_person_minutes'] == 0
+    assert verify(complete, result['solution'])['status'] == 'VALID'
+    assert verify(complete, {'assignments': [], 'shifts': []})['status'] == 'INVALID_PLAN'
+    for competition in (False, True):
+        damaged = json.loads(json.dumps(complete))
+        if competition:
+            damaged['employees'][0]['skills'].append({'skill_id': 'service', 'level': 1})
+            damaged['employees'][1]['skills'] = []
+        else:
+            damaged['employees'][0]['skills'] = []
+        result = shift_schedula.solve(damaged)
+        assert result['status'] == 'INFEASIBLE' and result['solution'] is None
+        assert not schema_errors('response', result)
+    optional = json.loads(json.dumps(complete))
+    for d in optional['demand']:
+        d['minimum_people'] = 0
+    optional['employees'][0]['availability'] = []
+    result = shift_schedula.solve(optional)
+    assert result['status'] == 'PARTIAL' and result['verification']['valid']
+    assert result['solver']['backend'] == 'min_cost_flow' and not schema_errors('response', result)
 partial = json.loads((root / 'examples/partial_assignment.json').read_text(encoding='utf-8'))
 result = shift_schedula.solve(partial)
 assert result['status'] == 'PARTIAL' and result['verification']['valid']
