@@ -1,0 +1,2145 @@
+{
+  "checked_on": "2026-10-09",
+  "engine_commit": "bbb7a93b757cc3272943bbc09f9f2dcb359bd457",
+  "app_commit": "ccd32402119762cca4c2981b705730b1e7dc3230",
+  "owner": "omitsuhashi",
+  "consumer_scope": [
+    "omitsuhashi/schedula",
+    "omitsuhashi/schedula-app"
+  ],
+  "consumer_scope_basis": "2026-10-09の利用者回答により、上記以外での利用なし。保存済み実データの有無は別確認。",
+  "production_data": "unconfirmed",
+  "files": [
+    {
+      "repository": "schedula",
+      "path": "examples/adapter/assignment.draft.json",
+      "sha256": "e5c957e4b19d596c30031dd8717e824962459b2d39ec4e76c4f5c87499447a9d",
+      "bytes": 5546,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.1"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/adapter/assignment.manifest.json",
+      "sha256": "4dc3ee6012948af4cc4391639d68f684c3b65a69468d521c8dd60b1996c8a088",
+      "bytes": 315,
+      "schema_versions": [
+        {
+          "pointer": "/draft/schema_version",
+          "value": "0.1"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/adapter/basic.json",
+      "sha256": "61eea5c7fd90097cbd05fa5579436157d8ce5c991dfe8d09a22fad70f5204d1c",
+      "bytes": 1432,
+      "schema_versions": [],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/adapter/common.json",
+      "sha256": "71f64ee78265a281faa854bfd7a149be45384dd9d76ea9d103b55bf7b25bb5fb",
+      "bytes": 304,
+      "schema_versions": [],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/adapter/continuity_week.draft.json",
+      "sha256": "5f5c90a0b25237fcbcbce3dae541c7162efda2fa05a084d2e81e7e79935b2977",
+      "bytes": 8034,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.6"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/adapter/execution.json",
+      "sha256": "5412adff4a0218c5dde4a5e8842bdd0d5a7f4058a7b003063c6227fa8f2094f5",
+      "bytes": 493,
+      "schema_versions": [],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/adapter/partial_replan_preserve_assigned.draft.json",
+      "sha256": "ebb8b3adfcbe44d05a12f96669649342f99e45021f71512ee29eb6b7f1cc856b",
+      "bytes": 10581,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/sources/4/data/baseline/source_request/schema_version",
+          "value": "0.4"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/adapter/partial_roster.draft.json",
+      "sha256": "4184743853452a2a1d0986cd1a3cacfff060f48cf24c6ef6fa806f6b804719e1",
+      "bytes": 5014,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.3"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/adapter/period.json",
+      "sha256": "52dd1e7745ae8b788126c45f82e725cd88965a9a84e8e2ff6d8869f9ac6525c4",
+      "bytes": 2272,
+      "schema_versions": [],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/adapter/roster.draft.json",
+      "sha256": "67d130c9b6ce2a36745ee80929f4bf053afe786cabc91f8b1b9439a4b29f0e5a",
+      "bytes": 10860,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.1"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/adapter/unconfirmed.draft.json",
+      "sha256": "f2fca8850834efc9e7e3f433c1f20eeed754b5a23da7f918ac2b5ec5065b8e4b",
+      "bytes": 5582,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.1"
+        }
+      ],
+      "action": "preserve_expected_rejection"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/adapter/week-next-stale.draft.json",
+      "sha256": "a70ffe8e157f88adc6227cf3e78e804fbf7c27ebe981dd666dd98fb32dc54503",
+      "bytes": 10860,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.1"
+        }
+      ],
+      "action": "preserve_expected_rejection"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/adapter/week-next.draft.json",
+      "sha256": "788563fd69d5ab3245703568be822dab7e0367be169a4e77c74fac481ea01987",
+      "bytes": 10860,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.1"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/adapter/week-next.request.json",
+      "sha256": "fe454f3584b176cea6c34dcded4539ea3f8f56ad22abbc221e8508a207a86bd6",
+      "bytes": 6323,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.1"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/assignment.json",
+      "sha256": "2f206f44dea80e5af2eb41ff638e684c3892787b01fc277e3bdcbddcbbbd2f8d",
+      "bytes": 2047,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.1"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/combined_conditions.json",
+      "sha256": "8436c18fea4cca68f0f702ea028bedd787ccb64e3bb6d34025a87ed37a6dd763",
+      "bytes": 6092,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.15"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/combined_month.json",
+      "sha256": "c45e2a729b519da494cac5aede0d397962aff1b3be7936d39df0ce3ece735bb0",
+      "bytes": 5189,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.15"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/conflict_refinement.json",
+      "sha256": "2af3293996fa4152adea89a1aba3d31d9d318969a0423c0f3b0220f92dc58349",
+      "bytes": 2449,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.8"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/continuity_duty_balance.json",
+      "sha256": "f99ae3a64cd2cdab2457fbdf48afe763240ab7d32ced9b8f63e73ae937e6538b",
+      "bytes": 4875,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.10"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/continuity_month.json",
+      "sha256": "779043eb2e3e7d8c3c8ffbda05b510dc6ee92af004894715a06234d6c3a733d7",
+      "bytes": 2887,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.6"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/continuity_replan.json",
+      "sha256": "628bbe0fdfbd9080c1a9ddba756bbb55d36fb60f15e21b57be0d7519b691c74a",
+      "bytes": 11866,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.7"
+        },
+        {
+          "pointer": "/baseline/source_request/schema_version",
+          "value": "0.6"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/continuity_week.json",
+      "sha256": "8d9bd7621a775a55026ed5c3e70366fb50f591ade751b1f46626bfedaad93d3f",
+      "bytes": 4528,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.6"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/coworkers.json",
+      "sha256": "15d7451db07177773c20a6ca4e2fd9c9218b66dc8dd6fd524dc5b3d40425b2e8",
+      "bytes": 3775,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.14"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/day_counts.json",
+      "sha256": "d45faa8ed14c48a26e3b06087b9ad887c6f4a3e07c3b5d2f32ce97b3847c274b",
+      "bytes": 4323,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.11"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/demand_priority.json",
+      "sha256": "1ad3d6c58de46e2c47d745b3256f30f8b9e39212a849544ecb16377998507eab",
+      "bytes": 1627,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.5"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/diagnosis.json",
+      "sha256": "3e0c5c4fc9733349b24de077ef66383cccecd104244252d5bae4ac8de12d679b",
+      "bytes": 2076,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.2"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/duty_balance.json",
+      "sha256": "b6a1ed556e1b7d338d42abc1de9b3aa99dd27daadd262ba596edca95f8dc3a18",
+      "bytes": 14953,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.9"
+        },
+        {
+          "pointer": "/baseline/source_request/schema_version",
+          "value": "0.9"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/fairness.json",
+      "sha256": "6d4f850b093cbf857ae5374cee2610babf9ab9502088d357038474b0e4009ea8",
+      "bytes": 3237,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.2"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/infeasible.json",
+      "sha256": "650e476cabfd9b315b0b49ba8d161b220d8e753213b757a241cde7c97f71ac76",
+      "bytes": 898,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.1"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/invalid-input.json",
+      "sha256": "bffc0c3f071099a7489d7369479064ba4fe1ed1d319c6c0c275ec503e42e84eb",
+      "bytes": 918,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.1"
+        }
+      ],
+      "action": "preserve_expected_rejection"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/linked_assignment.json",
+      "sha256": "87da0b0c00e5721e65b4b1586bb1927196c86e977c2a083d24a7306ed15b0311",
+      "bytes": 3204,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.1"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/minimum_assignment.json",
+      "sha256": "48ba77f7386f57c0f7773193bcb2c72d378cdc581d5d5a47b5de089d8f3d33ae",
+      "bytes": 1385,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.12"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/minimum_conflict.json",
+      "sha256": "0bf9f6f886215c0eac4647b63675216fca8f6aae0acf7217f44e642d8fe1a4e8",
+      "bytes": 2283,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.12"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/minimum_roster.json",
+      "sha256": "8896c4b139cd2ba4d305110888038e78212dbfd3f7acdc48ef6a3e5c461f4f96",
+      "bytes": 2296,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.12"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/overnight.json",
+      "sha256": "3a8b32d3df48daefad8dc411d585ba4b6ea214f4c0f43e30dacc66c5f12cb96c",
+      "bytes": 2258,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.2"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/partial_assignment.json",
+      "sha256": "4390fff83163adef85fe3f81b6b6b11e1ebe75713eb31e3847a28e611476b84e",
+      "bytes": 7148,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.3"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/partial_replan_preserve_assigned.json",
+      "sha256": "c307c2e4fc997479ab7dd1dd2db3e76e00fab26013d3065e26b9126fc225c5e9",
+      "bytes": 6068,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/baseline/source_request/schema_version",
+          "value": "0.4"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/partial_replan_rebuild.json",
+      "sha256": "87000b963af447c21c950ac49785542e39c7c71b5c52e39896803ab63dd9a6a2",
+      "bytes": 6048,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/baseline/source_request/schema_version",
+          "value": "0.4"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/partial_roster.json",
+      "sha256": "140203281e04594878b2a6f08ed3124d2060f9f810491f291886834f6550739b",
+      "bytes": 2079,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.3"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/playground/lunch.json",
+      "sha256": "0ae87792af6dc4d32c9c080e93894f20a64bd3aaff0496f189c35a99ee21b4fc",
+      "bytes": 7266,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.3"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/playground/roster-100-30.json",
+      "sha256": "356ec69ef487a1893f8e8915da793353ea9cfbd50bf3ab2b40529c0f13cf8eca",
+      "bytes": 98539,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.3"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/playground/scenarios.json",
+      "sha256": "a45789b4d52643a38ef8187a9a32b242f76fa07f63fdaac5cd0cdd4c94ea1177",
+      "bytes": 4002,
+      "schema_versions": [],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/replan.json",
+      "sha256": "e3afa224e45a43802948e7c776671e3d8b3c545085b1f90ed4d1eb166e528b97",
+      "bytes": 7337,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.2"
+        },
+        {
+          "pointer": "/baseline/source_request/schema_version",
+          "value": "0.2"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/roster.json",
+      "sha256": "bd9cc8b03fa4b012807fe22ff9937516423b0b5919ae811ce7355d06eec73121",
+      "bytes": 6323,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.1"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/roster_conditions.json",
+      "sha256": "1e212fc26dc594babea06440cb8a6c2c3d0be0932f97bf3f9517c816ad05d771",
+      "bytes": 4458,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.4"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/roster_conditions.solution.json",
+      "sha256": "32ada4d82abd581c41671429de4f686fc04e38cf6145c154fbf7417a5cb7c318",
+      "bytes": 1068,
+      "schema_versions": [],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/scheduled_cost.json",
+      "sha256": "4ed530d68b2c33a1e0114a3214d75e92f3f04e69e7add874982cd6b3bb042623",
+      "bytes": 2764,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.9"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/shift_count_balance.json",
+      "sha256": "5f0ff3f00734021494f3694984c463e8e2827ed7a546dc87b25390b65bbcd144",
+      "bytes": 5822,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.15"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/shift_patterns.json",
+      "sha256": "74805a82d72ca53b8ce88b0bda2b8d7c0af6766d81d4badae715404e91823bcb",
+      "bytes": 10321,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.13"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "examples/split_roster.json",
+      "sha256": "ff5172bfb71d8fa54a385c8fce5a9c1855393a2d7595988d28453b15ce05ecc9",
+      "bytes": 2415,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.2"
+        }
+      ],
+      "action": "migrate_current_examples"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/inputs/assignment-week.json",
+      "sha256": "57bb786b8f98b3d708105246d7058179f4a0945e1c08dc8f75144a7f58ecd854",
+      "bytes": 35660,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.1"
+        }
+      ],
+      "action": "migrate_reexecution_inputs"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/inputs/combined-100-30-conflict.json",
+      "sha256": "311158a92d0d9114f93e12f57bc0fc5be7b5e855aa1d8dd45b21e849556ed7fd",
+      "bytes": 126781,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.15"
+        }
+      ],
+      "action": "migrate_reexecution_inputs"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/inputs/combined-100-30-normal.json",
+      "sha256": "335b3dcadb731b729c2f46a527c4af596b64435d6ee1cc52d90be8c7a8b349e2",
+      "bytes": 126776,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.15"
+        }
+      ],
+      "action": "migrate_reexecution_inputs"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/inputs/combined-100-30-partial.json",
+      "sha256": "efda7259464464b21e4d4d289e4fa1f66c5d2480c60d1f3937179e87e2097b17",
+      "bytes": 126957,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.15"
+        }
+      ],
+      "action": "migrate_reexecution_inputs"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/inputs/combined-100-30-timeout.json",
+      "sha256": "7da9da0b62a2c3e3170ea44ad7594b6f7ebf79dd9eb0ee047035124c4a440764",
+      "bytes": 126780,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.15"
+        }
+      ],
+      "action": "migrate_reexecution_inputs"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/inputs/combined-legacy-010.json",
+      "sha256": "feb5ab26f23200561e37e7b19d064e534b09197daca138b8367c17c31543619f",
+      "bytes": 98532,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.10"
+        }
+      ],
+      "action": "migrate_reexecution_inputs"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/inputs/combined-overnight.json",
+      "sha256": "a8769f82901e379f698ae6426beda23d9d5cc6389a02f5a794165e595106525b",
+      "bytes": 8406,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/baseline/source_request/schema_version",
+          "value": "0.4"
+        }
+      ],
+      "action": "migrate_reexecution_inputs"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/inputs/combined-split_roster.json",
+      "sha256": "caa2d146ca3cc958e3a605d1e1750db4528b24eee3961ed777efa6631e9a911c",
+      "bytes": 8796,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/baseline/source_request/schema_version",
+          "value": "0.4"
+        }
+      ],
+      "action": "migrate_reexecution_inputs"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/inputs/continuity-duty-conflict.json",
+      "sha256": "db9c2c682a6542e780ecb586aaa14a4b5734650d6925a8c92cff9e9dc2ee5c93",
+      "bytes": 5245,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.10"
+        }
+      ],
+      "action": "migrate_reexecution_inputs"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/inputs/continuity-duty-invalid.json",
+      "sha256": "f85f6f1a614fd3077237e08fbdbbea30aeffefb4e55f41b8918ff6b1d38cc14b",
+      "bytes": 4876,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.10"
+        }
+      ],
+      "action": "preserve_expected_rejection"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/inputs/continuity-duty-partial.json",
+      "sha256": "6390f6fd9bd98a18285f4e5742f63f1809cb0361b28a581b6458c294e16450bc",
+      "bytes": 11696,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.10"
+        },
+        {
+          "pointer": "/baseline/source_request/schema_version",
+          "value": "0.10"
+        }
+      ],
+      "action": "migrate_reexecution_inputs"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/inputs/continuity-duty-timeout.json",
+      "sha256": "e218b8025a85f1cf8a1231f329fbf7596649f424ce8ac7172095e25d41266e67",
+      "bytes": 4878,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.10"
+        }
+      ],
+      "action": "migrate_reexecution_inputs"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/inputs/replan-equal-rebuild.json",
+      "sha256": "b7207614100962f4d5d453a9094e8016b0ff09eccdd2626bbaafb7719661c2b0",
+      "bytes": 5958,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/baseline/source_request/schema_version",
+          "value": "0.4"
+        }
+      ],
+      "action": "migrate_reexecution_inputs"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/inputs/replan-equal.json",
+      "sha256": "2460ddba36021d74c4ec58ea92e02aab44bf737bdad427f25cc5bbe5a3324358",
+      "bytes": 5960,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/baseline/source_request/schema_version",
+          "value": "0.4"
+        }
+      ],
+      "action": "migrate_reexecution_inputs"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/inputs/replan-fixed-impossible-rebuild.json",
+      "sha256": "3118bcc318f65b6c26e219792ffbdc2477887592ccbbf37edd10d60138683e3d",
+      "bytes": 5652,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/baseline/source_request/schema_version",
+          "value": "0.4"
+        }
+      ],
+      "action": "migrate_reexecution_inputs"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/inputs/replan-fixed-impossible.json",
+      "sha256": "b01139da19fd39da18aabad354087986521a55cf91ada116a0b910ef03c3a38d",
+      "bytes": 5654,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/baseline/source_request/schema_version",
+          "value": "0.4"
+        }
+      ],
+      "action": "migrate_reexecution_inputs"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/inputs/roster-conditions-12000.json",
+      "sha256": "ab795677ccf3d68e334555aa305a322b880dbf5e619872599fe578aeb443010c",
+      "bytes": 113110,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.4"
+        }
+      ],
+      "action": "migrate_reexecution_inputs"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/inputs/roster-conditions-3000.json",
+      "sha256": "4e30feb0504c4fc337780fb12eb4277eb9b796dd9b80e58d9a755502e607f0fc",
+      "bytes": 112549,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.4"
+        }
+      ],
+      "action": "migrate_reexecution_inputs"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/inputs/roster-conditions-6000.json",
+      "sha256": "0a81160efe7d8a301678733752698c26146bcf021027794e8858fa60fbad248d",
+      "bytes": 112583,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.4"
+        }
+      ],
+      "action": "migrate_reexecution_inputs"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/inputs/roster-extended.json",
+      "sha256": "a8d05d7f57b57a59c732f99782225af37d201f7ddb0e63bd985e1df89295a06f",
+      "bytes": 7632,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.2"
+        },
+        {
+          "pointer": "/baseline/source_request/schema_version",
+          "value": "0.2"
+        }
+      ],
+      "action": "migrate_reexecution_inputs"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/inputs/roster-fortnight-large.json",
+      "sha256": "ae4f89e8be42368213533ea8da508c514e33a49a034a74c301f921cd29b0fec1",
+      "bytes": 93612,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.1"
+        }
+      ],
+      "action": "migrate_reexecution_inputs"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/inputs/roster-input-limit.json",
+      "sha256": "57b477b0867067a06a7cd9c190163a1b71b6854b869593588a809b1b887c0e3f",
+      "bytes": 31549,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.1"
+        }
+      ],
+      "action": "preserve_expected_rejection"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/inputs/roster-week-15min.json",
+      "sha256": "68e1a1d94e0af9c4b4d2d14b2fe9adf6c6e8eb5df021807be6eafc6a9eb42f6e",
+      "bytes": 31548,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.1"
+        }
+      ],
+      "action": "migrate_reexecution_inputs"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/inputs/roster-week-infeasible.json",
+      "sha256": "e31ebe900d24cc5807c3feb5aa5c7ecada944e4633a433ea18959b2facd22bc1",
+      "bytes": 31554,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.1"
+        }
+      ],
+      "action": "migrate_reexecution_inputs"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/inputs/roster-week-timeout.json",
+      "sha256": "729cbc9307d8567b0cf9729563befa9f15df86afee0e3a797cb1a5121dbb771c",
+      "bytes": 31554,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.1"
+        }
+      ],
+      "action": "migrate_reexecution_inputs"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/inputs/roster-week.json",
+      "sha256": "b9c3f1f9713027b9534b304fd4f9e0366aecbb97d9d90a01aab105ac1ef9941c",
+      "bytes": 31542,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.1"
+        }
+      ],
+      "action": "migrate_reexecution_inputs"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-06-auto.json",
+      "sha256": "8db7f7000dc3981b48203fa1118a287dfa6248150cd6e2945be0f1701809d573",
+      "bytes": 11182,
+      "schema_versions": [],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-06-baseline-cold.json",
+      "sha256": "3b49b6b5d42e8021020850804df7726d88bdaef525ede41abc6bfed0ffb48718",
+      "bytes": 86692,
+      "schema_versions": [],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-06-baseline-parallel.json",
+      "sha256": "0a2b4f112b38528ff508b9398c6aadcf6186eb60b65a1412986db9b745accb68",
+      "bytes": 33173,
+      "schema_versions": [],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-06-baseline-warm.json",
+      "sha256": "cebfdf24a95c57102ea37ef9f0973d24c7bd9df56353aac7ab9124e607fcb2b5",
+      "bytes": 25994,
+      "schema_versions": [],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-06-before-large-30-cold.json",
+      "sha256": "9af6f0075b613e2575aa741c70448820b287f73d38e7ec87d5bfa9303158a9c0",
+      "bytes": 15005,
+      "schema_versions": [
+        {
+          "pointer": "/measurements/0/schema_version",
+          "value": "0.1"
+        },
+        {
+          "pointer": "/measurements/1/schema_version",
+          "value": "0.1"
+        },
+        {
+          "pointer": "/measurements/2/schema_version",
+          "value": "0.1"
+        }
+      ],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-06-budget-30-cold.json",
+      "sha256": "da09d2cdd9b6f3d6f5419b6dfc8a5496650bdf050b7e811b3dc1b6ae852fd353",
+      "bytes": 39593,
+      "schema_versions": [],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-06-cp-sat.json",
+      "sha256": "e6a9525c1f9e2422b7f5e908d7590f17c023ec188964ede9304191f5cc0f9970",
+      "bytes": 3179,
+      "schema_versions": [],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-06-final-cold-input-path-error.json",
+      "sha256": "b14a53fa4239af754a5488b0e7375ae94bf2d190fe59767671258dbfbbefd0e2",
+      "bytes": 1915,
+      "schema_versions": [],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-06-final-cold.json",
+      "sha256": "46b8fa3f5f1d380cd0f4501f2f1886901324a449404b29734e2069653e548425",
+      "bytes": 144920,
+      "schema_versions": [
+        {
+          "pointer": "/measurements/0/schema_version",
+          "value": "0.1"
+        },
+        {
+          "pointer": "/measurements/1/schema_version",
+          "value": "0.1"
+        },
+        {
+          "pointer": "/measurements/2/schema_version",
+          "value": "0.1"
+        },
+        {
+          "pointer": "/measurements/3/schema_version",
+          "value": "0.1"
+        },
+        {
+          "pointer": "/measurements/4/schema_version",
+          "value": "0.1"
+        },
+        {
+          "pointer": "/measurements/5/schema_version",
+          "value": "0.1"
+        },
+        {
+          "pointer": "/measurements/6/schema_version",
+          "value": "0.1"
+        },
+        {
+          "pointer": "/measurements/7/schema_version",
+          "value": "0.1"
+        },
+        {
+          "pointer": "/measurements/8/schema_version",
+          "value": "0.1"
+        },
+        {
+          "pointer": "/measurements/9/schema_version",
+          "value": "0.2"
+        },
+        {
+          "pointer": "/measurements/9/diagnosis_result/suggestions/0/modified_request/schema_version",
+          "value": "0.2"
+        },
+        {
+          "pointer": "/measurements/9/diagnosis_result/suggestions/0/modified_request/baseline/source_request/schema_version",
+          "value": "0.2"
+        },
+        {
+          "pointer": "/measurements/9/diagnosis_result/suggestions/0/response/schema_version",
+          "value": "0.2"
+        },
+        {
+          "pointer": "/measurements/10/schema_version",
+          "value": "0.2"
+        },
+        {
+          "pointer": "/measurements/10/diagnosis_result/suggestions/0/modified_request/schema_version",
+          "value": "0.2"
+        },
+        {
+          "pointer": "/measurements/10/diagnosis_result/suggestions/0/modified_request/baseline/source_request/schema_version",
+          "value": "0.2"
+        },
+        {
+          "pointer": "/measurements/10/diagnosis_result/suggestions/0/response/schema_version",
+          "value": "0.2"
+        },
+        {
+          "pointer": "/measurements/11/schema_version",
+          "value": "0.2"
+        },
+        {
+          "pointer": "/measurements/11/diagnosis_result/suggestions/0/modified_request/schema_version",
+          "value": "0.2"
+        },
+        {
+          "pointer": "/measurements/11/diagnosis_result/suggestions/0/modified_request/baseline/source_request/schema_version",
+          "value": "0.2"
+        },
+        {
+          "pointer": "/measurements/11/diagnosis_result/suggestions/0/response/schema_version",
+          "value": "0.2"
+        }
+      ],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-06-final-parallel.json",
+      "sha256": "8770cc2ac8972ed5b1bbb87e9703d42d14c9b80e9da95500f20a5ae98ce65d12",
+      "bytes": 29805,
+      "schema_versions": [
+        {
+          "pointer": "/measurements/0/schema_version",
+          "value": "0.1"
+        },
+        {
+          "pointer": "/measurements/1/schema_version",
+          "value": "0.1"
+        },
+        {
+          "pointer": "/measurements/2/schema_version",
+          "value": "0.1"
+        },
+        {
+          "pointer": "/measurements/3/schema_version",
+          "value": "0.1"
+        }
+      ],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-06-harness-failure.json",
+      "sha256": "e113bbf57adcc12e1d76655608bb199cbda8cdd7ccd9c57038f03c36e637fad2",
+      "bytes": 6828,
+      "schema_versions": [],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-06-harness-timeout.json",
+      "sha256": "d57359445b708038605865c297ac3d1f51ebd4328805d9b55149a2b5a7cf91a1",
+      "bytes": 4853,
+      "schema_versions": [],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-06-initial.json",
+      "sha256": "0d166e1fe72a5c77951e1dab494add02a2a7545dd2a94cd4a283cefbcac3b43c",
+      "bytes": 11175,
+      "schema_versions": [],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-06-playground-review-fixes.json",
+      "sha256": "2dc564ad0284f005576fca9741f09c7c53b35dcebaaf81a8de8e814a05164cba",
+      "bytes": 5143,
+      "schema_versions": [],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-06-playground-runtime.json",
+      "sha256": "4b4034dd44daea5a6c169a5fc1c25510c95c4a46e383155b091ebeb3bab793a5",
+      "bytes": 5352,
+      "schema_versions": [],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-06-playground.json",
+      "sha256": "3e21a8d187a0247a2a4179dcb648152a108d3aa14aced3fe5575cfe29b2ece7d",
+      "bytes": 8005,
+      "schema_versions": [],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-06-profile.json",
+      "sha256": "6c2692eef30e29deedc84eed44f4ee67ec74b9f61dfc12bf17a6783d9fe85fd5",
+      "bytes": 64171,
+      "schema_versions": [],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-06-screening-30.json",
+      "sha256": "68aa2e664d2049c15e982c4efa75f9775aac4b06ba5e1a8661b906da93cfc1d9",
+      "bytes": 23757,
+      "schema_versions": [],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-06-screening-60.json",
+      "sha256": "7f75b4da7960901bf11ec9d59e9f18c020df5ca55a0dab12de63913e36862c5f",
+      "bytes": 23723,
+      "schema_versions": [],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-06-screening-large-120.json",
+      "sha256": "e3eabe2f94d3c32705c0022e3b27e5f57ef50292761c77cc3dd2a36867c2b35e",
+      "bytes": 7457,
+      "schema_versions": [],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-06-screening-large-300.json",
+      "sha256": "9b79a39010f665c41551bbf86b7cb91efe08fcd001372b2350938c353f136183",
+      "bytes": 7445,
+      "schema_versions": [],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-06-workers-2-large-30.json",
+      "sha256": "094e12a6daa765bc21365a1b29439c5bce30188d999915261f8d01176cd7fe69",
+      "bytes": 10679,
+      "schema_versions": [],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-06-workers-2-normal-30.json",
+      "sha256": "02cc85debba46d839c9226f86b25230c57747f2311dc3de1b5d13c8160be2f5c",
+      "bytes": 18815,
+      "schema_versions": [],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-07-continuity.json",
+      "sha256": "ce78ac3e592fa12d51e08648d90296a7a7a457765030191f9065423df2674ba4",
+      "bytes": 30870,
+      "schema_versions": [
+        {
+          "pointer": "/measurements/0/schema_version",
+          "value": "0.6"
+        },
+        {
+          "pointer": "/measurements/1/schema_version",
+          "value": "0.6"
+        },
+        {
+          "pointer": "/measurements/2/schema_version",
+          "value": "0.6"
+        },
+        {
+          "pointer": "/measurements/3/schema_version",
+          "value": "0.6"
+        }
+      ],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-07-overlap-replanning.json",
+      "sha256": "4c697e38ff38ff558195c6dbdc1b733ab91c473c1a20bf45d1ed17508487cc94",
+      "bytes": 12592,
+      "schema_versions": [
+        {
+          "pointer": "/measurements/0/schema_version",
+          "value": "0.7"
+        }
+      ],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-07-partial-browser.json",
+      "sha256": "46f4e617203787a1661fc16817e59b85e85ee7758ef34aa6e85883dba03be734",
+      "bytes": 11874,
+      "schema_versions": [],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-07-partial-plans.json",
+      "sha256": "8c7b95e2a94d9d9291ba6df0b7a7c2278eb055c4e921a7c4c09681d810a2b97c",
+      "bytes": 41708,
+      "schema_versions": [
+        {
+          "pointer": "/measurements/0/schema_version",
+          "value": "0.1"
+        },
+        {
+          "pointer": "/measurements/1/schema_version",
+          "value": "0.1"
+        },
+        {
+          "pointer": "/measurements/2/schema_version",
+          "value": "0.3"
+        },
+        {
+          "pointer": "/measurements/3/schema_version",
+          "value": "0.3"
+        },
+        {
+          "pointer": "/measurements/4/schema_version",
+          "value": "0.3"
+        },
+        {
+          "pointer": "/measurements/5/schema_version",
+          "value": "0.3"
+        }
+      ],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-07-roster-conditions-combined.json",
+      "sha256": "c61b381d561ed921c7f69f98a1915cf1e8bbbe7280c578d3dc457657b292518b",
+      "bytes": 116003,
+      "schema_versions": [
+        {
+          "pointer": "/measurements/0/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/measurements/1/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/measurements/2/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/measurements/3/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/measurements/4/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/measurements/5/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/measurements/6/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/measurements/7/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/measurements/8/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/measurements/9/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/measurements/10/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/measurements/11/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/measurements/12/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/measurements/13/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/measurements/14/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/measurements/15/schema_version",
+          "value": "0.4"
+        }
+      ],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-07-roster-conditions-initial.json",
+      "sha256": "5ad0afd55dddf07f25e6bf676a7266d4ae12e63a0431245fac4b8b180c4d4761",
+      "bytes": 28932,
+      "schema_versions": [
+        {
+          "pointer": "/measurements/0/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/measurements/1/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/measurements/2/schema_version",
+          "value": "0.4"
+        }
+      ],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-07-roster-conditions-original.json",
+      "sha256": "c4785c138838ba3636a3d30272a02a96490f898de3555f07354506949e3683a8",
+      "bytes": 9805,
+      "schema_versions": [
+        {
+          "pointer": "/measurements/0/schema_version",
+          "value": "0.3"
+        }
+      ],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-07-roster-conditions-scale.json",
+      "sha256": "dd2709d86c9bf3634d84d544b89a15dd3d34acc4ad7d857d34fefd00a2e563aa",
+      "bytes": 48314,
+      "schema_versions": [
+        {
+          "pointer": "/measurements/0/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/measurements/1/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/measurements/2/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/measurements/3/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/measurements/4/schema_version",
+          "value": "0.4"
+        },
+        {
+          "pointer": "/measurements/5/schema_version",
+          "value": "0.4"
+        }
+      ],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-08-conflict-refinement.json",
+      "sha256": "d2cc2f55bec0c5c2ab8060dafb58f7eefa69bd76d68d604ca7f243e7a3090b9e",
+      "bytes": 26528,
+      "schema_versions": [
+        {
+          "pointer": "/measurements/0/schema_version",
+          "value": "0.8"
+        },
+        {
+          "pointer": "/measurements/0/diagnosis_result/suggestions/0/modified_request/schema_version",
+          "value": "0.8"
+        },
+        {
+          "pointer": "/measurements/0/diagnosis_result/suggestions/0/response/schema_version",
+          "value": "0.8"
+        }
+      ],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-08-continuity-duty-balance.json",
+      "sha256": "81f0284b12a660db33b341caee8ccf327fe0647e303126946d00e92f3a583781",
+      "bytes": 145410,
+      "schema_versions": [
+        {
+          "pointer": "/measurements/0/schema_version",
+          "value": "0.10"
+        },
+        {
+          "pointer": "/measurements/1/schema_version",
+          "value": "0.10"
+        },
+        {
+          "pointer": "/measurements/2/schema_version",
+          "value": "0.10"
+        },
+        {
+          "pointer": "/measurements/3/schema_version",
+          "value": "0.10"
+        },
+        {
+          "pointer": "/measurements/4/schema_version",
+          "value": "0.10"
+        },
+        {
+          "pointer": "/measurements/5/schema_version",
+          "value": "0.10"
+        },
+        {
+          "pointer": "/measurements/6/schema_version",
+          "value": "0.10"
+        },
+        {
+          "pointer": "/measurements/7/schema_version",
+          "value": "0.10"
+        },
+        {
+          "pointer": "/measurements/8/schema_version",
+          "value": "0.10"
+        },
+        {
+          "pointer": "/measurements/9/schema_version",
+          "value": "0.10"
+        },
+        {
+          "pointer": "/measurements/10/schema_version",
+          "value": "0.10"
+        },
+        {
+          "pointer": "/measurements/11/schema_version",
+          "value": "0.10"
+        },
+        {
+          "pointer": "/measurements/12/schema_version",
+          "value": "0.10"
+        },
+        {
+          "pointer": "/measurements/13/schema_version",
+          "value": "0.10"
+        },
+        {
+          "pointer": "/measurements/14/schema_version",
+          "value": "0.10"
+        }
+      ],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-08-minimum-demand.json",
+      "sha256": "1976761d2d49fe0f34db3916c72276800bf6b9c17919627a0fbd8ba4fefcd4a2",
+      "bytes": 120402,
+      "schema_versions": [
+        {
+          "pointer": "/measurements/0/schema_version",
+          "value": "0.12"
+        },
+        {
+          "pointer": "/measurements/1/schema_version",
+          "value": "0.12"
+        },
+        {
+          "pointer": "/measurements/2/schema_version",
+          "value": "0.12"
+        },
+        {
+          "pointer": "/measurements/3/schema_version",
+          "value": "0.12"
+        },
+        {
+          "pointer": "/measurements/4/schema_version",
+          "value": "0.12"
+        },
+        {
+          "pointer": "/measurements/5/schema_version",
+          "value": "0.12"
+        },
+        {
+          "pointer": "/measurements/6/schema_version",
+          "value": "0.12"
+        },
+        {
+          "pointer": "/measurements/6/diagnosis_result/suggestions/0/modified_request/schema_version",
+          "value": "0.12"
+        },
+        {
+          "pointer": "/measurements/6/diagnosis_result/suggestions/0/response/schema_version",
+          "value": "0.12"
+        },
+        {
+          "pointer": "/measurements/6/diagnosis_result/suggestions/1/modified_request/schema_version",
+          "value": "0.12"
+        },
+        {
+          "pointer": "/measurements/6/diagnosis_result/suggestions/1/response/schema_version",
+          "value": "0.12"
+        },
+        {
+          "pointer": "/measurements/7/schema_version",
+          "value": "0.12"
+        },
+        {
+          "pointer": "/measurements/7/diagnosis_result/suggestions/0/modified_request/schema_version",
+          "value": "0.12"
+        },
+        {
+          "pointer": "/measurements/7/diagnosis_result/suggestions/0/response/schema_version",
+          "value": "0.12"
+        },
+        {
+          "pointer": "/measurements/7/diagnosis_result/suggestions/1/modified_request/schema_version",
+          "value": "0.12"
+        },
+        {
+          "pointer": "/measurements/7/diagnosis_result/suggestions/1/response/schema_version",
+          "value": "0.12"
+        },
+        {
+          "pointer": "/measurements/8/schema_version",
+          "value": "0.12"
+        },
+        {
+          "pointer": "/measurements/8/diagnosis_result/suggestions/0/modified_request/schema_version",
+          "value": "0.12"
+        },
+        {
+          "pointer": "/measurements/8/diagnosis_result/suggestions/0/response/schema_version",
+          "value": "0.12"
+        },
+        {
+          "pointer": "/measurements/8/diagnosis_result/suggestions/1/modified_request/schema_version",
+          "value": "0.12"
+        },
+        {
+          "pointer": "/measurements/8/diagnosis_result/suggestions/1/response/schema_version",
+          "value": "0.12"
+        }
+      ],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/2026-10-08-roster-metrics.json",
+      "sha256": "81b689159c589239a8efc0d050225a3d1d46d88c1f3bed9434c3837624379dd8",
+      "bytes": 24244,
+      "schema_versions": [
+        {
+          "pointer": "/measurements/0/schema_version",
+          "value": "0.9"
+        },
+        {
+          "pointer": "/measurements/1/schema_version",
+          "value": "0.9"
+        }
+      ],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/added-conditions-20261008-fixed.json",
+      "sha256": "2e8230a883b11dd8d34a8c44fe2c96bd97033748be4bde970e15ceeaea6635ee",
+      "bytes": 656997,
+      "schema_versions": [
+        {
+          "pointer": "/measurements/0/schema_version",
+          "value": "0.15"
+        },
+        {
+          "pointer": "/measurements/1/schema_version",
+          "value": "0.15"
+        },
+        {
+          "pointer": "/measurements/2/schema_version",
+          "value": "0.15"
+        },
+        {
+          "pointer": "/measurements/3/schema_version",
+          "value": "0.15"
+        },
+        {
+          "pointer": "/measurements/4/schema_version",
+          "value": "0.15"
+        },
+        {
+          "pointer": "/measurements/5/schema_version",
+          "value": "0.15"
+        },
+        {
+          "pointer": "/measurements/6/schema_version",
+          "value": "0.15"
+        },
+        {
+          "pointer": "/measurements/7/schema_version",
+          "value": "0.15"
+        },
+        {
+          "pointer": "/measurements/8/schema_version",
+          "value": "0.15"
+        },
+        {
+          "pointer": "/measurements/9/schema_version",
+          "value": "0.15"
+        },
+        {
+          "pointer": "/measurements/10/schema_version",
+          "value": "0.15"
+        },
+        {
+          "pointer": "/measurements/11/schema_version",
+          "value": "0.15"
+        },
+        {
+          "pointer": "/measurements/12/schema_version",
+          "value": "0.10"
+        },
+        {
+          "pointer": "/measurements/13/schema_version",
+          "value": "0.10"
+        },
+        {
+          "pointer": "/measurements/14/schema_version",
+          "value": "0.10"
+        }
+      ],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/added-conditions-20261008-initial.json",
+      "sha256": "c1644581ce0c494a49552094f149fbc21e353215225691a80648d7de1a8b3f7a",
+      "bytes": 636190,
+      "schema_versions": [
+        {
+          "pointer": "/measurements/0/schema_version",
+          "value": "0.15"
+        },
+        {
+          "pointer": "/measurements/1/schema_version",
+          "value": "0.15"
+        },
+        {
+          "pointer": "/measurements/2/schema_version",
+          "value": "0.15"
+        },
+        {
+          "pointer": "/measurements/3/schema_version",
+          "value": "0.15"
+        },
+        {
+          "pointer": "/measurements/4/schema_version",
+          "value": "0.15"
+        },
+        {
+          "pointer": "/measurements/5/schema_version",
+          "value": "0.15"
+        },
+        {
+          "pointer": "/measurements/6/schema_version",
+          "value": "0.15"
+        },
+        {
+          "pointer": "/measurements/7/schema_version",
+          "value": "0.15"
+        },
+        {
+          "pointer": "/measurements/8/schema_version",
+          "value": "0.15"
+        },
+        {
+          "pointer": "/measurements/9/schema_version",
+          "value": "0.15"
+        },
+        {
+          "pointer": "/measurements/10/schema_version",
+          "value": "0.15"
+        },
+        {
+          "pointer": "/measurements/11/schema_version",
+          "value": "0.15"
+        }
+      ],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/added-conditions-20261008-legacy-after.json",
+      "sha256": "2454e28622f2d7e5a8efc9b0e3828aeb5b1a71751e19a615ab0e8ccfc47634e7",
+      "bytes": 22977,
+      "schema_versions": [
+        {
+          "pointer": "/measurements/0/schema_version",
+          "value": "0.10"
+        },
+        {
+          "pointer": "/measurements/1/schema_version",
+          "value": "0.10"
+        },
+        {
+          "pointer": "/measurements/2/schema_version",
+          "value": "0.10"
+        }
+      ],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/added-conditions-20261008-legacy-before.json",
+      "sha256": "43b39869891e11f810ec86a9470077b99c0a20a59fb377ed99d907e6708cdb57",
+      "bytes": 23011,
+      "schema_versions": [
+        {
+          "pointer": "/measurements/0/schema_version",
+          "value": "0.10"
+        },
+        {
+          "pointer": "/measurements/1/schema_version",
+          "value": "0.10"
+        },
+        {
+          "pointer": "/measurements/2/schema_version",
+          "value": "0.10"
+        }
+      ],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/coworkers-20261008-cold.json",
+      "sha256": "40d216be48f8595f472d86cd12b93371cfdfc6c516a4753651f2676c80e80f53",
+      "bytes": 21976,
+      "schema_versions": [
+        {
+          "pointer": "/measurements/0/schema_version",
+          "value": "0.14"
+        },
+        {
+          "pointer": "/measurements/1/schema_version",
+          "value": "0.14"
+        },
+        {
+          "pointer": "/measurements/2/schema_version",
+          "value": "0.14"
+        }
+      ],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/input-adapter-20261008.json",
+      "sha256": "7e681c385595f5ac4b0dcd24cc5c3280eba77715df70d6d74cdc328ea6e102db",
+      "bytes": 4879,
+      "schema_versions": [],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula",
+      "path": "docs/evaluations/results/shift-patterns-20261008-warm.json",
+      "sha256": "4334f3aa0c0a476585557a07f4a70eb1dfb56eecf61a19cdfc4531ba6c70ebcc",
+      "bytes": 23971,
+      "schema_versions": [
+        {
+          "pointer": "/measurements/0/schema_version",
+          "value": "0.13"
+        },
+        {
+          "pointer": "/measurements/1/schema_version",
+          "value": "0.13"
+        },
+        {
+          "pointer": "/measurements/2/schema_version",
+          "value": "0.13"
+        }
+      ],
+      "action": "preserve_historical_evidence"
+    },
+    {
+      "repository": "schedula-app",
+      "path": "backend/examples/complete.json",
+      "sha256": "de7c5bb59d7fffb47917421b8f2d97fd26918d872ccca63c7aaaa07f23c43d52",
+      "bytes": 4459,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.10"
+        }
+      ],
+      "action": "migrate_app_examples"
+    },
+    {
+      "repository": "schedula-app",
+      "path": "backend/examples/conflict_refinement.json",
+      "sha256": "d4c1c3b02cf7a9fd83f465519973540b18f1aa5b645a18754728d1062e767513",
+      "bytes": 2450,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.10"
+        }
+      ],
+      "action": "migrate_app_examples"
+    },
+    {
+      "repository": "schedula-app",
+      "path": "backend/examples/continuity_duty_balance.json",
+      "sha256": "f99ae3a64cd2cdab2457fbdf48afe763240ab7d32ced9b8f63e73ae937e6538b",
+      "bytes": 4875,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.10"
+        }
+      ],
+      "action": "migrate_app_examples"
+    },
+    {
+      "repository": "schedula-app",
+      "path": "backend/examples/continuity_month.json",
+      "sha256": "7813c2a56e23988ebfb9263355156cef9275f33d539307e762bff48b07071467",
+      "bytes": 2888,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.10"
+        }
+      ],
+      "action": "migrate_app_examples"
+    },
+    {
+      "repository": "schedula-app",
+      "path": "backend/examples/continuity_replan.json",
+      "sha256": "72d504a2a777e379bbf674f4cb2c22314c8d0c076bace80f4db6e020b167cba1",
+      "bytes": 11867,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.10"
+        },
+        {
+          "pointer": "/baseline/source_request/schema_version",
+          "value": "0.6"
+        }
+      ],
+      "action": "migrate_app_examples"
+    },
+    {
+      "repository": "schedula-app",
+      "path": "backend/examples/demand_priority.json",
+      "sha256": "fba85ef921c2cb7caeb3cecaf9810e0159a3c18943081b4841b1cd9d0c14af9a",
+      "bytes": 2044,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.10"
+        }
+      ],
+      "action": "migrate_app_examples"
+    },
+    {
+      "repository": "schedula-app",
+      "path": "backend/examples/duty_balance.json",
+      "sha256": "904b69805616d3e349667c5d8577035b6ce1b9333d294bda2bc480f335c61f32",
+      "bytes": 14954,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.10"
+        },
+        {
+          "pointer": "/baseline/source_request/schema_version",
+          "value": "0.9"
+        }
+      ],
+      "action": "migrate_app_examples"
+    },
+    {
+      "repository": "schedula-app",
+      "path": "backend/examples/large.json",
+      "sha256": "6643dada76beda4f49e789f46b8f2f951b7f0d55e33f3af2b12c778d9458fb1d",
+      "bytes": 112584,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.10"
+        }
+      ],
+      "action": "migrate_app_examples"
+    },
+    {
+      "repository": "schedula-app",
+      "path": "backend/examples/overnight.json",
+      "sha256": "e77b46868ddbe6532f24f1599a41baba761d7450af1f66c7772c1fc29161d41e",
+      "bytes": 2259,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.10"
+        }
+      ],
+      "action": "migrate_app_examples"
+    },
+    {
+      "repository": "schedula-app",
+      "path": "backend/examples/partial.json",
+      "sha256": "e010ecfc9709117d82f561b1e8040ee92ff0ac5fbacf9125e440229790eefb75",
+      "bytes": 1617,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.10"
+        }
+      ],
+      "action": "migrate_app_examples"
+    },
+    {
+      "repository": "schedula-app",
+      "path": "backend/examples/replan.json",
+      "sha256": "3730812fd69635a8d650312ff50bc3d1485b93368339ae87df14edbfd4a3858e",
+      "bytes": 6069,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.10"
+        },
+        {
+          "pointer": "/baseline/source_request/schema_version",
+          "value": "0.4"
+        }
+      ],
+      "action": "migrate_app_examples"
+    },
+    {
+      "repository": "schedula-app",
+      "path": "backend/examples/scheduled_cost.json",
+      "sha256": "7a4872edbdd0f31194f43d00322326d222d0956a7f5af338575842f5324e98c1",
+      "bytes": 2765,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.10"
+        }
+      ],
+      "action": "migrate_app_examples"
+    },
+    {
+      "repository": "schedula-app",
+      "path": "backend/examples/split.json",
+      "sha256": "2b9e132ade1ca7e9ef6b4e6471888250b94a137ffb94de9b29b73f4791f14f4e",
+      "bytes": 2416,
+      "schema_versions": [
+        {
+          "pointer": "/schema_version",
+          "value": "0.10"
+        }
+      ],
+      "action": "migrate_app_examples"
+    }
+  ]
+}
