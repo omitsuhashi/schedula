@@ -61,6 +61,10 @@ FILES = {
     ),
 }
 FILES["/adapter.js"] = (ROOT / "demo" / "adapter.js", "text/javascript; charset=utf-8")
+for name in ("feature-state", "features"):
+    FILES[f"/{name}.js"] = (ROOT / "demo" / f"{name}.js", "text/javascript; charset=utf-8")
+for name in ("catalog", "lessons", "demand-adjustment", "consecutive-days"):
+    FILES[f"/samples/{name}.json"] = (SAMPLES / f"{name}.json", "application/json; charset=utf-8")
 for name in ("assignment", "roster", "partial_roster", "continuity_week", "unconfirmed"):
     FILES[f"/samples/{name}.draft.json"] = (
         ROOT / "examples" / "adapter" / f"{name}.draft.json",

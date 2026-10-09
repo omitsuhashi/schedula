@@ -672,19 +672,20 @@ $("json-file").addEventListener("change", () => {
   $("json-file").value = "";
 });
 
-async function start() {
+async function start(stillActive = () => true) {
   try {
     [sample, scenarios] = await Promise.all(["lunch", "scenarios"].map(async name => {
       const response = await fetch(`/samples/${name}.json`);
       if (!response.ok) throw new Error("サンプルを読み込めませんでした。");
       return response.json();
     }));
+    if (!stillActive()) return;
     slots = sample.demand.filter(item => item.role_id === sample.roles[0].id).map(item => item.interval);
     boundaries = [slots[0].start, ...slots.map(slot => slot.end)];
-    $("scenario").append(...scenarios.map(item => node("option", item.label, {value: item.id})));
+    $("scenario").replaceChildren(...scenarios.map(item => node("option", item.label, {value: item.id})));
     await resetScenario(0);
   } catch (error) {
+    if (!stillActive()) return;
     $("status").textContent = `サンプルの取得に失敗しました。${error.message} ページを再読み込みしてください。`;
   }
 }
-start();

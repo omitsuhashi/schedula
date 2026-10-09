@@ -15,7 +15,7 @@
       "progress": {
         "detail": "confirmed",
         "measurement": "confirmed",
-        "screen": "pending",
+        "screen": "confirmed",
         "test": "confirmed"
       },
       "lesson_file": "examples/playground/lessons.json",
@@ -234,7 +234,7 @@
       "progress": {
         "detail": "confirmed",
         "measurement": "confirmed",
-        "screen": "pending",
+        "screen": "confirmed",
         "test": "confirmed"
       },
       "lesson_file": "examples/playground/lessons.json",

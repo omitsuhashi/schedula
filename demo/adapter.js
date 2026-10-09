@@ -1,7 +1,7 @@
 // 共通Adapterだけを呼ぶ最小入口。業務検証・集計はエンジンの結果を使う。
 let adapterRecord = null, adapterToken = 0, adapterController = null;
 const adapterStatus = text => { $("adapter-status").textContent = text; };
-const adapterButtons = ["adapter-confirm", "adapter-check", "adapter-run", "adapter-load", "adapter-import", "adapter-split", "adapter-file", "adapter-reverify"];
+const adapterButtons = ["adapter-confirm", "adapter-check", "adapter-run", "adapter-load", "adapter-import", "adapter-split", "adapter-file", "adapter-reverify", "adapter-request-input"];
 
 function adapterBusy(value) {
   adapterButtons.forEach(id => { $(id).disabled = value || (id === "adapter-reverify" && !adapterRecord); });
@@ -128,7 +128,12 @@ $("adapter-run").addEventListener("click", () => {
   $("adapter-output").replaceChildren();
   adapterOperation(controller => adapterPost("/adapter/run", $("adapter-input").value, controller));
 });
-for (const action of ["import", "split"]) $("adapter-" + action).addEventListener("click", () => adapterOperation(controller => adapterPost("/adapter/" + action, $("json-input").value, controller)));
+for (const action of ["import", "split"]) $("adapter-" + action).addEventListener("click", () => adapterOperation(controller => adapterPost("/adapter/" + action, $("adapter-request-input").value, controller)));
+$("adapter-request-input").addEventListener("input", () => {
+  $("adapter-input").value = "";
+  adapterEdited();
+  adapterStatus("取り込み元を変更しました。既存JSONの取り込みまたは区分分けを実行してください。");
+});
 $("adapter-file").addEventListener("change", () => {
   const file = $("adapter-file").files[0];
   if (file) adapterOperation(async controller => {
