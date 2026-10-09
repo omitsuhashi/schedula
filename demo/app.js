@@ -328,8 +328,14 @@ function acceptResponse(response, request, requestBoundaries = boundaries) {
   if (!response.diagnostics.every(item => item && typeof item.code === "string" && typeof item.message === "string") ||
       !response.objectives.every(item => item && typeof item.proven_optimal === "boolean" && Number.isFinite(item.value))) throw new Error("応答の診断または評価値が不正です。");
   if (!success) {
-    const failedVerification = response.status === "INTERNAL_ERROR" && response.verification.performed === true && response.verification.valid === false;
-    if (!failedVerification && (response.verification.performed !== false || response.verification.valid !== null)) throw new Error("解なし応答の検証状態が不正です。");
+    const notPerformed = response.verification.performed === false && response.verification.valid === null &&
+      Array.isArray(response.verification.violations) && response.verification.violations.length === 0;
+    const failedVerification = response.status === "INTERNAL_ERROR" && response.verification.performed === true && response.verification.valid === false &&
+      Array.isArray(response.verification.violations) && response.verification.violations.length > 0 &&
+      response.verification.violations.every(item => item && typeof item.code === "string" && typeof item.message === "string" &&
+        typeof item.json_pointer === "string" && Array.isArray(item.related_ids) && item.related_ids.every(id => typeof id === "string") &&
+        Array.isArray(item.facts) && item.facts.every(fact => fact && typeof fact.name === "string" && Object.hasOwn(fact, "value")));
+    if (!notPerformed && !failedVerification) throw new Error("解なし応答の検証状態が不正です。");
     if (response.cost_summary !== null || response.duty_balance_summary !== null) throw new Error("計画がない応答に費用・指定区間の集計があります。");
     if (response.priority_summary !== null) throw new Error("計画がない応答にpriority集計があります。");
     if (response.shortage_summary !== null) throw new Error("計画がない応答に不足集計があります。");

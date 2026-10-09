@@ -811,13 +811,22 @@ async function main() {
   for (const state of ["INTERNAL_ERROR", "UNKNOWN"]) {
     const message = await page.evaluate(state => {
       const response = structuredClone(current.response);
-      Object.assign(response, {status: state, solution: null, objectives: [], verification: {performed: true, valid: false, violations: [{code: "PLAN_INVALID", message: "原条件に違反", related_ids: [], facts: []}]}});
+      Object.assign(response, {status: state, solution: null, objectives: [], verification: {performed: true, valid: false, violations: [{code: "PLAN_INVALID", message: "原条件に違反", json_pointer: "/solution", related_ids: [], facts: []}]}});
       for (const key of Object.keys(response)) if (key.endsWith("_summary")) response[key] = null;
       try { acceptResponse(response, current.input); return ""; } catch (error) { return error.message; }
     }, state);
     if (state === "INTERNAL_ERROR") assert.equal(message, "");
     else assert.match(message, /検証状態が不正/);
   }
+
+  const badViolations = await page.evaluate(() => [undefined, null, {}, [], [{}], ["text"], [{code: "X", message: "x"}]].map(violations => {
+    const response = structuredClone(current.response);
+    Object.assign(response, {status: "INTERNAL_ERROR", solution: null, objectives: [], verification: {performed: true, valid: false}});
+    if (violations !== undefined) response.verification.violations = violations;
+    for (const key of Object.keys(response)) if (key.endsWith("_summary")) response[key] = null;
+    try { acceptResponse(response, current.input); return ""; } catch (error) { return error.message; }
+  }));
+  assert.ok(badViolations.every(message => /検証状態が不正/.test(message)));
 
   // 以下は実エンジンの実測ではなく、表示・応答失効を確認する応答サンプル。
   for (const [state, performed] of [["INFEASIBLE", false], ["UNKNOWN", false], ["INVALID_INPUT", false], ["BACKEND_UNAVAILABLE", false], ["INTERNAL_ERROR", false], ["INTERNAL_ERROR", true]]) {
@@ -826,7 +835,7 @@ async function main() {
       result.request_id = route.request().postDataJSON().request_id;
       result.status = state;
       if (state !== "FEASIBLE") { result.shortage_summary = null; result.priority_summary = null; result.solution = null; result.objectives = []; result.verification = {performed: false, valid: null, violations: []}; }
-      if (performed) result.verification = {performed: true, valid: false, violations: []};
+      if (performed) result.verification = {performed: true, valid: false, violations: [{code: "PLAN_INVALID", message: "原条件に違反", json_pointer: "/solution", related_ids: [], facts: []}]};
       result.diagnostics = [{code: "DISPLAY_SAMPLE", message: "表示確認用の応答サンプル", json_pointer: "/demand/0/required_people", related_ids: [], facts: []}];
       await route.fulfill({json: result});
     });

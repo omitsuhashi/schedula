@@ -200,13 +200,15 @@ UNKNOWNで条件を除去せず、background_only/checks/minimalityの証明範�
 
 元計画がOPTIMAL/FEASIBLE/PARTIAL/UNKNOWNならNOT_APPLICABLEで提案探索を行いません。
 診断結果はCOMPLETE/TIME_LIMIT/ERROR/UNSUPPORTED/NOT_APPLICABLEを区別します。
-提案は許可変更後の独立検証に成功した完全なOPTIMAL/FEASIBLEだけで、元条件の解と混ぜません。
+提案は許可変更後の独立検証に成功したOPTIMAL/FEASIBLE/PARTIALです。PARTIALは元需要の不足と許可後の下限を明示し、元条件の正式な解と混ぜません。
 診断予算は通常探索と別で、追加の検証・探索・縮小・変更後検証を含みます。
 
 ## 応答と独立検証の採用境界
 
 Responseはschema_version/request_id/status/solver/solution/objectives/diagnostics/verification/statsと全summary/diagnosis_resultを持ちます。
-有効なsolutionはassignments（employee_id/role_id/interval）とshifts（candidate_id/employee_id/work_day/segments）。
+有効なsolutionはassignments（employee_id/role_id/interval）とshiftsです。
+選択した有限候補はcandidate_id/employee_id/work_day/segments、continuityの確定勤務はcommitted_shift_id/employee_id/work_day/segmentsを持ちます。
+確定勤務にはcandidate_idを付けず、元committed_shift_idと原区間を保ちます。
 原勤務区間・休憩を保ち、同一担当の隣接枠は併合します。solver.backend/selection_reason/library_versionで実方式を追跡します。
 
 | status | 解と意味 | solveのCLI終了コード |
