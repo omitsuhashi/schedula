@@ -1,3 +1,5 @@
+"""勤務費用・指定区間の目標偏差を0.15で確認し、旧版境界を分ける。"""
+
 import copy
 import itertools
 import json
@@ -9,18 +11,15 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator
 
-from shift_schedula import InvalidInput, get_schema, make_baseline, solve, validate, verify
+from shift_schedula import InvalidInput, cp_sat, get_schema, make_baseline, solve, validate, verify
 from shift_schedula.contract import SCHEMA_VERSIONS, schema_errors
 from shift_schedula.engine import validate_response
 from shift_schedula.extensions import evaluate
 from shift_schedula.model import normalize
-from tests.roster_support import demand, interval, rule, stamp
-from tests.roster_support import legacy_candidate as candidate
-from tests.roster_support import legacy_request as request
+from tests.roster_support import candidate, demand, interval, request, rule, stamp
 from tests.support import assert_response
 from tests.test_continuity import example as continuity_example
 from tests.test_extensions import fairness, selected
-from tests.test_extensions import legacy_extended as extended
 from tests.test_objectives import control_search
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -30,8 +29,6 @@ def cost_request():
     data = request(employees=("alice", "bob"))
     data["shift_candidates"] = [candidate(e, end=660) for e in ("alice", "bob")]
     data["demand"] = [demand(end=660)]
-    data = extended(data)
-    data["schema_version"] = "0.9"
     data["costs"] = {
         "currency": "JPY",
         "units_per_currency": 60,
@@ -73,8 +70,6 @@ def night_request():
         employee["availability"] = [interval(d, 600, 1440) for d in range(2)]
     data["demand"] = [demand(d, a, b) for d in range(2) for a, b in ((600, 840), (1200, 1440))]
     data["constraints"] = [rule("min_rest_minutes", 600, ("alice", "bob"))]
-    data = extended(data)
-    data["schema_version"] = "0.9"
     data["objectives"] = []
     add_duty(data, {"alice": 240, "bob": 240}, [interval(d, 1200, 1440) for d in range(2)])
     return data
@@ -112,11 +107,7 @@ def test_cost_and_preferences_match_exhaustive_choices(reverse):
 def test_exact_minutes_without_rounding(minutes, rate, total):
     data = cost_request()
     data["planning_window"]["slot_minutes"] = 1
-    data["shift_candidates"] = [
-        extended({**request(), "shift_candidates": [candidate(end=600 + minutes)]})[
-            "shift_candidates"
-        ][0]
-    ]
+    data["shift_candidates"] = [candidate(end=600 + minutes)]
     data["demand"] = [demand(end=600 + minutes)]
     data["costs"]["employee_rates"][0]["units_per_minute"] = rate
     result = solve(data)
@@ -176,8 +167,7 @@ def test_multiplier_integers_are_strict(value):
 
 
 def test_conservative_cost_overflow_is_rejected_before_backend(monkeypatch):
-    data = extended(request(days=7))
-    data["schema_version"] = "0.9"
+    data = request(days=7)
     data["employees"][0]["availability"] = [{"start": stamp(), "end": stamp(7)}]
     data["shift_candidates"] = [
         {
@@ -463,7 +453,6 @@ def test_union_split_break_zero_and_unreachable_targets_are_independent():
 
 def test_continuity_costs_are_projected_and_duty_remains_in_planning_window():
     data = continuity_example()
-    data["schema_version"] = "0.9"
     data["costs"] = {
         "currency": "JPY",
         "units_per_currency": 60,
@@ -540,8 +529,10 @@ def test_old_versions_reject_new_fields_and_objectives(version):
     assert schema_errors("response", result, version)
 
 
-def test_schema_cli_success_verify_and_solution_read_error(tmp_path):
+@pytest.mark.parametrize("version", ["0.9", "0.15"])
+def test_schema_cli_success_verify_and_solution_read_error(tmp_path, version):
     data = cost_request()
+    data["schema_version"] = version
     add_duty(data, {"alice": 60})
     path = tmp_path / "request.json"
     path.write_text(json.dumps(data))
@@ -561,11 +552,11 @@ def test_schema_cli_success_verify_and_solution_read_error(tmp_path):
     assert json.loads(checked.stdout)["duty_balance_summary"] == result["duty_balance_summary"]
     broken = cli("verify", str(path), str(tmp_path / "missing.json"))
     assert broken.returncode == 2, broken.stderr
-    assert not schema_errors("verification", json.loads(broken.stdout), "0.9")
+    assert not schema_errors("verification", json.loads(broken.stdout), version)
     for kind in ("request", "response", "solution", "verification"):
-        schema = get_schema(kind, "0.9")
+        schema = get_schema(kind, version)
         Draft202012Validator.check_schema(schema)
-        fetched = cli("schema", kind, "--schema-version", "0.9")
+        fetched = cli("schema", kind, "--schema-version", version)
         assert fetched.returncode == 0
         assert json.loads(fetched.stdout) == schema
 
@@ -687,7 +678,6 @@ def test_interval_union_is_360_minutes_and_independent_of_input_order():
 
 def test_cost_partition_matches_original_night_and_verification_needs_no_backend(monkeypatch):
     data = continuity_example()
-    data["schema_version"] = "0.9"
     data["employees"][0]["availability"][0]["start"] = "2026-10-31T00:00:00+09:00"
     data["costs"] = {
         "currency": "JPY",
@@ -737,7 +727,6 @@ def test_new_request_rates_exclude_employees_only_in_old_baseline():
 
 def test_conflict_refinement_ignores_soft_cost_and_duty_objectives():
     data = json.loads((ROOT / "examples/conflict_refinement.json").read_text())
-    data["schema_version"] = "0.9"
     data["costs"] = {
         "currency": "JPY",
         "units_per_currency": 60,
@@ -755,3 +744,35 @@ def test_conflict_refinement_ignores_soft_cost_and_duty_objectives():
     assert all(
         c["json_pointer"].startswith("/constraints/") for c in detail["conflict"]["conditions"]
     )
+
+
+@pytest.mark.parametrize("minimum", [None, 0, 1, 2])
+def test_cost_and_duty_respect_mandatory_demand_and_independent_verification(minimum, monkeypatch):
+    data = cost_request()
+    data["shift_candidates"] = data["shift_candidates"][:1]
+    data["demand"][0]["required_people"] = 2
+    if minimum is not None:
+        data["demand"][0]["minimum_people"] = minimum
+    add_duty(data, {"alice": 60})
+    original = copy.deepcopy(data)
+    result = solve(data)
+    assert data == original
+    assert_response(result, "INFEASIBLE" if minimum == 2 else "PARTIAL")
+    monkeypatch.setattr(cp_sat, "load_backend", lambda: pytest.fail("独立検証は探索しない"))
+    empty = verify(data, {"assignments": [], "shifts": []})
+    if minimum in (None, 0):
+        assert empty["status"] == "PARTIAL"
+        assert empty["cost_summary"]["total_units"] == 0
+        assert empty["duty_balance_summary"][0]["total_deviation_minutes"] == 60
+    else:
+        assert empty["status"] == "INVALID_PLAN"
+        assert "MINIMUM_DEMAND_VIOLATION" in {
+            v["code"] for v in empty["verification"]["violations"]
+        }
+    if result["solution"] is not None:
+        checked = verify(data, result["solution"])
+        assert checked["status"] == "PARTIAL"
+        assert checked["cost_summary"] == result["cost_summary"]
+        assert checked["duty_balance_summary"] == result["duty_balance_summary"]
+        assert not checked["shortage_summary"]["proven_minimal"]
+        assert all(not o["proven_optimal"] for o in checked["objectives"])
