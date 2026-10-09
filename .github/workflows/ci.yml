@@ -29,7 +29,7 @@ jobs:
       - name: Validate timezone data, wheel dependencies and spawn control
         run: uv run --no-sync pytest -q -ra tests/test_timezone.py tests/test_input_contract.py tests/test_execution.py --junitxml=test-results/timezone.xml
       - name: Validate explicit migration CLI
-        run: uv run --no-sync pytest -q -ra tests/test_contract_migration.py -k "cli or fresh_process or current_015" --junitxml=test-results/migration.xml
+        run: uv run --no-sync pytest -q -ra tests/test_contract_migration.py tests/test_adapter_migration.py -k "cli or fresh_process or current_015" --junitxml=test-results/migration.xml
       - name: Reject skipped tests
         run: uv run --no-sync python -c "import xml.etree.ElementTree as ET; assert all(not ET.parse(p).findall('.//skipped') for p in ('test-results/timezone.xml', 'test-results/migration.xml'))"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

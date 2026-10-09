@@ -5,6 +5,8 @@
 配布版0.1.6を対象とします。Python 3.14.8、jsonschema 4.26.0、
 OR-Tools 9.15.6755、tzdata 2026.5は `uv.lock` の版です。
 外側の `adapter_version: "1.0"` は実行契約とは独立しています。
+旧Draft・manifest・実行記録を0.15へ移す操作は [Adapterの明示移行](migrations/contract-0.15-adapter.md)
+に記載します。通常入口は移行を代行せず、変更箇所の確認と元実行の証拠を保持します。
 
 ## 入力と所有元
 

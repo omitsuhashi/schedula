@@ -41,6 +41,8 @@ def test_sdist_builds_and_runs_without_original_checkout(tmp_path):
             "docs/distribution.md",
             "GLOSSARY.md",
             "MANIFEST.in",
+            "scripts/migrate_adapter.py",
+            "tests/test_adapter_migration.py",
             "src/shift_schedula/py.typed",
             "src/shift_schedula/__init__.pyi",
         } <= names

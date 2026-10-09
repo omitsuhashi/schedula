@@ -1,6 +1,6 @@
 // 実ブラウザーと実エンジンの結合確認。再現しにくい状態だけ応答サンプルを使う。
 const assert = require("node:assert/strict");
-const {spawn} = require("node:child_process");
+const {spawn, spawnSync} = require("node:child_process");
 const {readFileSync, mkdirSync, writeFileSync} = require("node:fs");
 const {chromium} = require(process.env.PLAYWRIGHT_MODULE_PATH || "playwright");
 const scenarios = JSON.parse(readFileSync("examples/playground/scenarios.json", "utf8"));
@@ -603,6 +603,35 @@ async function adapterChecks(page) {
   await page.screenshot({path:"test-results/adapter-mobile.png",fullPage:true});
   await page.setViewportSize({width:1440,height:1000});
   report.interactions.push("分割入力の未確認修正・個別確認・実計算・記録ダウンロード/再読み込み・失敗時の入力保持・再検証・PARTIALと過去の証明・古い応答の排除・キーボード/狭い画面");
+  const migration = spawnSync(process.env.PYTHON || ".venv/bin/python", ["-c",
+    "import json; from scripts.migrate_adapter import migrate_draft; from shift_schedula import read_draft; print(json.dumps(migrate_draft(read_draft('examples/adapter/assignment.manifest.json'))['draft']))"
+  ], {encoding:"utf8"});
+  assert.equal(migration.status, 0, migration.stderr + migration.stdout);
+  await page.locator("#adapter-input").fill(migration.stdout);
+  await page.locator("#adapter-check").click();
+  await wait("INVALID_INPUT");
+  const migratedStates = await page.evaluate(() => JSON.parse(document.querySelector("#adapter-output details pre").textContent));
+  assert.equal(migratedStates.find(s => s.source_id === "period").state, "stale");
+  for (const id of ["basic", "common", "execution"]) assert.equal(migratedStates.find(s => s.source_id === id).state, "confirmed");
+  await page.locator("#adapter-source").selectOption("period");
+  await page.locator("#adapter-confirm").focus();
+  await page.keyboard.press("Enter");
+  await wait("入力候補");
+  await page.locator("#adapter-run").click();
+  await wait("現在の検証 VALID");
+  const migratedRecord = await page.evaluate(() => structuredClone(adapterRecord));
+  assert.equal(migratedRecord.request.schema_version, "0.15");
+  assert.ok(migratedRecord.request.demand.every(d => d.minimum_people === d.required_people));
+  const migratedDownload = page.waitForEvent("download");
+  await page.locator("#adapter-save-record").click();
+  await page.locator("#adapter-file").setInputFiles(await (await migratedDownload).path());
+  await wait("現在の検証 VALID");
+  assert.deepEqual(await page.evaluate(() => adapterRecord), migratedRecord);
+  await page.locator("#adapter-reverify").click();
+  await wait("現在の検証 VALID");
+  const migratedView = JSON.parse(await page.locator("#adapter-output details").first().locator("pre").textContent());
+  assert.equal(migratedView.metrics.shortage_summary.proven_minimal, false);
+  report.interactions.push("旧manifestを0.15へ明示移行→無変更の確認保持・期間確認の失効→キーボードで再確認→実計算→記録保存/再読込/再検証、現在検証へ証明を転記しない");
 }
 
 async function main() {
