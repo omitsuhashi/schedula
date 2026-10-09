@@ -201,9 +201,9 @@ def main(argv=None):
     parser.add_argument("--output", required=True)
     args = parser.parse_args(argv)
     paths = [args.request_file, args.solution, args.response, args.history_confirmations]
-    if paths.count("-") > 1:
-        parser.error("標準入力は一つの入力だけに指定します。")
     try:
+        if paths.count("-") > 1:
+            reject("INVALID_MIGRATION_INPUT", "標準入力は一つの入力だけに指定します。")
         inputs = {}
         values = []
         for name, path in zip(

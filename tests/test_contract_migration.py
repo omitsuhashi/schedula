@@ -302,6 +302,31 @@ def test_cli_strict_json_failure_leaves_no_output(tmp_path, raw, capsys):
 
 
 @pytest.mark.parametrize("option", ["--solution", "--response", "--history-confirmations"])
+def test_cli_multiple_stdin_inputs_return_json_without_creating_output(tmp_path, option):
+    target = tmp_path / "output.json"
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts/migrate_contract.py"),
+            "-",
+            option,
+            "-",
+            "--output",
+            str(target),
+        ],
+        input="not JSON",
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 2
+    assert result.stderr == ""
+    status = json.loads(result.stdout)
+    assert status["status"] == "INVALID_INPUT"
+    assert status["diagnostics"][0]["code"] == "INVALID_MIGRATION_INPUT"
+    assert not target.exists()
+
+
+@pytest.mark.parametrize("option", ["--solution", "--response", "--history-confirmations"])
 @pytest.mark.parametrize("value", [None, [], False])
 def test_cli_explicit_invalid_optional_input_is_not_treated_as_absent(tmp_path, option, value):
     source, optional, target = (
