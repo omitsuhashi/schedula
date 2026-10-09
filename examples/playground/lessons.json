@@ -226,5 +226,273 @@
         }
       }
     ]
+  },
+  {
+    "id": "shift_count_balance",
+    "label": "夜勤などの勤務回数を調整する",
+    "request_file": "night-count.json",
+    "operation": "solve",
+    "intro": "Aliceの10月5日の確認済み夜勤1件と、6日に選ぶ夜勤1件を評価します。目標は近づけたい回数であり、必須条件ではありません。未指定者は対象外、明示0は0回の目標です。",
+    "editable_fields": [
+      {
+        "collection": "shift_count_balance",
+        "ids": [
+          "night_count"
+        ],
+        "field": "employee_targets",
+        "label": "個人別の目標勤務回数",
+        "unit": "回"
+      },
+      {
+        "collection": "shift_categories",
+        "ids": [
+          "night"
+        ],
+        "field": "intervals",
+        "label": "夜勤の分類区間",
+        "unit": "日付・時刻・Asia/Tokyo"
+      },
+      {
+        "collection": "shift_categories",
+        "ids": [
+          "night"
+        ],
+        "field": "min_overlap_minutes",
+        "label": "分類に必要な重なり",
+        "unit": "分",
+        "min": 1,
+        "max": 480
+      }
+    ],
+    "indicators": [
+      "個人別の目標勤務回数",
+      "実績・選択勤務を含む勤務回数",
+      "絶対偏差",
+      "勤務分類の明示区間と閾値",
+      "shortage_summary.total_person_minutes"
+    ],
+    "steps": [
+      {
+        "id": "initial",
+        "instruction": "両者の目標1回で、Aliceの実績とBobの選択勤務を含む実回数・偏差を見る。",
+        "restore": false,
+        "changes": {},
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "total_deviation_count": 0,
+          "actual_counts": {
+            "alice": 1,
+            "bob": 1
+          }
+        }
+      },
+      {
+        "id": "goals",
+        "instruction": "目標だけAliceを2回、Bobを0回へ変え、実回数の交代を見る。",
+        "restore": false,
+        "changes": {
+          "shift_count_balance": {
+            "night_count": {
+              "employee_targets": [
+                {
+                  "employee_id": "alice",
+                  "target_count": 2
+                },
+                {
+                  "employee_id": "bob",
+                  "target_count": 0
+                }
+              ]
+            }
+          }
+        },
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "total_deviation_count": 0,
+          "actual_counts": {
+            "alice": 2,
+            "bob": 0
+          }
+        }
+      },
+      {
+        "id": "zero",
+        "instruction": "初期条件へ戻して両者を明示0回にする。偏差2回でも必須条件と需要は満たす。",
+        "restore": true,
+        "changes": {
+          "shift_count_balance": {
+            "night_count": {
+              "employee_targets": [
+                {
+                  "employee_id": "alice",
+                  "target_count": 0
+                },
+                {
+                  "employee_id": "bob",
+                  "target_count": 0
+                }
+              ]
+            }
+          }
+        },
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "total_deviation_count": 2
+        }
+      },
+      {
+        "id": "unspecified",
+        "instruction": "初期条件へ戻してAliceの目標を未指定にする。Bobだけが偏差の対象になる。",
+        "restore": true,
+        "changes": {
+          "shift_count_balance": {
+            "night_count": {
+              "employee_targets": [
+                {
+                  "employee_id": "bob",
+                  "target_count": 1
+                }
+              ]
+            }
+          }
+        },
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "total_deviation_count": 0,
+          "actual_counts": {
+            "bob": 1
+          }
+        }
+      },
+      {
+        "id": "classification",
+        "instruction": "初期条件へ戻して分類区間の開始を22時、重なりの閾値を300分にする。勤務は残るが夜勤回数は0になる。",
+        "restore": true,
+        "changes": {
+          "shift_categories": {
+            "night": {
+              "intervals": [
+                {
+                  "start": "2026-10-05T22:00:00+09:00",
+                  "end": "2026-10-06T00:00:00+09:00"
+                },
+                {
+                  "start": "2026-10-06T22:00:00+09:00",
+                  "end": "2026-10-07T00:00:00+09:00"
+                }
+              ],
+              "min_overlap_minutes": 300
+            }
+          }
+        },
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "total_deviation_count": 2,
+          "actual_counts": {
+            "alice": 0,
+            "bob": 0
+          }
+        }
+      },
+      {
+        "id": "restored",
+        "instruction": "初期条件と目標1回・分類区間20時開始・閾値60分へ復元する。",
+        "restore": true,
+        "changes": {},
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "total_deviation_count": 0,
+          "actual_counts": {
+            "alice": 1,
+            "bob": 1
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "verify",
+    "label": "手で直した計画を検証する",
+    "request_file": "manual-verify.json",
+    "solution_file": "manual-verify.solution.json",
+    "operation": "verify",
+    "intro": "10月5日10:00〜11:00のキッチン担当一枠だけを編集します。ホールはBob、選択勤務2件は固定です。公開verifyは探索せず、最適性・不足最小性を認定しません。",
+    "editable_fields": [
+      {
+        "collection": "solution",
+        "field": "assignments",
+        "label": "10月5日10:00〜11:00のキッチン担当",
+        "unit": "従業員"
+      }
+    ],
+    "indicators": [
+      "公開verifyの状態",
+      "verification.violations の位置",
+      "shortage_summary.total_person_minutes"
+    ],
+    "steps": [
+      {
+        "id": "initial",
+        "instruction": "Aliceのキッチン、Bobのホールを公開verifyで検証する。",
+        "restore": false,
+        "changes": {},
+        "expected": {
+          "status": "VALID",
+          "total_person_minutes": 0
+        }
+      },
+      {
+        "id": "invalid",
+        "instruction": "キッチンをBobへ変更する。二重配置の無効案を違反位置付きで確認する。",
+        "restore": false,
+        "changes": {
+          "kitchen_employee": "bob"
+        },
+        "expected": {
+          "status": "INVALID_PLAN",
+          "total_person_minutes": null
+        }
+      },
+      {
+        "id": "partial",
+        "instruction": "キッチンを担当なしへ変更する。必須条件は満たすが不足60人分が残る。",
+        "restore": false,
+        "changes": {
+          "kitchen_employee": ""
+        },
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 60
+        }
+      },
+      {
+        "id": "valid",
+        "instruction": "キッチンをAliceへ直して再検証する。",
+        "restore": false,
+        "changes": {
+          "kitchen_employee": "alice"
+        },
+        "expected": {
+          "status": "VALID",
+          "total_person_minutes": 0
+        }
+      },
+      {
+        "id": "restored",
+        "instruction": "初期の編集案と公開検証結果へ復元する。",
+        "restore": true,
+        "changes": {},
+        "expected": {
+          "status": "VALID",
+          "total_person_minutes": 0
+        }
+      }
+    ]
   }
 ]

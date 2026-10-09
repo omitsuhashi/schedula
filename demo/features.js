@@ -8,6 +8,8 @@ const featureMeasurements = [];
 function dated(value) { return `${value.slice(0, 10)} ${value.slice(11, 16)} Asia/Tokyo`; }
 function datedRange(interval) { return `${dated(interval.start)}〜${dated(interval.end)}`; }
 function displayField(field, value) {
+  if (field === "employee_targets") return ["alice", "bob"].map(id => { const target = value.find(item => item.employee_id === id); return `${id} ${target ? `${target.target_count}回` : "未指定（対象外）"}`; }).join(" / ");
+  if (field === "intervals") return value.map(datedRange).join(" / ");
   if (field === "availability") return value.map(datedRange).join(" / ") || "勤務不可";
   if (field === "history") return `${value.last_shift_end ? dated(value.last_shift_end) : "最終勤務なし"}・開始日${value.last_work_day || "なし"}・直前${value.consecutive_work_days_before_window}日`;
   if (field === "skills") return value.map(item => `${item.skill_id} レベル${item.level}`).join(" / ") || "なし";
@@ -42,6 +44,7 @@ function consecutiveRuns(pair) {
 function featureIndicators(pair) {
   const values = [`不足合計 ${pair.response.shortage_summary.total_person_minutes}人分`];
   if (lesson.id === "consecutive_days") values.push(`最大連勤（履歴込み） ${Math.max(...consecutiveRuns(pair).map(item => item.maximum))}日`);
+  if (lesson.id === "shift_count_balance") values.push(...countIndicators(pair));
   return values;
 }
 
@@ -76,11 +79,13 @@ function featurePlanChanges(before, after) {
 }
 
 function renderFeature(message) {
+  if (lesson.operation === "verify") return renderVerify(message);
   const area = $("feature-output"), pair = feature.current, base = feature.baseline;
   $("feature-status").textContent = message || (pair ? `${pair.response.status} · ${pair.response.status === "PARTIAL" ? "必要人数に不足のある計画です。" : pair.response.status === "OPTIMAL" ? "必須条件と需要を満たす計画です。" : stateText[pair.response.status]}` : "未計算：編集した条件で再計算してください。");
   area.replaceChildren(node("h3", "入力差分"));
   const changes = featureChanges(lesson.editable_fields, feature.initial, feature.input);
   area.append(node("ul", "", {}, (changes.length ? changes : ["初期条件からの変更なし"]).map(text => node("li", text))));
+  if (lesson.id === "shift_count_balance") area.append(countPremises(feature.input));
   if (base) area.append(node("p", `初期比較元：${base.response.status} / 現在：${pair?.response.status || "未計算"}`));
   if (pair) {
     if (operationView(lesson.operation, pair.response).validPlan) {
@@ -116,6 +121,8 @@ function featureEdited(input) {
 function renderFeatureFields() {
   const area = $("feature-fields");
   area.replaceChildren();
+  if (lesson.id === "shift_count_balance") return renderCountFields();
+  if (lesson.operation === "verify") return renderVerifyFields();
   const definition = lesson.editable_fields[0];
   const number = node("input", "", {id: "feature-number", type: "number", required: "", min: definition.min, max: definition.max, step: "1"});
   number.value = feature.input[definition.collection].find(item => item.id === definition.ids[0])[definition.field];
@@ -147,11 +154,14 @@ function renderFeatureFields() {
 }
 
 function renderFeatureGuide() {
-  $("feature-guide").replaceChildren(node("strong", "試す変更（入力後に再計算してください）"));
+  $("feature-guide").replaceChildren(node("strong", "試す変更（入力後に実行してください）"));
   for (const step of lesson.steps.slice(1).filter(step => !step.restore || Object.keys(step.changes).length)) {
     const button = node("button", step.instruction, {type: "button", "data-step": step.id});
     button.addEventListener("click", () => {
       const request = clone(step.restore ? feature.initial : feature.input);
+      if (lesson.operation === "verify") {
+        featureEdited(editKitchen(request, step.changes.kitchen_employee)); renderFeatureFields(); $("feature-run").focus(); return;
+      }
       for (const [collection, changes] of Object.entries(step.changes))
         for (const [id, values] of Object.entries(changes)) Object.assign(request[collection].find(item => item.id === id), clone(values));
       featureEdited(request);
@@ -170,20 +180,23 @@ async function runFeature() {
   featureController = controller;
   $("feature-controls").disabled = true;
   $("feature-result").setAttribute("aria-busy", "true");
-  renderFeature("計算中です。入力時の条件で計算しています。");
+  renderFeature(lesson.operation === "verify" ? "検証中です。入力時の編集案を公開verifyで検査しています。" : "計算中です。入力時の条件で計算しています。");
   const started = performance.now();
   const timer = setTimeout(() => controller.abort(), 660000);
   try {
-    const response = await fetch("/solve-json", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(input), signal: controller.signal});
+    const response = await fetch(lesson.operation === "verify" ? "/verify-json" : "/solve-json", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(input), signal: controller.signal});
     const result = await response.json();
     if (feature !== state || revision !== state.revision) return;
     if (!response.ok) throw new Error(`${result.error?.code || "HTTP_ERROR"}：${result.error?.message || "結果を取得できません。"}`);
-    const grid = jsonSlots(input);
-    acceptResponse(result, input, [input.planning_window.start, ...grid.map(slot => new Date(slot.end).toISOString())]);
+    if (lesson.operation === "verify") acceptVerification(result, input);
+    else {
+      const grid = jsonSlots(input);
+      acceptResponse(result, input, [input.planning_window.start, ...grid.map(slot => new Date(slot.end).toISOString())]);
+    }
     state.receive(result, revision);
     renderFeature();
     await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    if (feature === state && revision === state.revision) featureMeasurements.push({id: lesson.id, initial: !featureChanges(lesson.editable_fields, state.initial, input).length,
+    if (feature === state && revision === state.revision) featureMeasurements.push({id: lesson.id, initial: !(lesson.operation === "verify" ? verifyChanges(state.initial, input) : featureChanges(lesson.editable_fields, state.initial, input)).length,
       elapsed_ms: performance.now() - started, status: result.status, solver: result.solver, stats: result.stats});
   } catch (error) {
     if (feature !== state || revision !== state.revision) return;
@@ -239,13 +252,21 @@ async function routeFeature() {
   try {
     const response = await fetch(`/samples/${lesson.request_file}`);
     if (!response.ok) throw new Error("教材を取得できません。");
-    const input = await response.json();
+    const request = await response.json();
+    if (revision !== routeRevision) return;
+    let input = request;
+    if (lesson.operation === "verify") {
+      const solution = await fetch(`/samples/${lesson.solution_file}`);
+      if (!solution.ok) throw new Error("初期の編集案を取得できません。");
+      input = {request, solution: await solution.json()};
+    }
     if (revision !== routeRevision) return;
     feature = featureState(input, lesson.operation);
-    $("feature-intro").textContent = lesson.id === "demand" ? "12:00〜13:00のホール人数だけを編集します。必須の最低人数は0人で、必要人数を残した不足を表示します。" :
-      "連勤上限だけを5日から3日へ変えます。Aの希望を優先する選好、B・Cの交代要員、各日09:00〜10:00の需要1人が前提です。";
-    $("feature-premises").replaceChildren(node("p", `${input.employees.length}人 / ${datedRange(input.planning_window)} / ${input.planning_window.slot_minutes}分刻み / 探索予算${input.solver.time_limit_seconds}秒（総応答時間とは別）`),
-      node("p", `目的順序：${input.objectives.map(item => item.metric).join(" → ") || "なし"}`),
+    $("feature-run").textContent = lesson.operation === "verify" ? "再検証" : "再計算";
+    $("feature-intro").textContent = lesson.intro || (lesson.id === "demand" ? "12:00〜13:00のホール人数だけを編集します。必須の最低人数は0人で、必要人数を残した不足を表示します。" :
+      "連勤上限だけを5日から3日へ変えます。Aの希望を優先する選好、B・Cの交代要員、各日09:00〜10:00の需要1人が前提です。");
+    $("feature-premises").replaceChildren(node("p", `${request.employees.length}人 / ${datedRange(request.planning_window)} / ${request.planning_window.slot_minutes}分刻み / ${lesson.operation === "verify" ? "公開verify：探索なし" : `探索予算${request.solver.time_limit_seconds}秒（総応答時間とは別）`}`),
+      node("p", `目的順序：${request.objectives.map(item => item.metric).join(" → ") || "なし"}`),
       details("技能・需要・候補・希望・必須条件を含む全入力", input));
     renderFeatureFields(); renderFeatureGuide();
     $("feature-controls").disabled = false;
@@ -270,7 +291,7 @@ async function startFeatures() {
       return response.json();
     }));
     const area = $("feature-list");
-    area.replaceChildren(node("h2", "できること"), node("p", "最初は必要人数・連続勤務日数から試せます。夜勤回数は準備中です。"), node("p", "", {role: "status", "aria-live": "polite"}));
+    area.replaceChildren(node("h2", "できること"), node("p", "必要人数・連続勤務日数・夜勤回数・手修正検証を試せます。"), node("p", "", {role: "status", "aria-live": "polite"}));
     for (const [group, title] of Object.entries(groups)) area.append(node("h3", title), node("ul", "", {class: "feature-cards"},
       catalog.topics.filter(item => item.group === group).map(item => {
         const ready = lessons.some(lesson => lesson.id === item.id);

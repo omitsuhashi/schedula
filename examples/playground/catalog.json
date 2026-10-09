@@ -569,11 +569,12 @@
       ],
       "issue": 133,
       "progress": {
-        "detail": "pending",
-        "measurement": "pending",
-        "screen": "pending",
-        "test": "pending"
-      }
+        "detail": "confirmed",
+        "measurement": "confirmed",
+        "screen": "confirmed",
+        "test": "confirmed"
+      },
+      "lesson_file": "examples/playground/lessons.json"
     },
     {
       "id": "objective_order",
@@ -807,11 +808,12 @@
       ],
       "issue": 137,
       "progress": {
-        "detail": "pending",
-        "measurement": "pending",
-        "screen": "pending",
-        "test": "pending"
-      }
+        "detail": "confirmed",
+        "measurement": "confirmed",
+        "screen": "confirmed",
+        "test": "confirmed"
+      },
+      "lesson_file": "examples/playground/lessons.json"
     },
     {
       "id": "reuse_inputs",
