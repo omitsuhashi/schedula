@@ -44,8 +44,8 @@ DB Schema 1/2の候補往復は[アプリ先行受け入れ](contract-0.15-app.m
 | 0.13 勤務分類・4種類のパターン | `test_shift_patterns`、`shift_patterns.json`。余白不足の拒否・原勤務分類を保持 |
 | 0.14 同時勤務 | `test_coworkers`、`coworkers.json`。待機込み・休憩/分割間なし・確定勤務を保持 |
 | 0.15 履歴付き勤務回数・全機能併用 | `test_shift_counts/test_added_conditions/test_contract_015_regression`、`shift_count_balance.json`、100人30日の固定4入力 |
-| 厳密JSON・型・API/CLI・失敗応答 | `test_input_contract/test_public_api/test_cli/test_response_initialization/test_single_contract/test_demo`。原入力非変更・全旧版/未知版/欠落拒否 |
-| 期限・取消・CPU・logging・並行実行 | `test_execution/test_timezone`。既存のspawn・tzdataとOS行列を維持 |
+| 厳密JSON・型・API/CLI・失敗応答 | `test_input_contract/test_public_api/test_cli/test_response_initialization/test_single_contract/test_demo_lessons`。原入力非変更・全旧版/未知版/欠落拒否 |
+| 期限・取消・CPU・logging・並行実行 | `test_execution/test_logging/test_timezone`。既存のspawn・tzdataとOS行列を維持 |
 | wheel/sdist・base/cp-sat | `test_cli/test_sdist/test_public_api`。5 Schema・py.typed・LICENSE/依存表示を保持 |
 | 分割入力・確認・記録・再検証・表示 | `test_adapter/test_execution`、実Chromium。日付自動移動なし、revision確認失効、run_idと現在verifyの分離 |
 
