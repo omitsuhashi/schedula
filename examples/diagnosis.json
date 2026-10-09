@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.2",
+  "schema_version": "0.15",
   "request_id": "roster_test",
   "problem_type": "roster",
   "planning_window": {
@@ -47,7 +47,8 @@
         "start": "2026-10-05T10:00:00+09:00",
         "end": "2026-10-05T10:30:00+09:00"
       },
-      "required_people": 2
+      "required_people": 2,
+      "minimum_people": 2
     }
   ],
   "shift_candidates": [
@@ -88,6 +89,10 @@
           {
             "json_pointer": "/demand/0/required_people",
             "value": 1
+          },
+          {
+            "json_pointer": "/demand/0/minimum_people",
+            "value": 1
           }
         ]
       },
@@ -96,6 +101,10 @@
         "edits": [
           {
             "json_pointer": "/demand/0/required_people",
+            "value": 2
+          },
+          {
+            "json_pointer": "/demand/0/minimum_people",
             "value": 2
           }
         ]

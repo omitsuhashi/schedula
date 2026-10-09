@@ -245,7 +245,7 @@ async function jsonInputChecks(page) {
         for (const retained of [null, "cost_summary", "duty_balance_summary"]) {
           const message = await page.evaluate(({status, retained}) => {
             const {input, response} = structuredClone(jsonPair);
-            Object.assign(response, {status, solution: null, objectives: [], fairness_summary: null, change_summary: null, continuity_summary: null, shortage_summary: null, priority_summary: null, cost_summary: null, duty_balance_summary: null, verification: {performed: false, valid: null, violations: []}});
+            Object.assign(response, {status, solution: null, objectives: [], fairness_summary: null, change_summary: null, continuity_summary: null, shortage_summary: null, priority_summary: null, cost_summary: null, duty_balance_summary: null, day_count_summary: null, shift_count_balance_summary: null, verification: {performed: false, valid: null, violations: []}});
             if (retained) response[retained] = jsonPair.response[retained];
             try { acceptResponse(response, input); return ""; } catch (error) { return error.message; }
           }, {status, retained});
@@ -311,7 +311,7 @@ async function jsonInputChecks(page) {
     assert.equal(await page.evaluate(() => jsonPair.response.status), "INFEASIBLE");
     assert.equal(await page.locator("#json-output table").count(), 0);
   }
-  report.interactions.push("契約0.12の担当配置・勤務計画で必須最低人数とPARTIALの不足を表示し、下限違反・集計改ざんを拒否");
+  report.interactions.push("契約0.15の担当配置・勤務計画で必須最低人数とPARTIALの不足を表示し、下限違反・集計改ざんを拒否");
   for (const backend of ["auto", "min_cost_flow"]) {
     const input = JSON.parse(readFileSync("tests/fixtures/contract-migration/assignment.015.json", "utf8"));
     input.solver.backend = backend;
@@ -343,7 +343,7 @@ async function jsonInputChecks(page) {
   await page.waitForFunction(() => !busy);
   const patternsPair = await page.evaluate(() => jsonPair);
   assert.ok(patternsPair, await page.locator("#json-status").innerText());
-  assert.equal(patternsPair.response.schema_version, "0.13");
+  assert.equal(patternsPair.response.schema_version, "0.15");
   assert.equal(patternsPair.response.status, "PARTIAL");
   assert.equal(patternsPair.response.shortage_summary.total_person_minutes, 30);
   assert.deepEqual(patternsPair.response.solution.shifts.map(s => s.candidate_id), ["night", "day4", "late", "weekend"]);
@@ -355,7 +355,7 @@ async function jsonInputChecks(page) {
   assert.equal(await page.evaluate(() => jsonPair.response.status), "INVALID_INPUT");
   assert.match(await page.locator("#json-output").innerText(), /INCOMPLETE_HISTORY/);
   assert.match(await page.locator("#json-output").innerText(), /判定に必要な期間：2026-10-03/);
-  report.interactions.push("契約0.13の4パターンをサンプルから実計算し、必須下限とPARTIALの不足・余白不足の必要区間を表示");
+  report.interactions.push("契約0.15の4パターンをサンプルから実計算し、必須下限とPARTIALの不足・余白不足の必要区間を表示");
   await page.locator("#json-sample").selectOption("coworkers");
   await page.locator("#json-load-sample").click();
   await page.waitForFunction(() => document.getElementById("json-input").value.includes("coworkers_example"));
@@ -363,7 +363,7 @@ async function jsonInputChecks(page) {
   await page.waitForFunction(() => !busy);
   const coworkersPair = await page.evaluate(() => jsonPair);
   assert.ok(coworkersPair, await page.locator("#json-status").innerText());
-  assert.equal(coworkersPair.response.schema_version, "0.14");
+  assert.equal(coworkersPair.response.schema_version, "0.15");
   assert.equal(coworkersPair.response.status, "PARTIAL");
   assert.equal(coworkersPair.response.shortage_summary.total_person_minutes, 120);
   assert.match(await page.locator("#json-output").innerText(), /待機/);
@@ -374,7 +374,7 @@ async function jsonInputChecks(page) {
   await page.waitForFunction(() => !busy);
   assert.equal(await page.evaluate(() => jsonPair.response.status), "INVALID_INPUT");
   assert.match(await page.locator("#json-output").innerText(), /OVERLAPPING_EMPLOYEE_SETS/);
-  report.interactions.push("契約0.14の交代指導者・同時勤務禁止を実計算し、待機勤務・最低人数・PARTIALを表示、集合交差の入力不備を表示");
+  report.interactions.push("契約0.15の交代指導者・同時勤務禁止を実計算し、待機勤務・最低人数・PARTIALを表示、集合交差の入力不備を表示");
   for (const name of ["shift_count_balance", "combined_conditions"]) {
     await page.locator("#json-sample").selectOption(name);
     await page.locator("#json-load-sample").click();
@@ -402,6 +402,7 @@ async function jsonInputChecks(page) {
     assert.equal(await page.locator("#json-output table").count(), 0);
   }
   report.interactions.push("契約0.15の履歴付き勤務回数・全5機能の休憩交代を実計算し、回数を表示、改ざん集計・bool目標を拒否");
+  // 旧版受理の意図的な回帰。#111の最終切替で旧版拒否へ置き換える。
   for (const schema_version of ["0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"]) {
     const input = {...JSON.parse(readFileSync("examples/partial_assignment.json", "utf8")), schema_version};
     await page.locator("#json-input").fill(JSON.stringify(input));
@@ -425,7 +426,7 @@ async function jsonInputChecks(page) {
       }, kind), /不足|priority/);
     }
   }
-  report.interactions.push("契約0.9・0.10の費用・夜勤評価をJSON貼り付けで実行、0.6〜0.10の不足・priority・証明・解なし応答を検証");
+  report.interactions.push("契約0.15の費用・夜勤評価をJSON貼り付けで実行、旧版0.6〜0.14と0.15の不足・priority・証明・解なし応答を検証");
   const request = JSON.parse(readFileSync('examples/assignment.json', 'utf8'));
   request.demand.forEach(demand => { demand.minimum_people = 0; });
   // 夏時間終了で同じ壁時計時刻が繰り返されても、実際の不足区間を区別する。

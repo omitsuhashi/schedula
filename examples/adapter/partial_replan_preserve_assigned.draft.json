@@ -1,6 +1,6 @@
 {
   "adapter_version": "1.0",
-  "schema_version": "0.4",
+  "schema_version": "0.15",
   "sources": [
     {
       "id": "basic",
@@ -52,7 +52,7 @@
       "references": [],
       "applies_to": null,
       "confirmation": {
-        "digest": "c83aeb0faba9749acdeb9e42200a9be1283d5240eb2b94fcbbbee2765b40c353",
+        "digest": "959edc91213f59dea7372ce81a74324a737dd0a1d62b69d9965e5b100e63a272",
         "provenance": "declared"
       }
     },
@@ -67,7 +67,7 @@
       "references": [],
       "applies_to": null,
       "confirmation": {
-        "digest": "e851c89449645689431571b932d8440bc13b620a89993f5399393c714010fc97",
+        "digest": "c9a3847d2aefbd126470ba8dbe9bcf37c656199262004d72f3e07f38575f09bb",
         "provenance": "declared"
       }
     },
@@ -163,7 +163,7 @@
         "slot_minutes": 30
       },
       "confirmation": {
-        "digest": "eb0aa8705199c3c20156e621f136f7d49e1d1a4226b20c923cf659d1d29c4562",
+        "digest": "1dc74c7fe3ed5f45d0e006838c618c38a3cabbdefeeaff6c0d31364dde3f3a3f",
         "provenance": "declared"
       }
     },
@@ -200,20 +200,20 @@
         "slot_minutes": 30
       },
       "confirmation": {
-        "digest": "32377d4fbc4d7482533370debdbf649bfe02df39eae3942b7764f3a8e0ac98bb",
+        "digest": "e99fc30d695e01236342e8b82f8bfd9cedd18de28c7e7a96097f997349399c77",
         "provenance": "declared"
       }
     },
     {
       "id": "replanning",
-      "revision": "1",
+      "revision": "cfbe5e7915bf6040e1b106d33a75b3cb4b39b563d4470516e4e5bfdc415df26e",
       "section": "replanning",
       "origin": "declared",
       "data": {
         "baseline": {
           "plan_id": "partial_plan",
           "source_request": {
-            "schema_version": "0.4",
+            "schema_version": "0.15",
             "request_id": "roster_test",
             "problem_type": "roster",
             "planning_window": {
@@ -353,7 +353,7 @@
         "slot_minutes": 30
       },
       "confirmation": {
-        "digest": "e6de1d9198e488f3a76b2032b094af7f502083727cbbcda0ed52e789176abcd0",
+        "digest": "f51da44384fa22029ea41412244641afeb2e62a1b5770918a7473a6807000f70",
         "provenance": "declared"
       }
     },
@@ -378,7 +378,7 @@
       "references": [],
       "applies_to": null,
       "confirmation": {
-        "digest": "186dacba3d49141dc2c02b1cc19082bf77d29137e7160018463066df599afe3b",
+        "digest": "7b8b401de711797e6248b1fb43598183af7754b8e00d1f73eeb12f8248f72f78",
         "provenance": "declared"
       }
     }

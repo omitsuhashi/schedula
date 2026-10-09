@@ -1,0 +1,88 @@
+# 利用入口を0.15へ移す準備の記録
+
+[Issue #124](https://github.com/omitsuhashi/schedula/issues/124) の勤務計画・Adapterの変更。
+基点は `0d17150b52567e4dff6850d38c7bd7dcd72d8f57`（PR #144）、配布版0.1.6、既存 `uv.lock`。
+旧版の通常受付・Schema・公開型・求解・独立検証は引き続き維持する。
+旧版除去は #124 の残りの準備と #125 の保存往復の受け入れ後に #111 で行う。
+
+## 変更する意味と維持する条件
+
+既存の `scripts/migrate_contract.py:migrate_request` と
+`scripts/migrate_adapter.py:migrate_draft` で明示変換し、利用例のJSONを更新した。
+0.1/0.2の完全充足には `minimum_people = required_people` を明示し、診断の人数編集には
+同じ下限編集を結び付けた。0.3以降の不足許容には新しい下限を追加していない。
+入れ子の `baseline.source_request` と元期間の解を一緒に移し、日付・原区間・休憩・固定・目的順を保つ。
+`roster_conditions.solution.json` は旧新の公開verifyでVALIDを確認し、内容を変更していない。
+不正入力例は0.15でも同じUNKNOWN_REFERENCEで拒否する。
+
+0.1の勤務テンプレートは32件の元ID付き明示候補へ展開した。
+翌週の正常例も、その週に明示した日付で32件へ展開する。古い週の例は古い区間を保持して
+STALE_APPLICABILITYで停止する。日付の自動移動は行わない。
+JSONの増分はこの候補列挙によるもので、汎用変換器や新しい生成機能は追加しない。
+
+Adapter例の確認は作成時に移行前後の条件を照合し、以前確認済みだった箇所だけを明示確認した。
+未確認例はbasicの未確認と未解決項目を保つ。翌週で失効するperiod/history、
+変更しないbasic/common/execution、元履歴保持を引き続き検証する。
+これは確認の自動引き継ぎを緩める変更ではない。一般の移行処理は変更せず、
+変更された入力元の確認失効を既存の移行試験で検証する。
+
+## 回帰の行先
+
+[回帰基準の機能対応表](contract-0.15-regression.md#共通fixtureと既存テストの行先)に従う。
+
+| 検証内容 | 今回の行先 |
+| --- | --- |
+| 全現行JSONと入れ子基準の0.15検証・不正例拒否 | `test_playground_scenarios.test_current_examples_use_015_including_baselines` |
+| 同時最適化・候補ID/休憩・夜勤・分割・履歴・公平性・変更最小化 | 既存 `test_roster` / `test_extended_roster` / `test_extensions` / `test_objectives` が更新例を実行 |
+| 不足・priority・必須最低人数・日数/休日・パターン・同僚・回数 | 既存の各業務テストが更新例を実行し、既存0.15試験も維持 |
+| 実績・確定勤務・移動期間の基準・費用と目標分数 | 既存 `test_continuity` / `test_overlap_replanning` / `test_continuity_duty_balance` / `test_roster_metrics` |
+| 未確認・翌週失効・確定Request一致・記録保存/現在verify・基準/再計画 | 既存 `test_adapter` と追加の全Draft例確認、実Chromium |
+| 明示移行と旧0.3の受理範囲 | `tests/fixtures/contract-migration/*.legacy.json` を明示参照。通常例へ旧版形状を戻さない |
+| HTTP/CLI・隔離wheel/sdist・公開型・失敗応答の表示 | 既存server/CLI/distribution試験と `playground-browser.cjs`。0.15の解なし応答は全追加summaryをnullにして元の失敗検証を維持 |
+
+旧0.3の受理範囲と完全充足の診断移行に必要なdiagnosis/fairness/split_rosterだけは、
+基点の原bytesを移行fixtureへ分離した。既存の旧版代表・原SHAと業務テストを削除していない。
+これらの移行専用fixture/試験は、#125の検証後に #111 の最終切替で撤去する。
+共通fixtureの全面移行、残る通常回帰の形状整理、評価再実行入力・設計例は #124 の後続変更で扱う。
+#112では旧版除去後の全入口・旧版拒否・全画面回帰を最終確認する。
+
+## 原bytesと更新後bytesのSHA-256
+
+原本は上記基点commitの各パスを参照する。JSONをcanonical化した内容ハッシュとは区別する。
+失効例は0.15の正常勤務計画から明示的に古い適用範囲・古い勤務候補を保持して再構成した。
+
+| パス | 原SHA-256 | 更新後SHA-256 |
+| --- | --- | --- |
+| `examples/conflict_refinement.json` | `2af3293996fa4152adea89a1aba3d31d9d318969a0423c0f3b0220f92dc58349` | `dcd3885ccc600c2355669a5b9a2b806360d3cddeab20b152eff2fa617b76c57c` |
+| `examples/continuity_duty_balance.json` | `f99ae3a64cd2cdab2457fbdf48afe763240ab7d32ced9b8f63e73ae937e6538b` | `79996874bcfd5ae2cbd8ac5e276493c869a464dc4b28685147a46bdae4a08114` |
+| `examples/continuity_month.json` | `779043eb2e3e7d8c3c8ffbda05b510dc6ee92af004894715a06234d6c3a733d7` | `712593113a7a0afe247c9401840c0828328f31a6814508f587b660cc3919eadf` |
+| `examples/continuity_replan.json` | `628bbe0fdfbd9080c1a9ddba756bbb55d36fb60f15e21b57be0d7519b691c74a` | `7719ff5463578e937c3d462743a3d5656e63429e75732360c5d058e30de3b567` |
+| `examples/continuity_week.json` | `8d9bd7621a775a55026ed5c3e70366fb50f591ade751b1f46626bfedaad93d3f` | `f0146522392c072a943e892a49547b6d84c69735a00d418501bee0596d15ccbc` |
+| `examples/coworkers.json` | `15d7451db07177773c20a6ca4e2fd9c9218b66dc8dd6fd524dc5b3d40425b2e8` | `401991cd75eb8ccb42615e2294d9286077bf89ffbb56d9d06d5cfb3b6c4b9c8b` |
+| `examples/day_counts.json` | `d45faa8ed14c48a26e3b06087b9ad887c6f4a3e07c3b5d2f32ce97b3847c274b` | `c5faac58aa922685ca88557d396cc5764f4a960e75ca3432dd09c63baf920c2b` |
+| `examples/demand_priority.json` | `1ad3d6c58de46e2c47d745b3256f30f8b9e39212a849544ecb16377998507eab` | `30014f20a4e98b0d64873cc37ebd9e0d1e1b584b281e3bc30a1b528d893dbdb2` |
+| `examples/diagnosis.json` | `3e0c5c4fc9733349b24de077ef66383cccecd104244252d5bae4ac8de12d679b` | `25e6f718bb88d10dada2bf730d7c8327500b6ec9713419a032a59ab39da6f796` |
+| `examples/duty_balance.json` | `b6a1ed556e1b7d338d42abc1de9b3aa99dd27daadd262ba596edca95f8dc3a18` | `71b3ea2b665773acf42117dba55519877fab26dd98ede2eaed8aad1623694457` |
+| `examples/fairness.json` | `6d4f850b093cbf857ae5374cee2610babf9ab9502088d357038474b0e4009ea8` | `3fc17504285a4a77c8fe072020e36da70279009b7538dd5128f3d04c65fce15a` |
+| `examples/invalid-input.json` | `bffc0c3f071099a7489d7369479064ba4fe1ed1d319c6c0c275ec503e42e84eb` | `ab6be5a751eb35d28296979892be78afef57cc81e106de74d0b50036788a332e` |
+| `examples/minimum_assignment.json` | `48ba77f7386f57c0f7773193bcb2c72d378cdc581d5d5a47b5de089d8f3d33ae` | `e8bd60bb30d9e78ee4ae61859102d8733223c58415ff50a37f5212b22e9d5ec5` |
+| `examples/minimum_conflict.json` | `0bf9f6f886215c0eac4647b63675216fca8f6aae0acf7217f44e642d8fe1a4e8` | `fffbbc6094e5daebcd296324a1a50107ce4cb2e2f9a13e1f9b3adb2a1c20863d` |
+| `examples/minimum_roster.json` | `8896c4b139cd2ba4d305110888038e78212dbfd3f7acdc48ef6a3e5c461f4f96` | `d59fba1f1890b352d8ef7cff9c0cfd5593451c6e0a05376ef4b95e84ec7bf311` |
+| `examples/overnight.json` | `3a8b32d3df48daefad8dc411d585ba4b6ea214f4c0f43e30dacc66c5f12cb96c` | `dfbccd30359bcdc5da44aed20f06403e47559dd765ad3a2082623b198b74b000` |
+| `examples/partial_replan_preserve_assigned.json` | `c307c2e4fc997479ab7dd1dd2db3e76e00fab26013d3065e26b9126fc225c5e9` | `675b6388bf3005d0e3a5811d82ea809dfa2680f6c018176652d80ebd9fb0dbb3` |
+| `examples/partial_replan_rebuild.json` | `87000b963af447c21c950ac49785542e39c7c71b5c52e39896803ab63dd9a6a2` | `d2a2debaa90c719e0d2d13934d4ddb5e4fcf7ec67bf653691d5ee3f6dc72b7ed` |
+| `examples/partial_roster.json` | `140203281e04594878b2a6f08ed3124d2060f9f810491f291886834f6550739b` | `3d92cabe97441c5b52ef0a85ee31406277a0dffab4f089fbfacb8d11ef22a367` |
+| `examples/replan.json` | `e3afa224e45a43802948e7c776671e3d8b3c545085b1f90ed4d1eb166e528b97` | `f5942add4e2203aea570af57ab39134330f53b50b468e44136d043838a9ec27c` |
+| `examples/roster.json` | `bd9cc8b03fa4b012807fe22ff9937516423b0b5919ae811ce7355d06eec73121` | `e9efd64a827f73e0d064c1dafa32ef3c5582d352a010998f79376542dc094461` |
+| `examples/roster_conditions.json` | `1e212fc26dc594babea06440cb8a6c2c3d0be0932f97bf3f9517c816ad05d771` | `f8be171975e1544cea499130aff9139c6d23363dbe5472c0f693e24ba8805748` |
+| `examples/scheduled_cost.json` | `4ed530d68b2c33a1e0114a3214d75e92f3f04e69e7add874982cd6b3bb042623` | `66b64c318fb6c28c247fc104914eefde33f40536f32d8fb9b221a25f2b130ba3` |
+| `examples/shift_patterns.json` | `74805a82d72ca53b8ce88b0bda2b8d7c0af6766d81d4badae715404e91823bcb` | `90f7919b18a1e2905fad305115af098ead7e9d15ec8ac55700f5899811e0b236` |
+| `examples/split_roster.json` | `ff5172bfb71d8fa54a385c8fce5a9c1855393a2d7595988d28453b15ce05ecc9` | `43cb400b58fa95317976a5456589fbbed932c75526ee4a2653ce02673469e05a` |
+| `examples/adapter/continuity_week.draft.json` | `5f5c90a0b25237fcbcbce3dae541c7162efda2fa05a084d2e81e7e79935b2977` | `f607fa9a8dfefce120aa4ad14bda84f0e5802fa9b59cbcc981ce59b85a6af7e2` |
+| `examples/adapter/partial_replan_preserve_assigned.draft.json` | `ebb8b3adfcbe44d05a12f96669649342f99e45021f71512ee29eb6b7f1cc856b` | `c3dba396bcd2dbd0bd7341281cfca6503958a069137e4d3a72e4162a418d27ab` |
+| `examples/adapter/partial_roster.draft.json` | `4184743853452a2a1d0986cd1a3cacfff060f48cf24c6ef6fa806f6b804719e1` | `edbadb217a0e4d522db77a30bdefa57604f851d36e4901a06dd5369059c46a58` |
+| `examples/adapter/roster.draft.json` | `67d130c9b6ce2a36745ee80929f4bf053afe786cabc91f8b1b9439a4b29f0e5a` | `689ca3e37abf072aa0e96ad93e74df4386ee91116b6bc27f932a118e3174df18` |
+| `examples/adapter/unconfirmed.draft.json` | `f2fca8850834efc9e7e3f433c1f20eeed754b5a23da7f918ac2b5ec5065b8e4b` | `8a88feb1a2e7e8bbe7ba3a823283514af29477caa695788fad1f3ba61da2e6e8` |
+| `examples/adapter/week-next.draft.json` | `788563fd69d5ab3245703568be822dab7e0367be169a4e77c74fac481ea01987` | `c0de5ea0d2fa61889a380e1284abefaaeb213e7cf8c3370796c44578f663a6e6` |
+| `examples/adapter/week-next-stale.draft.json` | `a70ffe8e157f88adc6227cf3e78e804fbf7c27ebe981dd666dd98fb32dc54503` | `6b3bc7d491f34ffe94966baadf2284e392df7d8e859c5702bbb06c35a1bacadf` |
+| `examples/adapter/week-next.request.json` | `fe454f3584b176cea6c34dcded4539ea3f8f56ad22abbc221e8508a207a86bd6` | `fe45ad0290243c4d80c32cd65e2dda88a1df374b9e584a8d2ac0ec55a39af916` |

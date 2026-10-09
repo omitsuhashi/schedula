@@ -35,7 +35,7 @@ from tests.test_contract_migration import CASES, read_case
 
 
 def request(name):
-    return read_case(name, "legacy") if name == "assignment" else current_request(name)
+    return read_case(name, "legacy") if name in CASES else current_request(name)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -102,7 +102,7 @@ def test_confirmation_transfer_is_selective_and_keeps_unknown_empty_and_unresolv
     "name", ["continuity_duty_balance", "combined_month", "shift_count_balance"]
 )
 def test_current_015_has_no_blanket_confirmation_change_or_solver(monkeypatch, name):
-    previous = read_case(name, "015") if name == "continuity_duty_balance" else request(name)
+    previous = current_request(name)
     draft = confirmed(previous)
     source(draft, "period")["revision"] = "unconfirmed-edit"
     before = copy.deepcopy(draft)

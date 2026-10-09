@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.7",
+  "schema_version": "0.15",
   "request_id": "slide_6",
   "problem_type": "roster",
   "planning_window": {
@@ -236,7 +236,7 @@
   "baseline": {
     "plan_id": "original",
     "source_request": {
-      "schema_version": "0.6",
+      "schema_version": "0.15",
       "request_id": "slide_5",
       "problem_type": "roster",
       "planning_window": {

@@ -188,7 +188,7 @@ def test_legacy_01_baseline_requires_confirmation_at_its_original_pointer():
 
 
 def test_complete_diagnosis_couples_only_permitted_edits_and_reverifies_suggestions():
-    source = load_json((ROOT / "examples/diagnosis.json").read_text())
+    source = load_json((FIXTURES / "diagnosis.legacy.json").read_text())
     response = solve(source)
     assert response["status"] == "INFEASIBLE"
     result = migrate(source, response=response)
@@ -213,7 +213,7 @@ def test_complete_diagnosis_couples_only_permitted_edits_and_reverifies_suggesti
 
 
 def test_maximum_ten_legacy_edits_fit_twenty_target_edits_and_overflow_is_rejected():
-    source = load_json((ROOT / "examples/diagnosis.json").read_text())
+    source = load_json((FIXTURES / "diagnosis.legacy.json").read_text())
     source["demand"] = [
         {
             **source["demand"][0],

@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from shift_schedula import solve
+from shift_schedula import solve, validate
 from shift_schedula.model import normalize
 from shift_schedula.verify import verify_solution
 from tests.support import assert_response
@@ -13,6 +13,25 @@ from tests.support import assert_response
 SAMPLES = Path(__file__).resolve().parents[1] / "examples" / "playground"
 BASELINE = json.loads((SAMPLES / "lunch.json").read_text(encoding="utf-8"))
 SCENARIOS = json.loads((SAMPLES / "scenarios.json").read_text(encoding="utf-8"))
+
+
+@pytest.mark.parametrize(
+    "path",
+    sorted(path for path in SAMPLES.parent.glob("*.json") if ".solution." not in path.name),
+    ids=lambda path: path.name,
+)
+def test_current_examples_use_015_including_baselines(path):
+    request = json.loads(path.read_text(encoding="utf-8"))
+    nested = request
+    while nested is not None:
+        assert nested["schema_version"] == "0.15"
+        nested = nested.get("baseline", {}).get("source_request")
+    result = validate(request)
+    if path.name == "invalid-input.json":
+        assert result["status"] == "INVALID_INPUT"
+        assert result["diagnostics"][0]["code"] == "UNKNOWN_REFERENCE"
+    else:
+        assert result["status"] == "VALID", result["diagnostics"]
 
 
 def scenario_requests(scenario, baseline=BASELINE):

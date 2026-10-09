@@ -57,6 +57,12 @@ rosterの比較入力は旧テンプレートで生成した有限候補を旧ID
 
 ## 共通fixtureと既存テストの行先
 
+#124の勤務計画・Adapterの利用例は、入れ子基準を含めて0.15へ移した。
+変更条件、業務回帰の行先、原SHA/更新後SHAと後続作業は
+[利用入口の準備記録](contract-0.15-entrypoints.md)を参照する。
+旧0.3の受理範囲と診断移行を意図的に確認する試験は原bytesのlegacy fixtureを明示参照する。
+共通fixture・残る通常回帰と評価再実行入力の全面切替は後続の変更で行う。
+
 `assignment_request015` は固定した完全充足の担当配置。
 `tests.roster_support.request015` はsegmentsと明示空履歴を持つ0.15勤務計画で、需要下限は既定0。
 完全充足を検証する呼び出し側だけが `tests.support.require_complete_demand` を使う。

@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.2",
+  "schema_version": "0.15",
   "request_id": "split_roster",
   "problem_type": "roster",
   "planning_window": {
@@ -51,7 +51,8 @@
         "start": "2026-10-06T09:00:00+09:00",
         "end": "2026-10-06T12:00:00+09:00"
       },
-      "required_people": 1
+      "required_people": 1,
+      "minimum_people": 1
     },
     {
       "id": "need_1_1020_kitchen",
@@ -60,7 +61,8 @@
         "start": "2026-10-06T17:00:00+09:00",
         "end": "2026-10-06T21:00:00+09:00"
       },
-      "required_people": 1
+      "required_people": 1,
+      "minimum_people": 1
     }
   ],
   "shift_candidates": [

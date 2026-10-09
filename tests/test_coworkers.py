@@ -444,12 +444,12 @@ def test_schemas_cli_and_saved_json_sample(tmp_path):
             [sys.executable, "-m", "shift_schedula", *args], capture_output=True, text=True
         )
         assert completed.returncode == 2, completed.stdout
-        assert json.loads(completed.stdout)["schema_version"] == "0.14"
+        assert json.loads(completed.stdout)["schema_version"] == "0.15"
     for kind in ("request", "response", "solution", "verification"):
-        schema = get_schema(kind, "0.14")
+        schema = get_schema(kind, "0.15")
         Draft202012Validator.check_schema(schema)
         completed = subprocess.run(
-            [sys.executable, "-m", "shift_schedula", "schema", kind, "--schema-version", "0.14"],
+            [sys.executable, "-m", "shift_schedula", "schema", kind, "--schema-version", "0.15"],
             capture_output=True,
             text=True,
         )

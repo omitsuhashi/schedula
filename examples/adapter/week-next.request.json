@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1",
+  "schema_version": "0.15",
   "skills": [
     {
       "id": "cooking",
@@ -53,7 +53,8 @@
         "start": "2026-10-12T10:00:00+09:00",
         "end": "2026-10-12T16:00:00+09:00"
       },
-      "required_people": 1
+      "required_people": 1,
+      "minimum_people": 1
     },
     {
       "id": "need_0_600_hall",
@@ -62,7 +63,8 @@
         "start": "2026-10-12T10:00:00+09:00",
         "end": "2026-10-12T16:00:00+09:00"
       },
-      "required_people": 1
+      "required_people": 1,
+      "minimum_people": 1
     },
     {
       "id": "need_0_600_washing",
@@ -71,7 +73,8 @@
         "start": "2026-10-12T10:00:00+09:00",
         "end": "2026-10-12T16:00:00+09:00"
       },
-      "required_people": 1
+      "required_people": 1,
+      "minimum_people": 1
     },
     {
       "id": "need_1_600_kitchen",
@@ -80,7 +83,8 @@
         "start": "2026-10-13T10:00:00+09:00",
         "end": "2026-10-13T16:00:00+09:00"
       },
-      "required_people": 1
+      "required_people": 1,
+      "minimum_people": 1
     },
     {
       "id": "need_1_600_hall",
@@ -89,7 +93,8 @@
         "start": "2026-10-13T10:00:00+09:00",
         "end": "2026-10-13T16:00:00+09:00"
       },
-      "required_people": 1
+      "required_people": 1,
+      "minimum_people": 1
     },
     {
       "id": "need_1_600_washing",
@@ -98,10 +103,588 @@
         "start": "2026-10-13T10:00:00+09:00",
         "end": "2026-10-13T16:00:00+09:00"
       },
-      "required_people": 1
+      "required_people": 1,
+      "minimum_people": 1
     }
   ],
-  "shift_candidates": [],
+  "shift_candidates": [
+    {
+      "id": "tmpl.59f819d64610c8a6047ce7201435431e93937a93a7e4780d1af15e4c92120402",
+      "employee_id": "assistant",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-12T10:00:00+09:00",
+            "end": "2026-10-12T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-12T12:00:00+09:00",
+              "end": "2026-10-12T12:30:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.612a97abf27424a26ee948b6cac9706b361c2bd27c6770c888ace9d94716ff26",
+      "employee_id": "assistant",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-12T10:00:00+09:00",
+            "end": "2026-10-12T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-12T12:30:00+09:00",
+              "end": "2026-10-12T13:00:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.664e595f1d35ef24374dad39bce798c038678a8af793c8c61aed0d6ed88213a0",
+      "employee_id": "assistant",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-12T10:00:00+09:00",
+            "end": "2026-10-12T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-12T13:30:00+09:00",
+              "end": "2026-10-12T14:00:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.972991a5441e6ee33d0a4be0ff8520057e660052f60527672de092a81e86fc0c",
+      "employee_id": "assistant",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-12T10:00:00+09:00",
+            "end": "2026-10-12T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-12T13:00:00+09:00",
+              "end": "2026-10-12T13:30:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.16c01cd08d0f799259df53a05ac103de9376a6d8c49eb65e663b74e36487638a",
+      "employee_id": "assistant",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-13T10:00:00+09:00",
+            "end": "2026-10-13T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-13T12:30:00+09:00",
+              "end": "2026-10-13T13:00:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.3855db162abc12b0570a7ed80b52a088ffe1c73331ade207379e362d0f7f5e4a",
+      "employee_id": "assistant",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-13T10:00:00+09:00",
+            "end": "2026-10-13T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-13T13:00:00+09:00",
+              "end": "2026-10-13T13:30:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.44ec878bad2cc29ce8270ea8d45240d076203a8a7f5d36248b00297a887eeba6",
+      "employee_id": "assistant",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-13T10:00:00+09:00",
+            "end": "2026-10-13T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-13T13:30:00+09:00",
+              "end": "2026-10-13T14:00:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.7b328fc922bd270eddc7a79c118e3f9670b8150598920194b51d66f59f034e81",
+      "employee_id": "assistant",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-13T10:00:00+09:00",
+            "end": "2026-10-13T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-13T12:00:00+09:00",
+              "end": "2026-10-13T12:30:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.4594bfb4b262325e0fe405f14ec3283d23bc843fab37f9e642a252cbb0a98517",
+      "employee_id": "cook",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-12T10:00:00+09:00",
+            "end": "2026-10-12T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-12T13:30:00+09:00",
+              "end": "2026-10-12T14:00:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.d6d526d834147b56bacdda2663cbe97c3a7b2ba71a82284971560e696ff748a9",
+      "employee_id": "cook",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-12T10:00:00+09:00",
+            "end": "2026-10-12T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-12T13:00:00+09:00",
+              "end": "2026-10-12T13:30:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.db083e8c68f499b6c9a903310aabd2717be3f2a753f105e8557a4a40206c572a",
+      "employee_id": "cook",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-12T10:00:00+09:00",
+            "end": "2026-10-12T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-12T12:00:00+09:00",
+              "end": "2026-10-12T12:30:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.ea10342dfc95395a77a8ae16b87b9158f07aff60e01548631404b98b3a5292f2",
+      "employee_id": "cook",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-12T10:00:00+09:00",
+            "end": "2026-10-12T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-12T12:30:00+09:00",
+              "end": "2026-10-12T13:00:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.329e52720ddb0211f14366902571854b0f064a89ae7566f0897c017cc41009a2",
+      "employee_id": "cook",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-13T10:00:00+09:00",
+            "end": "2026-10-13T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-13T13:00:00+09:00",
+              "end": "2026-10-13T13:30:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.9cf3ff424e24b4ea3d2a21e263c765573bc294622f9b9ae6bef2a7ab529976cc",
+      "employee_id": "cook",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-13T10:00:00+09:00",
+            "end": "2026-10-13T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-13T12:00:00+09:00",
+              "end": "2026-10-13T12:30:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.bdf8514cbcea8e348dc7ff227e444a3eeda4dbfe258c7d47c49eada24d7eaa05",
+      "employee_id": "cook",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-13T10:00:00+09:00",
+            "end": "2026-10-13T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-13T12:30:00+09:00",
+              "end": "2026-10-13T13:00:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.d3236afee503a911ec3780f627c371af2bf3a23ec0351ac03140a0e78bc10c05",
+      "employee_id": "cook",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-13T10:00:00+09:00",
+            "end": "2026-10-13T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-13T13:30:00+09:00",
+              "end": "2026-10-13T14:00:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.4b21c871edf784521c3ffff1f3769e458c086881b15ab4150ddc30342589d854",
+      "employee_id": "server",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-12T10:00:00+09:00",
+            "end": "2026-10-12T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-12T12:30:00+09:00",
+              "end": "2026-10-12T13:00:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.8e6a3d4b0a4b57292e0e03edf91528cd3acd6e63b634b8f34d16e24df2375200",
+      "employee_id": "server",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-12T10:00:00+09:00",
+            "end": "2026-10-12T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-12T12:00:00+09:00",
+              "end": "2026-10-12T12:30:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.d7a0940a3a3ef90bcfff9f908ec178b5aeacc11e75f8833d5763a27e2ab6cbf8",
+      "employee_id": "server",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-12T10:00:00+09:00",
+            "end": "2026-10-12T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-12T13:30:00+09:00",
+              "end": "2026-10-12T14:00:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.f09c650f4c87c29d93f4c0f739e85f267368f006b3cef4f422ad7b0e58458dea",
+      "employee_id": "server",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-12T10:00:00+09:00",
+            "end": "2026-10-12T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-12T13:00:00+09:00",
+              "end": "2026-10-12T13:30:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.70604f3cd49bc6a89edb97102ea03471813feb06565f0e4f94a987c300b86fdc",
+      "employee_id": "server",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-13T10:00:00+09:00",
+            "end": "2026-10-13T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-13T13:00:00+09:00",
+              "end": "2026-10-13T13:30:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.99ff562979dd0d042e6c183fe6659111515c79e810f7986daee7d5708a8f818b",
+      "employee_id": "server",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-13T10:00:00+09:00",
+            "end": "2026-10-13T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-13T13:30:00+09:00",
+              "end": "2026-10-13T14:00:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.9b6042ffbdc436b6131949413ec486d6f91f9cd5a0abb39efeae247c6a83e894",
+      "employee_id": "server",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-13T10:00:00+09:00",
+            "end": "2026-10-13T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-13T12:30:00+09:00",
+              "end": "2026-10-13T13:00:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.d0a6ad388d600e296f6cb190a62133e7666be23e9a8c3039c18dfa64f9736b96",
+      "employee_id": "server",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-13T10:00:00+09:00",
+            "end": "2026-10-13T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-13T12:00:00+09:00",
+              "end": "2026-10-13T12:30:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.4ca7702eb866813bad0841643eb10f98a6bcee97a4aaf28ca23d2e91a48da52e",
+      "employee_id": "versatile",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-12T10:00:00+09:00",
+            "end": "2026-10-12T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-12T13:00:00+09:00",
+              "end": "2026-10-12T13:30:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.4edc0d8df24fb22ba9ebcbeeebafd0bb7d5cf2c21807b8427662b299ae67eb57",
+      "employee_id": "versatile",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-12T10:00:00+09:00",
+            "end": "2026-10-12T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-12T13:30:00+09:00",
+              "end": "2026-10-12T14:00:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.7d7928a71d143e01f4a98122c43b5f602908a9000d6ffd9a8677da3dd9ef59d6",
+      "employee_id": "versatile",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-12T10:00:00+09:00",
+            "end": "2026-10-12T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-12T12:30:00+09:00",
+              "end": "2026-10-12T13:00:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.82442e8482d853d14b65680e5faee3214cfac08db81673b1ba32282c6ddf49aa",
+      "employee_id": "versatile",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-12T10:00:00+09:00",
+            "end": "2026-10-12T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-12T12:00:00+09:00",
+              "end": "2026-10-12T12:30:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.4ebcf62a4cf3afdcd53b05b048e8efd963ba9047dffcb46f79370d4ead3c7466",
+      "employee_id": "versatile",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-13T10:00:00+09:00",
+            "end": "2026-10-13T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-13T13:00:00+09:00",
+              "end": "2026-10-13T13:30:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.503db6cc3071e99a62b6baf168c1c0fe0d6ab3c29546703e5ae358d7ebe70756",
+      "employee_id": "versatile",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-13T10:00:00+09:00",
+            "end": "2026-10-13T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-13T12:30:00+09:00",
+              "end": "2026-10-13T13:00:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.75d66ea7ac1fbb6272629ecad024d0f53248b1709eb801956f8e9ef9b70502d6",
+      "employee_id": "versatile",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-13T10:00:00+09:00",
+            "end": "2026-10-13T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-13T12:00:00+09:00",
+              "end": "2026-10-13T12:30:00+09:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tmpl.8b6f229e90611837b6ee260fae74ac9ea6f96ae9aef2c0f5af22167a063337f8",
+      "employee_id": "versatile",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-13T10:00:00+09:00",
+            "end": "2026-10-13T16:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-13T13:30:00+09:00",
+              "end": "2026-10-13T14:00:00+09:00"
+            }
+          ]
+        }
+      ]
+    }
+  ],
   "preferences": [
     {
       "id": "preserve_skills",
@@ -113,45 +696,6 @@
       ],
       "role_id": "washing",
       "penalty_per_minute": 1
-    }
-  ],
-  "shift_templates": [
-    {
-      "id": "day_shift",
-      "employee_ids": [
-        "cook",
-        "server",
-        "assistant",
-        "versatile"
-      ],
-      "dates": [
-        "2026-10-12",
-        "2026-10-13"
-      ],
-      "start_times": [
-        "10:00"
-      ],
-      "duration_minutes_options": [
-        360
-      ],
-      "break_options": [
-        {
-          "offset_minutes": 120,
-          "duration_minutes": 30
-        },
-        {
-          "offset_minutes": 150,
-          "duration_minutes": 30
-        },
-        {
-          "offset_minutes": 180,
-          "duration_minutes": 30
-        },
-        {
-          "offset_minutes": 210,
-          "duration_minutes": 30
-        }
-      ]
     }
   ],
   "objectives": [
@@ -195,7 +739,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -219,7 +764,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -238,7 +784,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     },
     {
@@ -266,7 +813,8 @@
       ],
       "history": {
         "last_shift_end": null,
-        "consecutive_work_days_before_window": 0
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
       }
     }
   ],

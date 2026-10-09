@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.15",
+  "schema_version": "0.2",
   "request_id": "fairness_example",
   "problem_type": "roster",
   "planning_window": {
@@ -63,8 +63,7 @@
         "start": "2026-10-05T09:00:00+09:00",
         "end": "2026-10-05T21:00:00+09:00"
       },
-      "required_people": 1,
-      "minimum_people": 1
+      "required_people": 1
     }
   ],
   "shift_candidates": [

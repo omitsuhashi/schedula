@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1",
+  "schema_version": "0.15",
   "request_id": "invalid_reference",
   "problem_type": "assignment",
   "planning_window": {

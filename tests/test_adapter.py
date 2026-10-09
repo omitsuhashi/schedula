@@ -127,6 +127,10 @@ def test_confirmation_changes_only_affected_values_and_references():
     before = copy.deepcopy(draft)
     period = source(draft, "period")
     period["data"]["employees"][0]["availability"] = []
+    unavailable = period["data"]["employees"][0]["id"]
+    period["data"]["shift_candidates"] = [
+        c for c in period["data"]["shift_candidates"] if c["employee_id"] != unavailable
+    ]
     states = {s["source_id"]: s["state"] for s in confirmation_state(draft)}
     assert states["period"] == "stale"
     assert all(v == "confirmed" for k, v in states.items() if k != "period")
@@ -161,6 +165,12 @@ def test_import_unknown_provenance_and_no_solver_in_assembly(monkeypatch):
     assert draft["sources"][0]["confirmation"]["provenance"] == "unknown"
     assert assemble(draft)["request"] == value
     draft["sources"][0]["data"]["employees"][0]["availability"] = []
+    imported = draft["sources"][0]["data"]
+    imported["shift_candidates"] = [
+        c
+        for c in imported["shift_candidates"]
+        if c["employee_id"] != imported["employees"][0]["id"]
+    ]
     assert_code(draft, "UNCONFIRMED_SOURCE")
     draft = confirm_source(draft, "imported")
     assert assemble(draft)["status"] == "VALID"
@@ -228,7 +238,7 @@ def test_week_change_dates_explicit_and_original_history_kept():
         draft = confirm_source(draft, s["id"])
     # 日付は移動されず、既存validateが古い需要/候補を拒否する。
     assert assemble(draft)["status"] == "INVALID_INPUT"
-    assert source(draft, "period")["data"]["shift_templates"] == value["shift_templates"]
+    assert source(draft, "period")["data"]["shift_candidates"] == value["shift_candidates"]
 
 
 def test_explicit_rule_override_and_order():
@@ -453,10 +463,37 @@ def test_explicit_next_week_example_preserves_reusable_sources():
     expected, _ = records.read_json_file(ROOT / "examples/adapter/week-next.request.json")
     assert_code(stale, "STALE_APPLICABILITY")
     assert assemble(normal)["request"] == expected
-    assert expected["shift_templates"][0]["dates"] == ["2026-10-12", "2026-10-13"]
+    assert {c["segments"][0]["interval"]["start"][:10] for c in expected["shift_candidates"]} == {
+        "2026-10-12",
+        "2026-10-13",
+    }
     for section in ("basic", "common", "execution"):
         assert source(stale, section) == source(normal, section)
     assert source(stale, "history")["data"] == source(normal, "history")["data"]
+
+
+@pytest.mark.parametrize("path", sorted((ROOT / "examples/adapter").glob("*.draft.json")))
+def test_current_adapter_samples_keep_confirmation_intent(path):
+    draft = read_draft(path)
+    assert draft["schema_version"] == "0.15"
+    checked = assemble(draft)
+    if path.name == "week-next-stale.draft.json":
+        assert_code(draft, "STALE_APPLICABILITY")
+    elif path.name == "unconfirmed.draft.json":
+        assert_code(draft, "UNCONFIRMED_SOURCE")
+        assert_code(draft, "UNRESOLVED_INPUT")
+        assert [s["source_id"] for s in confirmation_state(draft) if s["state"] != "confirmed"] == [
+            "basic"
+        ]
+    else:
+        name = path.name.removesuffix(".draft.json")
+        expected = (
+            ROOT / "examples/adapter/week-next.request.json"
+            if name == "week-next"
+            else ROOT / "examples" / f"{name}.json"
+        )
+        assert checked["status"] == "VALID", checked["diagnostics"]
+        assert checked["request"] == json.loads(expected.read_text(encoding="utf-8"))
 
 
 def test_invalid_fragment_types_are_diagnostics():
