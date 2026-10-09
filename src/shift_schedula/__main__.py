@@ -4,8 +4,9 @@ import sys
 from pathlib import Path
 
 from . import adapter_cli, get_schema, solve, verify
-from .contract import SCHEMA_VERSIONS, InvalidInput, diagnostic, load_json, schema_version_of
+from .contract import SCHEMA_VERSIONS, InvalidInput, diagnostic, load_json
 from .engine import response, validate_response
+from .verify import verification_response
 
 
 def main():
@@ -51,55 +52,7 @@ def main():
                 else [diagnostic("INPUT_READ_ERROR", "UTF-8 の入力ファイルを読み取れません。")]
             )
             if args.command == "verify":
-                result = verify(None, None)
-                result.update(
-                    schema_version=schema_version_of(request),
-                    diagnostics=diagnostics,
-                    request_id=request.get("request_id")
-                    if isinstance(request, dict) and isinstance(request.get("request_id"), str)
-                    else None,
-                )
-                if result["schema_version"] in {
-                    "0.5",
-                    "0.6",
-                    "0.7",
-                    "0.8",
-                    "0.9",
-                    "0.10",
-                    "0.11",
-                    "0.12",
-                    "0.13",
-                    "0.14",
-                    "0.15",
-                }:
-                    result["priority_summary"] = None
-                if result["schema_version"] in {
-                    "0.6",
-                    "0.7",
-                    "0.8",
-                    "0.9",
-                    "0.10",
-                    "0.11",
-                    "0.12",
-                    "0.13",
-                    "0.14",
-                    "0.15",
-                }:
-                    result["continuity_summary"] = None
-                if result["schema_version"] in {
-                    "0.9",
-                    "0.10",
-                    "0.11",
-                    "0.12",
-                    "0.13",
-                    "0.14",
-                    "0.15",
-                }:
-                    result.update(cost_summary=None, duty_balance_summary=None)
-                if result["schema_version"] in {"0.11", "0.12", "0.13", "0.14", "0.15"}:
-                    result["day_count_summary"] = None
-                if result["schema_version"] == "0.15":
-                    result["shift_count_balance_summary"] = None
+                result = verification_response(request, diagnostics)
             else:
                 result = response(None, "INVALID_INPUT", diagnostics)
         if args.command != "verify":

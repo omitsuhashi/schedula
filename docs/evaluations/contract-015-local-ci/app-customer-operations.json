@@ -1,0 +1,31 @@
+{
+  "at": "2026-10-09T13:02:03.404292+00:00",
+  "os": "Linux",
+  "checks": [
+    "SSH key allowed; real compare and restore over encrypted tunnel",
+    "Shell, other destination, other customer's key and revoked key denied",
+    "Saved file and version record backed up; source loss recovered into separate deployment",
+    "Incompatible update rejected old file; new plan saved separately",
+    "SSH: new session import/Query/export and consistent SQLite backup",
+    "update: input, comparison baseline and both solutions independently verified",
+    "rollback: input, comparison baseline and both solutions independently verified",
+    "Other customer's storage untouched; invalid plan/version rejected; capacity readable"
+  ],
+  "previous_app_commit": "41ffe8ee7c5c66ee89d1b8cf570f259390839397",
+  "current_app_commit": "2a27357efff63d1d048ae7fb038175acef8f281e",
+  "saved_sha256": "eb140c5751c61d4ba1c867b3068ded7887970c75e82b7b89c7341d3d79450fbf",
+  "engine": {
+    "version": "0.1.5",
+    "schema_version": "0.10",
+    "commit": "fd8c140ff0dae8c8cefa82b5d3857ec0e0e90eaf",
+    "sha256": "3b8256c0d277da253cd79252683727c65c9ab7265c02aec93ff26a24006e9195"
+  },
+  "current_engine": {
+    "version": "0.1.6",
+    "schema_version": "0.15",
+    "commit": "58c304ff0f3c7f151a000f57de19825b9ecd63c0",
+    "sha256": "59daf999fc59163074b760a9d8320c57232a96e8029f7afd817a77d5f2b31afa"
+  },
+  "elapsed_seconds": 14.66,
+  "limits": "Synthetic data on one host, two independent source archives and venvs; Files reverified under their matching engine/schema; incompatible updates use separate new plans, rollback uses the previous file. Not customer production or cross-host disaster recovery."
+}
