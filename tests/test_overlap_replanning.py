@@ -214,7 +214,6 @@ def test_even_empty_fixed_state_requires_employee_to_exist():
     data["replan_mode"] = "preserve_assigned"
     data["baseline"]["source_solution"]["assignments"] = []
     data["baseline"]["source_solution"]["shifts"] = []
-    data["baseline"]["source_request"]["schema_version"] = "0.7"
     data["fixed_parts"] = [
         {
             "id": "off",
@@ -316,16 +315,17 @@ def test_small_rebuild_and_fixed_problems_match_exhaustive_enumeration():
             )
 
 
+@pytest.mark.parametrize("version", ["0.7", "0.15"])
 @pytest.mark.parametrize("kind", ["request", "response", "solution", "verification"])
-def test_new_schema_and_cli(kind):
+def test_new_schema_and_cli(kind, version):
     result = subprocess.run(
-        [sys.executable, "-m", "shift_schedula", "schema", kind, "--schema-version", "0.7"],
+        [sys.executable, "-m", "shift_schedula", "schema", kind, "--schema-version", version],
         capture_output=True,
         text=True,
         check=True,
     )
-    assert json.loads(result.stdout) == get_schema(kind, "0.7")
-    assert get_schema(kind, "0.7")["$id"].endswith(":0.7")
+    assert json.loads(result.stdout) == get_schema(kind, version)
+    assert get_schema(kind, version)["$id"].endswith(f":{version}")
 
 
 def test_cli_solve_verify(tmp_path):
@@ -500,3 +500,25 @@ def test_commitment_becomes_confirmed_actual_with_same_id():
         interval(5, end="10:30")["end"]
     )
     assert solve(data)["diagnostics"][0]["code"] == "CONFLICTING_CONTINUITY"
+
+
+@pytest.mark.parametrize("mode", ["preserve_assigned", "rebuild"])
+def test_mandatory_demand_in_new_window_does_not_rewrite_original_baseline(mode):
+    data = example()
+    original = copy.deepcopy(data["baseline"])
+    data["demand"][-1]["minimum_people"] = 1
+    data["shift_candidates"] = [c for c in data["shift_candidates"] if not c["id"].endswith("_8")]
+    data["replan_mode"] = mode
+    if mode == "rebuild":
+        rebuild(data)
+    saved = copy.deepcopy(data)
+    assert_response(solve(data), "INFEASIBLE")
+    assert data == saved
+    assert data["baseline"] == original
+    assert "minimum_people" not in original["source_request"]["demand"][-1]
+    data["demand"][-1]["minimum_people"] = 0
+    result = solve(data)
+    assert_response(result, "PARTIAL")
+    assert result["shortage_summary"]["total_person_minutes"] == 60
+    assert result["change_summary"]["total_changes"] == 0
+    assert verify(data, result["solution"])["status"] == "PARTIAL"

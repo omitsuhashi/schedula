@@ -1,4 +1,4 @@
-"""契約0.10の原勤務・確認済み履歴・目的順を公開入口で照合する。"""
+"""0.10由来の原勤務・確認済み履歴・目的順を0.15の公開入口で照合する。"""
 
 import copy
 import itertools
@@ -218,10 +218,12 @@ def test_sliding_fixed_replan_keeps_original_evaluation_and_explicit_history():
     )
 
 
-def test_without_continuity_preserves_plan_only_metrics():
+@pytest.mark.parametrize("version", ["0.9", "0.10"])
+def test_without_continuity_preserves_plan_only_metrics(version):
     data = cost_request()
+    data["schema_version"] = version
     old = solve(data)
-    data["schema_version"] = "0.10"
+    data["schema_version"] = "0.15"
     new = solve(data)
     assert_response(new, "OPTIMAL")
     assert old["solution"] == new["solution"]
@@ -273,7 +275,6 @@ def test_tampering_is_detected(mutation):
 @pytest.mark.parametrize("split", [False, True])
 def test_boundary_original_segments_are_counted_once_and_costs_stay_in_window(split):
     data = month_example()
-    data["schema_version"] = "0.10"
     data["costs"] = {
         "currency": "JPY",
         "units_per_currency": 60,
@@ -573,3 +574,33 @@ def test_cli_schema_and_verification_failures(tmp_path):
         )
         assert completed.returncode == 0
         assert json.loads(completed.stdout) == schema
+
+
+@pytest.mark.parametrize("mode", ["preserve_assigned", "rebuild"])
+@pytest.mark.parametrize("minimum", [0, 1, 2])
+def test_history_metrics_replan_keeps_original_baseline_and_new_mandatory_demand(mode, minimum):
+    data = example()
+    original = copy.deepcopy(data)
+    result = solve(data)
+    assert_response(result, "OPTIMAL")
+    baseline = make_baseline(data, result["solution"], "original")
+    saved = copy.deepcopy(baseline)
+    data["baseline"] = baseline
+    data["replan_mode"] = mode
+    data["shift_candidates"] = data["shift_candidates"][1:]
+    data["demand"][0]["required_people"] = 2
+    data["demand"][0]["minimum_people"] = minimum
+    replanned = solve(data)
+    assert_response(replanned, "INFEASIBLE" if minimum == 2 else "PARTIAL")
+    assert baseline == saved
+    assert baseline["source_request"] == original
+    if minimum < 2:
+        assert replanned["duty_balance_summary"] == result["duty_balance_summary"]
+        assert replanned["cost_summary"] == result["cost_summary"]
+        assert verify(data, replanned["solution"])["status"] == "PARTIAL"
+    else:
+        checked = verify(data, result["solution"])
+        assert checked["status"] == "INVALID_PLAN"
+        assert "MINIMUM_DEMAND_VIOLATION" in {
+            v["code"] for v in checked["verification"]["violations"]
+        }
