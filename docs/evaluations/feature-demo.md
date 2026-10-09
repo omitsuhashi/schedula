@@ -31,7 +31,7 @@ Chromiumでは初期INFEASIBLE、HTTP BUSY、遅い応答を制御し、再試�
 2026-10-10にサーバーを新規起動する3回の実行で45件を測定した。
 初期6件は需要137.1〜142.5ms、連勤278.7〜294.4ms、全45件の最大294.4msで暫定目安を満たした。
 各実行では先行2教材の全ガイドと自由編集、同じ値での再計算3回を確認し、復元は保存した初期結果へ戻した。
-[結果JSON](results/feature-demo-20261010.json)にChromium 151.0.7922.34、各応答のstats/solver、
+[結果JSON](https://github.com/omitsuhashi/schedula/blob/4ebf0bda0c0695ff548f5300373456e894e4133f/docs/evaluations/results/feature-demo-20261010.json)にChromium 151.0.7922.34、各応答のstats/solver、
 source baseと測定したファイルのSHA-256を保存した。固定commitからの初期入力・候補・目的の再検証とは分ける。
 同一ホストで全体回帰も稼働していた測定であり、無負荷の性能保証とは扱わない。
 後続の#126ではこの実測と実際の待ち時間評価を照合する。
