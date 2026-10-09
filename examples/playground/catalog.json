@@ -1,0 +1,933 @@
+{
+  "topics": [
+    {
+      "id": "demand",
+      "group": "basic",
+      "title": "必要人数に合わせる",
+      "contract": "0.15",
+      "features": [
+        "demand.required_people"
+      ],
+      "materials": [
+        "examples/playground/lunch.json"
+      ],
+      "issue": 119,
+      "progress": {
+        "detail": "confirmed",
+        "measurement": "confirmed",
+        "screen": "pending",
+        "test": "confirmed"
+      },
+      "lesson_file": "examples/playground/lessons.json",
+      "request_file": "examples/playground/demand-adjustment.json",
+      "measurement_files": [
+        "docs/evaluations/results/demo-lessons-cold-20261009.json",
+        "docs/evaluations/results/demo-lessons-warm-20261009.json"
+      ]
+    },
+    {
+      "id": "skills",
+      "group": "basic",
+      "title": "技能に合う人を配置する",
+      "contract": "0.15",
+      "features": [
+        "skills",
+        "required_skills"
+      ],
+      "materials": [
+        "examples/assignment.json"
+      ],
+      "issue": 127,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "availability",
+      "group": "basic",
+      "title": "勤務可能時間を変える",
+      "contract": "0.15",
+      "features": [
+        "availability"
+      ],
+      "materials": [
+        "examples/playground/lunch.json"
+      ],
+      "issue": 127,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "shift_candidates",
+      "group": "basic",
+      "title": "出退勤を選ぶ",
+      "contract": "0.15",
+      "features": [
+        "shift_candidates",
+        "shift_templates"
+      ],
+      "materials": [
+        "examples/roster.json"
+      ],
+      "issue": 127,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "breaks",
+      "group": "basic",
+      "title": "休憩を組み込む",
+      "contract": "0.15",
+      "features": [
+        "breaks"
+      ],
+      "materials": [
+        "examples/roster.json"
+      ],
+      "issue": 127,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "overnight",
+      "group": "basic",
+      "title": "日付をまたいで勤務する",
+      "contract": "0.15",
+      "features": [
+        "segments",
+        "work_day"
+      ],
+      "materials": [
+        "examples/overnight.json"
+      ],
+      "issue": 127,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "split_shift",
+      "group": "basic",
+      "title": "一日の勤務を分割する",
+      "contract": "0.15",
+      "features": [
+        "segments",
+        "min_split_gap_minutes"
+      ],
+      "materials": [
+        "examples/split_roster.json"
+      ],
+      "issue": 127,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "assigned_limit",
+      "group": "conditions",
+      "title": "担当する時間を制限する",
+      "contract": "0.15",
+      "features": [
+        "max_assigned_minutes"
+      ],
+      "materials": [
+        "examples/linked_assignment.json"
+      ],
+      "issue": 128,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "scheduled_limit",
+      "group": "conditions",
+      "title": "勤務時間を制限する",
+      "contract": "0.15",
+      "features": [
+        "max_scheduled_minutes"
+      ],
+      "materials": [
+        "examples/roster.json"
+      ],
+      "issue": 128,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "scheduled_bounds",
+      "group": "conditions",
+      "title": "週・月の勤務量を制限する",
+      "contract": "0.15",
+      "features": [
+        "scheduled_minutes_bounds"
+      ],
+      "materials": [
+        "examples/roster_conditions.json"
+      ],
+      "issue": 128,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "rest",
+      "group": "conditions",
+      "title": "勤務間に休息を取る",
+      "contract": "0.15",
+      "features": [
+        "min_rest_minutes"
+      ],
+      "materials": [
+        "examples/roster.json"
+      ],
+      "issue": 128,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "consecutive_days",
+      "group": "conditions",
+      "title": "連続勤務日数を制限する",
+      "contract": "0.15",
+      "features": [
+        "max_consecutive_days"
+      ],
+      "materials": [
+        "examples/roster.json"
+      ],
+      "issue": 119,
+      "progress": {
+        "detail": "confirmed",
+        "measurement": "confirmed",
+        "screen": "pending",
+        "test": "confirmed"
+      },
+      "lesson_file": "examples/playground/lessons.json",
+      "request_file": "examples/playground/consecutive-days.json",
+      "measurement_files": [
+        "docs/evaluations/results/demo-lessons-cold-20261009.json",
+        "docs/evaluations/results/demo-lessons-warm-20261009.json"
+      ]
+    },
+    {
+      "id": "work_days",
+      "group": "conditions",
+      "title": "期間内の勤務日数を制限する",
+      "contract": "0.15",
+      "features": [
+        "work_days_bounds"
+      ],
+      "materials": [
+        "examples/day_counts.json"
+      ],
+      "issue": 129,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "days_off",
+      "group": "conditions",
+      "title": "完全休日を確保する",
+      "contract": "0.15",
+      "features": [
+        "days_off_bounds"
+      ],
+      "materials": [
+        "examples/day_counts.json"
+      ],
+      "issue": 129,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "consecutive_days_off",
+      "group": "conditions",
+      "title": "休みを連続させる",
+      "contract": "0.15",
+      "features": [
+        "min_consecutive_days_off"
+      ],
+      "materials": [
+        "examples/shift_patterns.json"
+      ],
+      "issue": 130,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "rest_after_shift",
+      "group": "conditions",
+      "title": "夜勤などの後に休む",
+      "contract": "0.15",
+      "features": [
+        "days_off_after_shift"
+      ],
+      "materials": [
+        "examples/shift_patterns.json"
+      ],
+      "issue": 130,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "forbidden_successions",
+      "group": "conditions",
+      "title": "特定の勤務の並びを禁止する",
+      "contract": "0.15",
+      "features": [
+        "forbidden_shift_successions"
+      ],
+      "materials": [
+        "examples/shift_patterns.json"
+      ],
+      "issue": 130,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "worked_date_groups",
+      "group": "conditions",
+      "title": "週末などの勤務を交代する",
+      "contract": "0.15",
+      "features": [
+        "worked_date_groups_limit"
+      ],
+      "materials": [
+        "examples/shift_patterns.json"
+      ],
+      "issue": 130,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "required_coworkers",
+      "group": "conditions",
+      "title": "指導者などと一緒に勤務する",
+      "contract": "0.15",
+      "features": [
+        "required_coworkers"
+      ],
+      "materials": [
+        "examples/coworkers.json"
+      ],
+      "issue": 131,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "incompatible_employees",
+      "group": "conditions",
+      "title": "指定した人同士を同時勤務させない",
+      "contract": "0.15",
+      "features": [
+        "incompatible_employees"
+      ],
+      "materials": [
+        "examples/coworkers.json"
+      ],
+      "issue": 131,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "avoid_role",
+      "group": "objectives",
+      "title": "避けたい担当を考慮する",
+      "contract": "0.15",
+      "features": [
+        "avoid_role",
+        "preference_penalty"
+      ],
+      "materials": [
+        "examples/assignment.json"
+      ],
+      "issue": 134,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "prefer_work",
+      "group": "objectives",
+      "title": "働きたい日時を考慮する",
+      "contract": "0.15",
+      "features": [
+        "prefer_work"
+      ],
+      "materials": [
+        "examples/roster_conditions.json"
+      ],
+      "issue": 134,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "avoid_work",
+      "group": "objectives",
+      "title": "避けたい勤務日時を考慮する",
+      "contract": "0.15",
+      "features": [
+        "avoid_work"
+      ],
+      "materials": [
+        "examples/roster_conditions.json"
+      ],
+      "issue": 134,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "role_switches",
+      "group": "objectives",
+      "title": "担当の切替を減らす",
+      "contract": "0.15",
+      "features": [
+        "max_role_switches",
+        "role_switches"
+      ],
+      "materials": [
+        "examples/linked_assignment.json",
+        "examples/roster.json"
+      ],
+      "issue": 135,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "scheduled_minutes",
+      "group": "objectives",
+      "title": "総勤務量を減らす",
+      "contract": "0.15",
+      "features": [
+        "scheduled_minutes"
+      ],
+      "materials": [
+        "examples/roster.json"
+      ],
+      "issue": 135,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "fairness",
+      "group": "objectives",
+      "title": "個人の目標勤務量に近づける",
+      "contract": "0.15",
+      "features": [
+        "fairness",
+        "fairness_deviation_minutes"
+      ],
+      "materials": [
+        "examples/fairness.json"
+      ],
+      "issue": 135,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "scheduled_cost",
+      "group": "objectives",
+      "title": "勤務費用を抑える",
+      "contract": "0.15",
+      "features": [
+        "costs",
+        "scheduled_cost"
+      ],
+      "materials": [
+        "examples/scheduled_cost.json"
+      ],
+      "issue": 135,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "duty_balance",
+      "group": "objectives",
+      "title": "夜勤・休日などの勤務分数を調整する",
+      "contract": "0.15",
+      "features": [
+        "duty_balance",
+        "duty_deviation_minutes"
+      ],
+      "materials": [
+        "examples/duty_balance.json",
+        "examples/continuity_duty_balance.json"
+      ],
+      "issue": 135,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "shift_count_balance",
+      "group": "objectives",
+      "title": "夜勤などの勤務回数を調整する",
+      "contract": "0.15",
+      "features": [
+        "shift_count_balance",
+        "shift_count_deviation"
+      ],
+      "materials": [
+        "examples/shift_count_balance.json"
+      ],
+      "issue": 133,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "objective_order",
+      "group": "objectives",
+      "title": "何を優先するかを変える",
+      "contract": "0.15",
+      "features": [
+        "objectives"
+      ],
+      "materials": [
+        "examples/scheduled_cost.json"
+      ],
+      "issue": 135,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "partial",
+      "group": "shortage",
+      "title": "埋められる範囲の計画を作る",
+      "contract": "0.15",
+      "features": [
+        "PARTIAL",
+        "shortage_summary"
+      ],
+      "materials": [
+        "examples/partial_assignment.json",
+        "examples/partial_roster.json"
+      ],
+      "issue": 132,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "demand_priority",
+      "group": "shortage",
+      "title": "不足する場所の優先順位を決める",
+      "contract": "0.15",
+      "features": [
+        "demand.priority"
+      ],
+      "materials": [
+        "examples/demand_priority.json"
+      ],
+      "issue": 132,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "minimum_people",
+      "group": "shortage",
+      "title": "必ず必要な最低人数を守る",
+      "contract": "0.15",
+      "features": [
+        "minimum_people"
+      ],
+      "materials": [
+        "examples/minimum_roster.json",
+        "examples/minimum_conflict.json"
+      ],
+      "issue": 132,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "continuity",
+      "group": "replanning",
+      "title": "前の勤務から条件を引き継ぐ",
+      "contract": "0.15",
+      "features": [
+        "history",
+        "continuity"
+      ],
+      "materials": [
+        "examples/continuity_week.json",
+        "examples/continuity_month.json"
+      ],
+      "issue": 136,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "fixed_parts",
+      "group": "replanning",
+      "title": "決めた部分を固定する",
+      "contract": "0.15",
+      "features": [
+        "baseline",
+        "fixed_parts"
+      ],
+      "materials": [
+        "examples/replan.json"
+      ],
+      "issue": 136,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "plan_changes",
+      "group": "replanning",
+      "title": "元の計画からの変更を減らす",
+      "contract": "0.15",
+      "features": [
+        "plan_changes"
+      ],
+      "materials": [
+        "examples/replan.json"
+      ],
+      "issue": 136,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "partial_replan",
+      "group": "replanning",
+      "title": "不足を埋め直す",
+      "contract": "0.15",
+      "features": [
+        "preserve_assigned",
+        "rebuild"
+      ],
+      "materials": [
+        "examples/partial_replan_preserve_assigned.json",
+        "examples/partial_replan_rebuild.json"
+      ],
+      "issue": 136,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "overlap_replan",
+      "group": "replanning",
+      "title": "計画期間をずらして再計画する",
+      "contract": "0.15",
+      "features": [
+        "baseline",
+        "continuity"
+      ],
+      "materials": [
+        "examples/continuity_replan.json"
+      ],
+      "issue": 136,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "conflict_refinement",
+      "group": "input",
+      "title": "両立しない条件を調べる",
+      "contract": "0.15",
+      "features": [
+        "diagnosis",
+        "conflict_refinement"
+      ],
+      "materials": [
+        "examples/conflict_refinement.json"
+      ],
+      "issue": 122,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "allowed_changes",
+      "group": "input",
+      "title": "許可した条件変更案を試す",
+      "contract": "0.15",
+      "features": [
+        "allowed_changes"
+      ],
+      "materials": [
+        "examples/diagnosis.json"
+      ],
+      "issue": 122,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "verify",
+      "group": "input",
+      "title": "手で直した計画を検証する",
+      "contract": "0.15",
+      "features": [
+        "verify"
+      ],
+      "materials": [
+        "examples/roster_conditions.solution.json"
+      ],
+      "issue": 137,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "reuse_inputs",
+      "group": "input",
+      "title": "基本情報を再利用する",
+      "contract": "0.15",
+      "features": [
+        "split_request",
+        "assemble"
+      ],
+      "materials": [
+        "examples/adapter/roster.draft.json"
+      ],
+      "issue": 122,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "confirm_inputs",
+      "group": "input",
+      "title": "入力を確認してから計算する",
+      "contract": "0.15",
+      "features": [
+        "confirm_source"
+      ],
+      "materials": [
+        "examples/adapter/unconfirmed.draft.json"
+      ],
+      "issue": 122,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "execution_record",
+      "group": "input",
+      "title": "実行記録を保存して再検証する",
+      "contract": "0.15",
+      "features": [
+        "create_record",
+        "check_record",
+        "current_verification"
+      ],
+      "materials": [
+        "examples/adapter/execution.json"
+      ],
+      "issue": 122,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    }
+  ],
+  "templates": [
+    {
+      "id": "coverage_24h",
+      "title": "24時間のシフト調整",
+      "contract": "0.15",
+      "planning_hours": 24,
+      "features": [
+        "shift_candidates",
+        "shift_templates",
+        "breaks",
+        "min_rest_minutes",
+        "continuity"
+      ],
+      "materials": [
+        "examples/roster.json",
+        "examples/overnight.json",
+        "examples/continuity_week.json"
+      ],
+      "issue": 127,
+      "integration_issue": 120,
+      "acceptance_issue": 123,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    },
+    {
+      "id": "coverage_48h",
+      "title": "2日間のシフト調整",
+      "contract": "0.15",
+      "planning_hours": 48,
+      "features": [
+        "shift_candidates",
+        "shift_templates",
+        "breaks",
+        "min_rest_minutes",
+        "continuity"
+      ],
+      "materials": [
+        "examples/roster.json",
+        "examples/overnight.json",
+        "examples/continuity_week.json"
+      ],
+      "issue": 127,
+      "integration_issue": 120,
+      "acceptance_issue": 123,
+      "progress": {
+        "detail": "pending",
+        "measurement": "pending",
+        "screen": "pending",
+        "test": "pending"
+      }
+    }
+  ]
+}

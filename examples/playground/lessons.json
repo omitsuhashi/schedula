@@ -1,0 +1,230 @@
+[
+  {
+    "id": "demand",
+    "label": "必要人数に合わせる",
+    "request_file": "demand-adjustment.json",
+    "operation": "solve",
+    "editable_fields": [
+      {
+        "collection": "demand",
+        "ids": [
+          "hall_2",
+          "hall_3"
+        ],
+        "field": "required_people",
+        "label": "12:00〜13:00のホールの必要人数",
+        "unit": "人",
+        "min": 0,
+        "max": 6
+      }
+    ],
+    "indicators": [
+      "shortage_summary.total_person_minutes",
+      "demand.required_people",
+      "配置人数"
+    ],
+    "steps": [
+      {
+        "id": "initial",
+        "instruction": "初期条件で計算し、必要人数と配置人数、不足0人分を確認する。",
+        "restore": false,
+        "changes": {},
+        "expected": {
+          "status": "OPTIMAL",
+          "assigned_slots": 22,
+          "total_person_minutes": 0
+        }
+      },
+      {
+        "id": "covered",
+        "instruction": "12:00〜13:00のホールを2人から3人へ変更する。配置は増え、不足は0人分のままになる。",
+        "restore": false,
+        "changes": {
+          "demand": {
+            "hall_2": {
+              "required_people": 3
+            },
+            "hall_3": {
+              "required_people": 3
+            }
+          }
+        },
+        "expected": {
+          "status": "OPTIMAL",
+          "assigned_slots": 24,
+          "total_person_minutes": 0
+        }
+      },
+      {
+        "id": "shortage",
+        "instruction": "同じ2枠のホールを4人へ増やし、元の必要人数を保持した不足を確認する。",
+        "restore": false,
+        "changes": {
+          "demand": {
+            "hall_2": {
+              "required_people": 4
+            },
+            "hall_3": {
+              "required_people": 4
+            }
+          }
+        },
+        "expected": {
+          "status": "PARTIAL",
+          "assigned_slots": 24,
+          "total_person_minutes": 60
+        }
+      },
+      {
+        "id": "restored",
+        "instruction": "初期条件へ復元して再計算する。",
+        "restore": true,
+        "changes": {},
+        "expected": {
+          "status": "OPTIMAL",
+          "assigned_slots": 22,
+          "total_person_minutes": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "consecutive_days",
+    "label": "連続勤務日数を制限する",
+    "request_file": "consecutive-days.json",
+    "operation": "solve",
+    "editable_fields": [
+      {
+        "collection": "constraints",
+        "ids": [
+          "consecutive"
+        ],
+        "field": "limit_days",
+        "label": "連勤上限",
+        "unit": "日",
+        "min": 1,
+        "max": 7
+      },
+      {
+        "collection": "employees",
+        "ids": [
+          "b",
+          "c"
+        ],
+        "field": "availability",
+        "label": "交代要員の勤務可能時間",
+        "unit": "日付・時刻・Asia/Tokyo"
+      },
+      {
+        "collection": "employees",
+        "ids": [
+          "a"
+        ],
+        "field": "history",
+        "label": "計画前の最終勤務と連勤",
+        "unit": "日付・時刻・日"
+      }
+    ],
+    "indicators": [
+      "最大連勤日数（履歴を含む）",
+      "計画内の勤務日",
+      "計画初日からの連勤",
+      "shortage_summary.total_person_minutes"
+    ],
+    "steps": [
+      {
+        "id": "initial",
+        "instruction": "上限5日で、需要充足と3日を超える連勤を確認する。",
+        "restore": false,
+        "changes": {},
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "max_consecutive_days": 5,
+          "first_run_a": 5
+        }
+      },
+      {
+        "id": "shorter",
+        "instruction": "連勤上限だけを3日へ変更し、需要を充足したまま全員3日以内になることを確認する。",
+        "restore": false,
+        "changes": {
+          "constraints": {
+            "consecutive": {
+              "limit_days": 3
+            }
+          }
+        },
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "max_consecutive_days": 3
+        }
+      },
+      {
+        "id": "fewer_backups",
+        "instruction": "B・Cの勤務可能日を10月10・11日だけに減らし、連勤上限を保った不足を確認する。",
+        "restore": false,
+        "changes": {
+          "employees": {
+            "b": {
+              "availability": [
+                {
+                  "start": "2026-10-10T00:00:00+09:00",
+                  "end": "2026-10-12T00:00:00+09:00"
+                }
+              ]
+            },
+            "c": {
+              "availability": [
+                {
+                  "start": "2026-10-10T00:00:00+09:00",
+                  "end": "2026-10-12T00:00:00+09:00"
+                }
+              ]
+            }
+          }
+        },
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 60,
+          "max_consecutive_days": 3
+        }
+      },
+      {
+        "id": "history",
+        "instruction": "初期条件へ戻したうえで、Aに10月4日10:00終了・開始日4日・直前まで3連勤の履歴を追加する。",
+        "restore": true,
+        "changes": {
+          "employees": {
+            "a": {
+              "history": {
+                "last_shift_end": "2026-10-04T10:00:00+09:00",
+                "last_work_day": "2026-10-04",
+                "consecutive_work_days_before_window": 3
+              }
+            }
+          }
+        },
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "max_consecutive_days": 5,
+          "first_run_a_max": 2
+        }
+      },
+      {
+        "id": "restored",
+        "instruction": "初期条件へ復元し、履歴も空に戻して再計算する。",
+        "restore": true,
+        "changes": {},
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "max_consecutive_days": 5,
+          "first_run_a": 5
+        }
+      }
+    ]
+  }
+]
