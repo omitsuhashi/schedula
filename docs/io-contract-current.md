@@ -221,6 +221,7 @@ Responseはschema_version/request_id/status/solver/solution/objectives/diagnosti
 | `INTERNAL_ERROR` | 処理・独立検証の障害。解を採用しない | 2 |
 
 解なしはsolution:null/objectives:[]、未実施検証はperformed:false/valid:null、全summaryはnullです。
+求解後の独立検証に失敗したINTERNAL_ERRORはperformed:true/valid:falseと違反詳細を保持し、解は返しません。
 適用しない任意機能のsummaryもnull。有効な明示0・空群・0回対象者は省略しません。
 
 shortage_summaryはtotal_person_minutes/proven_minimal/shortages、各不足行は需要・役割・区間・
@@ -237,7 +238,7 @@ shift_count_balance_summaryは原条件と原解から各節の尺度を再計�
 
 公開verifyはVALID（完全）/PARTIAL（有効不足）/INVALID_INPUT/INVALID_PLAN/INTERNAL_ERRORを返します。
 VALIDだけCLI終了0、他は2。有効な場合のみdemand_satisfiedがtrue/false、集計・目的を返します。
-無効な解はperformed:true/valid:false、入力不備と障害は未実施。全証明フラグはfalseです。
+無効な解はperformed:true/valid:false、入力不備と公開verifyの内部障害は未実施。全証明フラグはfalseです。
 ソルバーの候補係数・保存された目的値を信用せず、元Requestと返却解から独立して確認します。
 
 ## backend、予算、実行上限
