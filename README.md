@@ -52,13 +52,14 @@ uv run --locked --extra cp-sat python -m shift_schedula schema response
 
 ## ブラウザーで担当配置を試す
 
-clone 済みのリポジトリ直下で起動します。担当配置のフォームだけなら OR-Tools や Node.js は不要です。
-JSON から勤務計画も計算するときは、同期・起動に `--extra cp-sat` を追加します。
+clone 済みのリポジトリ直下で起動します。連勤を含む機能デモには OR-Tools が必要なため、
+同期・起動に `--extra cp-sat` を指定します。補助入口の従来の担当配置フォームだけならbase依存でも使えます。
+ブラウザーで操作する利用者にNode.jsは不要です。
 
 ```sh
 uv python install
-uv sync --locked
-uv run --locked python demo/server.py
+uv sync --locked --extra cp-sat
+uv run --locked --extra cp-sat python demo/server.py
 ```
 
 [http://127.0.0.1:8765](http://127.0.0.1:8765) をブラウザーで開き、機能を選びます。
