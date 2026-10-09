@@ -11,7 +11,7 @@ import pytest
 from jsonschema import Draft202012Validator
 
 from shift_schedula import get_schema, make_baseline, solve, validate, verify
-from shift_schedula.contract import SCHEMA_VERSIONS, parse_datetime
+from shift_schedula.contract import parse_datetime
 from shift_schedula.diagnosis import condition_groups
 from shift_schedula.model import normalize
 from shift_schedula.verify import verify_plan
@@ -241,7 +241,9 @@ def test_invalid_input_is_rejected_by_all_public_entries(mutation):
     assert verify(data, {"assignments": [], "shifts": []})["status"] == "INVALID_INPUT"
 
 
-@pytest.mark.parametrize("version", [v for v in SCHEMA_VERSIONS if v not in {"0.14", "0.15"}])
+@pytest.mark.parametrize(
+    "version", [v for v in [f"0.{i}" for i in range(1, 15)] if v not in {"0.14", "0.15"}]
+)
 def test_old_versions_reject_both_new_conditions(version):
     for rule in (required(), incompatible()):
         data = example()

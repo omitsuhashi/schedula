@@ -15,7 +15,7 @@ from shift_schedula import cp_sat, solve
 from shift_schedula.model import normalize
 from shift_schedula.verify import verify_solution
 from tests.roster_support import complete_demand as demand
-from tests.roster_support import interval, legacy_request, request, rule, stamp
+from tests.roster_support import interval, request, rule, stamp
 from tests.support import assert_response, require_complete_demand
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -30,18 +30,6 @@ def segment(day=0, start=600, end=690, breaks=()):
 
 def shift(segments, employee="alice", identifier="extended"):
     return {"id": identifier, "employee_id": employee, "segments": segments}
-
-
-def legacy_extended_request(days=1, employees=("alice",)):
-    data = legacy_request(days, employees)
-    data["schema_version"] = "0.2"
-    data["shift_candidates"] = [
-        shift([{"interval": c["interval"], "breaks": c["breaks"]}], c["employee_id"], c["id"])
-        for c in data["shift_candidates"]
-    ]
-    for employee in data["employees"]:
-        employee["history"]["last_work_day"] = None
-    return data
 
 
 def example(name):

@@ -409,3 +409,18 @@ def test_adapter_http_is_inline_and_reverify_preserves_record(http_server):
     assert status == 200 and result["status"] == "INVALID_INPUT"
     assert call(http_server, body=b'{"a":1,"a":2}', path="/adapter/check")[0] == 400
     assert call(http_server, method="GET", path="/samples/assignment.draft.json")[0] == 200
+
+
+@pytest.mark.parametrize("version", [*(f"0.{i}" for i in range(1, 15)), "0.16", None])
+def test_json_http_rejects_versions_with_current_failure_contract(http_server, version):
+    request = copy.deepcopy(BASELINE)
+    request["schema_version"] = version
+    original = copy.deepcopy(request)
+    status, result = call(http_server, request, path="/solve-json")
+    assert status == 200
+    assert_response(result, "INVALID_INPUT")
+    assert result["schema_version"] == "0.15"
+    assert result["request_id"] == request["request_id"]
+    assert result["solution"] is None
+    assert result["verification"]["performed"] is False
+    assert request == original

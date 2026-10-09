@@ -23,7 +23,7 @@ from shift_schedula import (
     validate,
     verify,
 )
-from shift_schedula.contract import SCHEMA_VERSIONS, parse_datetime, schema_errors
+from shift_schedula.contract import parse_datetime, schema_errors
 from shift_schedula.engine import validate_response
 from shift_schedula.extensions import evaluate
 from shift_schedula.model import normalize
@@ -86,7 +86,7 @@ def continuity(data, first_day=0):
     return data["continuity"]["employees"][0]
 
 
-def test_same_minutes_can_require_two_work_days_and_legacy_stays_valid():
+def test_same_minutes_can_require_two_work_days_and_without_day_bounds_stays_valid():
     data = example(2)
     data["shift_candidates"][0]["segments"] = [segment(stamp(0, 600), stamp(0, 840))]
     data["shift_candidates"][1]["segments"] = [segment(stamp(1, 600), stamp(1, 720))]
@@ -128,7 +128,6 @@ def test_same_minutes_can_require_two_work_days_and_legacy_stays_valid():
         "min_days": 2,
         "max_days": 2,
     }
-    data["schema_version"] = "0.10"
     data["constraints"].pop()
     assert verify(data, one_day)["status"] == "VALID"
     assert verify(data, result["solution"])["status"] == "VALID"
@@ -424,17 +423,9 @@ def test_baseline_roundtrip_keeps_rules_and_fixed_work(mode):
     assert validate({**data, "baseline": broken})["status"] == "INVALID_INPUT"
     old = example(2)
     old["schema_version"] = "0.10"
-    assert (
-        validate({**old, "baseline": baseline})["diagnostics"][0]["code"]
-        == "UNSUPPORTED_BASELINE_VERSION"
-    )
-    old_result = solve(old)
-    assert (
-        validate({**example(2), "baseline": make_baseline(old, old_result["solution"], "old")})[
-            "status"
-        ]
-        == "VALID"
-    )
+    assert validate({**old, "baseline": baseline})["diagnostics"][0]["code"] == "SCHEMA_VIOLATION"
+    with pytest.raises(InvalidInput):
+        make_baseline(old, {"assignments": [], "shifts": []}, "old")
 
 
 @pytest.mark.parametrize(
@@ -555,7 +546,12 @@ def test_shared_budget_and_unproven_prefix_are_preserved(monkeypatch, statuses):
 
 
 @pytest.mark.parametrize(
-    "version", [v for v in SCHEMA_VERSIONS if v not in {"0.11", "0.12", "0.13", "0.14", "0.15"}]
+    "version",
+    [
+        v
+        for v in [f"0.{i}" for i in range(1, 15)]
+        if v not in {"0.11", "0.12", "0.13", "0.14", "0.15"}
+    ],
 )
 def test_legacy_rejects_new_fields(version):
     data = example()
@@ -584,7 +580,7 @@ def test_diagnosis_edits_and_assignment_do_not_accept_day_conditions():
     assert_response(solve(data), "INVALID_INPUT")
 
 
-@pytest.mark.parametrize("version", ["0.11", "0.15"])
+@pytest.mark.parametrize("version", ["0.15"])
 def test_cli_and_schemas_cover_success_and_missing_plan(tmp_path, version):
     data = example()
     data["schema_version"] = version
@@ -624,7 +620,7 @@ def test_cli_and_schemas_cover_success_and_missing_plan(tmp_path, version):
         )
         assert completed.returncode == 0
         assert json.loads(completed.stdout) == schema
-    request_type = types.Request011 if version == "0.11" else types.Request015
+    request_type = types.Request015
     assert request_type.__required_keys__ == set(get_schema("request", version)["required"])
     assert set(get_type_hints(request_type)) == set(get_schema("request", version)["properties"])
     assert get_args(get_type_hints(request_type)["schema_version"]) == (version,)

@@ -12,7 +12,7 @@ import pytest
 from jsonschema import Draft202012Validator
 
 from shift_schedula import InvalidInput, cp_sat, get_schema, make_baseline, solve, validate, verify
-from shift_schedula.contract import SCHEMA_VERSIONS, schema_errors
+from shift_schedula.contract import schema_errors
 from shift_schedula.engine import validate_response
 from shift_schedula.extensions import evaluate
 from shift_schedula.model import normalize
@@ -515,7 +515,7 @@ def test_unproven_higher_objectives_do_not_claim_cost_or_duty_optimality(monkeyp
     "version",
     [
         v
-        for v in SCHEMA_VERSIONS
+        for v in [f"0.{i}" for i in range(1, 15)]
         if v not in {"0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"}
     ],
 )
@@ -526,10 +526,12 @@ def test_old_versions_reject_new_fields_and_objectives(version):
     assert_response(solve(data), "INVALID_INPUT")
     result = solve(cost_request())
     result["schema_version"] = version
-    assert schema_errors("response", result, version)
+    assert schema_errors("response", result)
+    with pytest.raises(ValueError, match="0.15"):
+        get_schema("response", version)
 
 
-@pytest.mark.parametrize("version", ["0.9", "0.15"])
+@pytest.mark.parametrize("version", ["0.15"])
 def test_schema_cli_success_verify_and_solution_read_error(tmp_path, version):
     data = cost_request()
     data["schema_version"] = version

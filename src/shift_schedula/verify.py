@@ -87,20 +87,7 @@ def verify(request: dict, solution: dict) -> dict:
             ]
             _, _, summaries = evaluate(problem, solution)
             result.update(summaries)
-            if request["schema_version"] in {
-                "0.5",
-                "0.6",
-                "0.7",
-                "0.8",
-                "0.9",
-                "0.10",
-                "0.11",
-                "0.12",
-                "0.13",
-                "0.14",
-                "0.15",
-            }:
-                result["priority_summary"] = priority_summary(request, shortage)
+            result["priority_summary"] = priority_summary(request, shortage)
     except InvalidInput as error:
         result["diagnostics"] = error.diagnostics
     except TimezoneDataError:
@@ -147,22 +134,6 @@ def verify_shifts(request, grid, shifts, fail, active_groups=None):
     coverage, breaks = defaultdict(set), defaultdict(set)
     selected = defaultdict(list)
     scheduled = Counter()
-    extended = request["schema_version"] in {
-        "0.2",
-        "0.3",
-        "0.4",
-        "0.5",
-        "0.6",
-        "0.7",
-        "0.8",
-        "0.9",
-        "0.10",
-        "0.11",
-        "0.12",
-        "0.13",
-        "0.14",
-        "0.15",
-    }
     for index, shift in enumerate(shifts):
         path = f"/shifts/{index}"
         identifier, employee = shift["candidate_id"], shift["employee_id"]
@@ -175,21 +146,19 @@ def verify_shifts(request, grid, shifts, fail, active_groups=None):
                 (
                     *grid.interval(
                         s["interval"],
-                        f"{path}/segments/{i}/interval" if extended else path + "/interval",
+                        f"{path}/segments/{i}/interval",
                     ),
                     tuple(
                         sorted(
                             grid.interval(
                                 b,
-                                f"{path}/segments/{i}/breaks/{j}"
-                                if extended
-                                else f"{path}/breaks/{j}",
+                                f"{path}/segments/{i}/breaks/{j}",
                             )
                             for j, b in enumerate(s["breaks"])
                         )
                     ),
                 )
-                for i, s in enumerate(shift["segments"] if extended else [shift])
+                for i, s in enumerate(shift["segments"])
             )
             interval = segments[0][0], segments[-1][1]
             rest = tuple(b for _, _, rests in segments for b in rests)
@@ -201,12 +170,7 @@ def verify_shifts(request, grid, shifts, fail, active_groups=None):
             employee != candidate.employee_id
             or interval != (candidate.start, candidate.end)
             or rest != candidate.breaks
-            or (
-                extended
-                and (
-                    segments != candidate.segments or shift["work_day"] != candidate.day.isoformat()
-                )
-            )
+            or (segments != candidate.segments or shift["work_day"] != candidate.day.isoformat())
         ):
             fail(
                 "CANDIDATE_MISMATCH",
@@ -232,16 +196,15 @@ def verify_shifts(request, grid, shifts, fail, active_groups=None):
         breaks[employee].update(blocked)
         scheduled[employee] += len(work) * grid.slot_minutes
         selected[employee].append((start, end, candidate.day.toordinal()))
-    if extended:
-        for employee, intervals in selected.items():
-            ordered = sorted(intervals)
-            if any(a[1] > b[0] for a, b in zip(ordered, ordered[1:], strict=False)):
-                fail(
-                    "OVERLAPPING_SHIFTS",
-                    "開始日が異なる勤務の外側区間が重複しています。",
-                    "/shifts",
-                    [employee],
-                )
+    for employee, intervals in selected.items():
+        ordered = sorted(intervals)
+        if any(a[1] > b[0] for a, b in zip(ordered, ordered[1:], strict=False)):
+            fail(
+                "OVERLAPPING_SHIFTS",
+                "開始日が異なる勤務の外側区間が重複しています。",
+                "/shifts",
+                [employee],
+            )
     first_day = grid.start.astimezone(grid.timezone).date().toordinal()
     end_day = grid.end.astimezone(grid.timezone).date().toordinal()
     histories = {e["id"]: e["history"] for e in request["employees"]}
@@ -375,19 +338,15 @@ def verify_plan(problem, solution, *, require_complete=False, active_groups=None
         if roster
         else ({}, {}, {})
     )
-    if (
-        request["schema_version"] in {"0.11", "0.12", "0.13", "0.14", "0.15"}
-        and roster
-        and not violations
-    ):
+    if roster and (not violations):
         from .day_counts import evaluate as evaluate_day_counts
 
         evaluate_day_counts(request, grid, solution, fail, active_groups)
-    if request["schema_version"] in {"0.13", "0.14", "0.15"} and roster and not violations:
+    if roster and (not violations):
         from .shift_patterns import evaluate as evaluate_patterns
 
         evaluate_patterns(request, grid, solution, fail, active_groups)
-    if request["schema_version"] in {"0.14", "0.15"} and roster and not violations:
+    if roster and (not violations):
         from .coworkers import evaluate as evaluate_coworkers
 
         evaluate_coworkers(request, grid, coverage, fail, active_groups)
@@ -531,11 +490,7 @@ def verify_plan(problem, solution, *, require_complete=False, active_groups=None
                 "required_people": required,
                 "assigned_people": assigned,
                 "missing_people": required - assigned,
-                **(
-                    {"minimum_people": minimum}
-                    if request["schema_version"] in {"0.12", "0.13", "0.14", "0.15"}
-                    else {}
-                ),
+                **({"minimum_people": minimum}),
             }
             for a, b, assigned in runs
         )
@@ -543,28 +498,7 @@ def verify_plan(problem, solution, *, require_complete=False, active_groups=None
         if (slot, role_id) in relaxed:
             continue
         required, assigned = expected[slot, role_id], actual[slot, role_id]
-        if assigned > required or (
-            assigned < required
-            and (
-                request["schema_version"]
-                not in {
-                    "0.3",
-                    "0.4",
-                    "0.5",
-                    "0.6",
-                    "0.7",
-                    "0.8",
-                    "0.9",
-                    "0.10",
-                    "0.11",
-                    "0.12",
-                    "0.13",
-                    "0.14",
-                    "0.15",
-                }
-                or require_complete
-            )
-        ):
+        if assigned > required or (assigned < required and (require_complete)):
             code = "DEMAND_SHORTAGE" if assigned < required else "DEMAND_EXCESS"
             fail(
                 code,
@@ -623,27 +557,11 @@ def verify_plan(problem, solution, *, require_complete=False, active_groups=None
         "role_switches": sum(switches.values()),
         "scheduled_minutes": sum(scheduled.values()),
     }
-    if request["schema_version"] in {
-        "0.2",
-        "0.3",
-        "0.4",
-        "0.5",
-        "0.6",
-        "0.7",
-        "0.8",
-        "0.9",
-        "0.10",
-        "0.11",
-        "0.12",
-        "0.13",
-        "0.14",
-        "0.15",
-    }:
-        from .extensions import evaluate
+    from .extensions import evaluate
 
-        extension_violations, extension_metrics, _ = evaluate(problem, solution)
-        violations.extend(extension_violations)
-        metrics.update(extension_metrics)
+    extension_violations, extension_metrics, _ = evaluate(problem, solution)
+    violations.extend(extension_violations)
+    metrics.update(extension_metrics)
     from .model import objective_key
 
     return (

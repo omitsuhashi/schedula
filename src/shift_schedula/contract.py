@@ -8,28 +8,12 @@ from itertools import islice
 
 from jsonschema import Draft202012Validator, FormatChecker
 
-SCHEMA_VERSIONS = (
-    "0.1",
-    "0.2",
-    "0.3",
-    "0.4",
-    "0.5",
-    "0.6",
-    "0.7",
-    "0.8",
-    "0.9",
-    "0.10",
-    "0.11",
-    "0.12",
-    "0.13",
-    "0.14",
-    "0.15",
-)
+SCHEMA_VERSIONS = ("0.15",)
 
 
 def schema_version_of(value):
-    version = value.get("schema_version") if isinstance(value, dict) else None
-    return version if version in SCHEMA_VERSIONS else "0.1"
+    # 不正入力の応答も現在契約で返し、原入力には補完しない。
+    return "0.15"
 
 
 @lru_cache
@@ -139,11 +123,11 @@ def _date(value):
     return bool(re.fullmatch(r"\d{4}-\d{2}-\d{2}", value)) and bool(date.fromisoformat(value))
 
 
-def get_schema(kind, schema_version="0.1"):
+def get_schema(kind, schema_version="0.15"):
     if kind not in {"request", "response", "solution", "verification"}:
         raise ValueError("request、response、solution、verification を指定します。")
     if schema_version not in SCHEMA_VERSIONS:
-        raise ValueError("schema_version は 0.1〜0.15 のいずれかを指定します。")
+        raise ValueError("schema_version は 0.15 を指定します。")
     if kind in {"solution", "verification"}:
         if kind == "solution":
             schema = get_schema("response", schema_version)
@@ -153,13 +137,10 @@ def get_schema(kind, schema_version="0.1"):
                 "$ref": "#/$defs/solution",
                 "$defs": schema["$defs"],
             }
-        # 旧版にも同じ検証入口を提供し、配布済みの定義を再利用する。
+        # 求解結果と同じ集計形状を使い、独立検証では証明を付与しない。
         schema = get_schema(
             "response",
-            schema_version
-            if schema_version
-            in {"0.5", "0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"}
-            else "0.4",
+            schema_version,
         )
         properties = {
             name: schema["properties"][name]
@@ -189,22 +170,9 @@ def get_schema(kind, schema_version="0.1"):
         properties["objectives"]["items"]["properties"]["proven_optimal"] = {"const": False}
         definitions = {k: v for k, v in schema["$defs"].items() if k != "solution"}
         definitions["shortage_summary"]["properties"]["proven_minimal"] = {"const": False}
-        if schema_version in {
-            "0.5",
-            "0.6",
-            "0.7",
-            "0.8",
-            "0.9",
-            "0.10",
-            "0.11",
-            "0.12",
-            "0.13",
-            "0.14",
-            "0.15",
-        }:
-            definitions["priority_summary"]["properties"]["groups"]["items"]["properties"][
-                "proven_minimal"
-            ] = {"const": False}
+        definitions["priority_summary"]["properties"]["groups"]["items"]["properties"][
+            "proven_minimal"
+        ] = {"const": False}
         rules = []
         for statuses, performed, valid, complete in (
             (["VALID"], True, True, True),
@@ -284,12 +252,9 @@ def validate_request(request):
         check_json(request)
     except RecursionError:
         reject("NON_JSON_VALUE", "入力の階層が深すぎます。")
-    if (
-        isinstance(request, dict)
-        and request.get("schema_version")
-        in {"0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"}
-        and isinstance(request.get("continuity"), dict)
-    ):
+    if not isinstance(request, dict) or request.get("schema_version") != "0.15":
+        raise InvalidInput(schema_errors("request", request))
+    if isinstance(request, dict) and isinstance(request.get("continuity"), dict):
         value = request["continuity"]
         if "context_window" not in value or "employees" not in value:
             reject("INCOMPLETE_HISTORY", "文脈期間と全従業員の履歴が必要です。", "/continuity")

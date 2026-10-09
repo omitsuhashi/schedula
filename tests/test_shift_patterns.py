@@ -12,7 +12,7 @@ import pytest
 from jsonschema import Draft202012Validator
 
 from shift_schedula import get_schema, make_baseline, solve, types, validate, verify
-from shift_schedula.contract import SCHEMA_VERSIONS, parse_datetime
+from shift_schedula.contract import parse_datetime
 from shift_schedula.model import normalize
 from shift_schedula.shift_patterns import category_ranges, classify
 from shift_schedula.verify import verify_plan
@@ -414,7 +414,7 @@ def test_invalid_classifications_rules_dates_and_integer_types(mutation):
 
 
 @pytest.mark.parametrize(
-    "version", [v for v in SCHEMA_VERSIONS if v not in {"0.13", "0.14", "0.15"}]
+    "version", [v for v in [f"0.{i}" for i in range(1, 15)] if v not in {"0.13", "0.14", "0.15"}]
 )
 def test_old_contracts_reject_categories_and_patterns(version):
     data = example()
@@ -457,7 +457,7 @@ def test_shared_search_budget_and_proofs_with_pattern_conditions(monkeypatch, st
     assert all(not o["proven_optimal"] for o in result["objectives"])
 
 
-@pytest.mark.parametrize("version", ["0.13", "0.15"])
+@pytest.mark.parametrize("version", ["0.15"])
 def test_public_schemas_types_cli_and_diagnosis_edits(tmp_path, version):
     data = example()
     data["schema_version"] = version
@@ -483,7 +483,7 @@ def test_public_schemas_types_cli_and_diagnosis_edits(tmp_path, version):
         )
         assert completed.returncode == 0
         assert json.loads(completed.stdout) == schema
-    request_type = types.Request013 if version == "0.13" else types.Request015
+    request_type = types.Request015
     assert request_type.__required_keys__ == set(get_schema("request", version)["required"])
     assert set(get_type_hints(request_type)) == set(get_schema("request", version)["properties"])
     assert get_args(get_type_hints(request_type)["schema_version"]) == (version,)

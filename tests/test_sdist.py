@@ -41,14 +41,14 @@ def test_sdist_builds_and_runs_without_original_checkout(tmp_path):
             "docs/distribution.md",
             "GLOSSARY.md",
             "MANIFEST.in",
-            "scripts/migrate_adapter.py",
-            "scripts/migrate_app.py",
-            "tests/test_app_migration.py",
-            "tests/fixtures/contract-migration/app/legacy.json",
-            "tests/test_adapter_migration.py",
+            "tests/test_contract_015_regression.py",
+            "tests/fixtures/contract-015/assignment.json",
             "src/shift_schedula/py.typed",
             "src/shift_schedula/__init__.pyi",
         } <= names
+        assert not any(
+            name.startswith("scripts/migrate_") or "contract-migration" in name for name in names
+        )
         assert not any(
             name.startswith(
                 (
@@ -73,25 +73,9 @@ def test_sdist_builds_and_runs_without_original_checkout(tmp_path):
     run("uv", "build", "--wheel", "--out-dir", str(tmp_path / "wheel"), cwd=source)
     (wheel,) = (tmp_path / "wheel").glob("*.whl")
     with zipfile.ZipFile(wheel) as archive:
-        for version in (
-            "0.1",
-            "0.2",
-            "0.3",
-            "0.4",
-            "0.5",
-            "0.6",
-            "0.7",
-            "0.8",
-            "0.9",
-            "0.10",
-            "0.11",
-            "0.12",
-            "0.13",
-            "0.14",
-            "0.15",
-        ):
-            for kind in ("request", "response"):
-                assert f"shift_schedula/schemas/{version}/{kind}.schema.json" in archive.namelist()
+        for kind in ("request", "response"):
+            assert f"shift_schedula/schemas/0.15/{kind}.schema.json" in archive.namelist()
+        assert not any(re.search(r"schemas/0\.(?:1[0-4]|[1-9])/", n) for n in archive.namelist())
         assert any(n.endswith("/licenses/LICENSE") for n in archive.namelist())
         assert any(n.endswith("/licenses/THIRD_PARTY_NOTICES.md") for n in archive.namelist())
         assert not any(n.startswith(("docs/", "tests/", "demo/")) for n in archive.namelist())

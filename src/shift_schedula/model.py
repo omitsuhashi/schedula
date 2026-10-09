@@ -154,10 +154,7 @@ def priority_levels(request):
 
 
 def flow_requires_complete_demand(request):
-    return request["schema_version"] in {"0.1", "0.2"} or (
-        request["schema_version"] == "0.15"
-        and all(d.get("minimum_people", 0) == d["required_people"] for d in request["demand"])
-    )
+    return all(d.get("minimum_people", 0) == d["required_people"] for d in request["demand"])
 
 
 def unique(items, field, path):
@@ -303,10 +300,9 @@ def normalize(request):
         context_bounds(request, grid)
         continuity_facts = facts(request, grid)
         absolute_available = availability(request, grid)
-    if request["schema_version"] in {"0.11", "0.12", "0.13", "0.14", "0.15"}:
-        from .day_counts import validate as validate_day_counts
+    from .day_counts import validate as validate_day_counts
 
-        validate_day_counts(request, grid)
+    validate_day_counts(request, grid)
     for index, constraint in enumerate(request["constraints"]):
         if constraint["type"] == "scheduled_minutes_bounds":
             if continuous:
@@ -398,20 +394,7 @@ def normalize(request):
                 )
             demand[slot][item["role_id"]] = int(item["required_people"])
             minimums[slot, item["role_id"]] = minimum
-            if request["schema_version"] in {
-                "0.5",
-                "0.6",
-                "0.7",
-                "0.8",
-                "0.9",
-                "0.10",
-                "0.11",
-                "0.12",
-                "0.13",
-                "0.14",
-                "0.15",
-            }:
-                priorities[slot, item["role_id"]] = int(item.get("priority", 0))
+            priorities[slot, item["role_id"]] = int(item.get("priority", 0))
     costs = {}
     for index, item in enumerate(request["preferences"]):
         path = f"/preferences/{index}"
@@ -439,60 +422,40 @@ def normalize(request):
         expansion_start = time.perf_counter()
         problem.candidates = expand_candidates(request, grid)
         expansion_seconds = time.perf_counter() - expansion_start
-    if request["schema_version"] in {"0.13", "0.14", "0.15"}:
-        from .shift_patterns import validate as validate_patterns
+    from .shift_patterns import validate as validate_patterns
 
-        validate_patterns(problem)
-    if request["schema_version"] in {"0.14", "0.15"}:
-        from .coworkers import validate as validate_coworkers
+    validate_patterns(problem)
+    from .coworkers import validate as validate_coworkers
 
-        validate_coworkers(request, grid)
-    if request["schema_version"] in {
-        "0.2",
-        "0.3",
-        "0.4",
-        "0.5",
-        "0.6",
-        "0.7",
-        "0.8",
-        "0.9",
-        "0.10",
-        "0.11",
-        "0.12",
-        "0.13",
-        "0.14",
-        "0.15",
-    }:
-        from .diagnosis import validate_options
-        from .extensions import validate
+    validate_coworkers(request, grid)
+    from .diagnosis import validate_options
+    from .extensions import validate
 
-        validate(problem)
-        if request["schema_version"] == "0.15":
-            from .shift_counts import validate as validate_counts
+    validate(problem)
+    from .shift_counts import validate as validate_counts
 
-            validate_counts(problem)
-        if request["schema_version"] in {"0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"}:
-            from .roster_metrics import validate as validate_metrics
+    validate_counts(problem)
+    from .roster_metrics import validate as validate_metrics
 
-            validate_metrics(problem)
-        validate_options(request)
-        bounds = [
-            slots * len(ids["employees"]) * max(costs.values(), default=0)
-            + sum(
-                slots * grid.slot_minutes * len(p["employee_ids"]) * p["penalty_per_minute"]
-                for p in request["preferences"]
-                if p["type"] != "avoid_role"
-            ),
-            sum(len(c.work_slots) * grid.slot_minutes for c in problem.candidates),
-            slots * len(ids["employees"]),
-            sum(
-                max(slots * grid.slot_minutes, t["target_minutes"])
-                for t in request.get("fairness", {}).get("employee_targets", [])
-            ),
-            2 * slots * 500,
-        ]
-        if max(bounds) > 2**60 - 1:
-            reject("INTEGER_EXPRESSION_LIMIT", "整数式の保守的な上界を超えています。")
+    validate_metrics(problem)
+    validate_options(request)
+    bounds = [
+        slots * len(ids["employees"]) * max(costs.values(), default=0)
+        + sum(
+            slots * grid.slot_minutes * len(p["employee_ids"]) * p["penalty_per_minute"]
+            for p in request["preferences"]
+            if p["type"] != "avoid_role"
+        ),
+        sum(len(c.work_slots) * grid.slot_minutes for c in problem.candidates),
+        slots * len(ids["employees"]),
+        sum(
+            max(slots * grid.slot_minutes, t["target_minutes"])
+            for t in request.get("fairness", {}).get("employee_targets", [])
+        ),
+        2 * slots * 500,
+    ]
+    if max(bounds) > 2**60 - 1:
+        reject("INTEGER_EXPRESSION_LIMIT", "整数式の保守的な上界を超えています。")
     problem.normalization_stats = {
         "candidate_expansion_elapsed_seconds": expansion_seconds,
         "input_validation_elapsed_seconds": time.perf_counter() - started - expansion_seconds,

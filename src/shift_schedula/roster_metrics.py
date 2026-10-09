@@ -24,14 +24,7 @@ def duty_intervals(duty):
 
 def coefficients(problem, duty):
     grid = problem.grid
-    if problem.request["schema_version"] in {
-        "0.10",
-        "0.11",
-        "0.12",
-        "0.13",
-        "0.14",
-        "0.15",
-    } and problem.request.get("continuity"):
+    if problem.request.get("continuity"):
         intervals = duty_intervals(duty)
         values = {
             c.id: sum(minutes(c.absolute_segments, a, b) for a, b in intervals)
@@ -110,18 +103,17 @@ def validate(problem):
         path = f"/duty_balance/{i}"
 
         def checked_interval(value, pointer):
-            if request["schema_version"] in {"0.10", "0.11", "0.12", "0.13", "0.14", "0.15"}:
-                if request.get("continuity"):
-                    return context_interval(value, grid, context_bounds(request, grid), pointer)
-                if (
-                    parse_datetime(value["start"]) < grid.start
-                    or parse_datetime(value["end"]) > grid.end
-                ):
-                    reject(
-                        "INCOMPLETE_HISTORY",
-                        "計画外の評価には確認済み continuity が必要です。",
-                        pointer,
-                    )
+            if request.get("continuity"):
+                return context_interval(value, grid, context_bounds(request, grid), pointer)
+            if (
+                parse_datetime(value["start"]) < grid.start
+                or parse_datetime(value["end"]) > grid.end
+            ):
+                reject(
+                    "INCOMPLETE_HISTORY",
+                    "計画外の評価には確認済み continuity が必要です。",
+                    pointer,
+                )
             return grid.interval(value, pointer)
 
         start, end = checked_interval(duty["evaluation_period"], path + "/evaluation_period")
@@ -216,14 +208,7 @@ def evaluate(request, grid, solution):
             "employees": employees,
         }
     if "duty_balance" in request:
-        if request["schema_version"] in {
-            "0.10",
-            "0.11",
-            "0.12",
-            "0.13",
-            "0.14",
-            "0.15",
-        } and request.get("continuity"):
+        if request.get("continuity"):
             # Wに重なる確定勤務は解の原segmentsで一度数える。W外だけの事実を補う。
             returned = {
                 s["committed_shift_id"] for s in solution["shifts"] if "committed_shift_id" in s

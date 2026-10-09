@@ -5,7 +5,7 @@ Python の配布名は `shift-schedula`、import 名は `shift_schedula` です�
 
 技能・勤務可能時間・役割別需要・業務ルールから、担当配置（`assignment`）と
 出退勤・休憩を含む勤務計画（`roster`）の検証済み解を求める Python ライブラリと CLI です。
-JSON 契約0.1〜0.15に対応し、独立した配置は最小費用流、
+JSON 契約0.15に対応し、独立した配置は最小費用流、
 担当時間・担当切替を含む配置と勤務計画は CP-SAT を使用します。
 
 独自コード・文書・デモは[MIT](LICENSE)で、自力導入・組み込み・商用利用ができます。
@@ -76,7 +76,7 @@ uv run --locked python demo/server.py
 再実行コマンドと検証結果は[デモの検証記録](docs/evaluations/playground.md)を参照してください。
 
 画面上部の「JSON で担当配置・勤務計画を計算する」を開くと、JSON の貼り付け・
-UTF-8 ファイルの読み込み（2 MiBまで）から、契約0.1〜0.15の入力を実行できます。
+UTF-8 ファイルの読み込み（2 MiBまで）から、契約0.15の入力を実行できます。
 「100人・30日・30分刻みの勤務計画」を選び、「サンプルを読み込む」→「JSON で計算」を押します。
 結果の日付を選ぶと、100人分の担当・休憩・待機・勤務なしと役割別の需要充足を確認できます。
 
@@ -211,7 +211,7 @@ ID は種類ごとに一意にし、参照先を登録します。不要な配�
 
 ```json
 {
-  "schema_version": "0.1",
+  "schema_version": "0.15",
   "request_id": "my_assignment",
   "problem_type": "assignment",
   "planning_window": {

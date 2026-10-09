@@ -10,9 +10,8 @@ from shift_schedula import cp_sat, engine, solve
 from shift_schedula.contract import InvalidInput
 from shift_schedula.model import normalize
 from shift_schedula.verify import verify_solution
-from tests.roster_support import candidate, legacy_candidate, legacy_request, request
+from tests.roster_support import candidate, request
 from tests.roster_support import complete_demand as demand
-from tests.roster_support import demand as legacy_demand
 from tests.support import assert_response
 from tests.test_cp_sat import exhaustive_linked_value, small_request, stamp
 from tests.test_roster import exhaustive_value
@@ -54,23 +53,6 @@ def tradeoff_request(order=METRICS):
     data = request(employees=("alice", "bob"))
     data["shift_candidates"] = [candidate("alice"), candidate("bob", end=660)]
     data["demand"] = [demand(), demand(start=630, end=660, role="hall")]
-    data["preferences"] = [
-        {
-            "id": "avoid",
-            "type": "avoid_role",
-            "employee_ids": ["bob"],
-            "role_id": "kitchen",
-            "penalty_per_minute": 1,
-        }
-    ]
-    data["objectives"] = [{"id": metric, "metric": metric} for metric in order]
-    return data
-
-
-def legacy_tradeoff_request(order=METRICS):
-    data = legacy_request(employees=("alice", "bob"))
-    data["shift_candidates"] = [legacy_candidate("alice"), legacy_candidate("bob", end=660)]
-    data["demand"] = [legacy_demand(), legacy_demand(start=630, end=660, role="hall")]
     data["preferences"] = [
         {
             "id": "avoid",

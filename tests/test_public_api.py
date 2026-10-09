@@ -48,66 +48,18 @@ def test_public_validation_reuses_entry_checks_without_solving(assignment_reques
 
 
 def test_public_types_match_version_fields_and_literals():
-    for version, request_type in zip(
-        (
-            "0.1",
-            "0.2",
-            "0.3",
-            "0.4",
-            "0.5",
-            "0.6",
-            "0.7",
-            "0.8",
-            "0.9",
-            "0.10",
-            "0.11",
-            "0.12",
-            "0.13",
-            "0.14",
-            "0.15",
-        ),
-        (
-            types.Request01,
-            types.Request02,
-            types.Request03,
-            types.Request04,
-            types.Request05,
-            types.Request06,
-            types.Request07,
-            types.Request08,
-            types.Request09,
-            types.Request010,
-            types.Request011,
-            types.Request012,
-            types.Request013,
-            types.Request014,
-            types.Request015,
-        ),
-        strict=True,
+    for kind, value in (
+        ("request", types.Request015),
+        ("response", types.Response015Success),
+        ("verification", types.Verification),
     ):
-        schema = get_schema("request", version)
-        assert set(schema["required"]) == request_type.__required_keys__
-        assert set(schema["properties"]) == set(get_type_hints(request_type))
-        assert get_args(get_type_hints(request_type)["schema_version"]) == (version,)
-    assert set(get_args(types.SchemaVersion.__value__)) == {
-        "0.1",
-        "0.2",
-        "0.3",
-        "0.4",
-        "0.5",
-        "0.6",
-        "0.7",
-        "0.8",
-        "0.9",
-        "0.10",
-        "0.11",
-        "0.12",
-        "0.13",
-        "0.14",
-        "0.15",
-    }
-    assert "PARTIAL" not in get_args(get_type_hints(types.Response01Success)["status"])
-    assert "PARTIAL" in get_args(get_type_hints(types.Response04Success)["status"])
+        schema = get_schema(kind)
+        assert set(schema["properties"]) == set(get_type_hints(value))
+        assert set(schema["required"]) == value.__required_keys__
+        version = get_type_hints(value)["schema_version"]
+        assert get_args(getattr(version, "__value__", version)) == ("0.15",)
+    assert get_args(types.SchemaVersion.__value__) == ("0.15",)
+    assert "PARTIAL" in get_args(get_type_hints(types.Response015Success)["status"])
 
 
 @pytest.mark.distribution
@@ -205,10 +157,10 @@ def test_installed_wheel_types_check_consumer_and_reject_typos(tmp_path):
     overlap_consumer = tmp_path / "overlap_consumer.py"
     overlap_consumer.write_text(
         "from shift_schedula import make_baseline, solve\n"
-        "from shift_schedula.types import Request07\n"
-        "def roundtrip(request: Request07) -> None:\n"
+        "from shift_schedula.types import Request015\n"
+        "def roundtrip(request: Request015) -> None:\n"
         "    result = solve(request)\n"
-        '    if result["schema_version"] == "0.7" and '
+        '    if result["schema_version"] == "0.15" and '
         'result["status"] in {"OPTIMAL", "FEASIBLE", "PARTIAL"}:\n'
         '        make_baseline(request, result["solution"], "saved")\n'
         '        summary = result["change_summary"]\n'
@@ -220,9 +172,7 @@ def test_installed_wheel_types_check_consumer_and_reject_typos(tmp_path):
     refinement_consumer = tmp_path / "refinement_consumer.py"
     refinement_consumer.write_text(
         overlap_consumer.read_text(encoding="utf-8")
-        .replace("Request07", "Request08")
-        .replace('"0.7"', '"0.8"')
-        + '    if result["schema_version"] == "0.8":\n'
+        + '    if result["schema_version"] == "0.15":\n'
         + '        detail = result["diagnosis_result"]\n'
         + '        if detail is not None and detail["conflict"] is not None:\n'
         + '            conflict = detail["conflict"]\n'
@@ -233,14 +183,14 @@ def test_installed_wheel_types_check_consumer_and_reject_typos(tmp_path):
     metrics_consumer = tmp_path / "metrics_consumer.py"
     metrics_consumer.write_text(
         "from shift_schedula import make_baseline, solve, verify\n"
-        "from shift_schedula.types import Request09, CostObjective, DutyObjective\n"
-        "def evaluate(request: Request09) -> None:\n"
+        "from shift_schedula.types import Request015, CostObjective, DutyObjective\n"
+        "def evaluate(request: Request015) -> None:\n"
         '    cost: CostObjective = {"id": "cost", "metric": "scheduled_cost"}\n'
         '    duty: DutyObjective = {"id": "night", "metric": "duty_deviation_minutes", '
         '"duty_id": "night"}\n'
         '    request["objectives"] = [cost, duty]\n'
         "    result = solve(request)\n"
-        '    if result["schema_version"] == "0.9" and '
+        '    if result["schema_version"] == "0.15" and '
         'result["status"] in {"OPTIMAL", "FEASIBLE", "PARTIAL"}:\n'
         '        make_baseline(request, result["solution"], "saved")\n'
         '        checked = verify(request, result["solution"])\n'
@@ -251,17 +201,13 @@ def test_installed_wheel_types_check_consumer_and_reject_typos(tmp_path):
     run(str(python), "-m", "mypy", "--strict", str(metrics_consumer))
     history_consumer = tmp_path / "history_consumer.py"
     history_consumer.write_text(
-        metrics_consumer.read_text(encoding="utf-8")
-        .replace("Request09", "Request010")
-        .replace('"0.9"', '"0.10"'),
+        metrics_consumer.read_text(encoding="utf-8"),
         encoding="utf-8",
     )
     run(str(python), "-m", "mypy", "--strict", str(history_consumer))
     days_consumer = tmp_path / "days_consumer.py"
     days_consumer.write_text(
         history_consumer.read_text(encoding="utf-8")
-        .replace("Request010", "Request011")
-        .replace('"0.10"', '"0.11"')
         + '        print(result["day_count_summary"])\n',
         encoding="utf-8",
     )
@@ -269,8 +215,6 @@ def test_installed_wheel_types_check_consumer_and_reject_typos(tmp_path):
     minimum_consumer = tmp_path / "minimum_consumer.py"
     minimum_consumer.write_text(
         days_consumer.read_text(encoding="utf-8")
-        .replace("Request011", "Request012")
-        .replace('"0.11"', '"0.12"')
         + '        request["demand"][0]["minimum_people"] = 1\n'
         + '        if result["shortage_summary"] is not None:\n'
         + '            print(result["shortage_summary"]["shortages"][0].get("minimum_people"))\n',
@@ -280,8 +224,6 @@ def test_installed_wheel_types_check_consumer_and_reject_typos(tmp_path):
     patterns_consumer = tmp_path / "patterns_consumer.py"
     patterns_consumer.write_text(
         minimum_consumer.read_text(encoding="utf-8")
-        .replace("Request012", "Request013")
-        .replace('"0.12"', '"0.13"')
         + '        request["shift_categories"] = [{"id": "night", "label": "夜勤", '
         '"intervals": [], "min_overlap_minutes": 60}]\n'
         + '        request["constraints"].append({"id": "off", '
@@ -314,8 +256,6 @@ def test_installed_wheel_types_check_consumer_and_reject_typos(tmp_path):
     coworkers_consumer = tmp_path / "coworkers_consumer.py"
     coworkers_consumer.write_text(
         patterns_consumer.read_text(encoding="utf-8")
-        .replace("Request013", "Request014")
-        .replace('"0.13"', '"0.14"')
         + '        request["constraints"].append({"id": "training", '
         '"type": "required_coworkers", "employee_ids": ["alice"], '
         '"coworker_ids": ["bob"], "minimum_people": 1, '
@@ -346,8 +286,6 @@ def test_installed_wheel_types_check_consumer_and_reject_typos(tmp_path):
     count_consumer = tmp_path / "count_consumer.py"
     count_consumer.write_text(
         coworkers_consumer.read_text()
-        .replace("Request014", "Request015")
-        .replace('"0.14"', '"0.15"')
         + '        request["shift_count_balance"] = [{"id": "nights", "label": "夜勤回数", '
         '"evaluation_period": {"start": "", "end": ""}, "category_id": "night", '
         '"employee_targets": [{"employee_id": "alice", "target_count": 1}]}]\n'
@@ -359,8 +297,8 @@ def test_installed_wheel_types_check_consumer_and_reject_typos(tmp_path):
     invalid = tmp_path / "invalid_consumer.py"
     invalid.write_text(
         "from shift_schedula import Response\n"
-        "from shift_schedula.types import Request03\n"
-        "def broken(response: Response, request: Request03) -> None:\n"
+        "from shift_schedula.types import Request015\n"
+        "def broken(response: Response, request: Request015) -> None:\n"
         "    response['status'] = 'OPTIMLA'\n"
         "    request['unexpected'] = 1\n",
         encoding="utf-8",

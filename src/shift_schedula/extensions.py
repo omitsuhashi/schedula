@@ -93,45 +93,6 @@ def validate(problem):
             reject("MISSING_BASELINE", "変更目的と固定部分には基準計画を指定します。", "/baseline")
         return
     source = baseline["source_request"]
-    if source.get("schema_version") in {
-        "0.4",
-        "0.5",
-        "0.6",
-        "0.7",
-        "0.8",
-        "0.9",
-        "0.10",
-        "0.11",
-        "0.12",
-        "0.13",
-        "0.14",
-        "0.15",
-    } and tuple(map(int, request["schema_version"].split("."))) < tuple(
-        map(int, source["schema_version"].split("."))
-    ):
-        reject(
-            "UNSUPPORTED_BASELINE_VERSION",
-            "旧版の基準に新しい契約版は指定できません。",
-            "/baseline/source_request/schema_version",
-        )
-    if request["schema_version"] == "0.2" and source.get("schema_version") in (
-        "0.3",
-        "0.4",
-        "0.5",
-        "0.6",
-        "0.7",
-        "0.8",
-        "0.9",
-        "0.10",
-        "0.11",
-        "0.12",
-        "0.13",
-    ):
-        reject(
-            "UNSUPPORTED_BASELINE_VERSION",
-            "契約0.2の基準計画は0.1または0.2で指定します。",
-            "/baseline/source_request/schema_version",
-        )
     if "baseline" in source or "diagnosis" in source:
         reject(
             "NESTED_BASELINE",
@@ -143,21 +104,7 @@ def validate(problem):
         violations, _ = verify_solution(
             old,
             baseline["source_solution"],
-            require_complete=request["schema_version"]
-            not in {
-                "0.4",
-                "0.5",
-                "0.6",
-                "0.7",
-                "0.8",
-                "0.9",
-                "0.10",
-                "0.11",
-                "0.12",
-                "0.13",
-                "0.14",
-                "0.15",
-            },
+            require_complete=False,
         )
     except InvalidInput as error:
         raise InvalidInput(
@@ -182,24 +129,12 @@ def validate(problem):
             ]
         )
     overlap_start, overlap_end = max(old.grid.start, grid.start), min(old.grid.end, grid.end)
-    sliding = request["schema_version"] in {
-        "0.7",
-        "0.8",
-        "0.9",
-        "0.10",
-        "0.11",
-        "0.12",
-        "0.13",
-        "0.14",
-        "0.15",
-    }
     step = timedelta(minutes=grid.slot_minutes)
     if (
         source["problem_type"] != "roster"
-        or (not sliding and (old.grid.start != grid.start or old.grid.end != grid.end))
         or overlap_start >= overlap_end
         or old.grid.timezone.key != grid.timezone.key
-        or old.grid.slot_minutes != grid.slot_minutes
+        or (old.grid.slot_minutes != grid.slot_minutes)
         or (old.grid.start - grid.start) % step
     ):
         reject(
@@ -253,7 +188,7 @@ def validate(problem):
     violations = check_fixed_states(requirements, work, roles)
     if violations:
         raise InvalidInput(violations)
-    if sliding and request.get("continuity") and source.get("continuity"):
+    if request.get("continuity") and source.get("continuity"):
         from .continuity import facts
 
         old_facts = {d["id"]: d for d in facts(source, old.grid)}
@@ -324,30 +259,13 @@ def check_fixed_states(requirements, work, roles, *, employee_ids=None):
 
 
 def make_baseline(request: dict, solution: dict, plan_id: str) -> dict:
-    """契約0.4以降の解を再検証し、ネストを増やさず次の基準計画へ保存する。"""
+    """解を再検証し、ネストを増やさず次の基準計画へ保存する。"""
     from .model import normalize
     from .verify import verify_plan
 
     problem = normalize(request)
-    if (
-        request["schema_version"]
-        not in {
-            "0.4",
-            "0.5",
-            "0.6",
-            "0.7",
-            "0.8",
-            "0.9",
-            "0.10",
-            "0.11",
-            "0.12",
-            "0.13",
-            "0.14",
-            "0.15",
-        }
-        or request["problem_type"] != "roster"
-    ):
-        reject("UNSUPPORTED_CONDITION", "make_baseline は契約0.4〜0.15の roster を受け取ります。")
+    if request["problem_type"] != "roster":
+        reject("UNSUPPORTED_CONDITION", "make_baseline は契約0.15の roster を受け取ります。")
     violations, _, _ = verify_plan(problem, solution)
     if violations:
         raise InvalidInput(violations)
@@ -387,14 +305,11 @@ def make_baseline(request: dict, solution: dict, plan_id: str) -> dict:
 def prepare(model, problem, assignments, shifts, scheduled_by_employee, active_groups=None):
     request, grid = problem.request, problem.grid
     expressions = {"fairness_deviation_minutes": 0, "plan_changes": 0}
-    if request["schema_version"] == "0.15" and active_groups is None:
+    if active_groups is None:
         from .shift_counts import prepare as prepare_counts
 
         expressions.update(prepare_counts(model, problem, shifts))
-    if (
-        request["schema_version"] in {"0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"}
-        and active_groups is None
-    ):
+    if active_groups is None:
         from .roster_metrics import prepare as prepare_metrics
 
         expressions.update(prepare_metrics(model, problem, shifts, scheduled_by_employee))
@@ -455,11 +370,7 @@ def prepare(model, problem, assignments, shifts, scheduled_by_employee, active_g
     ]
     expressions["plan_changes"] = sum(changed_work) + sum(changed_roles)
     for key, component, expected, _, _ in fixed_requirements(problem, active_groups):
-        if (
-            request["schema_version"]
-            in {"0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"}
-            and key[0] not in problem.available
-        ):
+        if key[0] not in problem.available:
             model.add(False)
             continue
         match = work_match(key, expected) if component == "work" else role_match(key, expected)
@@ -470,43 +381,26 @@ def prepare(model, problem, assignments, shifts, scheduled_by_employee, active_g
 def evaluate(problem, solution):
     metrics = {"fairness_deviation_minutes": 0, "plan_changes": 0}
     summaries = {"fairness_summary": None, "change_summary": None}
-    if problem.request["schema_version"] == "0.15":
-        from .shift_counts import evaluate as evaluate_counts
+    from .shift_counts import evaluate as evaluate_counts
 
-        extra_metrics, extra_summaries = evaluate_counts(problem.request, problem.grid, solution)
-        metrics.update(extra_metrics)
-        summaries.update(extra_summaries)
-    if problem.request["schema_version"] in {"0.11", "0.12", "0.13", "0.14", "0.15"}:
-        from .day_counts import evaluate as evaluate_day_counts
+    extra_metrics, extra_summaries = evaluate_counts(problem.request, problem.grid, solution)
+    metrics.update(extra_metrics)
+    summaries.update(extra_summaries)
+    from .day_counts import evaluate as evaluate_day_counts
 
-        summaries["day_count_summary"] = evaluate_day_counts(
-            problem.request, problem.grid, solution
-        )
-    if problem.request["schema_version"] in {"0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"}:
-        from .roster_metrics import evaluate as evaluate_metrics
+    summaries["day_count_summary"] = evaluate_day_counts(problem.request, problem.grid, solution)
+    from .roster_metrics import evaluate as evaluate_metrics
 
-        extra_metrics, extra_summaries = evaluate_metrics(problem.request, problem.grid, solution)
-        metrics.update(extra_metrics)
-        summaries.update(extra_summaries)
-    if problem.request["schema_version"] in {
-        "0.6",
-        "0.7",
-        "0.8",
-        "0.9",
-        "0.10",
-        "0.11",
-        "0.12",
-        "0.13",
-        "0.14",
-        "0.15",
-    }:
-        from .continuity import summary
+    extra_metrics, extra_summaries = evaluate_metrics(problem.request, problem.grid, solution)
+    metrics.update(extra_metrics)
+    summaries.update(extra_summaries)
+    from .continuity import summary
 
-        summaries["continuity_summary"] = (
-            summary(problem.request, problem.grid, solution)
-            if problem.request.get("continuity")
-            else None
-        )
+    summaries["continuity_summary"] = (
+        summary(problem.request, problem.grid, solution)
+        if problem.request.get("continuity")
+        else None
+    )
     try:
         work, roles = states(
             problem.grid, solution, continuity=bool(problem.request.get("continuity"))
@@ -553,30 +447,16 @@ def evaluate(problem, solution):
             "role_changes": role_changes,
             "total_changes": work_changes + role_changes,
         }
-        if problem.request["schema_version"] in {
-            "0.7",
-            "0.8",
-            "0.9",
-            "0.10",
-            "0.11",
-            "0.12",
-            "0.13",
-            "0.14",
-            "0.15",
-        }:
-            summaries["change_summary"].update(
-                comparison_interval=problem.grid.output_interval(start, end),
-                slot_minutes=problem.grid.slot_minutes,
-            )
+        summaries["change_summary"].update(
+            comparison_interval=problem.grid.output_interval(start, end),
+            slot_minutes=problem.grid.slot_minutes,
+        )
         violations.extend(
             check_fixed_states(
                 fixed_requirements(problem),
                 work,
                 roles,
-                employee_ids=problem.available
-                if problem.request["schema_version"]
-                in {"0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"}
-                else None,
+                employee_ids=problem.available,
             )
         )
     return violations, metrics, summaries

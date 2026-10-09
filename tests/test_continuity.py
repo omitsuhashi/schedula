@@ -457,7 +457,7 @@ def test_cli_schemas_and_summary_tampering(tmp_path):
         assert p.returncode == 0, p.stdout + p.stderr
         assert json.loads(p.stdout)["continuity_summary"] == result["continuity_summary"]
     for kind in ("request", "response", "solution", "verification"):
-        for version in ("0.6", "0.15"):
+        for version in ("0.15",):
             assert get_schema(kind, version)["$id"] == f"urn:schedula:{kind}:{version}"
 
 

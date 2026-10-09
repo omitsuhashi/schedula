@@ -19,7 +19,7 @@ from shift_schedula import (
     validate,
     verify,
 )
-from shift_schedula.contract import SCHEMA_VERSIONS, schema_errors
+from shift_schedula.contract import schema_errors
 from shift_schedula.engine import validate_response
 from shift_schedula.model import normalize
 from shift_schedula.verify import verify_plan
@@ -403,7 +403,7 @@ def test_response_rejects_tampered_references_and_proof_records(field):
     "version",
     [
         v
-        for v in SCHEMA_VERSIONS
+        for v in [f"0.{i}" for i in range(1, 15)]
         if v not in {"0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"}
     ],
 )
@@ -413,7 +413,9 @@ def test_new_request_and_response_fields_rejected_by_old_versions(version):
     assert_response(solve(data), "INVALID_INPUT")
     response = solve(example())
     response["schema_version"] = version
-    assert schema_errors("response", response, version)
+    assert schema_errors("response", response)
+    with pytest.raises(ValueError, match="0.15"):
+        get_schema("response", version)
 
 
 @pytest.mark.parametrize(
@@ -425,7 +427,7 @@ def test_unpermitted_edits_still_rejected(pointer):
     assert_response(solve(data), "INVALID_INPUT")
 
 
-@pytest.mark.parametrize("version", ["0.8", "0.15"])
+@pytest.mark.parametrize("version", ["0.15"])
 def test_budget_validation_default_groups_cli_and_new_schemas(tmp_path, version):
     data = example()
     data["diagnosis"]["conflict_refinement"]["time_limit_seconds"] = 11

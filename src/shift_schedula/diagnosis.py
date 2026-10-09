@@ -40,11 +40,7 @@ def validate_options(request):
                 )
             name, number, field = match.groups()
             number = int(number)
-            minimum_edit = (
-                name == "demand"
-                and field == "minimum_people"
-                and request["schema_version"] in {"0.12", "0.13", "0.14", "0.15"}
-            )
+            minimum_edit = name == "demand" and field == "minimum_people"
             if (
                 number >= len(request[name])
                 or (field not in request[name][number] and not minimum_edit)
@@ -80,24 +76,7 @@ def conditions(request):
     window = {k: request["planning_window"][k] for k in ("start", "end")}
     add("PLANNING_GRID", "/planning_window", interval=window)
     add(
-        "DEMAND_LIMIT_AND_SINGLE_ASSIGNMENT"
-        if request["schema_version"]
-        in {
-            "0.3",
-            "0.4",
-            "0.5",
-            "0.6",
-            "0.7",
-            "0.8",
-            "0.9",
-            "0.10",
-            "0.11",
-            "0.12",
-            "0.13",
-            "0.14",
-            "0.15",
-        }
-        else "EXACT_DEMAND_AND_SINGLE_ASSIGNMENT",
+        "DEMAND_LIMIT_AND_SINGLE_ASSIGNMENT",
         "/problem_type",
     )
     for i, demand in enumerate(request["demand"]):
@@ -461,34 +440,11 @@ def diagnose(request, status, solve, *, problem=None, num_workers=2):
         if time.monotonic() >= deadline:
             result["status"] = "TIME_LIMIT"
         else:
-            if request["schema_version"] in {
-                "0.8",
-                "0.9",
-                "0.10",
-                "0.11",
-                "0.12",
-                "0.13",
-                "0.14",
-                "0.15",
-            }:
-                groups, background = condition_groups(request)
-                if config.get("conflict_refinement"):
-                    refine(
-                        request, result, groups, background, deadline, problem, num_workers, start
-                    )
-                else:
-                    conflict = group_conflict(groups, background)
-                    if time.monotonic() < deadline:
-                        result["conflict"] = conflict
-                    else:
-                        result["status"] = "TIME_LIMIT"
+            groups, background = condition_groups(request)
+            if config.get("conflict_refinement"):
+                refine(request, result, groups, background, deadline, problem, num_workers, start)
             else:
-                # 旧版の全必須条件の十分集合と証明範囲は維持する。
-                conflict = {
-                    "conditions": conditions(request),
-                    "infeasibility_proven": True,
-                    "minimality": "not_proven",
-                }
+                conflict = group_conflict(groups, background)
                 if time.monotonic() < deadline:
                     result["conflict"] = conflict
                 else:
@@ -525,11 +481,7 @@ def diagnose(request, status, solve, *, problem=None, num_workers=2):
                     )
                 )
                 break
-            accepted = (
-                {"OPTIMAL", "FEASIBLE", "PARTIAL"}
-                if request["schema_version"] in {"0.12", "0.13", "0.14", "0.15"}
-                else {"OPTIMAL", "FEASIBLE"}
-            )
+            accepted = {"OPTIMAL", "FEASIBLE", "PARTIAL"}
             if response["status"] in accepted and response["verification"]["valid"]:
                 validate_response(response, modified)
                 if time.monotonic() > deadline:
@@ -625,21 +577,9 @@ def validate_result(request, response):
             fail()
         return errors
     if result["conflict"] is not None:
-        if request["schema_version"] in {
-            "0.8",
-            "0.9",
-            "0.10",
-            "0.11",
-            "0.12",
-            "0.13",
-            "0.14",
-            "0.15",
-        }:
-            if not valid_group_conflict(
-                request, result["conflict"], failed=result["status"] == "ERROR"
-            ):
-                fail()
-        elif result["conflict"]["conditions"] != conditions(request):
+        if not valid_group_conflict(
+            request, result["conflict"], failed=result["status"] == "ERROR"
+        ):
             fail()
     if result["status"] == "COMPLETE" and result["conflict"] is None:
         fail()

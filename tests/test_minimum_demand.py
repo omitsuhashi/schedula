@@ -21,7 +21,7 @@ from shift_schedula import (
     validate,
     verify,
 )
-from shift_schedula.contract import SCHEMA_VERSIONS, schema_errors
+from shift_schedula.contract import schema_errors
 from shift_schedula.engine import validate_response
 from shift_schedula.model import normalize
 from shift_schedula.verify import verify_plan
@@ -84,15 +84,15 @@ def test_invalid_minimum_rejected(value):
 
 
 @pytest.mark.parametrize(
-    "version", [v for v in SCHEMA_VERSIONS if v not in {"0.12", "0.13", "0.14", "0.15"}]
+    "version",
+    [v for v in [f"0.{i}" for i in range(1, 15)] if v not in {"0.12", "0.13", "0.14", "0.15"}],
 )
-def test_old_versions_reject_minimum_even_zero(legacy_assignment_request, version):
-    legacy_assignment_request["schema_version"] = version
-    legacy_assignment_request["demand"][0]["minimum_people"] = 0
-    assert_response(solve(legacy_assignment_request), "INVALID_INPUT")
+def test_old_versions_reject_minimum_even_zero(assignment_request, version):
+    assignment_request["schema_version"] = version
+    assignment_request["demand"][0]["minimum_people"] = 0
+    assert_response(solve(assignment_request), "INVALID_INPUT")
     assert any(
-        d["json_pointer"].startswith("/demand/0")
-        for d in schema_errors("request", legacy_assignment_request)
+        d["json_pointer"] == "/schema_version" for d in schema_errors("request", assignment_request)
     )
 
 
@@ -494,7 +494,7 @@ def test_time_limit_keeps_hard_minimum_and_proof_prefix(monkeypatch, statuses):
         assert all(not o["proven_optimal"] for o in result["objectives"])
 
 
-@pytest.mark.parametrize("version", ["0.12", "0.15"])
+@pytest.mark.parametrize("version", ["0.15"])
 def test_schema_cli_and_example_round_trip(tmp_path, version):
     data = roster()
     data["schema_version"] = version
@@ -583,7 +583,7 @@ def test_no_optional_dependency_verifies_minimum_and_reports_missing_backend(mon
     assert failure["solver"]["selection_reason"] == "MANDATORY_DEMAND"
 
 
-@pytest.mark.parametrize("version", ["0.11", "0.12", "0.15"])
+@pytest.mark.parametrize("version", ["0.15"])
 def test_optional_minimum_edit_is_versioned_and_bounded(version):
     data = roster()
     data["schema_version"] = version

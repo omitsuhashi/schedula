@@ -174,7 +174,7 @@ def test_response_objectives_match_request_order_and_ids(assignment_request):
         validate_response(result, assignment_request)
 
 
-@pytest.mark.parametrize("assignment_request", ["0.1", "0.15"], indirect=True)
+@pytest.mark.parametrize("assignment_request", ["0.15"], indirect=True)
 def test_search_timeout_is_unknown_with_no_partial_solution(assignment_request, monkeypatch):
     if assignment_request["schema_version"] == "0.15":
         require_complete_demand(assignment_request)
@@ -185,7 +185,7 @@ def test_search_timeout_is_unknown_with_no_partial_solution(assignment_request, 
     assert result["diagnostics"][0]["code"] == "TIME_LIMIT"
 
 
-@pytest.mark.parametrize("assignment_request", ["0.1", "0.15"], indirect=True)
+@pytest.mark.parametrize("assignment_request", ["0.15"], indirect=True)
 def test_model_preparation_does_not_consume_search_budget(assignment_request, monkeypatch):
     if assignment_request["schema_version"] == "0.15":
         require_complete_demand(assignment_request)

@@ -83,7 +83,7 @@ def total_first():
     return data
 
 
-@pytest.mark.parametrize("version", ["0.5", "0.7", "0.8", "0.15"])
+@pytest.mark.parametrize("version", ["0.15"])
 def test_total_shortage_precedes_priority_and_survives_replanning(version):
     data = total_first()
     data["schema_version"] = version
@@ -102,7 +102,7 @@ def test_total_shortage_precedes_priority_and_survives_replanning(version):
     old = {**data, "schema_version": "0.4", "baseline": baseline}
     for d in old["demand"]:
         d.pop("priority")
-    assert solve(old)["diagnostics"][0]["code"] == "UNSUPPORTED_BASELINE_VERSION"
+    assert solve(old)["diagnostics"][0]["code"] == "SCHEMA_VIOLATION"
 
 
 @pytest.mark.parametrize("priorities", [(0, 1), (1, 0), (3, 2), (0, 0)])
@@ -169,7 +169,7 @@ def test_small_exhaustive_oracle(assignment_request, priorities, employees):
         (("OPTIMAL", "OPTIMAL", "OPTIMAL", "FEASIBLE"), (True, True, True)),
     ],
 )
-@pytest.mark.parametrize("version", ["0.5", "0.7", "0.8", "0.15"])
+@pytest.mark.parametrize("version", ["0.15"])
 def test_time_limit_proves_only_reached_prefix(
     assignment_request, monkeypatch, statuses, proofs, version
 ):
@@ -233,9 +233,9 @@ def test_shared_budget_and_tampered_priority_rejected(assignment_request, monkey
     assert broken["diagnostics"][0]["code"] == "PRIORITY_SHORTAGE_MISMATCH"
 
 
-def test_old_contracts_reject_priority_and_default_is_compatible(legacy_assignment_request):
-    data = assignment(legacy_assignment_request, (0, 0))
-    data["schema_version"] = "0.5"
+def test_old_contracts_reject_priority_and_default_is_compatible(assignment_request):
+    data = assignment(assignment_request, (0, 0))
+    data["schema_version"] = "0.15"
     for version in ("0.1", "0.2", "0.3", "0.4"):
         assert solve({**data, "schema_version": version})["status"] == "INVALID_INPUT"
     for value in (-1, True, 1.5, "1"):
@@ -246,11 +246,12 @@ def test_old_contracts_reject_priority_and_default_is_compatible(legacy_assignme
     for d in omitted["demand"]:
         d.pop("priority")
     for backend in ("auto", "cp_sat", "min_cost_flow"):
-        old = copy.deepcopy(omitted)
-        old["schema_version"] = "0.4"
-        old["solver"]["backend"] = backend
-        new = {**old, "schema_version": "0.5"}
-        before, after = solve(old), solve(new)
+        default = copy.deepcopy(omitted)
+        default["solver"]["backend"] = backend
+        explicit = copy.deepcopy(default)
+        for d in explicit["demand"]:
+            d["priority"] = 0
+        before, after = solve(default), solve(explicit)
         assert before["status"] == after["status"] == "PARTIAL"
         for field in ("solution", "objectives", "shortage_summary"):
             assert before[field] == after[field]

@@ -143,14 +143,6 @@ def _check_pair(request, response):
     if checked["status"] != "VALID":
         raise InvalidInput(checked["diagnostics"])
     validate_response(response, request)
-    if response["schema_version"] == "0.1" and response["solution"] is not None:
-        checked_plan = verify(request, response["solution"])
-        if checked_plan["verification"]["valid"] is not True:
-            raise InvalidInput(checked_plan["diagnostics"])
-        expected = [(o["id"], o["metric"], o["value"]) for o in checked_plan["objectives"]]
-        actual = [(o["id"], o["metric"], o["value"]) for o in response["objectives"]]
-        if expected != actual:
-            _reject("RECORD_MISMATCH", "保存した目的値がRequest/解と一致しません。")
 
 
 def _check_draft_pair(record):
