@@ -1,0 +1,117 @@
+{
+  "source_commit": "bbb7a93b757cc3272943bbc09f9f2dcb359bd457",
+  "cases": [
+    {
+      "name": "assignment",
+      "legacy_schema_version": "0.1",
+      "source": "examples/assignment.json",
+      "legacy_sha256": "2f206f44dea80e5af2eb41ff638e684c3892787b01fc277e3bdcbddcbbbd2f8d",
+      "target_sha256": "1e2caf4ff6bcf381c5ef3399ba78057f1746a1cd945ae6a04454c0653df13c1b"
+    },
+    {
+      "name": "conflict_refinement",
+      "legacy_schema_version": "0.8",
+      "source": "examples/conflict_refinement.json",
+      "legacy_sha256": "2af3293996fa4152adea89a1aba3d31d9d318969a0423c0f3b0220f92dc58349",
+      "target_sha256": "dcd3885ccc600c2355669a5b9a2b806360d3cddeab20b152eff2fa617b76c57c"
+    },
+    {
+      "name": "continuity_duty_balance",
+      "legacy_schema_version": "0.10",
+      "source": "examples/continuity_duty_balance.json",
+      "legacy_sha256": "f99ae3a64cd2cdab2457fbdf48afe763240ab7d32ced9b8f63e73ae937e6538b",
+      "target_sha256": "79996874bcfd5ae2cbd8ac5e276493c869a464dc4b28685147a46bdae4a08114"
+    },
+    {
+      "name": "continuity_replan",
+      "legacy_schema_version": "0.7",
+      "source": "examples/continuity_replan.json",
+      "legacy_sha256": "628bbe0fdfbd9080c1a9ddba756bbb55d36fb60f15e21b57be0d7519b691c74a",
+      "target_sha256": "7719ff5463578e937c3d462743a3d5656e63429e75732360c5d058e30de3b567"
+    },
+    {
+      "name": "continuity_week",
+      "legacy_schema_version": "0.6",
+      "source": "examples/continuity_week.json",
+      "legacy_sha256": "8d9bd7621a775a55026ed5c3e70366fb50f591ade751b1f46626bfedaad93d3f",
+      "target_sha256": "f0146522392c072a943e892a49547b6d84c69735a00d418501bee0596d15ccbc"
+    },
+    {
+      "name": "coworkers",
+      "legacy_schema_version": "0.14",
+      "source": "examples/coworkers.json",
+      "legacy_sha256": "15d7451db07177773c20a6ca4e2fd9c9218b66dc8dd6fd524dc5b3d40425b2e8",
+      "target_sha256": "401991cd75eb8ccb42615e2294d9286077bf89ffbb56d9d06d5cfb3b6c4b9c8b"
+    },
+    {
+      "name": "day_counts",
+      "legacy_schema_version": "0.11",
+      "source": "examples/day_counts.json",
+      "legacy_sha256": "d45faa8ed14c48a26e3b06087b9ad887c6f4a3e07c3b5d2f32ce97b3847c274b",
+      "target_sha256": "c5faac58aa922685ca88557d396cc5764f4a960e75ca3432dd09c63baf920c2b"
+    },
+    {
+      "name": "demand_priority",
+      "legacy_schema_version": "0.5",
+      "source": "examples/demand_priority.json",
+      "legacy_sha256": "1ad3d6c58de46e2c47d745b3256f30f8b9e39212a849544ecb16377998507eab",
+      "target_sha256": "30014f20a4e98b0d64873cc37ebd9e0d1e1b584b281e3bc30a1b528d893dbdb2"
+    },
+    {
+      "name": "minimum_roster",
+      "legacy_schema_version": "0.12",
+      "source": "examples/minimum_roster.json",
+      "legacy_sha256": "8896c4b139cd2ba4d305110888038e78212dbfd3f7acdc48ef6a3e5c461f4f96",
+      "target_sha256": "d59fba1f1890b352d8ef7cff9c0cfd5593451c6e0a05376ef4b95e84ec7bf311"
+    },
+    {
+      "name": "overnight",
+      "legacy_schema_version": "0.2",
+      "source": "examples/overnight.json",
+      "legacy_sha256": "3a8b32d3df48daefad8dc411d585ba4b6ea214f4c0f43e30dacc66c5f12cb96c",
+      "target_sha256": "dfbccd30359bcdc5da44aed20f06403e47559dd765ad3a2082623b198b74b000"
+    },
+    {
+      "name": "partial_replan_preserve_assigned",
+      "legacy_schema_version": "0.4",
+      "source": "examples/partial_replan_preserve_assigned.json",
+      "legacy_sha256": "c307c2e4fc997479ab7dd1dd2db3e76e00fab26013d3065e26b9126fc225c5e9",
+      "target_sha256": "675b6388bf3005d0e3a5811d82ea809dfa2680f6c018176652d80ebd9fb0dbb3"
+    },
+    {
+      "name": "partial_roster",
+      "legacy_schema_version": "0.3",
+      "source": "examples/partial_roster.json",
+      "legacy_sha256": "140203281e04594878b2a6f08ed3124d2060f9f810491f291886834f6550739b",
+      "target_sha256": "3d92cabe97441c5b52ef0a85ee31406277a0dffab4f089fbfacb8d11ef22a367"
+    },
+    {
+      "name": "replan",
+      "legacy_schema_version": "0.2",
+      "source": "examples/replan.json",
+      "legacy_sha256": "e3afa224e45a43802948e7c776671e3d8b3c545085b1f90ed4d1eb166e528b97",
+      "target_sha256": "f5942add4e2203aea570af57ab39134330f53b50b468e44136d043838a9ec27c"
+    },
+    {
+      "name": "roster",
+      "legacy_schema_version": "0.1",
+      "source": "examples/roster.json",
+      "legacy_sha256": "bd9cc8b03fa4b012807fe22ff9937516423b0b5919ae811ce7355d06eec73121",
+      "target_sha256": "e9efd64a827f73e0d064c1dafa32ef3c5582d352a010998f79376542dc094461"
+    },
+    {
+      "name": "scheduled_cost",
+      "legacy_schema_version": "0.9",
+      "source": "examples/scheduled_cost.json",
+      "legacy_sha256": "4ed530d68b2c33a1e0114a3214d75e92f3f04e69e7add874982cd6b3bb042623",
+      "target_sha256": "66b64c318fb6c28c247fc104914eefde33f40536f32d8fb9b221a25f2b130ba3"
+    },
+    {
+      "name": "shift_patterns",
+      "legacy_schema_version": "0.13",
+      "source": "examples/shift_patterns.json",
+      "legacy_sha256": "74805a82d72ca53b8ce88b0bda2b8d7c0af6766d81d4badae715404e91823bcb",
+      "target_sha256": "90f7919b18a1e2905fad305115af098ead7e9d15ec8ac55700f5899811e0b236"
+    }
+  ]
+}

@@ -1,0 +1,184 @@
+{
+  "schema_version": "0.15",
+  "request_id": "coworkers_example",
+  "problem_type": "roster",
+  "planning_window": {
+    "start": "2026-10-05T00:00:00+09:00",
+    "end": "2026-10-06T00:00:00+09:00",
+    "timezone": "Asia/Tokyo",
+    "slot_minutes": 30
+  },
+  "skills": [
+    {
+      "id": "service",
+      "label": "担当技能"
+    }
+  ],
+  "roles": [
+    {
+      "id": "kitchen",
+      "label": "kitchen",
+      "required_skills": [
+        {
+          "skill_id": "service",
+          "min_level": 1
+        }
+      ]
+    },
+    {
+      "id": "hall",
+      "label": "hall",
+      "required_skills": []
+    }
+  ],
+  "employees": [
+    {
+      "id": "trainee",
+      "label": "trainee",
+      "skills": [
+        {
+          "skill_id": "service",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-05T00:00:00+09:00",
+          "end": "2026-10-06T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "mentor_a",
+      "label": "mentor_a",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-05T00:00:00+09:00",
+          "end": "2026-10-06T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    },
+    {
+      "id": "mentor_b",
+      "label": "mentor_b",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-05T00:00:00+09:00",
+          "end": "2026-10-06T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "consecutive_work_days_before_window": 0,
+        "last_work_day": null
+      }
+    }
+  ],
+  "demand": [
+    {
+      "id": "need_0_540_kitchen",
+      "role_id": "kitchen",
+      "interval": {
+        "start": "2026-10-05T09:00:00+09:00",
+        "end": "2026-10-05T11:00:00+09:00"
+      },
+      "required_people": 2,
+      "minimum_people": 1
+    }
+  ],
+  "shift_candidates": [
+    {
+      "id": "trainee",
+      "employee_id": "trainee",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-05T09:00:00+09:00",
+            "end": "2026-10-05T11:00:00+09:00"
+          },
+          "breaks": []
+        }
+      ]
+    },
+    {
+      "id": "mentor_a",
+      "employee_id": "mentor_a",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-05T09:00:00+09:00",
+            "end": "2026-10-05T10:00:00+09:00"
+          },
+          "breaks": []
+        }
+      ]
+    },
+    {
+      "id": "mentor_b",
+      "employee_id": "mentor_b",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-05T10:00:00+09:00",
+            "end": "2026-10-05T11:00:00+09:00"
+          },
+          "breaks": []
+        }
+      ]
+    }
+  ],
+  "constraints": [
+    {
+      "id": "training_cover",
+      "type": "required_coworkers",
+      "employee_ids": [
+        "trainee"
+      ],
+      "coworker_ids": [
+        "mentor_a",
+        "mentor_b"
+      ],
+      "minimum_people": 1,
+      "interval": {
+        "start": "2026-10-05T09:00:00+09:00",
+        "end": "2026-10-05T11:00:00+09:00"
+      }
+    },
+    {
+      "id": "separate",
+      "type": "incompatible_employees",
+      "employee_ids": [
+        "mentor_a",
+        "mentor_b"
+      ],
+      "interval": {
+        "start": "2026-10-05T09:00:00+09:00",
+        "end": "2026-10-05T11:00:00+09:00"
+      }
+    }
+  ],
+  "preferences": [],
+  "objectives": [
+    {
+      "id": "work",
+      "metric": "scheduled_minutes"
+    }
+  ],
+  "solver": {
+    "backend": "auto",
+    "time_limit_seconds": 10,
+    "seed": 0
+  }
+}
