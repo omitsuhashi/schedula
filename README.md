@@ -392,6 +392,7 @@ Git には採用判断で使う入力・条件・集計・失敗を含む生デ�
 | [勤務分類・勤務パターンの契約0.13](docs/io-contract-shift-patterns.md) | 原勤務の分類、連続休日・夜勤後の休み・禁止する並び・日群と境界 |
 | [同時勤務条件の契約0.14](docs/io-contract-coworkers.md) | 必要同僚人数、同時勤務禁止、休憩・待機・確定勤務と独立検証 |
 | [勤務回数の契約0.15](docs/io-contract-shift-counts.md) | 原勤務の開始日時で数える明示目標・履歴・分類・分数との違い |
+| [契約0.15への移行対応表](docs/migrations/contract-0.15.md) | 全業務機能・旧データ・アプリ保存の移行範囲、旧固定環境と除去前の条件 |
 | [必須最低人数の契約0.12](docs/io-contract-minimum-demand.md) | 必須の需要下限と元需要の不足許容、診断・独立検証 |
 | [勤務日数・完全休日数の契約0.11](docs/io-contract-day-counts.md) | 期間別の日数上下限、確認済み実績、原勤務区間と独立集計 |
 | [履歴を含む夜勤休日評価の契約0.10](docs/io-contract-duty-continuity.md) | 確認済み実績・確定勤務と指定区間の目標偏差の接続 |

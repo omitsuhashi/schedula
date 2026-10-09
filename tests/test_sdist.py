@@ -49,6 +49,7 @@ def test_sdist_builds_and_runs_without_original_checkout(tmp_path):
                 (
                     "docs/reference/",
                     "docs/evaluations/results/",
+                    "docs/migrations/legacy/",
                     ".git/",
                     ".venv/",
                     "build/",

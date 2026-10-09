@@ -1,0 +1,11 @@
+{
+  "db_schema_version": 1,
+  "format": "schedula-app/1",
+  "engine": {
+    "version": "0.1.5",
+    "schema_version": "0.10",
+    "commit": "fd8c140ff0dae8c8cefa82b5d3857ec0e0e90eaf",
+    "sha256": "3b8256c0d277da253cd79252683727c65c9ab7265c02aec93ff26a24006e9195"
+  },
+  "sha256": "e03c91c0508989da9c63bf445c6b43dc3043523c1c300b6b3815fba84d438877"
+}

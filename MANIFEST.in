@@ -9,4 +9,5 @@ include scripts/deploy
 recursive-include docs *.md *.html *.json *.py
 prune docs/reference
 prune docs/evaluations/results
+prune docs/migrations/legacy
 global-exclude __pycache__ *.py[cod] .DS_Store
