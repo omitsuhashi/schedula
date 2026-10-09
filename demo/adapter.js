@@ -128,7 +128,7 @@ $("adapter-run").addEventListener("click", () => {
   $("adapter-output").replaceChildren();
   adapterOperation(controller => adapterPost("/adapter/run", $("adapter-input").value, controller));
 });
-for (const action of ["import", "split"]) $("adapter-" + action).addEventListener("click", () => adapterOperation(controller => adapterPost("/adapter/" + action, $("json-input").value, controller)));
+for (const action of ["import", "split"]) $("adapter-" + action).addEventListener("click", () => adapterOperation(controller => adapterPost("/adapter/" + action, $("adapter-request-input").value, controller)));
 $("adapter-file").addEventListener("change", () => {
   const file = $("adapter-file").files[0];
   if (file) adapterOperation(async controller => {

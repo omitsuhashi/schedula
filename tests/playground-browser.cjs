@@ -499,6 +499,18 @@ async function adapterChecks(page) {
   const wait = text => page.waitForFunction(value => document.getElementById("adapter-status").textContent.includes(value) && !document.getElementById("adapter-check").disabled, text, {timeout: 120000});
   await page.evaluate(() => { location.hash = "records"; });
   await page.locator("#adapter-demo").waitFor({state: "visible"});
+  const existingRequest = readFileSync("examples/roster.json", "utf8");
+  for (const action of ["import", "split"]) {
+    await page.locator("#adapter-request-input").fill(existingRequest);
+    await page.locator(`#adapter-${action}`).click();
+    await wait("入力候補");
+    const imported = JSON.parse(await page.locator("#adapter-input").inputValue());
+    assert(imported.sources.length > 0);
+    await page.locator("#adapter-check").click();
+    await wait("VALIDです");
+    assert.deepEqual(await page.evaluate(() => JSON.parse(document.querySelector("#adapter-output details:last-child pre").textContent).request), JSON.parse(existingRequest));
+  }
+  report.interactions.push("記録画面の専用Request入力から既存JSONの取り込み・区分分けを実APIで確認");
   const staleWeek = JSON.parse(readFileSync("examples/adapter/week-next-stale.draft.json", "utf8"));
   const nextWeek = JSON.parse(readFileSync("examples/adapter/week-next.draft.json", "utf8"));
   await page.locator("#adapter-file").setInputFiles("examples/adapter/week-next-stale.draft.json");

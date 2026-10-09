@@ -208,6 +208,7 @@ async function routeFeature() {
   jsonPair = null; $("json-input").value = ""; $("json-output").replaceChildren();
   $("json-status").textContent = "サンプルまたはファイルを読み込んでください。";
   adapterRecord = null; $("adapter-input").value = ""; $("adapter-output").replaceChildren(); adapterSources();
+  $("adapter-request-input").value = "";
   $("adapter-save-record").disabled = $("adapter-reverify").disabled = true;
   adapterStatus("分割サンプルを読み込んでください。");
   const id = location.hash.slice(1);
