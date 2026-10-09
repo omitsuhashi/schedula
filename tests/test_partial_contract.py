@@ -13,7 +13,7 @@ from shift_schedula.contract import InvalidInput, get_schema, schema_errors
 from shift_schedula.engine import response, validate_response
 from shift_schedula.model import normalize
 from shift_schedula.verify import verify_solution
-from tests.test_extensions import baseline
+from tests.test_extensions import legacy_baseline as baseline
 
 ROOT = Path(__file__).resolve().parents[1]
 

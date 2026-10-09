@@ -10,9 +10,9 @@ from shift_schedula import cp_sat, engine, solve
 from shift_schedula.contract import InvalidInput
 from shift_schedula.model import normalize
 from shift_schedula.verify import verify_solution
-from tests.roster_support import demand
-from tests.roster_support import legacy_candidate as candidate
-from tests.roster_support import legacy_request as request
+from tests.roster_support import candidate, legacy_candidate, legacy_request, request
+from tests.roster_support import complete_demand as demand
+from tests.roster_support import demand as legacy_demand
 from tests.support import assert_response
 from tests.test_cp_sat import exhaustive_linked_value, small_request, stamp
 from tests.test_roster import exhaustive_value
@@ -54,6 +54,23 @@ def tradeoff_request(order=METRICS):
     data = request(employees=("alice", "bob"))
     data["shift_candidates"] = [candidate("alice"), candidate("bob", end=660)]
     data["demand"] = [demand(), demand(start=630, end=660, role="hall")]
+    data["preferences"] = [
+        {
+            "id": "avoid",
+            "type": "avoid_role",
+            "employee_ids": ["bob"],
+            "role_id": "kitchen",
+            "penalty_per_minute": 1,
+        }
+    ]
+    data["objectives"] = [{"id": metric, "metric": metric} for metric in order]
+    return data
+
+
+def legacy_tradeoff_request(order=METRICS):
+    data = legacy_request(employees=("alice", "bob"))
+    data["shift_candidates"] = [legacy_candidate("alice"), legacy_candidate("bob", end=660)]
+    data["demand"] = [legacy_demand(), legacy_demand(start=630, end=660, role="hall")]
     data["preferences"] = [
         {
             "id": "avoid",
@@ -141,10 +158,10 @@ def control_search(monkeypatch, statuses):
         (("FEASIBLE",), "FEASIBLE", (False, False, False)),
         (("OPTIMAL", "FEASIBLE"), "FEASIBLE", (True, False, False)),
         (("OPTIMAL", "OPTIMAL", "FEASIBLE"), "FEASIBLE", (True, True, False)),
-        (("UNKNOWN",), "UNKNOWN", ()),
+        (("UNKNOWN",), "FEASIBLE", (False, False, False)),
         (("OPTIMAL", "UNKNOWN"), "FEASIBLE", (True, False, False)),
         (("OPTIMAL", "OPTIMAL", "UNKNOWN"), "FEASIBLE", (True, True, False)),
-        (("INFEASIBLE",), "INFEASIBLE", ()),
+        (("INFEASIBLE",), "INTERNAL_ERROR", ()),
         (("OPTIMAL", "INFEASIBLE"), "INTERNAL_ERROR", ()),
         (("MODEL_INVALID",), "INTERNAL_ERROR", ()),
         (("OPTIMAL", "MODEL_INVALID"), "INTERNAL_ERROR", ()),
@@ -154,10 +171,10 @@ def control_search(monkeypatch, statuses):
 )
 def test_stage_endings_preserve_only_valid_solutions(monkeypatch, statuses, expected, proofs):
     data = tradeoff_request()
-    calls, snapshots = control_search(monkeypatch, statuses)
+    calls, snapshots = control_search(monkeypatch, ("OPTIMAL", *statuses))
     result = solve(data)
     assert_response(result, expected)
-    assert len(calls) == len(statuses)
+    assert len(calls) == len(statuses) + 1
     assert tuple(o["proven_optimal"] for o in result["objectives"]) == proofs
     if result["solution"] is not None:
         assert result["solution"] in snapshots
@@ -168,7 +185,37 @@ def test_stage_endings_preserve_only_valid_solutions(monkeypatch, statuses, expe
             [],
             tuple(o["value"] for o in result["objectives"]),
         )
-        assert result["objectives"][0]["value"] == 0
+        if statuses[0] == "OPTIMAL":
+            assert result["objectives"][0]["value"] == 0
+        assert result["shortage_summary"]["total_person_minutes"] == 0
+        assert result["shortage_summary"]["proven_minimal"]
+
+
+@pytest.mark.parametrize(
+    "status,expected",
+    [
+        ("FEASIBLE", "FEASIBLE"),
+        ("UNKNOWN", "UNKNOWN"),
+        ("INFEASIBLE", "INFEASIBLE"),
+        ("MODEL_INVALID", "INTERNAL_ERROR"),
+        ("ERROR", "INTERNAL_ERROR"),
+    ],
+)
+def test_shortage_stage_endings_do_not_claim_user_objective_proofs(monkeypatch, status, expected):
+    calls, snapshots = control_search(monkeypatch, (status,))
+    data = tradeoff_request()
+    result = solve(data)
+    assert_response(result, expected)
+    assert len(calls) == 1
+    if status == "FEASIBLE":
+        assert result["solution"] == snapshots[0]
+        assert not any(o["proven_optimal"] for o in result["objectives"])
+        assert result["shortage_summary"]["total_person_minutes"] == 0
+        assert result["shortage_summary"]["proven_minimal"]
+        assert verify_solution(normalize(data), result["solution"]) == (
+            [],
+            tuple(o["value"] for o in result["objectives"]),
+        )
 
 
 @pytest.mark.parametrize(
@@ -219,7 +266,7 @@ def test_known_solution_and_proof_updates(
             "shifts": [c.output(problem.grid) for c in problem.candidates if c.id in selected],
         }
         assert verify_solution(problem, solution) == ([], values)
-    stages = [(first, "OPTIMAL"), (second, status)]
+    stages = [(first, "OPTIMAL"), (first, "OPTIMAL"), (second, status)]
     if ending:
         stages.append(("short_split", ending))
     prepare, search = cp_sat.prepare, cp_model.CpSolver.solve
@@ -246,11 +293,12 @@ def test_known_solution_and_proof_updates(
         for key, variable in shifts.items():
             fixed.add(variable == int(key in selected))
         assert search(solver, fixed) == cp_model.OPTIMAL
-        assert tuple(solver.value(o) for o in objectives) == values
+        assert tuple(solver.value(o) for o in objectives) == (0, *values)
         if status == "OPTIMAL" and expected is not None:
             # 宣言した最適性は、追加の固定条件がない元入力の全探索とも照合する。
-            prefix = {**data, "objectives": data["objectives"][: len(observed)]}
-            assert values[: len(observed)] == exhaustive_value(prefix)
+            completed = len(observed) - 1
+            prefix = {**data, "objectives": data["objectives"][:completed]}
+            assert values[:completed] == exhaustive_value(prefix)
         return getattr(cp_model, status)
 
     monkeypatch.setattr(cp_sat, "prepare", capture_prepare)
@@ -259,7 +307,7 @@ def test_known_solution_and_proof_updates(
     assert_response(
         result, "INTERNAL_ERROR" if expected is None else "OPTIMAL" if all(proofs) else "FEASIBLE"
     )
-    assert len(observed) == (2 if expected is None else len(stages))
+    assert len(observed) == (3 if expected is None else len(stages))
     assert tuple(o["proven_optimal"] for o in result["objectives"]) == proofs
     if expected is not None:
         selected, _, values = plans[expected]
@@ -272,19 +320,19 @@ def test_known_solution_and_proof_updates(
 def test_budget_expires_between_stages(monkeypatch, completed):
     data = tradeoff_request()
     clock = [0.0]
-    calls, snapshots = control_search(monkeypatch, ("OPTIMAL",) * completed)
+    calls, snapshots = control_search(monkeypatch, ("OPTIMAL",) * (completed + 1))
     controlled = cp_model.CpSolver.solve
     bound = cp_model.CpSolver.best_objective_bound
     bound_reads = []
 
     def read_bound(solver):
         bound_reads.append(len(calls))
-        assert len(bound_reads) <= completed
+        assert len(bound_reads) <= completed + 1
         return bound.fget(solver)
 
     def search(*args):
         status = controlled(*args)
-        clock[0] = 10.0 if len(calls) == completed else 2.0
+        clock[0] = 10.0 if len(calls) == completed + 1 else 2.0
         return status
 
     monkeypatch.setattr(cp_sat.time, "monotonic", lambda: clock[0])
@@ -292,8 +340,8 @@ def test_budget_expires_between_stages(monkeypatch, completed):
     monkeypatch.setattr(cp_model.CpSolver, "best_objective_bound", property(read_bound))
     result = solve(data)
     assert_response(result, "FEASIBLE")
-    assert len(calls) == completed
-    assert bound_reads == list(range(1, completed + 1))
+    assert len(calls) == completed + 1
+    assert bound_reads == list(range(1, completed + 2))
     assert result["solution"] in snapshots
     assert tuple(o["value"] for o in result["objectives"]) == min(
         verify_solution(normalize(data), solution)[1] for solution in snapshots
@@ -312,10 +360,11 @@ def test_shared_budget_excludes_preparation_and_records_total_elapsed(monkeypatc
         cp_sat.load_backend,
         cp_sat.prepare,
         cp_model.CpSolver.solve,
-        engine.verify_solution,
+        engine.verify_plan,
         engine.validate_response,
     )
     limits = []
+    verification_calls = []
 
     def delayed_load():
         clock[0] += 100
@@ -331,6 +380,7 @@ def test_shared_budget_excludes_preparation_and_records_total_elapsed(monkeypatc
         return search(solver, model)
 
     def delayed_verify(*args):
+        verification_calls.append(None)
         clock[0] += 400
         return verify(*args)
 
@@ -343,15 +393,15 @@ def test_shared_budget_excludes_preparation_and_records_total_elapsed(monkeypatc
     monkeypatch.setattr(cp_sat, "load_backend", delayed_load)
     monkeypatch.setattr(cp_sat, "prepare", delayed_prepare)
     monkeypatch.setattr(cp_model.CpSolver, "solve", timed_search)
-    monkeypatch.setattr(engine, "verify_solution", delayed_verify)
+    monkeypatch.setattr(engine, "verify_plan", delayed_verify)
     monkeypatch.setattr(engine, "validate_response", delayed_validate)
     result = solve(data)
     assert_response(result, "OPTIMAL")
-    assert limits == [10, 8, 6]
+    assert limits == [10, 8, 6, 4]
     stats = next(d for d in result["diagnostics"] if d["code"] == "SEARCH_STATS")
     assert {f["name"]: f["value"] for f in stats["facts"]} == {
         "time_limit_seconds": 10,
-        "search_elapsed_seconds": 6,
+        "search_elapsed_seconds": 8,
         "num_workers": 2,
         "workers_applied": True,
         "normalization_elapsed_seconds": 0,
@@ -361,12 +411,13 @@ def test_shared_budget_excludes_preparation_and_records_total_elapsed(monkeypatc
         "preparation_elapsed_seconds": 200,
         "verification_elapsed_seconds": 400,
     }
-    assert result["stats"]["elapsed_seconds"] == 756
+    assert len(verification_calls) == 2
+    assert result["stats"]["elapsed_seconds"] == 100 + 200 + 8 + 2 * 400 + 50
 
 
 @pytest.mark.parametrize("statuses", [("OPTIMAL",) * 3, ("FEASIBLE",), ("OPTIMAL", "UNKNOWN")])
 def test_objective_bounds_only_describe_reached_objectives(monkeypatch, statuses):
-    control_search(monkeypatch, statuses)
+    control_search(monkeypatch, ("OPTIMAL", *statuses))
     data = tradeoff_request()
     result = solve(data)
     bounds = [d for d in result["diagnostics"] if d["code"] == "OBJECTIVE_BOUND"]
@@ -383,18 +434,19 @@ def test_objective_bounds_only_describe_reached_objectives(monkeypatch, statuses
 
 def test_unknown_stage_keeps_its_bound_and_the_previous_verified_solution(monkeypatch):
     data = tradeoff_request(METRICS[:2])
-    calls, snapshots = control_search(monkeypatch, ("OPTIMAL", "UNKNOWN"))
+    calls, snapshots = control_search(monkeypatch, ("OPTIMAL", "OPTIMAL", "UNKNOWN"))
     bound = cp_model.CpSolver.best_objective_bound
     monkeypatch.setattr(
         cp_model.CpSolver,
         "best_objective_bound",
-        property(lambda solver: 40 if len(calls) == 2 else bound.fget(solver)),
+        property(lambda solver: 40 if len(calls) == 3 else bound.fget(solver)),
     )
     problem = normalize(data)
     outcome = cp_sat.run(problem, cp_model)
-    assert len(calls) == 2
+    assert len(calls) == 3
     assert outcome.status == "FEASIBLE"
-    assert outcome.solution == snapshots[0]
+    assert outcome.solution == min(snapshots, key=lambda s: verify_solution(problem, s)[1])
+    assert outcome.values[0] == 0
     assert verify_solution(problem, outcome.solution) == ([], outcome.values)
     assert outcome.proven_optimal == (True, False)
     assert outcome.objective_bounds == (0, 40)
@@ -426,16 +478,27 @@ def test_each_objective_value_is_independently_checked(monkeypatch, index):
     assert result["diagnostics"][0]["json_pointer"] == f"/objectives/{index}"
 
 
-@pytest.mark.parametrize("proofs", [(True, False, True), (False, True, False), (True, True, True)])
-def test_feasible_proofs_must_be_an_incomplete_prefix(monkeypatch, proofs):
+@pytest.mark.parametrize(
+    "proofs,expected",
+    [
+        ((True, False, True), "INTERNAL_ERROR"),
+        ((False, True, False), "INTERNAL_ERROR"),
+        ((True, True, True), "OPTIMAL"),
+    ],
+)
+def test_feasible_proofs_must_be_an_incomplete_prefix(monkeypatch, proofs, expected):
     data = tradeoff_request()
     outcome = cp_sat.run(normalize(data), cp_model)
     outcome.status, outcome.proven_optimal = "FEASIBLE", proofs
     monkeypatch.setattr(cp_sat, "run", lambda *_: outcome)
     result = solve(data)
-    assert_response(result, "INTERNAL_ERROR")
-    assert result["verification"]["valid"] is False
-    assert result["diagnostics"][0]["code"] == "OPTIMALITY_MISMATCH"
+    assert_response(result, expected)
+    if expected == "INTERNAL_ERROR":
+        assert result["verification"]["valid"] is False
+        assert result["diagnostics"][0]["code"] == "OPTIMALITY_MISMATCH"
+    else:
+        assert all(o["proven_optimal"] for o in result["objectives"])
+        assert result["shortage_summary"]["total_person_minutes"] == 0
 
 
 def test_response_objective_order_must_match_request():
@@ -452,9 +515,12 @@ def test_empty_objectives_use_one_satisfaction_search(monkeypatch, status):
     data["preferences"] = []
     calls, _ = control_search(monkeypatch, (status,))
     result = solve(data)
-    assert_response(result, status)
+    assert_response(result, "UNKNOWN" if status == "UNKNOWN" else "OPTIMAL")
     assert len(calls) == 1
     assert result["objectives"] == []
+    if status != "UNKNOWN":
+        assert result["shortage_summary"]["total_person_minutes"] == 0
+        assert result["shortage_summary"]["proven_minimal"]
 
 
 def test_model_failure_after_first_solution_does_not_publish_it(monkeypatch):
@@ -472,7 +538,7 @@ def test_model_failure_after_first_solution_does_not_publish_it(monkeypatch):
 
 
 def test_retained_solution_is_still_independently_verified(monkeypatch):
-    control_search(monkeypatch, ("OPTIMAL", "UNKNOWN"))
+    control_search(monkeypatch, ("OPTIMAL", "OPTIMAL", "UNKNOWN"))
     make_solution = cp_sat.make_solution
 
     def corrupt(*args):
@@ -484,4 +550,4 @@ def test_retained_solution_is_still_independently_verified(monkeypatch):
     result = solve(tradeoff_request())
     assert_response(result, "INTERNAL_ERROR")
     assert result["verification"]["valid"] is False
-    assert "DEMAND_SHORTAGE" in {d["code"] for d in result["verification"]["violations"]}
+    assert "MINIMUM_DEMAND_VIOLATION" in {d["code"] for d in result["verification"]["violations"]}

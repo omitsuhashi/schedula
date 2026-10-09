@@ -17,7 +17,9 @@ from tests.roster_support import legacy_request as request
 from tests.support import assert_response
 from tests.test_cli import cli
 from tests.test_cp_sat import small_request, stamp
-from tests.test_extensions import baseline, extended, fairness, selected
+from tests.test_extensions import fairness, selected
+from tests.test_extensions import legacy_baseline as baseline
+from tests.test_extensions import legacy_extended as extended
 from tests.test_objectives import control_search
 
 ROOT = Path(__file__).resolve().parents[1]

@@ -9,15 +9,22 @@ from shift_schedula import solve
 from shift_schedula.extensions import evaluate
 from shift_schedula.model import normalize
 from shift_schedula.verify import verify_solution
-from tests.roster_support import demand, interval, rule
-from tests.roster_support import legacy_candidate as candidate
-from tests.roster_support import legacy_request as request
+from tests.roster_support import (
+    candidate,
+    interval,
+    legacy_candidate,
+    legacy_request,
+    request,
+    rule,
+)
+from tests.roster_support import complete_demand as demand
+from tests.roster_support import demand as legacy_demand
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def extended(data=None):
-    data = copy.deepcopy(data if data is not None else request(employees=("alice", "bob")))
+def legacy_extended(data=None):
+    data = copy.deepcopy(data if data is not None else legacy_request(employees=("alice", "bob")))
     data["schema_version"] = "0.2"
     for employee in data["employees"]:
         employee["history"]["last_work_day"] = None
@@ -54,8 +61,24 @@ def selected(c):
     return result
 
 
-def baseline(data=None):
-    old = copy.deepcopy(data if data is not None else request(employees=("alice", "bob")))
+def legacy_baseline(data=None):
+    old = copy.deepcopy(data if data is not None else legacy_request(employees=("alice", "bob")))
+    old["shift_candidates"] = [legacy_candidate("alice", end=660), legacy_candidate("bob", end=660)]
+    old["demand"] = [legacy_demand(end=660)]
+    solution = {
+        "assignments": [
+            {"employee_id": "alice", "role_id": "kitchen", "interval": interval(end=660)}
+        ],
+        "shifts": [selected(old["shift_candidates"][0])],
+    }
+    data = legacy_extended(old)
+    data["baseline"] = {"plan_id": "old_plan", "source_request": old, "source_solution": solution}
+    data["objectives"] = [{"id": "changes", "metric": "plan_changes"}]
+    return data
+
+
+def baseline():
+    old = request(employees=("alice", "bob"))
     old["shift_candidates"] = [candidate("alice", end=660), candidate("bob", end=660)]
     old["demand"] = [demand(end=660)]
     solution = {
@@ -64,7 +87,7 @@ def baseline(data=None):
         ],
         "shifts": [selected(old["shift_candidates"][0])],
     }
-    data = extended(old)
+    data = copy.deepcopy(old)
     data["baseline"] = {"plan_id": "old_plan", "source_request": old, "source_solution": solution}
     data["objectives"] = [{"id": "changes", "metric": "plan_changes"}]
     return data
@@ -78,7 +101,6 @@ def test_different_targets_and_hard_demand():
         candidate("bob", start=start, end=1260) for start in (780, 1020)
     ]
     data["demand"] = [demand(start=540, end=1260)]
-    data = extended(data)
     fairness(data, {"alice": 240, "bob": 480})
     result = solve(data)
     assert result["status"] == "OPTIMAL"
@@ -91,7 +113,7 @@ def test_different_targets_and_hard_demand():
 
 
 def test_zero_target_and_excluded_employee_do_not_relax_demand():
-    data = extended(request(employees=("alice", "bob")))
+    data = request(employees=("alice", "bob"))
     data["shift_candidates"] = data["shift_candidates"][:1]
     data["demand"] = [demand()]
     fairness(data, {"alice": 0})
@@ -116,7 +138,6 @@ def test_fairness_objective_order_matches_small_exhaustive_problem(targets, reve
     data["shift_candidates"] = [
         candidate(e, end=end) for e in ("alice", "bob") for end in (630, 660)
     ]
-    data = extended(data)
     fairness(data, dict(zip(("alice", "bob"), targets, strict=True)))
     data["objectives"].append({"id": "work", "metric": "scheduled_minutes"})
     if reverse:
@@ -142,7 +163,7 @@ def test_fairness_objective_order_matches_small_exhaustive_problem(targets, reve
     ],
 )
 def test_fairness_invalid_input(mutation):
-    data = extended()
+    data = request(employees=("alice", "bob"))
     fairness(data, {"alice": 60})
     if mutation == "missing_target":
         del data["fairness"]["employee_targets"][0]["target_minutes"]
@@ -159,9 +180,20 @@ def test_fairness_invalid_input(mutation):
     assert result["solution"] is None
 
 
-def test_candidate_id_change_has_zero_change_and_old_version_is_validated():
+@pytest.mark.parametrize("schema_version", ["0.1", "0.2", "0.15"])
+def test_candidate_id_change_has_zero_change_and_old_version_is_validated(schema_version):
     data = baseline()
+    original = copy.deepcopy(data)
+    if schema_version != "0.15":
+        saved = legacy_baseline()["baseline"]
+        if schema_version == "0.2":
+            saved["source_request"] = legacy_extended(saved["source_request"])
+            saved["source_solution"]["shifts"] = [
+                selected(saved["source_request"]["shift_candidates"][0])
+            ]
+        data["baseline"] = saved
     data["shift_candidates"][0]["id"] = "renamed"
+    before = copy.deepcopy(data)
     result = solve(data)
     assert result["status"] == "OPTIMAL"
     assert result["objectives"][0]["value"] == 0
@@ -171,7 +203,13 @@ def test_candidate_id_change_has_zero_change_and_old_version_is_validated():
         "work_changes": 0,
         "role_changes": 0,
         "total_changes": 0,
+        "comparison_interval": {k: data["planning_window"][k] for k in ("start", "end")},
+        "slot_minutes": 30,
     }
+    assert data == before
+    assert original["baseline"]["source_request"]["schema_version"] == "0.15"
+    assert data["baseline"]["source_request"]["schema_version"] == schema_version
+    assert verify_solution(normalize(data), result["solution"]) == ([], (0,))
 
 
 @pytest.mark.parametrize("remove_employee", [False, True])
@@ -212,7 +250,7 @@ def test_moved_break_counts_both_components_and_fixed_break_is_hard():
         ],
         "shifts": [selected(old["shift_candidates"][0])],
     }
-    data = extended(old)
+    data = copy.deepcopy(old)
     data["baseline"] = {"plan_id": "break_plan", "source_request": old, "source_solution": solution}
     data["shift_candidates"][0]["segments"][0]["breaks"] = [interval(start=660, end=690)]
     data["demand"] = [demand(end=660), demand(start=690, end=720)]
@@ -330,7 +368,7 @@ def test_baseline_solution_violation_points_to_source_solution(field):
     solution = data["baseline"]["source_solution"]
     if field == "assignments":
         solution[field] = []
-        code, suffix = "DEMAND_SHORTAGE", "/assignments"
+        code, suffix = "MINIMUM_DEMAND_VIOLATION", "/demand/0"
     else:
         solution[field][0]["employee_id"] = "bob"
         code, suffix = "CANDIDATE_MISMATCH", "/shifts/0"
@@ -338,25 +376,33 @@ def test_baseline_solution_violation_points_to_source_solution(field):
     assert result["status"] == "INVALID_INPUT"
     item = next(item for item in result["diagnostics"] if item["code"] == code)
     pointer = item["json_pointer"]
-    assert pointer == "/baseline/source_solution" + suffix
+    assert (
+        pointer
+        == ("/baseline/source_request" if field == "assignments" else "/baseline/source_solution")
+        + suffix
+    )
     value = data
     for token in pointer.lstrip("/").split("/"):
         value = value[int(token)] if isinstance(value, list) else value[token]
-    assert value == (solution[field] if field == "assignments" else solution[field][0])
+    assert value == (
+        data["baseline"]["source_request"]["demand"][0]
+        if field == "assignments"
+        else solution[field][0]
+    )
 
 
-@pytest.mark.parametrize("schema_version", ["0.1", "0.2"])
+@pytest.mark.parametrize("schema_version", ["0.1", "0.2", "0.15"])
 @pytest.mark.parametrize("field", ["interval", "breaks"])
 def test_baseline_misaligned_shift_points_to_existing_solution_interval(schema_version, field):
-    data = baseline()
+    data = baseline() if schema_version == "0.15" else legacy_baseline()
     if schema_version == "0.2":
-        old = extended(data["baseline"]["source_request"])
+        old = legacy_extended(data["baseline"]["source_request"])
         data["baseline"]["source_request"] = old
         data["baseline"]["source_solution"]["shifts"] = [selected(old["shift_candidates"][0])]
     # 候補と旧解の区間は別々に保持し、旧解だけを改ざんする。
     data["baseline"]["source_solution"] = copy.deepcopy(data["baseline"]["source_solution"])
     shift = data["baseline"]["source_solution"]["shifts"][0]
-    segment = shift["segments"][0] if schema_version == "0.2" else shift
+    segment = shift["segments"][0] if schema_version != "0.1" else shift
     if field == "interval":
         segment[field]["start"] = interval(start=615)["start"]
         expected, suffix = segment[field], "/interval"
@@ -369,7 +415,7 @@ def test_baseline_misaligned_shift_points_to_existing_solution_interval(schema_v
     pointer = item["json_pointer"]
     assert pointer == (
         "/baseline/source_solution/shifts/0"
-        + ("/segments/0" if schema_version == "0.2" else "")
+        + ("/segments/0" if schema_version != "0.1" else "")
         + suffix
     )
     value = data
@@ -378,9 +424,14 @@ def test_baseline_misaligned_shift_points_to_existing_solution_interval(schema_v
     assert value == expected
 
 
-def test_replan_accepts_zero_two_baseline_and_fairness_summary_is_independent():
+@pytest.mark.parametrize("schema_version", ["0.2", "0.15"])
+def test_replan_accepts_zero_two_baseline_and_fairness_summary_is_independent(schema_version):
     data = baseline()
-    old = extended(data["baseline"]["source_request"])
+    old = (
+        data["baseline"]["source_request"]
+        if schema_version == "0.15"
+        else legacy_extended(legacy_baseline()["baseline"]["source_request"])
+    )
     old_result = solve(old)
     assert old_result["status"] == "OPTIMAL"
     data["baseline"]["source_request"] = old

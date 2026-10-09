@@ -14,7 +14,7 @@ from tests.roster_support import legacy_request as request
 from tests.support import assert_response
 from tests.test_cli import cli
 from tests.test_cp_sat import small_request
-from tests.test_extensions import extended
+from tests.test_extensions import legacy_extended as extended
 from tests.test_objectives import control_search
 
 

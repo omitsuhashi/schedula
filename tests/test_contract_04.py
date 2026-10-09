@@ -17,7 +17,8 @@ from tests.roster_support import demand, interval, stamp
 from tests.roster_support import legacy_request as request
 from tests.roster_support import legacy_template as template
 from tests.support import assert_response
-from tests.test_extensions import extended, selected
+from tests.test_extensions import legacy_extended as extended
+from tests.test_extensions import selected
 
 
 def current(data=None):
