@@ -520,6 +520,22 @@ async function adapterChecks(page) {
     assert.deepEqual(await page.evaluate(() => JSON.parse(document.querySelector("#adapter-output details:last-child pre").textContent).request), JSON.parse(existingRequest));
   }
   report.interactions.push("記録画面の専用Request入力から既存JSONの取り込み・区分分けを実APIで確認");
+  let importRelease, importStarted;
+  const importWaiting = new Promise(resolve => { importStarted = resolve; });
+  await page.route("**/adapter/import", async route => {
+    const response = await route.fetch(); importStarted();
+    await new Promise(resolve => { importRelease = resolve; });
+    await route.fulfill({response});
+  });
+  await page.locator("#adapter-import").click(); await importWaiting;
+  assert.equal(await page.locator("#adapter-request-input").isDisabled(), true);
+  importRelease(); await wait("入力候補");
+  await page.unroute("**/adapter/import");
+  await page.locator("#adapter-request-input").fill(existingRequest + "\n");
+  assert.equal(await page.locator("#adapter-input").inputValue(), "");
+  assert.equal(await page.locator("#adapter-output").innerText(), "");
+  assert.equal(await page.evaluate(() => adapterRecord), null);
+  report.response_samples.push("Adapter取り込み中は原Request編集を無効化、原Request変更で旧Draftと結果を失効");
   const staleWeek = JSON.parse(readFileSync("examples/adapter/week-next-stale.draft.json", "utf8"));
   const nextWeek = JSON.parse(readFileSync("examples/adapter/week-next.draft.json", "utf8"));
   await page.locator("#adapter-file").setInputFiles("examples/adapter/week-next-stale.draft.json");

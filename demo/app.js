@@ -685,6 +685,7 @@ async function start(stillActive = () => true) {
     $("scenario").replaceChildren(...scenarios.map(item => node("option", item.label, {value: item.id})));
     await resetScenario(0);
   } catch (error) {
+    if (!stillActive()) return;
     $("status").textContent = `サンプルの取得に失敗しました。${error.message} ページを再読み込みしてください。`;
   }
 }

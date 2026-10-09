@@ -213,7 +213,11 @@ async function routeFeature() {
   adapterStatus("分割サンプルを読み込んでください。");
   const id = location.hash.slice(1);
   for (const area of ["feature-list", "feature-demo", "editor", "json-demo", "adapter-demo"]) $(area).hidden = true;
-  if (id === "combined") { $("editor").hidden = false; await start(() => revision === routeRevision); return; }
+  if (id === "combined") {
+    $("editor").hidden = false; $("controls").disabled = true;
+    $("status").textContent = "サンプルを読み込んでいます。";
+    await start(() => revision === routeRevision); return;
+  }
   if (["json", "large", "records"].includes(id)) {
     const area = $(id === "records" ? "adapter-demo" : "json-demo"); area.hidden = false; area.open = true;
     if (id === "large") $("json-sample").value = "roster-100-30";

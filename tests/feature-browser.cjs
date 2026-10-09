@@ -107,6 +107,29 @@ module.exports = async (browser, url, report) => {
   assert.match(differences[2], /scheduled_cost → preference_penalty/);
   await page.goto(`${url}#skills`);
   await page.waitForFunction(() => document.querySelector("#feature-list [role=status]").textContent.includes("準備中"));
+  for (const sample of ["lunch", "scenarios"]) {
+    await page.route(`**/samples/${sample}.json`, route => route.fulfill({status: 503, json: {error: "読込失敗の制御応答"}}));
+    await page.goto(`${url}#combined`);
+    await page.reload();
+    await page.waitForFunction(() => document.getElementById("status").textContent.includes("サンプルの取得に失敗"));
+    assert.equal(await page.locator("#calculate").isDisabled(), true);
+    await page.unroute(`**/samples/${sample}.json`);
+  }
+  let sampleStarted, sampleRelease;
+  const sampleWaiting = new Promise(resolve => { sampleStarted = resolve; });
+  await page.route("**/samples/lunch.json", async route => {
+    const response = await route.fetch(); sampleStarted();
+    await new Promise(resolve => { sampleRelease = resolve; });
+    await route.fulfill({response});
+  });
+  await page.reload(); await sampleWaiting;
+  assert.equal(await page.locator("#calculate").isDisabled(), true);
+  await page.evaluate(() => { location.hash = "demand"; });
+  sampleRelease(); await page.unrouteAll({behavior: "wait"}); await ready(page);
+  assert.equal(await page.locator("#editor").isVisible(), false);
+  await page.goto(`${url}#combined`);
+  await page.waitForFunction(() => current?.response.status === "OPTIMAL" && !document.getElementById("controls").disabled);
+  report.response_samples.push("複合フォームはサンプル読込中・読込失敗後に無効、切替後の古い読込を拒否、再読込で復帰");
   assert.deepEqual(errors, []);
   writeFileSync("test-results/feature-measurements.json", JSON.stringify(report.feature_measurements, null, 2) + "\n");
   await page.close();
