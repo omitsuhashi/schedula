@@ -60,12 +60,13 @@ legacyは旧固定0.1.5のwheel/Storeで作った合成データです。
 現在verifyのelapsed_secondsは各実行で異なるため、内容比較からその実行時間だけを除きます。
 元証拠のRequest/Response/recordとpin・解・条件・summaryは一致します。
 
-手元の移行単体10件と既存Request/Adapter移行139件、アプリbackend 192件・front 4件、
+手元の移行単体12件と既存Request/Adapter移行139件、アプリbackend 192件・front 4件、
 型/Ruff/Biome/ビルドとSQLiteバックアップ/実HTTP再起動は成功。
 原/更新後SHA、代表JSON、取込→再検証→採用→固定/全体再計画→保存→再読込、
 不正/pin不一致/元record付替え/保存競合の検査はアプリ側に記録します。
 エンジン全体は2,656 passed, 6 subtests passed in 694.11s、JUnit failure/error/skip 0。
-その後追加したCLI原本保護の1ケースを含め、移行10件も成功しました。
+その後追加したCLI原本保護と合成元記録のハッシュ照合を含め、移行12件も成功しました。
+合成元記録のCPU数は実際の求解の既定値2に揃え、内容ハッシュとRequest/Responseの対応を検査しています。
 隔離wheel/sdist・公開型・base/cp-satは全体回帰に含み、strict mypyとpre-commitも成功。
 エンジン実Chromiumと、アプリのbuilt/Vite両入口の実Chromium35項目・page errors 0が成功しました。
 

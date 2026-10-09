@@ -9,7 +9,7 @@ from types import SimpleNamespace
 import pytest
 
 from scripts.migrate_app import main, migrate_document, read_session
-from shift_schedula import create_record, import_request, solve, verify
+from shift_schedula import check_record, create_record, import_request, solve, verify
 from shift_schedula.adapter import confirmation_state
 from tests.test_contract_migration import read_case
 
@@ -39,6 +39,18 @@ def document(name="partial_roster", record=False):
         "edit": {"request": request, "solution": response["solution"]},
         **({"request_draft": draft} if record else {}),
     }
+
+
+@pytest.mark.parametrize("name", ["complete", "partial"])
+def test_synthesized_original_records_are_intact_and_match_the_actual_execution(name):
+    from pathlib import Path
+
+    source = Path(__file__).parent / "fixtures/contract-migration/app" / f"{name}.json"
+    plan = json.loads(source.read_text())["plans"][0]
+    record = check_record(plan["record"])
+    assert record["request"] == plan["request"]
+    assert record["response"] == plan["result"]
+    assert record["execution"] == {"num_workers": 2}
 
 
 @pytest.mark.parametrize("name", ["partial_roster", "continuity_replan", "roster"])
