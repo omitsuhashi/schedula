@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.4",
+  "schema_version": "0.15",
   "request_id": "roster_conditions",
   "problem_type": "roster",
   "planning_window": {

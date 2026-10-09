@@ -33,10 +33,12 @@ def test_extended_five_objectives_keep_one_verified_plan_and_proof_prefix(
     data["objectives"] += [
         {"id": metric, "metric": metric} for metric in ("preference_penalty", "role_switches")
     ]
-    calls, snapshots = control_search(monkeypatch, statuses)
+    # 0.15では指定目的の前に不足総量を証明する。
+    calls, snapshots = control_search(monkeypatch, ("OPTIMAL", *statuses))
     result = solve(data)
     assert_response(result, "FEASIBLE")
-    assert len(calls) == len(statuses)
+    assert len(calls) == len(statuses) + 1
+    assert result["shortage_summary"]["proven_minimal"]
     assert result["solution"] in snapshots
     assert tuple(o["proven_optimal"] for o in result["objectives"]) == proofs
     values = tuple(o["value"] for o in result["objectives"])

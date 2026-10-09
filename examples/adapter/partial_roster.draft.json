@@ -1,6 +1,6 @@
 {
   "adapter_version": "1.0",
-  "schema_version": "0.3",
+  "schema_version": "0.15",
   "sources": [
     {
       "id": "basic",
@@ -32,7 +32,7 @@
       "references": [],
       "applies_to": null,
       "confirmation": {
-        "digest": "2ed06085919e5c7973022e8f28ef4c69180830e2a4e9a8d3fcd132a494de4dd2",
+        "digest": "77e830aa35ec5b353467cb9f2e2151eb767df1c9824fee55b313a17438dcd820",
         "provenance": "declared"
       }
     },
@@ -47,7 +47,7 @@
       "references": [],
       "applies_to": null,
       "confirmation": {
-        "digest": "b16647f4d5de5516468ac8428dd9aa2e5d50cab75c5dba42325eb1881b7914ed",
+        "digest": "c9a3847d2aefbd126470ba8dbe9bcf37c656199262004d72f3e07f38575f09bb",
         "provenance": "declared"
       }
     },
@@ -112,7 +112,7 @@
         "slot_minutes": 30
       },
       "confirmation": {
-        "digest": "98d9f0b38578d710f7d05502e28980a1c5ea58a7b9b8f87f3fbd21ed5b99f6a1",
+        "digest": "3dd8ab74d5895d3b51ac76f6f6fb16c8776233a42e7086011fd34f9638751c8f",
         "provenance": "declared"
       }
     },
@@ -141,7 +141,7 @@
         "slot_minutes": 30
       },
       "confirmation": {
-        "digest": "6e58e5c3552ceffa94562e8aac6676b81921656e157314bcf4a82bfeb3e04741",
+        "digest": "2b7e6fe310ab4c32e614f5426cc9c9ae741dca173a38f8ef7f27de0884d06338",
         "provenance": "declared"
       }
     },
@@ -190,7 +190,7 @@
       "references": [],
       "applies_to": null,
       "confirmation": {
-        "digest": "91be751a74a4fef0fe1f78c1a215ef2d25f2ca691bcefd6e486fda9900ae21f9",
+        "digest": "0077f7c228161fdf79fd7b7ab07465a777b4843bd70bf245af5da5537c6f49bc",
         "provenance": "declared"
       }
     }

@@ -561,13 +561,13 @@ def test_cli_schema_and_verification_failures(tmp_path):
         assert completed.returncode == code, completed.stderr
         response = json.loads(completed.stdout)
         assert not schema_errors(
-            "response" if args[0] == "solve" else "verification", response, "0.10"
+            "response" if args[0] == "solve" else "verification", response, "0.15"
         )
     for kind in ("request", "response", "solution", "verification"):
-        schema = get_schema(kind, "0.10")
+        schema = get_schema(kind, "0.15")
         Draft202012Validator.check_schema(schema)
         completed = subprocess.run(
-            [sys.executable, "-m", "shift_schedula", "schema", kind, "--schema-version", "0.10"],
+            [sys.executable, "-m", "shift_schedula", "schema", kind, "--schema-version", "0.15"],
             capture_output=True,
             text=True,
         )

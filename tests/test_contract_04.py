@@ -242,7 +242,6 @@ def test_break_split_overnight_preferences_and_bounds_use_elapsed_overlap():
     root = Path(__file__).resolve().parents[1]
     for filename in ("overnight.json", "split_roster.json"):
         data = json.loads((root / "examples" / filename).read_text())
-        data["schema_version"] = "0.4"
         period = {k: data["planning_window"][k] for k in ("start", "end")}
         data["constraints"] = [{**bounds(minimum=420, maximum=420), "interval": period}]
         data["preferences"] = [
@@ -647,7 +646,6 @@ def test_bounds_diagnosis_records_hard_period_and_allowed_edit():
 def test_combined_night_split_shortage_fairness_wishes_and_repeated_replanning(filename):
     root = Path(__file__).resolve().parents[1]
     data = json.loads((root / "examples" / filename).read_text())
-    data["schema_version"] = "0.4"
     period = {k: data["planning_window"][k] for k in ("start", "end")}
     data["constraints"].append({**bounds(minimum=420, maximum=420), "interval": period})
     data["preferences"] = [{**preference("prefer_work"), "interval": period}]
@@ -664,6 +662,7 @@ def test_combined_night_split_shortage_fairness_wishes_and_repeated_replanning(f
     assert_response(original, "OPTIMAL")
     for d in data["demand"]:
         d["required_people"] = 2
+        d["minimum_people"] = 0
     # 不足以外は有効な計画を、新しい条件の基準へ昇格する。
     for mode in ("preserve_assigned", "rebuild"):
         new = copy.deepcopy(data)

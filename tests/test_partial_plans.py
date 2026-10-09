@@ -288,9 +288,10 @@ def test_small_assignment_matches_exhaustive_lexicographic_search(assignment_req
 
 @pytest.mark.parametrize("name", ["overnight", "split_roster", "fairness", "replan", "diagnosis"])
 def test_partial_extended_roster_interactions(name):
-    data = partial(json.loads((ROOT / "examples" / f"{name}.json").read_text()))
+    data = json.loads((ROOT / "examples" / f"{name}.json").read_text())
     for d in data["demand"]:
         d["required_people"] += 2
+        d["minimum_people"] = 0
     original = copy.deepcopy(data)
     result = solve(data)
     assert_response(result, "PARTIAL")

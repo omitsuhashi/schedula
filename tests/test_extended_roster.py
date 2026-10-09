@@ -15,7 +15,7 @@ from shift_schedula import cp_sat, solve
 from shift_schedula.model import normalize
 from shift_schedula.verify import verify_solution
 from tests.roster_support import demand, interval, request, rule, stamp
-from tests.support import assert_response
+from tests.support import assert_response, require_complete_demand
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -53,7 +53,7 @@ def test_extended_examples_api_and_cli(name):
     original = copy.deepcopy(data)
     result = solve(data)
     assert_response(result, "OPTIMAL")
-    assert result["schema_version"] == "0.2"
+    assert result["schema_version"] == "0.15"
     assert result["objectives"][0]["value"] == 420
     assert result["solution"]["shifts"][0]["work_day"] == "2026-10-06"
     assert len(result["solution"]["assignments"]) == 2
@@ -75,6 +75,7 @@ def test_overnight_rest_uses_last_end_and_next_start(start, status):
     data["employees"][0]["availability"].append(interval(2, start, start + 60))
     data["shift_candidates"].append(shift([segment(2, start, start + 60)], identifier="next"))
     data["demand"].append(demand(2, start, start + 60))
+    require_complete_demand(data)
     data["constraints"] = [rule("min_rest_minutes", 480)]
     assert_response(solve(data), status)
 
@@ -84,6 +85,7 @@ def test_overnight_overlap_is_forbidden_without_rest_rule():
     data["employees"][0]["availability"] = [interval(1, 1320, 1920)]
     data["shift_candidates"].append(shift([segment(2, 330, 480)], identifier="overlap"))
     data["demand"].append(demand(2, 360, 480))
+    require_complete_demand(data)
     data["constraints"] = []
     assert_response(solve(data), "INFEASIBLE")
 
@@ -107,6 +109,7 @@ def test_overnight_end_day_without_new_start_resets_consecutive_days(day, status
     data["employees"][0]["availability"].append(interval(day, 540, 600))
     data["shift_candidates"].append(shift([segment(day, 540, 600)], identifier="later"))
     data["demand"].append(demand(day, 540, 600))
+    require_complete_demand(data)
     data["constraints"] = [rule("max_consecutive_days", 1)]
     assert_response(solve(data), status)
 
@@ -193,6 +196,7 @@ def test_split_rest_starts_after_last_segment(start, status):
     data["employees"][0]["availability"].append(interval(2, start, start + 60))
     data["shift_candidates"].append(shift([segment(2, start, start + 60)], identifier="next"))
     data["demand"].append(demand(2, start, start + 60))
+    require_complete_demand(data)
     assert_response(solve(data), status)
 
 

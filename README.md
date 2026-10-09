@@ -251,11 +251,13 @@ uv run --locked --extra cp-sat python -m shift_schedula solve request.json
 
 勤務計画を作るときは [examples/roster.json](examples/roster.json) をコピーし、
 全従業員の `history` と、勤務候補または `shift_templates` を指定します。
+現在の利用例は契約0.15です。完全充足の例は `minimum_people = required_people` を明示し、
+不足許容の例は元の必要人数を保持します。`roster.json` は旧テンプレートの候補IDを保つ明示候補です。
 計画期間の両端はローカル00:00、1人1日最大1勤務です。
 テンプレートは対象者・日付・始業・勤務長・休憩位置の選択肢から有限候補を生成します。
 詳細な入力条件は [担当配置](docs/assignment.md)・[勤務計画](docs/roster.md)を参照してください。
 
-夜勤・分割勤務は [契約0.2](docs/io-contract-next.md) の `segments` を指定します。
+夜勤・分割勤務は契約0.15の `segments` を指定します（導入時の仕様は [契約0.2](docs/io-contract-next.md)）。
 [夜勤・分割勤務](docs/roster-next.md)、[公平性・再計画](docs/replanning.md)、
 [不可能性診断](docs/diagnosis.md) の例を API と CLI で実行できます。
 勤務日・目標勤務量・変更単位は明示し、固定は必須条件として保持します。
@@ -266,7 +268,7 @@ uv run --locked --extra cp-sat python -m shift_schedula solve examples/split_ros
 uv run --locked --extra cp-sat python -m shift_schedula solve examples/fairness.json
 uv run --locked --extra cp-sat python -m shift_schedula solve examples/replan.json
 uv run --locked --extra cp-sat python -m shift_schedula solve examples/diagnosis.json
-uv run --locked --extra cp-sat python -m shift_schedula schema request --schema-version 0.2
+uv run --locked --extra cp-sat python -m shift_schedula schema request --schema-version 0.15
 ```
 
 診断例は元条件の `INFEASIBLE` と終了コード2を維持し、許可した人数変更後の検証済み解を別に返します。

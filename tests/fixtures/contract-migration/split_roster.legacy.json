@@ -1,10 +1,10 @@
 {
-  "schema_version": "0.15",
-  "request_id": "overnight",
+  "schema_version": "0.2",
+  "request_id": "split_roster",
   "problem_type": "roster",
   "planning_window": {
     "start": "2026-10-06T00:00:00+09:00",
-    "end": "2026-10-08T00:00:00+09:00",
+    "end": "2026-10-07T00:00:00+09:00",
     "timezone": "Asia/Tokyo",
     "slot_minutes": 30
   },
@@ -28,8 +28,12 @@
       "skills": [],
       "availability": [
         {
-          "start": "2026-10-06T22:00:00+09:00",
-          "end": "2026-10-07T06:00:00+09:00"
+          "start": "2026-10-06T09:00:00+09:00",
+          "end": "2026-10-06T12:00:00+09:00"
+        },
+        {
+          "start": "2026-10-06T17:00:00+09:00",
+          "end": "2026-10-06T21:00:00+09:00"
         }
       ],
       "history": {
@@ -41,42 +45,42 @@
   ],
   "demand": [
     {
-      "id": "need_1_1320_kitchen",
+      "id": "need_1_540_kitchen",
       "role_id": "kitchen",
       "interval": {
-        "start": "2026-10-06T22:00:00+09:00",
-        "end": "2026-10-06T23:30:00+09:00"
+        "start": "2026-10-06T09:00:00+09:00",
+        "end": "2026-10-06T12:00:00+09:00"
       },
-      "required_people": 1,
-      "minimum_people": 1
+      "required_people": 1
     },
     {
-      "id": "need_1_1470_kitchen",
+      "id": "need_1_1020_kitchen",
       "role_id": "kitchen",
       "interval": {
-        "start": "2026-10-07T00:30:00+09:00",
-        "end": "2026-10-07T06:00:00+09:00"
+        "start": "2026-10-06T17:00:00+09:00",
+        "end": "2026-10-06T21:00:00+09:00"
       },
-      "required_people": 1,
-      "minimum_people": 1
+      "required_people": 1
     }
   ],
   "shift_candidates": [
     {
-      "id": "overnight_alice",
+      "id": "split_roster_alice",
       "employee_id": "alice",
       "segments": [
         {
           "interval": {
-            "start": "2026-10-06T22:00:00+09:00",
-            "end": "2026-10-07T06:00:00+09:00"
+            "start": "2026-10-06T09:00:00+09:00",
+            "end": "2026-10-06T12:00:00+09:00"
           },
-          "breaks": [
-            {
-              "start": "2026-10-06T23:30:00+09:00",
-              "end": "2026-10-07T00:30:00+09:00"
-            }
-          ]
+          "breaks": []
+        },
+        {
+          "interval": {
+            "start": "2026-10-06T17:00:00+09:00",
+            "end": "2026-10-06T21:00:00+09:00"
+          },
+          "breaks": []
         }
       ]
     }
@@ -84,19 +88,19 @@
   "constraints": [
     {
       "id": "cap",
-      "type": "max_scheduled_minutes",
+      "type": "min_rest_minutes",
       "employee_ids": [
         "alice"
       ],
-      "limit_minutes": 420
+      "limit_minutes": 660
     },
     {
-      "id": "days",
-      "type": "max_consecutive_days",
+      "id": "gap",
+      "type": "min_split_gap_minutes",
       "employee_ids": [
         "alice"
       ],
-      "limit_days": 1
+      "limit_minutes": 300
     }
   ],
   "preferences": [],

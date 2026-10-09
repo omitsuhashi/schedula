@@ -175,11 +175,7 @@ def test_shortages_are_not_limited_by_diagnostic_count():
     "name", ["assignment", "overnight", "split_roster", "fairness", "replan", "diagnosis"]
 )
 def test_version_three_preserves_extended_input_semantics(name):
-    path = (
-        ROOT / "tests/fixtures/contract-migration/assignment.legacy.json"
-        if name == "assignment"
-        else ROOT / "examples" / f"{name}.json"
-    )
+    path = ROOT / "tests/fixtures/contract-migration" / f"{name}.legacy.json"
     old = json.loads(path.read_text())
     request = copy.deepcopy(old)
     request["schema_version"] = "0.3"
@@ -211,7 +207,9 @@ def test_version_three_preserves_extended_input_semantics(name):
 
 @pytest.mark.parametrize("case", ["history", "fairness", "fixed", "diagnosis"])
 def test_extended_invalid_inputs_still_fail_before_execution_gate(case):
-    request = json.loads((ROOT / "examples/replan.json").read_text())
+    request = json.loads(
+        (ROOT / "tests/fixtures/contract-migration/replan.legacy.json").read_text()
+    )
     request["schema_version"] = "0.3"
     if case == "history":
         request["employees"][0]["history"]["last_work_day"] = "2026-10-05"

@@ -30,7 +30,7 @@ def test_example_roster_with_one_objective(backend):
     assert_response(result, "OPTIMAL")
     assert result["solver"]["backend"] == "cp_sat"
     assert result["solver"]["selection_reason"] == (
-        "JOINT_ROSTER" if backend == "auto" else "EXPLICIT_BACKEND"
+        "MANDATORY_DEMAND" if backend == "auto" else "EXPLICIT_BACKEND"
     )
     assert len(normalize(data).candidates) == 32
     assert len(result["solution"]["shifts"]) == 8

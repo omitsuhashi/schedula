@@ -192,7 +192,7 @@ def test_valid_rules_conflicting_with_facts_are_infeasible():
     data["diagnosis"] = {"time_limit_seconds": 5, "max_suggestions": 0, "allowed_changes": []}
     result = solve(data)
     assert_response(result, "INFEASIBLE")
-    conditions = result["diagnosis_result"]["conflict"]["conditions"]
+    conditions = result["diagnosis_result"]["conflict"]["background_conditions"]
     assert any(c["code"] == "ACTUAL_SHIFT_BACKGROUND" for c in conditions)
 
 
@@ -421,6 +421,11 @@ def test_fairness_preferences_and_fixed_states_include_committed_work():
     data["replan_mode"] = "preserve_assigned"
     assert_response(solve(data), "OPTIMAL")
     row(data)["committed_shifts"][0]["segments"][0]["breaks"] = []
+    conflicting = solve(data)
+    assert_response(conflicting, "INVALID_INPUT")
+    assert conflicting["diagnostics"][0]["code"] == "CONFLICTING_CONTINUITY"
+    # 原区間を変えた確定勤務は別IDとし、基準との同一IDの矛盾を隠さない。
+    row(data)["committed_shifts"][0]["id"] = "updated_night"
     assert_response(solve(data), "OPTIMAL")  # 固定は担当済み枠だけで休憩枠を固定しない。
     data["fixed_parts"] = [
         {

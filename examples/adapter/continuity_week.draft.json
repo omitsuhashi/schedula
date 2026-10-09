@@ -1,6 +1,6 @@
 {
   "adapter_version": "1.0",
-  "schema_version": "0.6",
+  "schema_version": "0.15",
   "sources": [
     {
       "id": "basic",
@@ -27,7 +27,7 @@
       "references": [],
       "applies_to": null,
       "confirmation": {
-        "digest": "31216aa89239366ba77e24244544cad7f9791acfacbc238405a6c49730357fdd",
+        "digest": "1e8b764958fd388afddfba751baf9e03fd5e64459d02a4c255fad8c963bee58c",
         "provenance": "declared"
       }
     },
@@ -59,7 +59,7 @@
       "references": [],
       "applies_to": null,
       "confirmation": {
-        "digest": "b540893fea7f9d37f4bd5722e765e984f77ba63309708dd5eab9d090e4333823",
+        "digest": "2bea670b010e64681d4a28345ca71bdfbeee950f60ee7aa6bd3750ee74a69736",
         "provenance": "declared"
       }
     },
@@ -204,7 +204,7 @@
         "slot_minutes": 30
       },
       "confirmation": {
-        "digest": "ff9eb537df74c2d884c59927409ab54b37f3a552e21908efa6ab2b13c27bb35b",
+        "digest": "94244e803821ea7d6487783c4672dcbf2f4645e5e42bb76084c61950d22aaf61",
         "provenance": "declared"
       }
     },
@@ -266,7 +266,7 @@
         "end": "2026-10-12T00:00:00+09:00"
       },
       "confirmation": {
-        "digest": "ab4a4c3f4d084b35c5b5d1d4056d082bb6bb2b1debc8763c715af57afd09284a",
+        "digest": "b950bcf92c5043d87159e8611b51d642fed3719365ef00df725e717342c9a56f",
         "provenance": "declared"
       }
     },
@@ -291,7 +291,7 @@
       "references": [],
       "applies_to": null,
       "confirmation": {
-        "digest": "337029c0dfc83448b00eb26212a354fb9ed15a2c3030c2f5b7513710e54814bd",
+        "digest": "7b8b401de711797e6248b1fb43598183af7754b8e00d1f73eeb12f8248f72f78",
         "provenance": "declared"
       }
     }

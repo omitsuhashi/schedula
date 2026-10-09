@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.14",
+  "schema_version": "0.15",
   "request_id": "coworkers_example",
   "problem_type": "roster",
   "planning_window": {
