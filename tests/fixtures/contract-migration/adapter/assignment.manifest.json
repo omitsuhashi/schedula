@@ -2,7 +2,7 @@
   "manifest_version": "1.0",
   "draft": {
     "adapter_version": "1.0",
-    "schema_version": "0.15",
+    "schema_version": "0.1",
     "unresolved": [],
     "assumptions": [],
     "overrides": [],

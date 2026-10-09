@@ -357,6 +357,14 @@ def test_json_sample_100_people_30_days(http_server, monkeypatch, standby):
             fairness_summary=None,
             change_summary=None,
             diagnosis_result=None,
+            continuity_summary=None,
+            cost_summary=None,
+            duty_balance_summary=None,
+            day_count_summary=None,
+            shift_count_balance_summary=None,
+            priority_summary={
+                "groups": [{"priority": 0, "total_person_minutes": 0, "proven_minimal": True}]
+            },
             shortage_summary={"total_person_minutes": 0, "proven_minimal": True, "shortages": []},
             solution=solution,
             objectives=[

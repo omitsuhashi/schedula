@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1",
+  "schema_version": "0.15",
   "request_id": "restaurant_assignment",
   "problem_type": "assignment",
   "planning_window": {
@@ -23,9 +23,9 @@
     {"id": "carol", "label": "Cさん", "skills": [], "availability": [{"start": "2026-10-05T11:00:00+09:00", "end": "2026-10-05T13:00:00+09:00"}]}
   ],
   "demand": [
-    {"id": "kitchen_lunch", "role_id": "kitchen", "interval": {"start": "2026-10-05T11:00:00+09:00", "end": "2026-10-05T13:00:00+09:00"}, "required_people": 1},
-    {"id": "hall_lunch", "role_id": "hall", "interval": {"start": "2026-10-05T11:00:00+09:00", "end": "2026-10-05T13:00:00+09:00"}, "required_people": 1},
-    {"id": "washing_lunch", "role_id": "washing", "interval": {"start": "2026-10-05T11:00:00+09:00", "end": "2026-10-05T13:00:00+09:00"}, "required_people": 1}
+    {"id": "kitchen_lunch", "role_id": "kitchen", "interval": {"start": "2026-10-05T11:00:00+09:00", "end": "2026-10-05T13:00:00+09:00"}, "required_people": 1, "minimum_people": 1},
+    {"id": "hall_lunch", "role_id": "hall", "interval": {"start": "2026-10-05T11:00:00+09:00", "end": "2026-10-05T13:00:00+09:00"}, "required_people": 1, "minimum_people": 1},
+    {"id": "washing_lunch", "role_id": "washing", "interval": {"start": "2026-10-05T11:00:00+09:00", "end": "2026-10-05T13:00:00+09:00"}, "required_people": 1, "minimum_people": 1}
   ],
   "shift_candidates": [],
   "constraints": [],

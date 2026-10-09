@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.3",
+  "schema_version": "0.15",
   "request_id": "playground_lunch",
   "problem_type": "assignment",
   "planning_window": {

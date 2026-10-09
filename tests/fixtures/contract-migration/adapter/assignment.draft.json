@@ -1,6 +1,6 @@
 {
   "adapter_version": "1.0",
-  "schema_version": "0.15",
+  "schema_version": "0.1",
   "sources": [
     {
       "id": "basic",
@@ -76,7 +76,7 @@
       "references": [],
       "applies_to": null,
       "confirmation": {
-        "digest": "a53017b19cfd25bf1793db34e601fc4c57f3580ba78d78c913ab736c60266b58",
+        "digest": "6be535f093e9ba3fb9de9f66e4ca35e2544f55ad885c5a35837c7a031770df24",
         "provenance": "declared"
       }
     },
@@ -91,13 +91,13 @@
       "references": [],
       "applies_to": null,
       "confirmation": {
-        "digest": "c9a3847d2aefbd126470ba8dbe9bcf37c656199262004d72f3e07f38575f09bb",
+        "digest": "b51ee4254cd90927ddeba5185e11e97dac8f5ca148cb86331fe224496e1e4aa6",
         "provenance": "declared"
       }
     },
     {
       "id": "period",
-      "revision": "53964dc251fba71a1c97c37365afe07d14fd90d0ef5703d34cba133a48cd5deb",
+      "revision": "1",
       "section": "period",
       "origin": "declared",
       "data": {
@@ -146,8 +146,7 @@
               "start": "2026-10-05T11:00:00+09:00",
               "end": "2026-10-05T13:00:00+09:00"
             },
-            "required_people": 1,
-            "minimum_people": 1
+            "required_people": 1
           },
           {
             "id": "hall_lunch",
@@ -156,8 +155,7 @@
               "start": "2026-10-05T11:00:00+09:00",
               "end": "2026-10-05T13:00:00+09:00"
             },
-            "required_people": 1,
-            "minimum_people": 1
+            "required_people": 1
           },
           {
             "id": "washing_lunch",
@@ -166,8 +164,7 @@
               "start": "2026-10-05T11:00:00+09:00",
               "end": "2026-10-05T13:00:00+09:00"
             },
-            "required_people": 1,
-            "minimum_people": 1
+            "required_people": 1
           }
         ],
         "shift_candidates": [],
@@ -192,7 +189,7 @@
         "slot_minutes": 30
       },
       "confirmation": {
-        "digest": "0af6740f47d39fd7415017405e6dbbd0e4eeb2310164b8ee55740c62e717ae1a",
+        "digest": "e90d93a6b8bd2455968b065c6d9b8275b95c7d561f3187f90a85262f679a24ed",
         "provenance": "declared"
       }
     },
@@ -217,7 +214,7 @@
       "references": [],
       "applies_to": null,
       "confirmation": {
-        "digest": "45e21fd9a1af2a8ec88b4de45d72910968f61934d5262a6b2897bedd634e1977",
+        "digest": "9259c8c3caa9ea941a7e354daa9b358007aaac92b80403d0331ff2a2c4035a0f",
         "provenance": "declared"
       }
     }

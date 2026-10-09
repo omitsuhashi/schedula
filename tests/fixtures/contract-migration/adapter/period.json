@@ -1,6 +1,6 @@
 {
   "id": "period",
-  "revision": "53964dc251fba71a1c97c37365afe07d14fd90d0ef5703d34cba133a48cd5deb",
+  "revision": "1",
   "section": "period",
   "origin": "declared",
   "data": {
@@ -49,8 +49,7 @@
           "start": "2026-10-05T11:00:00+09:00",
           "end": "2026-10-05T13:00:00+09:00"
         },
-        "required_people": 1,
-        "minimum_people": 1
+        "required_people": 1
       },
       {
         "id": "hall_lunch",
@@ -59,8 +58,7 @@
           "start": "2026-10-05T11:00:00+09:00",
           "end": "2026-10-05T13:00:00+09:00"
         },
-        "required_people": 1,
-        "minimum_people": 1
+        "required_people": 1
       },
       {
         "id": "washing_lunch",
@@ -69,8 +67,7 @@
           "start": "2026-10-05T11:00:00+09:00",
           "end": "2026-10-05T13:00:00+09:00"
         },
-        "required_people": 1,
-        "minimum_people": 1
+        "required_people": 1
       }
     ],
     "shift_candidates": [],
@@ -95,7 +92,7 @@
     "slot_minutes": 30
   },
   "confirmation": {
-    "digest": "0af6740f47d39fd7415017405e6dbbd0e4eeb2310164b8ee55740c62e717ae1a",
+    "digest": "e90d93a6b8bd2455968b065c6d9b8275b95c7d561f3187f90a85262f679a24ed",
     "provenance": "declared"
   }
 }
