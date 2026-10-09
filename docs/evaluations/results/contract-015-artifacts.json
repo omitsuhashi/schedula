@@ -19,5 +19,6 @@
   "sdist_sha256": "7e6347387d23afc213752a4df340a1c2774ef190c2d795051565d6c5446350cb",
   "wheel_rebuilds_identical": true,
   "source_tree_sha256": "4d44c7cfd56bf4cf188a28b41b21d43d120baa0eca67694ae6ec11d15d82e78f",
-  "source_pr": "https://github.com/omitsuhashi/schedula/pull/156"
+  "source_pr": "https://github.com/omitsuhashi/schedula/pull/156",
+  "sdist_build_command": "SOURCE_DATE_EPOCH=1791556851 uv build --sdist"
 }

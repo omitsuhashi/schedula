@@ -2,14 +2,14 @@
   "at": "2026-10-09T14:47:40.371859+00:00",
   "os": "Linux",
   "checks": [
-    "SSH key allowed; real compare and restore over encrypted tunnel",
-    "Shell, other destination, other customer's key and revoked key denied",
-    "Saved file and version record backed up; source loss recovered into separate deployment",
-    "Incompatible update rejected old file; new plan saved separately",
-    "SSH: new session import/Query/export and consistent SQLite backup",
-    "update: input, comparison baseline and both solutions independently verified",
-    "rollback: input, comparison baseline and both solutions independently verified",
-    "Other customer's storage untouched; invalid plan/version rejected; capacity readable"
+    "SSH鍵を許可し、暗号化トンネル経由の実比較・復元を確認した。",
+    "Shell・他の転送先・別顧客の鍵・失効した鍵を拒否した。",
+    "保存ファイルと版記録をバックアップし、ソース喪失後に別配置へ復元した。",
+    "非互換更新では旧保存ファイルを拒否し、新計画を別に保存した。",
+    "SSH経由の新セッション取込/Query/持出しと整合したSQLiteバックアップを確認した。",
+    "更新時に入力・比較基準と両解を独立検証した。",
+    "旧版への復元時に入力・比較基準と両解を独立検証した。",
+    "別顧客の保存先は不変で、不正計画/版を拒否し、容量を読み取れた。"
   ],
   "previous_app_commit": "41ffe8ee7c5c66ee89d1b8cf570f259390839397",
   "current_app_commit": "7d8f5fdd3673fa7ebb613eaf5c8a12b4ad0eeb87",
@@ -27,5 +27,7 @@
     "sha256": "f011b1af77535739dfd36899af4011d31d5f906a8a20efa65653f618f2ad48c6"
   },
   "elapsed_seconds": 14.18,
-  "limits": "Synthetic data on one host, two independent source archives and venvs; Files reverified under their matching engine/schema; incompatible updates use separate new plans, rollback uses the previous file. Not customer production or cross-host disaster recovery."
+  "limits": "同一ホストの合成データ、独立した二つのソースarchiveとvenvで実施した。各ファイルは一致するエンジン/Schemaで再検証した。非互換更新は別の新計画を使い、旧版への復元は以前のファイルを使う。実顧客の本番運用や別ホストの災害復旧の証拠ではない。",
+  "original_output_sha256": "3eb3e83e4cab8aa0d7a5e1bf4d88f81878f49542075bd086f6e6deb9c94e99e8",
+  "original_output_source": "https://github.com/omitsuhashi/schedula-app/blob/85861851aa86aecd1d398bc8d68027426b295cfb/docs/evaluations/final-contract-015/customer-operations.json"
 }
