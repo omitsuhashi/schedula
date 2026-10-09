@@ -1,4 +1,4 @@
-"""契約0.8の十分性・証拠・内包予算を公開入口と独立な小規模列挙で確認する。"""
+"""契約0.15の十分性・証拠・内包予算を公開入口と独立な小規模列挙で確認する。"""
 
 import copy
 import itertools
@@ -312,7 +312,6 @@ def test_fixed_group_removed_without_modifying_baseline(fixed):
 
 def test_background_only_keeps_committed_original_intervals():
     data = continuous_example()
-    data["schema_version"] = "0.8"
     data["employees"][0]["availability"] = []
     data["shift_candidates"] = []
     data["constraints"] = []
@@ -426,7 +425,8 @@ def test_unpermitted_edits_still_rejected(pointer):
     assert_response(solve(data), "INVALID_INPUT")
 
 
-def test_budget_validation_default_groups_cli_and_new_schemas(tmp_path):
+@pytest.mark.parametrize("version", ["0.8", "0.15"])
+def test_budget_validation_default_groups_cli_and_new_schemas(tmp_path, version):
     data = example()
     data["diagnosis"]["conflict_refinement"]["time_limit_seconds"] = 11
     assert validate(data)["diagnostics"][0]["code"] == "INVALID_DIAGNOSIS_BUDGET"
@@ -438,12 +438,12 @@ def test_budget_validation_default_groups_cli_and_new_schemas(tmp_path):
     assert c["minimality"] == "not_proven" and not c["checks"] and not c["rechecked"]
     for kind in ("request", "response", "solution", "verification"):
         process = subprocess.run(
-            [sys.executable, "-m", "shift_schedula", "schema", kind, "--schema-version", "0.8"],
+            [sys.executable, "-m", "shift_schedula", "schema", kind, "--schema-version", version],
             capture_output=True,
             text=True,
         )
         assert process.returncode == 0
-        assert json.loads(process.stdout) == get_schema(kind, "0.8")
+        assert json.loads(process.stdout) == get_schema(kind, version)
     process = subprocess.run(
         [
             sys.executable,

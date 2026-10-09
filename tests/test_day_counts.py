@@ -1,4 +1,4 @@
-"""契約0.11の勤務開始日・完全休日・確定事実を公開境界で照合する。"""
+"""契約0.15の勤務開始日・完全休日・確定事実を公開境界で照合する。"""
 
 import copy
 import itertools
@@ -27,20 +27,16 @@ from shift_schedula.contract import SCHEMA_VERSIONS, parse_datetime, schema_erro
 from shift_schedula.engine import validate_response
 from shift_schedula.extensions import evaluate
 from shift_schedula.model import normalize
-from tests.roster_support import demand, interval, stamp
-from tests.roster_support import legacy_request as request
-from tests.roster_support import legacy_template as template
+from tests.roster_support import demand, interval, request, stamp, template
 from tests.support import assert_response
 from tests.test_continuity import segment
-from tests.test_extensions import legacy_extended as extended
 from tests.test_objectives import control_search
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def example(days=7, employees=("alice",)):
-    data = extended(request(days, employees))
-    data["schema_version"] = "0.11"
+    data = request(days, employees)
     for employee in data["employees"]:
         employee["availability"] = [interval(0, 0, days * 1440)]
     return data
@@ -533,10 +529,6 @@ def test_template_generation_and_summary_tampering():
     data = example()
     data["shift_candidates"] = []
     data["shift_templates"] = [template(dates=tuple(stamp(d)[:10] for d in range(7)))]
-    generated = data["shift_templates"][0]
-    generated.pop("duration_minutes_options")
-    generated.pop("break_options")
-    generated["segment_options"] = [[{"offset_minutes": 0, "duration_minutes": 90, "breaks": []}]]
     data["constraints"] = [bounds(data, min_days=3, max_days=4)]
     result = solve(data)
     assert_response(result, "OPTIMAL")
@@ -592,8 +584,10 @@ def test_diagnosis_edits_and_assignment_do_not_accept_day_conditions():
     assert_response(solve(data), "INVALID_INPUT")
 
 
-def test_cli_and_schemas_cover_success_and_missing_plan(tmp_path):
+@pytest.mark.parametrize("version", ["0.11", "0.15"])
+def test_cli_and_schemas_cover_success_and_missing_plan(tmp_path, version):
     data = example()
+    data["schema_version"] = version
     data["constraints"] = [
         bounds(data, min_days=3, max_days=4),
         bounds(data, "days_off_bounds", min_days=3),
@@ -614,25 +608,26 @@ def test_cli_and_schemas_cover_success_and_missing_plan(tmp_path):
         assert completed.returncode == code, completed.stderr
         response = json.loads(completed.stdout)
         assert not schema_errors(
-            "response" if args[0] == "solve" else "verification", response, "0.11"
+            "response" if args[0] == "solve" else "verification", response, version
         )
         if code == 0:
             assert response["day_count_summary"] == result["day_count_summary"]
         else:
             assert response["day_count_summary"] is None
     for kind in ("request", "response", "solution", "verification"):
-        schema = get_schema(kind, "0.11")
+        schema = get_schema(kind, version)
         Draft202012Validator.check_schema(schema)
         completed = subprocess.run(
-            [sys.executable, "-m", "shift_schedula", "schema", kind, "--schema-version", "0.11"],
+            [sys.executable, "-m", "shift_schedula", "schema", kind, "--schema-version", version],
             capture_output=True,
             text=True,
         )
         assert completed.returncode == 0
         assert json.loads(completed.stdout) == schema
-    assert types.Request011.__required_keys__ == set(get_schema("request", "0.11")["required"])
-    assert set(get_type_hints(types.Request011)) == set(get_schema("request", "0.11")["properties"])
-    assert get_args(get_type_hints(types.Request011)["schema_version"]) == ("0.11",)
+    request_type = types.Request011 if version == "0.11" else types.Request015
+    assert request_type.__required_keys__ == set(get_schema("request", version)["required"])
+    assert set(get_type_hints(request_type)) == set(get_schema("request", version)["properties"])
+    assert get_args(get_type_hints(request_type)["schema_version"]) == (version,)
 
 
 def test_month_eight_days_off_and_untouched_employee_zero_work():
@@ -700,7 +695,6 @@ def test_day_counts_inherit_history_duty_costs_and_priority_objectives():
     from tests.test_continuity_duty_balance import example as history_example
 
     data = history_example()
-    data["schema_version"] = "0.11"
     data["constraints"].append(bounds(data, max_days=1))
     data["constraints"].append(bounds(data, "days_off_bounds", max_days=1))
     result = solve(data)
@@ -709,3 +703,24 @@ def test_day_counts_inherit_history_duty_costs_and_priority_objectives():
     assert result["cost_summary"]["total_units"] == 432000
     assert result["priority_summary"]["groups"][0]["proven_minimal"]
     assert verify(data, result["solution"])["day_count_summary"] == result["day_count_summary"]
+
+
+@pytest.mark.parametrize("minimum", [0, 1, 2])
+def test_day_bounds_keep_mandatory_demand_and_independent_verification(monkeypatch, minimum):
+    data = example(2)
+    data["demand"] = [demand(people=2) | {"minimum_people": minimum}]
+    data["constraints"] = [bounds(data, min_days=1, max_days=1)]
+    saved = copy.deepcopy(data)
+    result = solve(data)
+    assert_response(result, "INFEASIBLE" if minimum == 2 else "PARTIAL")
+    if minimum < 2:
+        assert result["shortage_summary"]["total_person_minutes"] == 30
+        assert counts(result)["work_days"] == 1
+        monkeypatch.setattr(cp_sat, "load_backend", lambda: pytest.fail("独立検証は探索しない"))
+        checked = verify(data, result["solution"])
+        assert checked["day_count_summary"] == result["day_count_summary"]
+        assert not checked["shortage_summary"]["proven_minimal"]
+        damaged = copy.deepcopy(result["solution"])
+        damaged["assignments"] = []
+        assert verify(data, damaged)["status"] == ("INVALID_PLAN" if minimum else "PARTIAL")
+    assert data == saved

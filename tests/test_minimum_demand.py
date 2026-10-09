@@ -1,4 +1,4 @@
-"""契約0.12の必須下限を元需要・固定・独立検証と同じ意味で確認する。"""
+"""契約0.15の必須下限を元需要・固定・独立検証と同じ意味で確認する。"""
 
 import copy
 import itertools
@@ -25,39 +25,32 @@ from shift_schedula.contract import SCHEMA_VERSIONS, schema_errors
 from shift_schedula.engine import validate_response
 from shift_schedula.model import normalize
 from shift_schedula.verify import verify_plan
-from tests.roster_support import demand
-from tests.roster_support import legacy_request as request
+from tests.roster_support import demand, request
 from tests.support import assert_response, require_complete_demand
 from tests.test_cp_sat import small_request
 from tests.test_day_counts import bounds, continuity, example
 from tests.test_demand_priority import assignment, total_first
-from tests.test_extensions import legacy_extended as extended
 from tests.test_objectives import control_search
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def roster():
-    data = extended(request(employees=("alice", "bob")))
-    data["schema_version"] = "0.12"
+    data = request(employees=("alice", "bob"))
     data["demand"] = [demand(people=3) | {"minimum_people": 1}]
     return data
 
 
 @pytest.mark.parametrize("kind", ["assignment", "roster"])
 @pytest.mark.parametrize("people", [0, 1, 2, 3])
-def test_minimum_is_hard_and_original_target_is_retained(legacy_assignment_request, kind, people):
-    data = (
-        roster() if kind == "roster" else small_request(legacy_assignment_request, ["kitchen"], 3)
-    )
-    data["schema_version"] = "0.12"
+def test_minimum_is_hard_and_original_target_is_retained(assignment_request, kind, people):
+    data = roster() if kind == "roster" else small_request(assignment_request, ["kitchen"], 3)
     data["demand"][0].update(required_people=3, minimum_people=1)
     for employee in data["employees"][people:]:
         employee["availability"] = []
     if kind == "roster":
         # 元候補を不正にせず、配置できる人数を切り替える。
-        data = extended(request(employees=tuple("abc"[:people]) or ("a",)))
-        data["schema_version"] = "0.12"
+        data = request(employees=tuple("abc"[:people]) or ("a",))
         data["demand"] = [demand(people=3) | {"minimum_people": 1}]
         if not people:
             data["employees"][0]["availability"] = []
@@ -104,10 +97,10 @@ def test_old_versions_reject_minimum_even_zero(legacy_assignment_request, versio
 
 
 @pytest.mark.parametrize("minimum", [None, 0])
-def test_zero_and_omission_keep_flow_and_priority_order(legacy_assignment_request, minimum):
-    data = small_request(legacy_assignment_request, ["kitchen"], 1)
-    data["schema_version"] = "0.12"
+def test_zero_and_omission_keep_flow_and_priority_order(assignment_request, minimum):
+    data = small_request(assignment_request, ["kitchen"], 1)
     data["demand"][0]["required_people"] = 3
+    data["demand"][0].pop("minimum_people")
     if minimum is not None:
         data["demand"][0]["minimum_people"] = minimum
     for backend in ("auto", "min_cost_flow"):
@@ -120,9 +113,8 @@ def test_zero_and_omission_keep_flow_and_priority_order(legacy_assignment_reques
     assert solve(data)["diagnostics"][0]["code"] == "UNSUPPORTED_BACKEND"
 
 
-def test_zero_target_equal_minimum_and_qualification_competition(legacy_assignment_request):
-    data = small_request(legacy_assignment_request, ["kitchen"])
-    data["schema_version"] = "0.12"
+def test_zero_target_equal_minimum_and_qualification_competition(assignment_request):
+    data = small_request(assignment_request, ["kitchen"])
     data["demand"][0].update(required_people=0, minimum_people=0)
     assert_response(solve(data), "OPTIMAL")
     data["demand"][0].update(required_people=1, minimum_people=1)
@@ -279,7 +271,6 @@ def test_015_complete_demand_keeps_cp_sat_conditions(assignment_request, case):
 
 def test_mandatory_short_shift_overrides_total_shortage_and_fixed_baseline():
     data = total_first()
-    data["schema_version"] = "0.12"
     original = solve(data)
     assert_response(original, "PARTIAL")
     assert original["shortage_summary"]["total_person_minutes"] == 30
@@ -355,9 +346,8 @@ def diagnosis_options():
     }
 
 
-def test_diagnosis_removes_both_bounds_and_only_explicit_edits(legacy_assignment_request):
-    data = small_request(legacy_assignment_request, ["kitchen"])
-    data["schema_version"] = "0.12"
+def test_diagnosis_removes_both_bounds_and_only_explicit_edits(assignment_request):
+    data = small_request(assignment_request, ["kitchen"])
     data["demand"][0].update(required_people=3, minimum_people=1)
     data["employees"][0]["availability"] = []
     data["diagnosis"] = diagnosis_options()
@@ -381,9 +371,8 @@ def test_diagnosis_removes_both_bounds_and_only_explicit_edits(legacy_assignment
         assert verify(modified, suggestion["response"]["solution"])["verification"]["valid"]
 
 
-def test_relaxation_keeps_assignment_variables_and_background(legacy_assignment_request):
-    data = small_request(legacy_assignment_request, ["kitchen"], 2)
-    data["schema_version"] = "0.12"
+def test_relaxation_keeps_assignment_variables_and_background(assignment_request):
+    data = small_request(assignment_request, ["kitchen"], 2)
     data["demand"][0]["minimum_people"] = 1
     module, _ = cp_sat.load_backend()
     problem = normalize(data)
@@ -412,7 +401,7 @@ def test_relaxation_keeps_assignment_variables_and_background(legacy_assignment_
 
 def test_day_bounds_and_committed_background_survive_mandatory_demand():
     data = example(1)
-    data["schema_version"] = "0.12"
+    data["schema_version"] = "0.15"
     data["demand"] = [demand() | {"minimum_people": 1}]
     row = continuity(data)
     row["committed_shifts"] = [
@@ -433,11 +422,8 @@ def test_day_bounds_and_committed_background_survive_mandatory_demand():
 
 @pytest.mark.parametrize("minimums", [(0, 0), (1, 0), (0, 1), (1, 1)])
 @pytest.mark.parametrize("priorities", [(10, 0), (0, 10)])
-def test_assignment_matches_independent_small_enumeration(
-    legacy_assignment_request, minimums, priorities
-):
-    data = assignment(legacy_assignment_request, priorities, employees=2)
-    data["schema_version"] = "0.12"
+def test_assignment_matches_independent_small_enumeration(assignment_request, minimums, priorities):
+    data = assignment(assignment_request, priorities, employees=2)
     for d, minimum in zip(data["demand"], minimums, strict=True):
         d["minimum_people"] = minimum
         d["interval"]["end"] = d["interval"]["end"].replace("11:30", "12:00")
@@ -497,7 +483,6 @@ def test_assignment_matches_independent_small_enumeration(
 )
 def test_time_limit_keeps_hard_minimum_and_proof_prefix(monkeypatch, statuses):
     data = total_first()
-    data["schema_version"] = "0.12"
     data["demand"][0]["minimum_people"] = 1
     calls, _ = control_search(monkeypatch, statuses)
     result = solve(data)
@@ -509,8 +494,10 @@ def test_time_limit_keeps_hard_minimum_and_proof_prefix(monkeypatch, statuses):
         assert all(not o["proven_optimal"] for o in result["objectives"])
 
 
-def test_schema_cli_and_example_round_trip(tmp_path):
+@pytest.mark.parametrize("version", ["0.12", "0.15"])
+def test_schema_cli_and_example_round_trip(tmp_path, version):
     data = roster()
+    data["schema_version"] = version
     result = solve(data)
     path, plan = tmp_path / "request.json", tmp_path / "solution.json"
     path.write_text(json.dumps(data))
@@ -525,13 +512,13 @@ def test_schema_cli_and_example_round_trip(tmp_path):
         )
         assert process.returncode == 2 and not process.stderr
         output = json.loads(process.stdout)
-        assert output["schema_version"] == "0.12"
+        assert output["schema_version"] == version
         assert not schema_errors("response" if args[0] == "solve" else "verification", output)
     for kind in ("request", "response", "solution", "verification"):
-        schema = get_schema(kind, "0.12")
+        schema = get_schema(kind, version)
         Draft202012Validator.check_schema(schema)
         process = subprocess.run(
-            [sys.executable, "-m", "shift_schedula", "schema", kind, "--schema-version", "0.12"],
+            [sys.executable, "-m", "shift_schedula", "schema", kind, "--schema-version", version],
             capture_output=True,
             text=True,
         )
@@ -544,7 +531,6 @@ def test_schema_cli_and_example_round_trip(tmp_path):
 @pytest.mark.parametrize("minimum", [0, 1])
 def test_roster_matches_all_candidate_subsets(minimum):
     data = total_first()
-    data["schema_version"] = "0.12"
     data["demand"][0]["minimum_people"] = minimum
     best = None
     for short, long in itertools.product((0, 1), repeat=2):
@@ -564,7 +550,6 @@ def test_roster_matches_all_candidate_subsets(minimum):
 
 def test_shared_search_budget_includes_all_shortage_and_priority_stages(monkeypatch):
     data = total_first()
-    data["schema_version"] = "0.12"
     data["demand"][0]["minimum_people"] = 1
     module, _ = cp_sat.load_backend()
     search = module.CpSolver.solve
@@ -598,7 +583,7 @@ def test_no_optional_dependency_verifies_minimum_and_reports_missing_backend(mon
     assert failure["solver"]["selection_reason"] == "MANDATORY_DEMAND"
 
 
-@pytest.mark.parametrize("version", ["0.11", "0.12"])
+@pytest.mark.parametrize("version", ["0.11", "0.12", "0.15"])
 def test_optional_minimum_edit_is_versioned_and_bounded(version):
     data = roster()
     data["schema_version"] = version
@@ -608,8 +593,8 @@ def test_optional_minimum_edit_is_versioned_and_bounded(version):
             {"id": "explicit", "edits": [{"json_pointer": "/demand/0/minimum_people", "value": 1}]}
         ]
     }
-    assert validate(data)["status"] == ("VALID" if version == "0.12" else "INVALID_INPUT")
-    if version == "0.12":
+    assert validate(data)["status"] == ("VALID" if version in {"0.12", "0.15"} else "INVALID_INPUT")
+    if version in {"0.12", "0.15"}:
         data["diagnosis"]["allowed_changes"][0]["edits"][0]["value"] = 251
         assert validate(data)["diagnostics"][0]["code"] == "INVALID_DIAGNOSIS_VALUE"
 

@@ -119,11 +119,11 @@ legacyヘルパーを呼出側で明示する。後続で移す診断/日数/勤
 | objectives / extensions / combined | 辞書式目的順、全探索、ソフト目標0と未指定、基準・固定・変更量、証明接頭辞 | 通常の目的・公平性・原基準を0.15化。旧比較・基準受理はlegacyを明示 | #109/#124。`test_objectives` / `test_extensions` の全関数を保持。不足の先行段階・総期限・下限と、現行基準の変更量・固定・改ざんを確認 |
 | partial_plans / partial_contract | 元需要、不足の実経過人分、需要以外の必須条件、未証明解、空解、応答矛盾 | 通常入力・入れ子基準・合成応答を0.15化し、各不足行のminimum_people=0と必須集計を保持。初期版の完全充足と統合しない | #124/#111。全既存関数を保持。下限0/1/2、全探索・独立検証・改ざん拒否と旧Responseの明示境界を維持 |
 | contract_04 / public_api | 期間別上下限、勤務希望、未完成基準、preserve_assigned/rebuild、公開verify/make_baseline | 通常入力と入れ子基準を0.15化。下限省略の不足許容を保持し、完全充足の上下限・基準2モード・探索なしの検証を追加。旧版候補数/Schema/CLIは版を明示 | #124/#111。既存25関数を保持。公開型・CLI・配布検査を同時実行し、旧版の拒否切替は後続へ |
-| demand_priority / minimum_demand | 不足総量→priority群→目的、正の下限、下限違反、予算切れ、許可変更案 | priorityの通常入力を0.15化。省略/明示0と正の下限を区別し、旧版は比較パラメータで明示。flowの一般下限対応を追加しない | #108/#124。全既存関数を保持。0.15の保存/再計画・証明・省略/0・不正値・CLI/Schemaと、共有ヘルパーを使う0.12の下限試験を同時確認 |
+| demand_priority / minimum_demand | 不足総量→priority群→目的、正の下限、下限違反、予算切れ、許可変更案 | priority・必須下限の通常入力を0.15化。省略/明示0と正の下限を区別し、旧版は比較パラメータで明示。flowの一般下限対応を追加しない | #108/#124。全既存関数を保持。0.15の保存/再計画・証明・省略/0・不正値・CLI/Schemaと、共有ヘルパーを使う0.12の下限試験を同時確認 |
 | continuity / overlap_replanning | 原区間と勤務日、文脈、実績・確定勤務、重複Wだけの比較 | 通常例と空解を持つ基準を0.15で検証。原履歴・基準を自動移動せず、旧版の同一期間限定は明示比較 | #109/#124。DST・期間端・未確認履歴・固定/全体再計画を保持。今回の必須下限と元基準を分離して独立検証 |
-| diagnosis / conflict_refinement | 元条件の不可能性、背景条件、包含極小性、UNKNOWN、明示許可編集 | 完全充足の人数編集と下限の連動、元Responseは証明非転記 | #109/#124。編集・診断の意味を削除しない |
+| diagnosis / conflict_refinement | 元条件の不可能性、背景条件、包含極小性、UNKNOWN、明示許可編集 | 通常診断と背景条件を0.15化。完全充足の人数編集と下限を連動。上下限の片方/両方の明示編集を検証し、現在verifyは証明非付与 | #109/#124。全既存関数・背景/固定/全探索/予算/障害を保持。0.2/0.8のCLI/Schemaは版を明示し#111で整理 |
 | roster_metrics / continuity_duty_balance | 整数費用、区間和集合、0目標と対象外、原実績の偏差 | 通常Request・候補・入れ子基準を0.15化。同尺度・下限省略の不足許容を保持し、旧版比較/Schemaは版を明示 | #124。値・全6目的順・境界・不正・全探索・原本非変更を維持。下限と費用/偏差・履歴付き両再計画・探索なしの拒否を確認 |
-| day_counts / shift_patterns / coworkers / shift_counts / added_conditions | 日数・休日・分類・同僚・回数、余白、履歴、全機能同時利用、原JSONの全探索 | 既存0.15試験はそのまま維持、0.11〜0.14の代表を0.15化 | #124。通常/PARTIAL/必須矛盾/UNKNOWNを別判定 |
+| day_counts / shift_patterns / coworkers / shift_counts / added_conditions | 日数・休日・分類・同僚・回数、余白、履歴、全機能同時利用、原JSONの全探索 | 共通入力を0.15化し既存の回数・全機能併用を継続。日数/禁止並びと必須下限を併用。旧CLI/Schema/基準境界は版を明示 | #124。全既存関数と原区間/休憩/DST/履歴/余白/固定/独立拒否を保持。通常/PARTIAL/必須矛盾/UNKNOWNを別判定 |
 | input_contract / schema_encoding / timezone | 厳密JSON、0/null、省略/空、未知項目、重複、非有限数、TZDB・DST・日付境界 | 未対応版・欠落・不正型の拒否を現行0.15でも追加。旧版拒否は後で切替 | #111。旧Schema常設試験だけを終了 |
 | execution / logging / cli | CPU指定・spawn・取消・総期限・並行実行、無変更入力、stderr/終了コード | 実行制御と入力境界を旧版と0.15で同じ試験へ渡す | #124/#111。依存不足・内部障害・古い応答を区別 |
 | adapter / playground / distribution / sdist | 確認失効・来歴・保存/再検証、HTTP保護、公開型、各OS、実Chromium | Draft/recordは#110、通常例・画面は#124。旧Schema同梱の常設保証だけを終了 | #110/#112/#114。新JSON fixtureをsdistへ同梱 |
