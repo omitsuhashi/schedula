@@ -506,6 +506,15 @@ async function adapterChecks(page) {
     await wait("入力候補");
     const imported = JSON.parse(await page.locator("#adapter-input").inputValue());
     assert(imported.sources.length > 0);
+    if (action === "split") {
+      await page.locator("#adapter-check").click();
+      await wait("INVALID_INPUT");
+      for (const source of imported.sources) {
+        await page.locator("#adapter-source").selectOption(source.id);
+        await page.locator("#adapter-confirm").click();
+        await wait("入力候補");
+      }
+    }
     await page.locator("#adapter-check").click();
     await wait("VALIDです");
     assert.deepEqual(await page.evaluate(() => JSON.parse(document.querySelector("#adapter-output details:last-child pre").textContent).request), JSON.parse(existingRequest));

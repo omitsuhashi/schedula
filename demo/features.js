@@ -163,7 +163,7 @@ function renderFeatureGuide() {
 }
 
 async function runFeature() {
-  if (!$("feature-form").reportValidity()) return;
+  if (!feature || featureController || !$("feature-form").reportValidity()) return;
   const state = feature, revision = state.revision, input = clone(state.input);
   featureController?.abort();
   const controller = new AbortController();

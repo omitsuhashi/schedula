@@ -90,6 +90,9 @@ module.exports = async (browser, url, report) => {
     await route.fulfill({response}).catch(() => {});
   });
   await page.locator("#feature-number").fill("4"); await page.locator("#feature-run").click(); await waiting;
+  const beforeRetry = requests;
+  await page.evaluate(() => { runFeature(); runFeature(); });
+  assert.equal(requests, beforeRetry);
   await page.evaluate(() => { location.hash = "consecutive_days"; });
   await page.unroute("**/solve-json"); release(); await ready(page);
   assert.equal(await page.evaluate(() => feature.current.input.request_id), "demo_consecutive_days");
