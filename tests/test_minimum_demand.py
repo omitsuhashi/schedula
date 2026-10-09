@@ -25,7 +25,8 @@ from shift_schedula.contract import SCHEMA_VERSIONS, schema_errors
 from shift_schedula.engine import validate_response
 from shift_schedula.model import normalize
 from shift_schedula.verify import verify_plan
-from tests.roster_support import demand, request
+from tests.roster_support import demand
+from tests.roster_support import legacy_request as request
 from tests.support import assert_response, require_complete_demand
 from tests.test_cp_sat import small_request
 from tests.test_day_counts import bounds, continuity, example

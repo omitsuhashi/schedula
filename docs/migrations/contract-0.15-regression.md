@@ -64,8 +64,15 @@ rosterの比較入力は旧テンプレートで生成した有限候補を旧ID
 共通fixture・残る通常回帰と評価再実行入力の全面切替は後続の変更で行う。
 
 `assignment_request015` は固定した完全充足の担当配置。
-`tests.roster_support.request015` はsegmentsと明示空履歴を持つ0.15勤務計画で、需要下限は既定0。
-完全充足を検証する呼び出し側だけが `tests.support.require_complete_demand` を使う。
+`tests.roster_support.request` はsegmentsと明示空履歴を持つ0.15勤務計画で、需要下限は既定0。
+完全充足を検証する呼び出し側だけが `tests.support.require_complete_demand` または
+`tests.roster_support.complete_demand` で必要人数と同じ下限を付ける。
+通常の候補・テンプレートは `candidate` / `template` が0.15のsegments / segment_optionsを作る。
+`test_roster` / `test_roster_verification` / `test_extended_roster` はこの通常fixtureを使い、
+60組の日勤と24組の夜勤・分割勤務を原JSONから全探索する。明示履歴の勤務日は試験の事実として
+記述し、休息・連勤、原候補ID/休憩、解改ざんの独立拒否を保持する。
+5,000候補の休息モデルは、0.15の勤務重複と休息の2本のNoOverlapが線形の規模であることを確認する。
+求解結果を差し替える試験にも不足0を明示し、目的値・必須条件の違反を正しく検出する。
 `assignment_request` の通常利用は同じ0.15の完全充足fixtureへ移した。
 技能・需要競合・残余経路・加算選好・勤務量/役割切替・独立検証・入力境界・
 CLI/API・実行制御・logging・タイムゾーンの回帰は、この共通fixtureを使う。
@@ -80,6 +87,11 @@ CLI/API・実行制御・logging・タイムゾーンの回帰は、この共通
 `test_demand_priority`、`test_contract_04`、`test_minimum_demand` の旧版部分、
 `test_contract_migration` と旧版の条件拒否が該当する。
 これらの業務回帰の0.15化と旧版受理の拒否への置換は、対応表の後続責務を維持する。
+勤務計画でも `legacy_request` / `legacy_candidate` / `legacy_template` を明示し、
+`test_roster_contract` の0.1固有の受理範囲、`test_contract_migration` の旧入力、
+後続で移すobjectives/extensions/partial/priority/再計画/勤務評価/日数の形状を保つ。
+診断と移行が使う0.2入力は `legacy_extended_request` として残す。
+これらは通常の0.15fixtureの代替ではなく、#124の後続と#111の拒否への切替対象である。
 下限省略/明示0の既定値は `test_current_015_defaults_and_empty_output_structure` が別に検証する。
 
 | テスト群 | 残す業務挙動 | 移す形状・統合できる重複 | 旧版除去後の行先 |

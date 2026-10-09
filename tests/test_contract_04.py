@@ -13,7 +13,9 @@ from shift_schedula import cp_sat, get_schema, make_baseline, solve, verify
 from shift_schedula.contract import SCHEMA_VERSIONS, InvalidInput, schema_errors
 from shift_schedula.engine import validate_response
 from shift_schedula.model import normalize
-from tests.roster_support import demand, interval, request, stamp, template
+from tests.roster_support import demand, interval, stamp
+from tests.roster_support import legacy_request as request
+from tests.roster_support import legacy_template as template
 from tests.support import assert_response
 from tests.test_extensions import extended, selected
 

@@ -5,7 +5,8 @@ import pytest
 from shift_schedula import cp_sat, solve
 from shift_schedula.model import normalize
 from shift_schedula.verify import verify_solution
-from tests.roster_support import candidate, demand, interval, request, rule, stamp, template
+from tests.roster_support import candidate, interval, request, rule, stamp, template
+from tests.roster_support import complete_demand as demand
 from tests.support import assert_response
 
 
@@ -43,9 +44,9 @@ def test_invalid_roster_results_detected_and_blocked(monkeypatch, mutation, code
     elif mutation == "wrong_employee":
         shift["employee_id"] = "unknown"
     elif mutation == "wrong_interval":
-        shift["interval"]["end"] = stamp(0, 720)
+        shift["segments"][0]["interval"]["end"] = stamp(0, 720)
     elif mutation == "wrong_break":
-        shift["breaks"] = []
+        shift["segments"][0]["breaks"] = []
     elif mutation == "duplicate":
         solution["shifts"].append(copy.deepcopy(shift))
     elif mutation == "multiple_daily":
@@ -54,8 +55,8 @@ def test_invalid_roster_results_detected_and_blocked(monkeypatch, mutation, code
             {
                 "candidate_id": data["shift_candidates"][-1]["id"],
                 "employee_id": "alice",
-                "interval": interval(end=630),
-                "breaks": [],
+                "work_day": "2026-10-05",
+                "segments": [{"interval": interval(end=630), "breaks": []}],
             }
         )
     elif mutation == "during_break":
@@ -77,12 +78,14 @@ def test_invalid_roster_results_detected_and_blocked(monkeypatch, mutation, code
     elif mutation == "history_rest":
         data["employees"][0]["history"] = {
             "last_shift_end": stamp(0),
+            "last_work_day": "2026-10-04",
             "consecutive_work_days_before_window": 1,
         }
         data["constraints"] = [rule("min_rest_minutes", 601)]
     else:
         data["employees"][0]["history"] = {
             "last_shift_end": stamp(-1, 780),
+            "last_work_day": "2026-10-04",
             "consecutive_work_days_before_window": 1,
         }
         data["constraints"] = [rule("max_consecutive_days", 2)]
@@ -95,7 +98,11 @@ def test_invalid_roster_results_detected_and_blocked(monkeypatch, mutation, code
     violations, _ = verify_solution(problem, solution)
     assert code in {v["code"] for v in violations}
     monkeypatch.setattr(
-        cp_sat, "run", lambda *_: cp_sat.SatResult("OPTIMAL", solution, (120,), (True,))
+        cp_sat,
+        "run",
+        lambda *_: cp_sat.SatResult(
+            "OPTIMAL", solution, (120,), (True,), shortage_person_minutes=0
+        ),
     )
     blocked = solve(data)
     assert_response(blocked, "INTERNAL_ERROR")
@@ -121,7 +128,11 @@ def test_scheduled_value_mismatch_blocks_solution(monkeypatch):
     data["demand"] = [demand()]
     solution = solve(data)["solution"]
     monkeypatch.setattr(
-        cp_sat, "run", lambda *_: cp_sat.SatResult("FEASIBLE", solution, (30,), (False,))
+        cp_sat,
+        "run",
+        lambda *_: cp_sat.SatResult(
+            "FEASIBLE", solution, (30,), (False,), shortage_person_minutes=0
+        ),
     )
     result = solve(data)
     assert_response(result, "INTERNAL_ERROR")

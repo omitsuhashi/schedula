@@ -9,7 +9,7 @@ def interval(day=0, start=600, end=690):
     return {"start": stamp(day, start), "end": stamp(day, end)}
 
 
-def candidate(employee="alice", day=0, start=600, end=690, breaks=(), identifier=None):
+def legacy_candidate(employee="alice", day=0, start=600, end=690, breaks=(), identifier=None):
     return {
         "id": identifier or f"shift_{employee}_{day}_{start}_{end}",
         "employee_id": employee,
@@ -25,7 +25,7 @@ def rule(kind, value, employees=("alice",), identifier="cap"):
     return {"id": identifier, "type": kind, "employee_ids": list(employees), field: value}
 
 
-def template(
+def legacy_template(
     employees=("alice",), dates=("2026-10-05",), starts=("10:00",), durations=(90,), breaks=()
 ):
     return {
@@ -38,7 +38,7 @@ def template(
     }
 
 
-def request(days=1, employees=("alice",)):
+def legacy_request(days=1, employees=("alice",)):
     return {
         "schema_version": "0.1",
         "request_id": "roster_test",
@@ -62,7 +62,7 @@ def request(days=1, employees=("alice",)):
             for e in employees
         ],
         "demand": [],
-        "shift_candidates": [candidate(e, d) for e in employees for d in range(days)],
+        "shift_candidates": [legacy_candidate(e, d) for e in employees for d in range(days)],
         "constraints": [],
         "preferences": [],
         "objectives": [{"id": "work", "metric": "scheduled_minutes"}],
@@ -79,8 +79,45 @@ def demand(day=0, start=600, end=630, role="kitchen", people=1):
     }
 
 
-def request015(days=1, employees=("alice",)):
-    data = request(days, employees)
+def complete_demand(day=0, start=600, end=630, role="kitchen", people=1):
+    return {**demand(day, start, end, role, people), "minimum_people": people}
+
+
+def candidate(employee="alice", day=0, start=600, end=690, breaks=(), identifier=None):
+    return {
+        "id": identifier or f"shift_{employee}_{day}_{start}_{end}",
+        "employee_id": employee,
+        "segments": [
+            {
+                "interval": interval(day, start, end),
+                "breaks": [interval(day, a, b) for a, b in breaks],
+            }
+        ],
+    }
+
+
+def template(
+    employees=("alice",), dates=("2026-10-05",), starts=("10:00",), durations=(90,), breaks=()
+):
+    return {
+        "id": "day_shift",
+        "employee_ids": list(employees),
+        "dates": list(dates),
+        "start_times": list(starts),
+        "segment_options": [
+            [{"offset_minutes": 0, "duration_minutes": minutes, "breaks": option}]
+            for minutes in durations
+            for option in (
+                [[{"offset_minutes": a, "duration_minutes": b}] for a, b in breaks]
+                if breaks
+                else [[]]
+            )
+        ],
+    }
+
+
+def request(days=1, employees=("alice",)):
+    data = legacy_request(days, employees)
     data["schema_version"] = "0.15"
     for employee in data["employees"]:
         employee["history"]["last_work_day"] = None

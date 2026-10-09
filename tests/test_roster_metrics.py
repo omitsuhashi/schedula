@@ -14,7 +14,9 @@ from shift_schedula.contract import SCHEMA_VERSIONS, schema_errors
 from shift_schedula.engine import validate_response
 from shift_schedula.extensions import evaluate
 from shift_schedula.model import normalize
-from tests.roster_support import candidate, demand, interval, request, rule, stamp
+from tests.roster_support import demand, interval, rule, stamp
+from tests.roster_support import legacy_candidate as candidate
+from tests.roster_support import legacy_request as request
 from tests.support import assert_response
 from tests.test_continuity import example as continuity_example
 from tests.test_extensions import extended, fairness, selected

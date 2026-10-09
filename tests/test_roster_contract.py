@@ -5,7 +5,10 @@ import pytest
 
 from shift_schedula import cp_sat, solve
 from shift_schedula.model import normalize
-from tests.roster_support import candidate, demand, interval, request, stamp, template
+from tests.roster_support import demand, interval, stamp
+from tests.roster_support import legacy_candidate as candidate
+from tests.roster_support import legacy_request as request
+from tests.roster_support import legacy_template as template
 from tests.support import assert_response
 
 

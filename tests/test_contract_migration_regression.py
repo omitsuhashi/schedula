@@ -9,7 +9,7 @@ import pytest
 
 from shift_schedula import InvalidInput, cp_sat, engine, load_json, solve, validate, verify
 from shift_schedula.model import normalize
-from tests.roster_support import demand, request015
+from tests.roster_support import demand, request
 from tests.support import assert_response, require_complete_demand
 from tests.test_assignment import exhaustive_value
 from tests.test_objectives import METRICS, control_search, tradeoff_request
@@ -92,7 +92,7 @@ def test_original_candidate_ids_intervals_breaks_and_template_expansion_are_pres
 
 @pytest.mark.parametrize("complete", [False, True])
 def test_common_roster_fixture_keeps_partial_and_complete_meanings(complete):
-    data = request015()
+    data = request()
     data["demand"] = [demand(people=2)]
     if complete:
         require_complete_demand(data)
@@ -107,7 +107,7 @@ def test_common_roster_fixture_keeps_partial_and_complete_meanings(complete):
 @pytest.mark.parametrize("order", tuple(itertools.permutations(METRICS)))
 def test_current_015_objective_order_matches_raw_json_enumeration(order):
     legacy = tradeoff_request(order)
-    data = request015(employees=("alice", "bob"))
+    data = request(employees=("alice", "bob"))
     for key in ("demand", "preferences", "objectives"):
         data[key] = copy.deepcopy(legacy[key])
     data["shift_candidates"][1]["segments"][0]["interval"]["end"] = legacy["shift_candidates"][1][
@@ -166,7 +166,7 @@ def test_current_015_defaults_and_empty_output_structure(assignment_request015, 
     ],
 )
 def test_current_015_search_endings_keep_proof_scope(monkeypatch, statuses, expected):
-    data = request015()
+    data = request()
     data["demand"] = [demand()]
     control_search(monkeypatch, statuses)
     result = solve(data)
@@ -181,13 +181,13 @@ def test_current_015_dependency_missing_and_internal_failure(monkeypatch):
         raise cp_sat.BackendUnavailable
 
     monkeypatch.setattr(cp_sat, "load_backend", unavailable)
-    assert_response(solve(request015()), "BACKEND_UNAVAILABLE")
+    assert_response(solve(request()), "BACKEND_UNAVAILABLE")
 
     def broken(_):
         raise RuntimeError("検証境界の障害")
 
     monkeypatch.setattr(engine, "normalize", broken)
-    assert_response(solve(request015()), "INTERNAL_ERROR")
+    assert_response(solve(request()), "INTERNAL_ERROR")
 
 
 @pytest.mark.parametrize("value", [None, False, 15, "99.0", ""])

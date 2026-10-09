@@ -10,7 +10,9 @@ from shift_schedula import cp_sat, engine, solve
 from shift_schedula.contract import InvalidInput
 from shift_schedula.model import normalize
 from shift_schedula.verify import verify_solution
-from tests.roster_support import candidate, demand, request
+from tests.roster_support import demand
+from tests.roster_support import legacy_candidate as candidate
+from tests.roster_support import legacy_request as request
 from tests.support import assert_response
 from tests.test_cp_sat import exhaustive_linked_value, small_request, stamp
 from tests.test_roster import exhaustive_value
