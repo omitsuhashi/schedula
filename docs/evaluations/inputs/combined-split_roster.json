@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.4",
+  "schema_version": "0.15",
   "request_id": "combined_split_roster",
   "problem_type": "roster",
   "planning_window": {
@@ -164,7 +164,7 @@
   "baseline": {
     "plan_id": "partial_source",
     "source_request": {
-      "schema_version": "0.4",
+      "schema_version": "0.15",
       "request_id": "split_roster",
       "problem_type": "roster",
       "planning_window": {

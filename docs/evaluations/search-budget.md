@@ -131,9 +131,36 @@ package版0.1.3と契約版0.1/0.2は区別する。通常・拡大・15分の�
 実測はロックに合わせて同期済みの環境で `uv run --no-sync` を使用した。
 以下は同じロックと追加依存を準備する再現用コマンドである。
 
+固定commitの測定再実行はリポジトリ内から行う。一時worktreeへ記載の固定commitを展開し、
+その入力・`uv.lock`・配布版を使う。測定runnerだけは現在の `scripts/evaluate.py` をコピーし、
+出力は現在のリポジトリの `test-results/historical/` へ保存する。
+測定後は一時worktreeだけを削除し、通常の0.15入力と過去の測定JSONを変更しない。
+
 ```sh
-uv run --locked --extra cp-sat python scripts/evaluate.py docs/evaluations/inputs/roster-fortnight-large.json --repeat 3 --time-limit-seconds 30 --timeout-seconds 60 --source-ref 3e19b0c0edf6507237dc30de92041c0af6af733c --output docs/evaluations/results/2026-10-06-before-large-30-cold.json
-uv run --locked --extra cp-sat python scripts/evaluate.py docs/evaluations/inputs/roster-week.json docs/evaluations/inputs/roster-fortnight-large.json docs/evaluations/inputs/roster-week-15min.json docs/evaluations/inputs/roster-extended.json --repeat 3 --time-limit-seconds 30 --timeout-seconds 60 --source-ref b6128903668095297cdb03a8be95a5d738ae8e6b --output docs/evaluations/results/2026-10-06-final-cold.json
+(
+  set -eu
+  evaluation_root="$(git rev-parse --show-toplevel)"
+  evaluation_checkout="$(mktemp -d)"
+  git worktree add --detach "$evaluation_checkout" 3e19b0c0edf6507237dc30de92041c0af6af733c
+  cp "$evaluation_root/scripts/evaluate.py" "$evaluation_checkout/scripts/evaluate.py"
+  cd "$evaluation_checkout"
+  uv sync --locked --extra cp-sat
+  uv run --locked --extra cp-sat python scripts/evaluate.py docs/evaluations/inputs/roster-fortnight-large.json --repeat 3 --time-limit-seconds 30 --timeout-seconds 60 --source-ref 3e19b0c0edf6507237dc30de92041c0af6af733c --output "$evaluation_root/test-results/historical/2026-10-06-before-large-30-cold.json"
+  cd "$evaluation_root"
+  git worktree remove --force "$evaluation_checkout"
+)
+(
+  set -eu
+  evaluation_root="$(git rev-parse --show-toplevel)"
+  evaluation_checkout="$(mktemp -d)"
+  git worktree add --detach "$evaluation_checkout" b6128903668095297cdb03a8be95a5d738ae8e6b
+  cp "$evaluation_root/scripts/evaluate.py" "$evaluation_checkout/scripts/evaluate.py"
+  cd "$evaluation_checkout"
+  uv sync --locked --extra cp-sat
+  uv run --locked --extra cp-sat python scripts/evaluate.py docs/evaluations/inputs/roster-week.json docs/evaluations/inputs/roster-fortnight-large.json docs/evaluations/inputs/roster-week-15min.json docs/evaluations/inputs/roster-extended.json --repeat 3 --time-limit-seconds 30 --timeout-seconds 60 --source-ref b6128903668095297cdb03a8be95a5d738ae8e6b --output "$evaluation_root/test-results/historical/2026-10-06-final-cold.json"
+  cd "$evaluation_root"
+  git worktree remove --force "$evaluation_checkout"
+)
 ```
 
 [最終並行測定](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-final-parallel.json) は通常/40人14日の各2試行、Pythonプロセス上限2、各CP-SAT worker2とした。
@@ -147,7 +174,18 @@ uv run --locked --extra cp-sat python scripts/evaluate.py docs/evaluations/input
 40人14日は `[1080,131340,71]` / `[1080,130020,77]`。先頭gap1.0、後段gapはnullを維持した。
 
 ```sh
-uv run --locked --extra cp-sat python scripts/evaluate.py docs/evaluations/inputs/roster-week.json docs/evaluations/inputs/roster-fortnight-large.json --repeat 2 --processes 2 --time-limit-seconds 30 --timeout-seconds 60 --source-ref b6128903668095297cdb03a8be95a5d738ae8e6b --output docs/evaluations/results/2026-10-06-final-parallel.json
+(
+  set -eu
+  evaluation_root="$(git rev-parse --show-toplevel)"
+  evaluation_checkout="$(mktemp -d)"
+  git worktree add --detach "$evaluation_checkout" b6128903668095297cdb03a8be95a5d738ae8e6b
+  cp "$evaluation_root/scripts/evaluate.py" "$evaluation_checkout/scripts/evaluate.py"
+  cd "$evaluation_checkout"
+  uv sync --locked --extra cp-sat
+  uv run --locked --extra cp-sat python scripts/evaluate.py docs/evaluations/inputs/roster-week.json docs/evaluations/inputs/roster-fortnight-large.json --repeat 2 --processes 2 --time-limit-seconds 30 --timeout-seconds 60 --source-ref b6128903668095297cdb03a8be95a5d738ae8e6b --output "$evaluation_root/test-results/historical/2026-10-06-final-parallel.json"
+  cd "$evaluation_root"
+  git worktree remove --force "$evaluation_checkout"
+)
 ```
 
 採用した全試行の解獲得・通常の目的値条件を満たし、時間・RSSも評価目安内だった。

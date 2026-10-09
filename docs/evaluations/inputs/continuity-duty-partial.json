@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.10",
+  "schema_version": "0.15",
   "request_id": "continuity_duty_partial",
   "problem_type": "roster",
   "planning_window": {
@@ -229,7 +229,7 @@
   "baseline": {
     "plan_id": "partial_fixed",
     "source_request": {
-      "schema_version": "0.10",
+      "schema_version": "0.15",
       "request_id": "continuity_duty_partial",
       "problem_type": "roster",
       "planning_window": {

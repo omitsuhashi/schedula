@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.4",
+  "schema_version": "0.15",
   "request_id": "replan_fixed_impossible",
   "problem_type": "roster",
   "planning_window": {
@@ -116,7 +116,7 @@
   "baseline": {
     "plan_id": "partial_plan",
     "source_request": {
-      "schema_version": "0.4",
+      "schema_version": "0.15",
       "request_id": "roster_test",
       "problem_type": "roster",
       "planning_window": {

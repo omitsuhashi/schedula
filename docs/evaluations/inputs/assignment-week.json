@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1",
+  "schema_version": "0.15",
   "request_id": "assignment_week",
   "problem_type": "assignment",
   "planning_window": {
@@ -1205,7 +1205,8 @@
         "start": "2026-10-05T10:00:00+09:00",
         "end": "2026-10-05T16:00:00+09:00"
       },
-      "required_people": 8
+      "required_people": 8,
+      "minimum_people": 8
     },
     {
       "id": "need_0_hall",
@@ -1214,7 +1215,8 @@
         "start": "2026-10-05T10:00:00+09:00",
         "end": "2026-10-05T16:00:00+09:00"
       },
-      "required_people": 8
+      "required_people": 8,
+      "minimum_people": 8
     },
     {
       "id": "need_0_washing",
@@ -1223,7 +1225,8 @@
         "start": "2026-10-05T10:00:00+09:00",
         "end": "2026-10-05T16:00:00+09:00"
       },
-      "required_people": 8
+      "required_people": 8,
+      "minimum_people": 8
     },
     {
       "id": "need_1_kitchen",
@@ -1232,7 +1235,8 @@
         "start": "2026-10-06T10:00:00+09:00",
         "end": "2026-10-06T16:00:00+09:00"
       },
-      "required_people": 8
+      "required_people": 8,
+      "minimum_people": 8
     },
     {
       "id": "need_1_hall",
@@ -1241,7 +1245,8 @@
         "start": "2026-10-06T10:00:00+09:00",
         "end": "2026-10-06T16:00:00+09:00"
       },
-      "required_people": 8
+      "required_people": 8,
+      "minimum_people": 8
     },
     {
       "id": "need_1_washing",
@@ -1250,7 +1255,8 @@
         "start": "2026-10-06T10:00:00+09:00",
         "end": "2026-10-06T16:00:00+09:00"
       },
-      "required_people": 8
+      "required_people": 8,
+      "minimum_people": 8
     },
     {
       "id": "need_2_kitchen",
@@ -1259,7 +1265,8 @@
         "start": "2026-10-07T10:00:00+09:00",
         "end": "2026-10-07T16:00:00+09:00"
       },
-      "required_people": 8
+      "required_people": 8,
+      "minimum_people": 8
     },
     {
       "id": "need_2_hall",
@@ -1268,7 +1275,8 @@
         "start": "2026-10-07T10:00:00+09:00",
         "end": "2026-10-07T16:00:00+09:00"
       },
-      "required_people": 8
+      "required_people": 8,
+      "minimum_people": 8
     },
     {
       "id": "need_2_washing",
@@ -1277,7 +1285,8 @@
         "start": "2026-10-07T10:00:00+09:00",
         "end": "2026-10-07T16:00:00+09:00"
       },
-      "required_people": 8
+      "required_people": 8,
+      "minimum_people": 8
     },
     {
       "id": "need_3_kitchen",
@@ -1286,7 +1295,8 @@
         "start": "2026-10-08T10:00:00+09:00",
         "end": "2026-10-08T16:00:00+09:00"
       },
-      "required_people": 8
+      "required_people": 8,
+      "minimum_people": 8
     },
     {
       "id": "need_3_hall",
@@ -1295,7 +1305,8 @@
         "start": "2026-10-08T10:00:00+09:00",
         "end": "2026-10-08T16:00:00+09:00"
       },
-      "required_people": 8
+      "required_people": 8,
+      "minimum_people": 8
     },
     {
       "id": "need_3_washing",
@@ -1304,7 +1315,8 @@
         "start": "2026-10-08T10:00:00+09:00",
         "end": "2026-10-08T16:00:00+09:00"
       },
-      "required_people": 8
+      "required_people": 8,
+      "minimum_people": 8
     },
     {
       "id": "need_4_kitchen",
@@ -1313,7 +1325,8 @@
         "start": "2026-10-09T10:00:00+09:00",
         "end": "2026-10-09T16:00:00+09:00"
       },
-      "required_people": 8
+      "required_people": 8,
+      "minimum_people": 8
     },
     {
       "id": "need_4_hall",
@@ -1322,7 +1335,8 @@
         "start": "2026-10-09T10:00:00+09:00",
         "end": "2026-10-09T16:00:00+09:00"
       },
-      "required_people": 8
+      "required_people": 8,
+      "minimum_people": 8
     },
     {
       "id": "need_4_washing",
@@ -1331,7 +1345,8 @@
         "start": "2026-10-09T10:00:00+09:00",
         "end": "2026-10-09T16:00:00+09:00"
       },
-      "required_people": 8
+      "required_people": 8,
+      "minimum_people": 8
     },
     {
       "id": "need_5_kitchen",
@@ -1340,7 +1355,8 @@
         "start": "2026-10-10T10:00:00+09:00",
         "end": "2026-10-10T16:00:00+09:00"
       },
-      "required_people": 8
+      "required_people": 8,
+      "minimum_people": 8
     },
     {
       "id": "need_5_hall",
@@ -1349,7 +1365,8 @@
         "start": "2026-10-10T10:00:00+09:00",
         "end": "2026-10-10T16:00:00+09:00"
       },
-      "required_people": 8
+      "required_people": 8,
+      "minimum_people": 8
     },
     {
       "id": "need_5_washing",
@@ -1358,7 +1375,8 @@
         "start": "2026-10-10T10:00:00+09:00",
         "end": "2026-10-10T16:00:00+09:00"
       },
-      "required_people": 8
+      "required_people": 8,
+      "minimum_people": 8
     },
     {
       "id": "need_6_kitchen",
@@ -1367,7 +1385,8 @@
         "start": "2026-10-11T10:00:00+09:00",
         "end": "2026-10-11T16:00:00+09:00"
       },
-      "required_people": 8
+      "required_people": 8,
+      "minimum_people": 8
     },
     {
       "id": "need_6_hall",
@@ -1376,7 +1395,8 @@
         "start": "2026-10-11T10:00:00+09:00",
         "end": "2026-10-11T16:00:00+09:00"
       },
-      "required_people": 8
+      "required_people": 8,
+      "minimum_people": 8
     },
     {
       "id": "need_6_washing",
@@ -1385,7 +1405,8 @@
         "start": "2026-10-11T10:00:00+09:00",
         "end": "2026-10-11T16:00:00+09:00"
       },
-      "required_people": 8
+      "required_people": 8,
+      "minimum_people": 8
     }
   ],
   "shift_candidates": [],

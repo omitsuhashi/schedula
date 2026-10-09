@@ -243,7 +243,10 @@ def test_combined_old_night_split_fixed_fairness_changes_and_diagnosis():
         "allowed_changes": [
             {
                 "id": "drop_second_need",
-                "edits": [{"json_pointer": "/demand/1/required_people", "value": 0}],
+                "edits": [
+                    {"json_pointer": "/demand/1/required_people", "value": 0},
+                    {"json_pointer": "/demand/1/minimum_people", "value": 0},
+                ],
             }
         ],
     }
@@ -257,6 +260,7 @@ def test_combined_old_night_split_fixed_fairness_changes_and_diagnosis():
     assert detail["suggestions"] == []
     lowered = copy.deepcopy(fixed_conflict)
     lowered["demand"][1]["required_people"] = 0
+    lowered["demand"][1]["minimum_people"] = 0
     assert list(enumerate_plans(lowered)) == []
     forbidden = copy.deepcopy(fixed_conflict)
     forbidden["diagnosis"]["allowed_changes"][0]["edits"] = [
@@ -280,6 +284,7 @@ def test_combined_performance_input_checks_original_and_allowed_changed_plan():
     expected = copy.deepcopy(data)
     expected.pop("diagnosis")
     expected["demand"][1]["required_people"] = 1
+    expected["demand"][1]["minimum_people"] = 1
     expected["solver"]["time_limit_seconds"] = changed["solver"]["time_limit_seconds"]
     assert changed == expected
     assert changed["fixed_parts"] == data["fixed_parts"]

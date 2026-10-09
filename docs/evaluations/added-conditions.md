@@ -53,15 +53,31 @@ RSS1,409〜1,477 MiBだった。必須矛盾は1.29〜1.39秒・約228 MiB、探
 固定前の初回全12試行も`docs/evaluations/results/added-conditions-20261008-initial.json`に保持する。
 初回も通常・不足は各3回独立検証成功だった。測定生データはGitに保持し、sdistには含めない。
 
+固定commitの測定再実行はリポジトリ内から行う。一時worktreeへ記載の固定commitを展開し、
+その入力・`uv.lock`・配布版を使う。測定runnerだけは現在の `scripts/evaluate.py` をコピーし、
+出力は現在のリポジトリの `test-results/historical/` へ保存する。
+測定後は一時worktreeだけを削除し、通常の0.15入力と過去の測定JSONを変更しない。
+
 ```sh
-uv run --locked --extra cp-sat python scripts/evaluate.py \
-  docs/evaluations/inputs/combined-100-30-normal.json \
-  docs/evaluations/inputs/combined-100-30-partial.json \
-  docs/evaluations/inputs/combined-100-30-conflict.json \
-  docs/evaluations/inputs/combined-100-30-timeout.json \
-  docs/evaluations/inputs/combined-legacy-010.json \
-  --repeat 3 --source-ref 9145f71 --timeout-seconds 180 \
-  --output test-results/added-conditions.json
+(
+  set -eu
+  evaluation_root="$(git rev-parse --show-toplevel)"
+  evaluation_checkout="$(mktemp -d)"
+  git worktree add --detach "$evaluation_checkout" 9145f71
+  cp "$evaluation_root/scripts/evaluate.py" "$evaluation_checkout/scripts/evaluate.py"
+  cd "$evaluation_checkout"
+  uv sync --locked --extra cp-sat
+  uv run --locked --extra cp-sat python scripts/evaluate.py \
+    docs/evaluations/inputs/combined-100-30-normal.json \
+    docs/evaluations/inputs/combined-100-30-partial.json \
+    docs/evaluations/inputs/combined-100-30-conflict.json \
+    docs/evaluations/inputs/combined-100-30-timeout.json \
+    docs/evaluations/inputs/combined-legacy-010.json \
+    --repeat 3 --source-ref 9145f71 --timeout-seconds 180 \
+    --output "$evaluation_root/test-results/historical/added-conditions.json"
+  cd "$evaluation_root"
+  git worktree remove --force "$evaluation_checkout"
+)
 ```
 
 冷起動はOSのファイルキャッシュを消さない新規Pythonプロセスであり、2 workersを用いる。

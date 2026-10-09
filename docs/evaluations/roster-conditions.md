@@ -40,10 +40,37 @@ macOS ARM64で実行する。CP-SATの探索workerは既存どおり2、seedは0
 [夜勤の結合](inputs/combined-overnight.json)・[分割の結合](inputs/combined-split_roster.json)では、
 勤務量上下限、希望、目標未達、不足、基準、自動固定を組み合わせる。
 
+固定commitの測定再実行はリポジトリ内から行う。一時worktreeへ記載の固定commitを展開し、
+その入力・`uv.lock`・配布版を使う。測定runnerだけは現在の `scripts/evaluate.py` をコピーし、
+出力は現在のリポジトリの `test-results/historical/` へ保存する。
+測定後は一時worktreeだけを削除し、通常の0.15入力と過去の測定JSONを変更しない。
+
 ```sh
-uv run --locked --extra cp-sat python scripts/evaluate.py docs/evaluations/inputs/roster-conditions-3000.json docs/evaluations/inputs/roster-conditions-6000.json docs/evaluations/inputs/roster-conditions-12000.json --repeat 2 --processes 1 --timeout-seconds 180 --source-ref 3d6dbe0c7ec00b3500a630438349bcf37ec50415 --output test-results/roster-conditions-scale.json
-uv run --locked --extra cp-sat python scripts/evaluate.py examples/playground/roster-100-30.json --repeat 1 --processes 1 --timeout-seconds 90 --source-ref 53115de16c115786ca7291d77cb75005aee0a2de --output test-results/roster-conditions-original.json
-uv run --locked --extra cp-sat python scripts/evaluate.py examples/partial_replan_preserve_assigned.json examples/partial_replan_rebuild.json docs/evaluations/inputs/replan-*.json docs/evaluations/inputs/combined-overnight.json docs/evaluations/inputs/combined-split_roster.json --repeat 2 --processes 1 --timeout-seconds 60 --source-ref 53115de16c115786ca7291d77cb75005aee0a2de --output test-results/roster-conditions-combined.json
+(
+  set -eu
+  evaluation_root="$(git rev-parse --show-toplevel)"
+  evaluation_checkout="$(mktemp -d)"
+  git worktree add --detach "$evaluation_checkout" 3d6dbe0c7ec00b3500a630438349bcf37ec50415
+  cp "$evaluation_root/scripts/evaluate.py" "$evaluation_checkout/scripts/evaluate.py"
+  cd "$evaluation_checkout"
+  uv sync --locked --extra cp-sat
+  uv run --locked --extra cp-sat python scripts/evaluate.py docs/evaluations/inputs/roster-conditions-3000.json docs/evaluations/inputs/roster-conditions-6000.json docs/evaluations/inputs/roster-conditions-12000.json --repeat 2 --processes 1 --timeout-seconds 180 --source-ref 3d6dbe0c7ec00b3500a630438349bcf37ec50415 --output "$evaluation_root/test-results/historical/roster-conditions-scale.json"
+  cd "$evaluation_root"
+  git worktree remove --force "$evaluation_checkout"
+)
+(
+  set -eu
+  evaluation_root="$(git rev-parse --show-toplevel)"
+  evaluation_checkout="$(mktemp -d)"
+  git worktree add --detach "$evaluation_checkout" 53115de16c115786ca7291d77cb75005aee0a2de
+  cp "$evaluation_root/scripts/evaluate.py" "$evaluation_checkout/scripts/evaluate.py"
+  cd "$evaluation_checkout"
+  uv sync --locked --extra cp-sat
+  uv run --locked --extra cp-sat python scripts/evaluate.py examples/playground/roster-100-30.json --repeat 1 --processes 1 --timeout-seconds 90 --source-ref 53115de16c115786ca7291d77cb75005aee0a2de --output "$evaluation_root/test-results/historical/roster-conditions-original.json"
+  uv run --locked --extra cp-sat python scripts/evaluate.py examples/partial_replan_preserve_assigned.json examples/partial_replan_rebuild.json docs/evaluations/inputs/replan-*.json docs/evaluations/inputs/combined-overnight.json docs/evaluations/inputs/combined-split_roster.json --repeat 2 --processes 1 --timeout-seconds 60 --source-ref 53115de16c115786ca7291d77cb75005aee0a2de --output "$evaluation_root/test-results/historical/roster-conditions-combined.json"
+  cd "$evaluation_root"
+  git worktree remove --force "$evaluation_checkout"
+)
 ```
 
 規模評価は単体テストから分離する。結果には入力SHA-256、ソースSHA-256、commit、dirty状態、
