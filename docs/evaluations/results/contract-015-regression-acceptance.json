@@ -1,0 +1,135 @@
+{
+  "criteria": "docs/migrations/contract-0.15-regression.md",
+  "source_commit": "ddc9fbd025e22c8b341983c3add2293002d68011",
+  "criteria_changed": false,
+  "initial_failures": [
+    {
+      "dataset": "contract-015-regression-after-warm.json",
+      "count_median": 434,
+      "limit": 382,
+      "result": "FAIL"
+    }
+  ],
+  "accepted_warm_normal_dataset": "contract-015-recheck2-after-warm.json",
+  "paired_baseline_dataset": "contract-015-recheck2-before-warm.json",
+  "incomplete_first_pair": "contract-015-recheck-before-warm.json",
+  "first_pair_after": "contract-015-recheck-after-warm.json",
+  "reason": "初回の超過を保存し同一環境で基点と変更後を再測定。最初の組は基点の初回読込に35秒を要して120秒期限で中断したため、その組も保持して3回完了する組を再測定。原基準を変更せず全項目を再判定。",
+  "results": [
+    {
+      "mode": "cold",
+      "input": "normal",
+      "before_seconds_median": 32.81043891701847,
+      "after_seconds_median": 32.78194437501952,
+      "after_seconds_max": 32.91660737490747,
+      "before_rss_median_mib": 991.9375,
+      "after_rss_median_mib": 990.078125,
+      "after_rss_max_mib": 1011.859375,
+      "statuses": {
+        "FEASIBLE": 3
+      },
+      "result": "PASS"
+    },
+    {
+      "mode": "cold",
+      "input": "partial",
+      "before_seconds_median": 33.14112883299822,
+      "after_seconds_median": 33.12788945797365,
+      "after_seconds_max": 33.134098707931116,
+      "before_rss_median_mib": 1370.0625,
+      "after_rss_median_mib": 1405.71875,
+      "after_rss_max_mib": 1437.234375,
+      "statuses": {
+        "PARTIAL": 3
+      },
+      "result": "PASS"
+    },
+    {
+      "mode": "cold",
+      "input": "conflict",
+      "before_seconds_median": 1.3206453330349177,
+      "after_seconds_median": 1.3019620419945568,
+      "after_seconds_max": 1.3031244579469785,
+      "before_rss_median_mib": 228.5,
+      "after_rss_median_mib": 227.9375,
+      "after_rss_max_mib": 227.96875,
+      "statuses": {
+        "INFEASIBLE": 3
+      },
+      "result": "PASS"
+    },
+    {
+      "mode": "cold",
+      "input": "timeout",
+      "before_seconds_median": 1.3669640840380453,
+      "after_seconds_median": 1.3401438751025125,
+      "after_seconds_max": 1.3429182500112802,
+      "before_rss_median_mib": 253.546875,
+      "after_rss_median_mib": 253.015625,
+      "after_rss_max_mib": 253.09375,
+      "statuses": {
+        "UNKNOWN": 3
+      },
+      "result": "PASS"
+    },
+    {
+      "mode": "warm",
+      "input": "normal",
+      "before_seconds_median": 32.518249165965244,
+      "after_seconds_median": 32.47614504105877,
+      "after_seconds_max": 32.83940029097721,
+      "before_rss_median_mib": 1031.59375,
+      "after_rss_median_mib": 975.671875,
+      "after_rss_max_mib": 1010.609375,
+      "statuses": {
+        "FEASIBLE": 3
+      },
+      "result": "PASS"
+    },
+    {
+      "mode": "warm",
+      "input": "partial",
+      "before_seconds_median": 32.998425790981855,
+      "after_seconds_median": 32.7831941669574,
+      "after_seconds_max": 33.1340434999438,
+      "before_rss_median_mib": 1446.84375,
+      "after_rss_median_mib": 1472.984375,
+      "after_rss_max_mib": 1472.984375,
+      "statuses": {
+        "PARTIAL": 3
+      },
+      "result": "PASS"
+    },
+    {
+      "mode": "warm",
+      "input": "conflict",
+      "before_seconds_median": 1.0005103329895064,
+      "after_seconds_median": 0.9949702919693664,
+      "after_seconds_max": 1.3078951670322567,
+      "before_rss_median_mib": 233.3125,
+      "after_rss_median_mib": 232.765625,
+      "after_rss_max_mib": 233.265625,
+      "statuses": {
+        "INFEASIBLE": 3
+      },
+      "result": "PASS"
+    },
+    {
+      "mode": "warm",
+      "input": "timeout",
+      "before_seconds_median": 1.0349123330088332,
+      "after_seconds_median": 1.0342165839392692,
+      "after_seconds_max": 1.3386755420360714,
+      "before_rss_median_mib": 256.1875,
+      "after_rss_median_mib": 255.84375,
+      "after_rss_max_mib": 256.125,
+      "statuses": {
+        "UNKNOWN": 3
+      },
+      "result": "PASS"
+    }
+  ],
+  "final_artifact_source_commit": "6f96300dc6830f1132c1c6330b1ed5e2f27288b0",
+  "source_tree_sha256": "4d44c7cfd56bf4cf188a28b41b21d43d120baa0eca67694ae6ec11d15d82e78f",
+  "runtime_unchanged_since_measurement": true
+}
