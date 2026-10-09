@@ -1,0 +1,286 @@
+{
+  "schema_version": "0.15",
+  "request_id": "demo_consecutive_days",
+  "problem_type": "roster",
+  "planning_window": {
+    "start": "2026-10-05T00:00:00+09:00",
+    "end": "2026-10-12T00:00:00+09:00",
+    "timezone": "Asia/Tokyo",
+    "slot_minutes": 30
+  },
+  "skills": [],
+  "roles": [
+    {
+      "id": "service",
+      "label": "担当",
+      "required_skills": []
+    }
+  ],
+  "employees": [
+    {
+      "id": "a",
+      "label": "A",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-05T00:00:00+09:00",
+          "end": "2026-10-12T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "last_work_day": null,
+        "consecutive_work_days_before_window": 0
+      }
+    },
+    {
+      "id": "b",
+      "label": "B",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-05T00:00:00+09:00",
+          "end": "2026-10-12T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "last_work_day": null,
+        "consecutive_work_days_before_window": 0
+      }
+    },
+    {
+      "id": "c",
+      "label": "C",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-05T00:00:00+09:00",
+          "end": "2026-10-12T00:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "last_work_day": null,
+        "consecutive_work_days_before_window": 0
+      }
+    }
+  ],
+  "demand": [
+    {
+      "id": "service_0",
+      "role_id": "service",
+      "interval": {
+        "start": "2026-10-05T09:00:00+09:00",
+        "end": "2026-10-05T10:00:00+09:00"
+      },
+      "required_people": 1,
+      "minimum_people": 0
+    },
+    {
+      "id": "service_1",
+      "role_id": "service",
+      "interval": {
+        "start": "2026-10-06T09:00:00+09:00",
+        "end": "2026-10-06T10:00:00+09:00"
+      },
+      "required_people": 1,
+      "minimum_people": 0
+    },
+    {
+      "id": "service_2",
+      "role_id": "service",
+      "interval": {
+        "start": "2026-10-07T09:00:00+09:00",
+        "end": "2026-10-07T10:00:00+09:00"
+      },
+      "required_people": 1,
+      "minimum_people": 0
+    },
+    {
+      "id": "service_3",
+      "role_id": "service",
+      "interval": {
+        "start": "2026-10-08T09:00:00+09:00",
+        "end": "2026-10-08T10:00:00+09:00"
+      },
+      "required_people": 1,
+      "minimum_people": 0
+    },
+    {
+      "id": "service_4",
+      "role_id": "service",
+      "interval": {
+        "start": "2026-10-09T09:00:00+09:00",
+        "end": "2026-10-09T10:00:00+09:00"
+      },
+      "required_people": 1,
+      "minimum_people": 0
+    },
+    {
+      "id": "service_5",
+      "role_id": "service",
+      "interval": {
+        "start": "2026-10-10T09:00:00+09:00",
+        "end": "2026-10-10T10:00:00+09:00"
+      },
+      "required_people": 1,
+      "minimum_people": 0
+    },
+    {
+      "id": "service_6",
+      "role_id": "service",
+      "interval": {
+        "start": "2026-10-11T09:00:00+09:00",
+        "end": "2026-10-11T10:00:00+09:00"
+      },
+      "required_people": 1,
+      "minimum_people": 0
+    }
+  ],
+  "shift_candidates": [],
+  "shift_templates": [
+    {
+      "id": "daily",
+      "employee_ids": [
+        "a",
+        "b",
+        "c"
+      ],
+      "dates": [
+        "2026-10-05",
+        "2026-10-06",
+        "2026-10-07",
+        "2026-10-08",
+        "2026-10-09",
+        "2026-10-10",
+        "2026-10-11"
+      ],
+      "start_times": [
+        "09:00"
+      ],
+      "segment_options": [
+        [
+          {
+            "offset_minutes": 0,
+            "duration_minutes": 60,
+            "breaks": []
+          }
+        ]
+      ]
+    }
+  ],
+  "constraints": [
+    {
+      "id": "consecutive",
+      "type": "max_consecutive_days",
+      "employee_ids": [
+        "a",
+        "b",
+        "c"
+      ],
+      "limit_days": 5
+    }
+  ],
+  "preferences": [
+    {
+      "id": "wish_0",
+      "type": "prefer_work",
+      "employee_ids": [
+        "a"
+      ],
+      "interval": {
+        "start": "2026-10-05T09:00:00+09:00",
+        "end": "2026-10-05T10:00:00+09:00"
+      },
+      "penalty_per_minute": 10
+    },
+    {
+      "id": "wish_1",
+      "type": "prefer_work",
+      "employee_ids": [
+        "a"
+      ],
+      "interval": {
+        "start": "2026-10-06T09:00:00+09:00",
+        "end": "2026-10-06T10:00:00+09:00"
+      },
+      "penalty_per_minute": 10
+    },
+    {
+      "id": "wish_2",
+      "type": "prefer_work",
+      "employee_ids": [
+        "a"
+      ],
+      "interval": {
+        "start": "2026-10-07T09:00:00+09:00",
+        "end": "2026-10-07T10:00:00+09:00"
+      },
+      "penalty_per_minute": 10
+    },
+    {
+      "id": "wish_3",
+      "type": "prefer_work",
+      "employee_ids": [
+        "a"
+      ],
+      "interval": {
+        "start": "2026-10-08T09:00:00+09:00",
+        "end": "2026-10-08T10:00:00+09:00"
+      },
+      "penalty_per_minute": 10
+    },
+    {
+      "id": "wish_4",
+      "type": "prefer_work",
+      "employee_ids": [
+        "a"
+      ],
+      "interval": {
+        "start": "2026-10-09T09:00:00+09:00",
+        "end": "2026-10-09T10:00:00+09:00"
+      },
+      "penalty_per_minute": 10
+    },
+    {
+      "id": "wish_5",
+      "type": "prefer_work",
+      "employee_ids": [
+        "a"
+      ],
+      "interval": {
+        "start": "2026-10-10T09:00:00+09:00",
+        "end": "2026-10-10T10:00:00+09:00"
+      },
+      "penalty_per_minute": 1
+    },
+    {
+      "id": "wish_6",
+      "type": "prefer_work",
+      "employee_ids": [
+        "a"
+      ],
+      "interval": {
+        "start": "2026-10-11T09:00:00+09:00",
+        "end": "2026-10-11T10:00:00+09:00"
+      },
+      "penalty_per_minute": 1
+    }
+  ],
+  "objectives": [
+    {
+      "id": "wishes",
+      "metric": "preference_penalty"
+    },
+    {
+      "id": "work",
+      "metric": "scheduled_minutes"
+    }
+  ],
+  "solver": {
+    "backend": "cp_sat",
+    "time_limit_seconds": 5,
+    "seed": 0
+  }
+}

@@ -15,12 +15,12 @@ BASELINE = json.loads((SAMPLES / "lunch.json").read_text(encoding="utf-8"))
 SCENARIOS = json.loads((SAMPLES / "scenarios.json").read_text(encoding="utf-8"))
 
 
-def scenario_requests(scenario):
+def scenario_requests(scenario, baseline=BASELINE):
     """保存済みの操作を順に適用し、各時点の確定入力を再現する。"""
-    request = copy.deepcopy(BASELINE)
+    request = copy.deepcopy(baseline)
     for step in scenario["steps"]:
         if step["restore"]:
-            request = copy.deepcopy(BASELINE)
+            request = copy.deepcopy(baseline)
         for collection, changes in step["changes"].items():
             by_id = {item["id"]: item for item in request[collection]}
             for item_id, fields in changes.items():
