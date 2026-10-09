@@ -6,6 +6,11 @@ OR-Tools 9.15.6755とuv.lockの依存で確認する。#90の回数目標と#91�
 
 ## 再実行
 
+固定commitの測定再実行はリポジトリ内から行う。一時worktreeへ記載の固定commitを展開し、
+その入力・`uv.lock`・配布版を使う。測定runnerだけは現在の `scripts/evaluate.py` をコピーし、
+出力は現在のリポジトリの `test-results/historical/` へ保存する。
+測定後は一時worktreeだけを削除し、通常の0.15入力と過去の測定JSONを変更しない。
+
 ```sh
 uv sync --locked --extra cp-sat
 uv run --locked --extra cp-sat pytest -q tests/test_coworkers.py
@@ -64,5 +69,16 @@ Request全体の中央値0.374秒、最大0.397秒、最大RSS108.34 MiBだっ�
 source SHA、lock SHA、依存版、入力SHA、準備・探索・検証の時間と全試行を保持する。
 
 ```sh
-uv run --locked --extra cp-sat python scripts/evaluate.py examples/coworkers.json --repeat 3 --mode cold --source-ref 1094de3 --output test-results/coworkers-cold.json
+(
+  set -eu
+  evaluation_root="$(git rev-parse --show-toplevel)"
+  evaluation_checkout="$(mktemp -d)"
+  git worktree add --detach "$evaluation_checkout" 1094de3
+  cp "$evaluation_root/scripts/evaluate.py" "$evaluation_checkout/scripts/evaluate.py"
+  cd "$evaluation_checkout"
+  uv sync --locked --extra cp-sat
+  uv run --locked --extra cp-sat python scripts/evaluate.py examples/coworkers.json --repeat 3 --mode cold --source-ref 1094de3 --output "$evaluation_root/test-results/historical/coworkers-cold.json"
+  cd "$evaluation_root"
+  git worktree remove --force "$evaluation_checkout"
+)
 ```

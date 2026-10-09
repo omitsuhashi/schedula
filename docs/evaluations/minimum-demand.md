@@ -7,6 +7,11 @@
 
 ## 再実行
 
+固定commitの測定再実行はリポジトリ内から行う。一時worktreeへ記載の固定commitを展開し、
+その入力・`uv.lock`・配布版を使う。測定runnerだけは現在の `scripts/evaluate.py` をコピーし、
+出力は現在のリポジトリの `test-results/historical/` へ保存する。
+測定後は一時worktreeだけを削除し、通常の0.15入力と過去の測定JSONを変更しない。
+
 ```sh
 uv sync --locked --extra cp-sat
 uv run --locked --extra cp-sat pytest -q tests/test_minimum_demand.py
@@ -76,11 +81,22 @@ Ruff hooks・Node構文確認・`bash -n scripts/deploy`・`git diff --check` �
 入力・評価スクリプト・lockのSHA-256、依存版、探索結果と診断結果を同じJSONへ保存した。
 
 ```sh
-uv run --locked --extra cp-sat python scripts/evaluate.py \
-  examples/minimum_assignment.json examples/minimum_roster.json examples/minimum_conflict.json \
-  --source-ref 4b9a7501c457fa49801a3a80d1900458daf9a759 \
-  --repeat 3 --mode warm --backend auto \
-  --output docs/evaluations/results/2026-10-08-minimum-demand.json
+(
+  set -eu
+  evaluation_root="$(git rev-parse --show-toplevel)"
+  evaluation_checkout="$(mktemp -d)"
+  git worktree add --detach "$evaluation_checkout" 4b9a7501c457fa49801a3a80d1900458daf9a759
+  cp "$evaluation_root/scripts/evaluate.py" "$evaluation_checkout/scripts/evaluate.py"
+  cd "$evaluation_checkout"
+  uv sync --locked --extra cp-sat
+  uv run --locked --extra cp-sat python scripts/evaluate.py \
+    examples/minimum_assignment.json examples/minimum_roster.json examples/minimum_conflict.json \
+    --source-ref 4b9a7501c457fa49801a3a80d1900458daf9a759 \
+    --repeat 3 --mode warm --backend auto \
+    --output "$evaluation_root/test-results/historical/2026-10-08-minimum-demand.json"
+  cd "$evaluation_root"
+  git worktree remove --force "$evaluation_checkout"
+)
 ```
 
 | 入力 | 3回の結果 | 確認内容 |

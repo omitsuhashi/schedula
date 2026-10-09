@@ -10,6 +10,11 @@
 jsonschema 4.26.0、OR-Tools 9.15.6755、pytest 9.1.1、Ruff 0.16.10、mypy 2.4.0。
 依存は `uv sync --locked --extra cp-sat` で同期した。
 
+固定commitの測定再実行はリポジトリ内から行う。一時worktreeへ記載の固定commitを展開し、
+その入力・`uv.lock`・配布版を使う。測定runnerだけは現在の `scripts/evaluate.py` をコピーし、
+出力は現在のリポジトリの `test-results/historical/` へ保存する。
+測定後は一時worktreeだけを削除し、通常の0.15入力と過去の測定JSONを変更しない。
+
 ```sh
 uv run --locked --extra cp-sat pytest -q -ra --junitxml=test-results/pytest.xml
 uv run --locked --extra cp-sat ruff check .
@@ -71,7 +76,18 @@ Ruff check / format、公開consumerのmypy strict、deploy入口の構文、文
 OSのファイルキャッシュは消去しておらず、別の回帰試験も同じホストで進行していた。
 
 ```sh
-uv run --locked --extra cp-sat python scripts/evaluate.py examples/continuity_month.json examples/continuity_week.json --output docs/evaluations/results/2026-10-07-continuity.json --repeat 2 --mode cold --source-ref 88d853b063151a5519a53208693bc2d0f4f71373
+(
+  set -eu
+  evaluation_root="$(git rev-parse --show-toplevel)"
+  evaluation_checkout="$(mktemp -d)"
+  git worktree add --detach "$evaluation_checkout" 88d853b063151a5519a53208693bc2d0f4f71373
+  cp "$evaluation_root/scripts/evaluate.py" "$evaluation_checkout/scripts/evaluate.py"
+  cd "$evaluation_checkout"
+  uv sync --locked --extra cp-sat
+  uv run --locked --extra cp-sat python scripts/evaluate.py examples/continuity_month.json examples/continuity_week.json --output "$evaluation_root/test-results/historical/2026-10-07-continuity.json" --repeat 2 --mode cold --source-ref 88d853b063151a5519a53208693bc2d0f4f71373
+  cd "$evaluation_root"
+  git worktree remove --force "$evaluation_checkout"
+)
 ```
 
 [生データ](https://github.com/omitsuhashi/schedula/blob/35e8fae4ddd128b4ccb2a5978f5cfa68b93ca788/docs/evaluations/results/2026-10-07-continuity.json)に入力・ソース・依存lockのSHA-256、環境、応答、独立検証、目的値、時間・RSSを保存した。

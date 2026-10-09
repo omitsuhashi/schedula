@@ -98,15 +98,37 @@ workerの `PYTHONPATH` をそのソースへ向ける。指定なしでは開始
 同時に別作業がソースを更新しても、開始済みの測定には混ぜない。
 source commit、dirty、source tree SHA-256、runner SHA-256、lock SHA-256、package版を保存する。
 依存パッケージは現在の `.venv` を使う。旧refのlockへ自動同期しないため、package版またはlockが現在と異なるrefは拒否する。
-その場合は対象refと同じ環境を先に同期して再実行する。今回の基準と比較ソースはpackage版とlockが同一である。
+その場合は対象refと同じ環境を先に同期して再実行する。下の手順は一時worktreeの `.venv` を固定commitのlockへ同期する。
 `source.dirty: false` は固定したgit archiveの状態であり、新runnerや測定入力まで基準commitに含まれる意味ではない。
+`--source-ref` は入力を固定しない。基準commitに未収録だった拡大・不正例を含め、
+入力は測定記録を保存した `601f39283339fb7fee8d4469e62c928bead19adb` から展開する。
+基準の冷起動24試行の `input_sha256` と、この入力commitの原bytesの一致を確認している。
+`performance-profile-current.json` は現在のソース/入力の新しい測定であり、
+Gitに未保存だった作業中ソースによる過去のprofile測定の再現とは扱わない。
+
+固定commitの測定再実行はリポジトリ内から行う。一時worktreeへ記載の固定commitを展開し、
+その入力・`uv.lock`・配布版を使う。測定runnerだけは現在の `scripts/evaluate.py` をコピーし、
+出力は現在のリポジトリの `test-results/historical/` へ保存する。
+測定後は一時worktreeだけを削除し、通常の0.15入力と過去の測定JSONを変更しない。
 
 ```sh
 uv sync --locked --extra cp-sat
-uv run --locked --extra cp-sat python scripts/evaluate.py docs/evaluations/inputs/assignment-week.json docs/evaluations/inputs/roster-week.json docs/evaluations/inputs/roster-fortnight-large.json docs/evaluations/inputs/roster-week-15min.json docs/evaluations/inputs/roster-week-infeasible.json docs/evaluations/inputs/roster-week-timeout.json docs/evaluations/inputs/roster-input-limit.json examples/linked_assignment.json --repeat 3 --source-ref 76d3534a0cd79253691f76c82da82e4d71daef9c --output docs/evaluations/results/2026-10-06-baseline-cold.json
-uv run --locked --extra cp-sat python scripts/evaluate.py docs/evaluations/inputs/roster-week.json examples/linked_assignment.json --repeat 3 --mode warm --source-ref 76d3534a0cd79253691f76c82da82e4d71daef9c --output docs/evaluations/results/2026-10-06-baseline-warm.json
-uv run --locked --extra cp-sat python scripts/evaluate.py docs/evaluations/inputs/roster-week.json examples/linked_assignment.json --repeat 4 --processes 2 --source-ref 76d3534a0cd79253691f76c82da82e4d71daef9c --output docs/evaluations/results/2026-10-06-baseline-parallel.json
-uv run --locked --extra cp-sat python scripts/evaluate.py docs/evaluations/inputs/roster-week.json docs/evaluations/inputs/roster-fortnight-large.json docs/evaluations/inputs/roster-week-15min.json examples/linked_assignment.json --repeat 3 --output docs/evaluations/results/2026-10-06-profile.json
+(
+  set -eu
+  evaluation_root="$(git rev-parse --show-toplevel)"
+  evaluation_checkout="$(mktemp -d)"
+  git worktree add --detach "$evaluation_checkout" 76d3534a0cd79253691f76c82da82e4d71daef9c
+  cp "$evaluation_root/scripts/evaluate.py" "$evaluation_checkout/scripts/evaluate.py"
+  git archive 601f39283339fb7fee8d4469e62c928bead19adb docs/evaluations/inputs examples | tar -x -C "$evaluation_checkout"
+  cd "$evaluation_checkout"
+  uv sync --locked --extra cp-sat
+  uv run --locked --extra cp-sat python scripts/evaluate.py docs/evaluations/inputs/assignment-week.json docs/evaluations/inputs/roster-week.json docs/evaluations/inputs/roster-fortnight-large.json docs/evaluations/inputs/roster-week-15min.json docs/evaluations/inputs/roster-week-infeasible.json docs/evaluations/inputs/roster-week-timeout.json docs/evaluations/inputs/roster-input-limit.json examples/linked_assignment.json --repeat 3 --source-ref 76d3534a0cd79253691f76c82da82e4d71daef9c --output "$evaluation_root/test-results/historical/2026-10-06-baseline-cold.json"
+  uv run --locked --extra cp-sat python scripts/evaluate.py docs/evaluations/inputs/roster-week.json examples/linked_assignment.json --repeat 3 --mode warm --source-ref 76d3534a0cd79253691f76c82da82e4d71daef9c --output "$evaluation_root/test-results/historical/2026-10-06-baseline-warm.json"
+  uv run --locked --extra cp-sat python scripts/evaluate.py docs/evaluations/inputs/roster-week.json examples/linked_assignment.json --repeat 4 --processes 2 --source-ref 76d3534a0cd79253691f76c82da82e4d71daef9c --output "$evaluation_root/test-results/historical/2026-10-06-baseline-parallel.json"
+  cd "$evaluation_root"
+  git worktree remove --force "$evaluation_checkout"
+)
+uv run --locked --extra cp-sat python scripts/evaluate.py docs/evaluations/inputs/roster-week.json docs/evaluations/inputs/roster-fortnight-large.json docs/evaluations/inputs/roster-week-15min.json examples/linked_assignment.json --repeat 3 --output test-results/performance-profile-current.json
 ```
 
 新runnerの回帰テストは `uv run --locked --extra cp-sat pytest -q tests/test_evaluation.py`。
@@ -183,8 +205,20 @@ solve時間とRSSを取得できず分布のsamplesは0だが、worker実時間�
 ファイルが存在しないためinput hashはnullで、理由はstderrに保持する。このファイルは作成しない。
 
 ```sh
-uv run --locked --extra cp-sat python scripts/evaluate.py docs/evaluations/inputs/roster-week.json --repeat 2 --timeout-seconds 0.000001 --source-ref 76d3534a0cd79253691f76c82da82e4d71daef9c --output docs/evaluations/results/2026-10-06-harness-timeout.json
-uv run --locked --extra cp-sat python scripts/evaluate.py docs/evaluations/inputs/missing-evaluation-input.json --repeat 2 --mode warm --source-ref 76d3534a0cd79253691f76c82da82e4d71daef9c --output docs/evaluations/results/2026-10-06-harness-failure.json
+(
+  set -eu
+  evaluation_root="$(git rev-parse --show-toplevel)"
+  evaluation_checkout="$(mktemp -d)"
+  git worktree add --detach "$evaluation_checkout" 76d3534a0cd79253691f76c82da82e4d71daef9c
+  cp "$evaluation_root/scripts/evaluate.py" "$evaluation_checkout/scripts/evaluate.py"
+  git archive 601f39283339fb7fee8d4469e62c928bead19adb docs/evaluations/inputs examples | tar -x -C "$evaluation_checkout"
+  cd "$evaluation_checkout"
+  uv sync --locked --extra cp-sat
+  uv run --locked --extra cp-sat python scripts/evaluate.py docs/evaluations/inputs/roster-week.json --repeat 2 --timeout-seconds 0.000001 --source-ref 76d3534a0cd79253691f76c82da82e4d71daef9c --output "$evaluation_root/test-results/historical/2026-10-06-harness-timeout.json"
+  uv run --locked --extra cp-sat python scripts/evaluate.py docs/evaluations/inputs/missing-evaluation-input.json --repeat 2 --mode warm --source-ref 76d3534a0cd79253691f76c82da82e4d71daef9c --output "$evaluation_root/test-results/historical/2026-10-06-harness-failure.json"
+  cd "$evaluation_root"
+  git worktree remove --force "$evaluation_checkout"
+)
 ```
 
 6ファイルを合わせて予定54試行を保存し、正常入力・不可能・探索予算切れ・上限拒否・worker期限・worker障害・未実行を保持した。
