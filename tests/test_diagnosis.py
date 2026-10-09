@@ -202,15 +202,10 @@ def test_tampered_suggestion_and_objectives_are_rejected():
     assert detail["status"] == "ERROR" and detail["suggestions"] == []
 
 
-@pytest.mark.parametrize("version", ["0.2", "0.15"])
+@pytest.mark.parametrize("version", ["0.15"])
 def test_cli_diagnosis_and_schema_version(tmp_path, version):
     data = impossible()
     data["schema_version"] = version
-    if version == "0.2":
-        # 旧版受付は#111で拒否へ切り替えるまで明示して保持する。
-        data["demand"][0].pop("minimum_people")
-        for option in data["diagnosis"]["allowed_changes"]:
-            option["edits"] = option["edits"][:1]
     path = tmp_path / "diagnosis.json"
     path.write_text(json.dumps(data))
     process = subprocess.run(
@@ -220,11 +215,7 @@ def test_cli_diagnosis_and_schema_version(tmp_path, version):
     result = json.loads(process.stdout)
     assert_response(result, "INFEASIBLE")
     assert result["schema_version"] == version
-    kinds = (
-        ["request", "response"]
-        if version == "0.2"
-        else ["request", "response", "solution", "verification"]
-    )
+    kinds = ["request", "response", "solution", "verification"]
     for kind in kinds:
         process = subprocess.run(
             [sys.executable, "-m", "shift_schedula", "schema", kind, "--schema-version", version],

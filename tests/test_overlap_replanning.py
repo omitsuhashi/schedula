@@ -165,7 +165,7 @@ def test_old_contracts_keep_same_window_requirement(version):
                 "last_work_day": None,
                 "consecutive_work_days_before_window": 0,
             }
-    assert solve(data)["diagnostics"][0]["code"] == "BASELINE_WINDOW_MISMATCH"
+    assert solve(data)["diagnostics"][0]["code"] == "SCHEMA_VIOLATION"
 
 
 @pytest.mark.parametrize("day", [5, 8])
@@ -315,7 +315,7 @@ def test_small_rebuild_and_fixed_problems_match_exhaustive_enumeration():
             )
 
 
-@pytest.mark.parametrize("version", ["0.7", "0.15"])
+@pytest.mark.parametrize("version", ["0.15"])
 @pytest.mark.parametrize("kind", ["request", "response", "solution", "verification"])
 def test_new_schema_and_cli(kind, version):
     result = subprocess.run(
@@ -349,7 +349,7 @@ def test_cli_solve_verify(tmp_path):
     assert checked["status"] == "VALID"
     assert checked["change_summary"] == output["change_summary"]
     assert not schema_errors("verification", checked)
-    assert "0.7" in SCHEMA_VERSIONS
+    assert SCHEMA_VERSIONS == ("0.15",)
 
 
 @pytest.mark.parametrize("working", [False, True])

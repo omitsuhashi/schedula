@@ -5,24 +5,10 @@ from .types import (
     Assembly,
     Baseline,
     ConfirmationState,
-    ContinuitySolution,
     Diagnostic,
-    ExtendedSolution,
     InputSource,
     RecordVerification,
     RecordView,
-    Request010,
-    Request011,
-    Request012,
-    Request013,
-    Request014,
-    Request015,
-    Request04,
-    Request05,
-    Request06,
-    Request07,
-    Request08,
-    Request09,
     RequestDraft,
     RunRecord,
     SchemaVersion,
@@ -55,22 +41,11 @@ def validate(request: object) -> Validation: ...
 def load_json(text: str) -> JSONValue: ...
 def get_schema(
     kind: Literal["request", "response", "solution", "verification"],
-    schema_version: SchemaVersion = "0.1",
+    schema_version: SchemaVersion = "0.15",
 ) -> dict[str, JSONValue]: ...
 def make_baseline(
-    request: Request04
-    | Request05
-    | Request06
-    | Request07
-    | Request08
-    | Request09
-    | Request010
-    | Request011
-    | Request012
-    | Request013
-    | Request014
-    | Request015,
-    solution: ExtendedSolution | ContinuitySolution,
+    request: Request,
+    solution: Solution,
     plan_id: str,
 ) -> Baseline: ...
 def get_adapter_schema(kind: Literal["draft", "manifest", "record"]) -> dict[str, JSONValue]: ...

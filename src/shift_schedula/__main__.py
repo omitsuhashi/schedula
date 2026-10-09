@@ -19,7 +19,7 @@ def main():
     verify_parser.add_argument("solution_file")
     schema_parser = commands.add_parser("schema")
     schema_parser.add_argument("kind", choices=["request", "response", "solution", "verification"])
-    schema_parser.add_argument("--schema-version", choices=SCHEMA_VERSIONS, default="0.1")
+    schema_parser.add_argument("--schema-version", choices=SCHEMA_VERSIONS, default="0.15")
     adapter_cli.register(commands)
     args = parser.parse_args()
     if args.command == "adapter":

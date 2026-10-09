@@ -42,7 +42,7 @@ def crashed_worker(request, path, num_workers):
     os._exit(7)
 
 
-@pytest.mark.parametrize("assignment_request", ["0.1", "0.15"], indirect=True)
+@pytest.mark.parametrize("assignment_request", ["0.15"], indirect=True)
 def test_worker_count_validation_and_backend_application(assignment_request, monkeypatch):
     saved = copy.deepcopy(assignment_request)
     for value in (False, True, 0, -1, 1.5, "2", None, 2**31):
@@ -87,7 +87,7 @@ def test_worker_count_validation_and_backend_application(assignment_request, mon
     assert assignment_request == saved
 
 
-@pytest.mark.parametrize("assignment_request", ["0.1", "0.15"], indirect=True)
+@pytest.mark.parametrize("assignment_request", ["0.15"], indirect=True)
 def test_spawn_deadline_cancel_failure_and_independent_calls(assignment_request, monkeypatch):
     before = {p.pid for p in multiprocessing.active_children()}
     response = controlled_solve.run_controlled(assignment_request, total_seconds=20)

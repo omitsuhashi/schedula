@@ -1,5 +1,7 @@
 # 契約0.15への移行を判定する回帰基準
 
+> 基準記録: 旧版からの意味の移行を判定した履歴と、現在0.15の維持・性能比較の固定基準を記載しています。旧比較fixtureと移行専用試験は検証後に撤去しました。現在のテストへの対応は[切替記録](contract-0.15-integration.md#通常入口の単一契約切替)を参照してください。以下の旧版受理・legacyヘルパーの説明は撤去前の状態です。性能・解品質の許容値は変更していません。
+
 [Issue #107](https://github.com/omitsuhashi/schedula/issues/107) の成果として、
 [機能対応表](contract-0.15.md)の業務挙動を保持する比較入力と判定方法を固定する。
 通常入口の旧版受付、求解・独立検証、公開型、デモはこの変更では整理しない。
@@ -21,7 +23,7 @@ verifyが最適性を付与しないことも確認する。
 
 ## 固定した代表入力
 
-[比較fixture](../../tests/fixtures/contract-migration/cases.json) は0.1〜0.14の全版を含む16組。
+[比較fixture](contract-0.15-cases.json) は0.1〜0.14の全版を含む16組。
 各 `.legacy.json` は基点examplesの原bytes、`.015.json` はレビュー可能な明示した比較入力である。
 原SHA・移行先SHA・由来・旧版を対応付け、原本のexamplesを更新しても旧代表を失わない。
 テストで両fixtureの原bytesのSHA-256を記録値と照合し、比較基準の意図しない変更を検出する。
@@ -128,7 +130,7 @@ legacyヘルパーを呼出側で明示する。診断/日数/勤務分類/同�
 | execution / logging / cli | CPU指定・spawn・取消・総期限・並行実行、無変更入力、stderr/終了コード | 実行制御と入力境界を旧版と0.15で同じ試験へ渡す | #124/#111。依存不足・内部障害・古い応答を区別 |
 | adapter / playground / distribution / sdist | 確認失効・来歴・保存/再検証、HTTP保護、公開型、各OS、実Chromium | Draft/recordは#110、通常例・画面は#124。旧Schema同梱の常設保証だけを終了 | #110/#112/#114。新JSON fixtureをsdistへ同梱 |
 
-新しい [比較テスト](../../tests/test_contract_migration_regression.py) は代表比較と別に、
+新しい [比較テスト](../../tests/test_contract_015_regression.py) は代表比較と別に、
 現行0.15の完全/PARTIAL、原JSONによる全探索と目的順、公開verify・改ざん拒否、
 空/nullの出力形、下限・priorityの既定値、UNKNOWN/FEASIBLE/内部障害/依存不足、入力拒否を確認する。
 既存の実行制御・入力境界テストにも0.15を加え、spawn・総期限・取消・CPU数・並行実行を実行する。

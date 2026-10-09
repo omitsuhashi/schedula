@@ -5,10 +5,7 @@ import pytest
 
 from shift_schedula import cp_sat, solve
 from shift_schedula.model import normalize
-from tests.roster_support import demand, interval, stamp
-from tests.roster_support import legacy_candidate as candidate
-from tests.roster_support import legacy_request as request
-from tests.roster_support import legacy_template as template
+from tests.roster_support import candidate, demand, interval, request, stamp, template
 from tests.support import assert_response
 
 
@@ -28,7 +25,6 @@ from tests.support import assert_response
         ("outside_window", "INVALID_CANDIDATE_AVAILABILITY"),
         ("outside_availability", "INVALID_CANDIDATE_AVAILABILITY"),
         ("break_availability_gap", "INVALID_CANDIDATE_AVAILABILITY"),
-        ("overnight", "UNSUPPORTED_OVERNIGHT_SHIFT"),
         ("misaligned", "MISALIGNED_INTERVAL"),
         ("seconds", "INVALID_TIME_PRECISION"),
         ("break_at_start", "INVALID_BREAK"),
@@ -41,14 +37,14 @@ from tests.support import assert_response
         ("unknown_template_employee", "UNKNOWN_REFERENCE"),
         ("duplicate_template", "DUPLICATE_ID"),
         ("template_break_too_long", "INVALID_BREAK"),
-        ("template_overnight", "UNSUPPORTED_OVERNIGHT_SHIFT"),
         ("template_minutes", "MISALIGNED_INTERVAL"),
         ("template_start", "MISALIGNED_INTERVAL"),
     ],
 )
 def test_invalid_roster_rejected_before_dependency_load(monkeypatch, mutation, code):
     data = request()
-    c = data["shift_candidates"][0]
+    candidate_row = data["shift_candidates"][0]
+    c = candidate_row["segments"][0]
     e = data["employees"][0]
     if mutation == "missing_history":
         del e["history"]
@@ -67,6 +63,9 @@ def test_invalid_roster_rejected_before_dependency_load(monkeypatch, mutation, c
                 "future": stamp(0, 30),
                 "history_seconds": "2026-10-04T13:00:01+09:00",
             }[mutation],
+            "last_work_day": None
+            if mutation == "null_with_days"
+            else stamp(-2 if mutation == "old_with_days" else -1)[:10],
             "consecutive_work_days_before_window": 0 if mutation == "recent_with_zero" else 1,
         }
     elif mutation.startswith("window_"):
@@ -74,7 +73,7 @@ def test_invalid_roster_rejected_before_dependency_load(monkeypatch, mutation, c
             0 if mutation == "window_start" else 1, 30
         )
     elif mutation == "unknown_employee":
-        c["employee_id"] = "missing"
+        candidate_row["employee_id"] = "missing"
     elif mutation == "duplicate_candidate":
         data["shift_candidates"] *= 2
     elif mutation == "outside_window":
@@ -109,11 +108,11 @@ def test_invalid_roster_rejected_before_dependency_load(monkeypatch, mutation, c
         elif mutation == "duplicate_template":
             data["shift_templates"] *= 2
         elif mutation == "template_break_too_long":
-            t["break_options"] = [{"offset_minutes": 60, "duration_minutes": 30}]
+            t["segment_options"][0][0]["breaks"] = [{"offset_minutes": 60, "duration_minutes": 30}]
         elif mutation == "template_overnight":
             t["start_times"] = ["23:30"]
         elif mutation == "template_minutes":
-            t["duration_minutes_options"] = [91]
+            t["segment_options"][0][0]["duration_minutes"] = 91
         else:
             t["start_times"] = ["10:15"]
     monkeypatch.setattr(
@@ -131,6 +130,11 @@ def test_history_empty_old_recent_and_exclusive_midnight(last, count):
     data = request()
     data["employees"][0]["history"] = {
         "last_shift_end": last,
+        "last_work_day": (datetime.fromisoformat(last) - timedelta(microseconds=1))
+        .date()
+        .isoformat()
+        if last is not None
+        else None,
         "consecutive_work_days_before_window": count,
     }
     assert_response(solve(data), "OPTIMAL")
@@ -147,7 +151,7 @@ def test_adjacent_availability_and_multiple_breaks_are_supported():
     result = solve(data)
     assert_response(result, "OPTIMAL")
     assert result["objectives"][0]["value"] == 90
-    assert result["solution"]["shifts"][0]["breaks"] == [
+    assert result["solution"]["shifts"][0]["segments"][0]["breaks"] == [
         interval(start=630, end=660),
         interval(start=690, end=720),
     ]
@@ -182,7 +186,7 @@ def test_template_composition_determinism_and_scope():
         for c in candidates
         if c.id != data["shift_candidates"][0]["id"]
     )
-    for field in ("employee_ids", "dates", "start_times", "duration_minutes_options"):
+    for field in ("employee_ids", "dates", "start_times", "segment_options"):
         data["shift_templates"][0][field].reverse()
     assert normalize(data).candidates == candidates
     assert original["shift_templates"][0]["employee_ids"] == ["bob", "alice"]
@@ -216,7 +220,7 @@ def test_template_filters_unavailable_and_outside_dates_without_widening():
     assert candidates[0].start == 20 and candidates[0].end == 23
     data["employees"][0]["availability"] = []
     assert normalize(data).candidates == []
-    data["demand"] = [demand()]
+    data["demand"] = [{**demand(), "minimum_people": 1}]
     assert_response(solve(data), "INFEASIBLE")
 
 
@@ -316,8 +320,7 @@ def test_explicit_offsets_resolve_clock_change(start, end, minutes):
         {
             "id": "clock_change",
             "employee_id": "alice",
-            "interval": {"start": start, "end": end},
-            "breaks": [],
+            "segments": [{"interval": {"start": start, "end": end}, "breaks": []}],
         }
     ]
     data["demand"] = [

@@ -12,7 +12,7 @@ from shift_schedula.verify import verify_solution
 from tests.support import assert_response, require_complete_demand
 
 
-@pytest.mark.parametrize("assignment_request", ["0.1", "0.15"], indirect=True)
+@pytest.mark.parametrize("assignment_request", ["0.15"], indirect=True)
 @pytest.mark.parametrize("backend", ["auto", "min_cost_flow"])
 def test_restaurant_example(assignment_request, backend):
     assignment_request["solver"]["backend"] = backend
@@ -199,7 +199,7 @@ def exhaustive_value(request):
 
 @pytest.mark.parametrize("backend", ["min_cost_flow", "cp_sat"])
 @pytest.mark.parametrize("seed", range(150))
-@pytest.mark.parametrize("assignment_request", ["0.1", "0.15"], indirect=True)
+@pytest.mark.parametrize("assignment_request", ["0.15"], indirect=True)
 def test_optimum_and_infeasibility_match_exhaustive_search(assignment_request, seed, backend):
     randomizer = random.Random(seed)
     request = assignment_request
@@ -269,6 +269,6 @@ def test_schema_identity_and_meta_validation():
     for kind in ["request", "response"]:
         schema = get_schema(kind)
         Draft202012Validator.check_schema(schema)
-        assert schema["$id"] == f"urn:schedula:{kind}:0.1"
+        assert schema["$id"] == f"urn:schedula:{kind}:0.15"
         schema.clear()
         assert get_schema(kind)

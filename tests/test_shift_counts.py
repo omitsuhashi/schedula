@@ -450,7 +450,7 @@ def test_assignment_rejects_counts_and_newer_baseline_is_rejected_by_old_version
     old.pop("shift_count_balance")
     old["objectives"] = old["objectives"][:1]
     old["baseline"] = baseline
-    assert validate(old)["diagnostics"][0]["code"] == "UNSUPPORTED_BASELINE_VERSION"
+    assert validate(old)["diagnostics"][0]["code"] == "SCHEMA_VIOLATION"
     data["problem_type"] = "assignment"
     data["shift_candidates"] = []
     for employee in data["employees"]:

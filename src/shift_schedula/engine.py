@@ -12,7 +12,7 @@ from .contract import (
     summary_fields,
 )
 from .model import TimezoneDataError, flow_requires_complete_demand, minute_datetime, normalize
-from .verify import priority_summary, verify_plan, verify_solution
+from .verify import priority_summary, verify_plan
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ def response(
     selection_reason="NOT_SELECTED",
     library_version=None,
     *,
-    schema_version="0.1",
+    schema_version="0.15",
 ):
     result = {
         "schema_version": schema_version,
@@ -45,8 +45,7 @@ def response(
         "stats": {"elapsed_seconds": 0.0},
     }
     result.update(dict.fromkeys(summary_fields(schema_version)))
-    if schema_version != "0.1":
-        result["diagnosis_result"] = None
+    result["diagnosis_result"] = None
     return result
 
 
@@ -80,149 +79,70 @@ def validate_response(result, request=None):
                     "OBJECTIVE_MISMATCH", "結果の目的が Request と一致しません。", "/objectives"
                 )
             )
-        if request["schema_version"] in {
-            "0.2",
-            "0.3",
-            "0.4",
-            "0.5",
-            "0.6",
-            "0.7",
-            "0.8",
-            "0.9",
-            "0.10",
-            "0.11",
-            "0.12",
-            "0.13",
-            "0.14",
-            "0.15",
-        }:
-            from .extensions import evaluate
+        from .extensions import evaluate
 
-            problem = normalize(request)
-            violations, values, shortage = verify_plan(problem, result["solution"])
-            errors.extend(violations)
-            if request["schema_version"] in {
-                "0.3",
-                "0.4",
-                "0.5",
-                "0.6",
-                "0.7",
-                "0.8",
-                "0.9",
-                "0.10",
-                "0.11",
-                "0.12",
-                "0.13",
-                "0.14",
-                "0.15",
-            } and shortage != {
-                k: v for k, v in result["shortage_summary"].items() if k != "proven_minimal"
-            }:
-                errors.append(
-                    diagnostic(
-                        "SHORTAGE_MISMATCH",
-                        "不足集計が元入力と返却解に一致しません。",
-                        "/shortage_summary",
-                    )
+        problem = normalize(request)
+        violations, values, shortage = verify_plan(problem, result["solution"])
+        errors.extend(violations)
+        if shortage != {
+            k: v for k, v in result["shortage_summary"].items() if k != "proven_minimal"
+        }:
+            errors.append(
+                diagnostic(
+                    "SHORTAGE_MISMATCH",
+                    "不足集計が元入力と返却解に一致しません。",
+                    "/shortage_summary",
                 )
-            if request["schema_version"] in {
-                "0.5",
-                "0.6",
-                "0.7",
-                "0.8",
-                "0.9",
-                "0.10",
-                "0.11",
-                "0.12",
-                "0.13",
-                "0.14",
-                "0.15",
-            }:
-                expected_priority = priority_summary(request, shortage)
-                actual_priority = {
-                    "groups": [
-                        {**group, "proven_minimal": False}
-                        for group in result["priority_summary"]["groups"]
-                    ]
-                }
-                if actual_priority != expected_priority:
-                    errors.append(
-                        diagnostic(
-                            "PRIORITY_SHORTAGE_MISMATCH",
-                            "priority別不足が元需要と返却解に一致しません。",
-                            "/priority_summary",
-                        )
-                    )
-            if values != tuple(item["value"] for item in result["objectives"]):
-                errors.append(
-                    diagnostic(
-                        "OBJECTIVE_VALUE_MISMATCH", "返却解の評価値が一致しません。", "/objectives"
-                    )
+            )
+        expected_priority = priority_summary(request, shortage)
+        actual_priority = {
+            "groups": [
+                {**group, "proven_minimal": False} for group in result["priority_summary"]["groups"]
+            ]
+        }
+        if actual_priority != expected_priority:
+            errors.append(
+                diagnostic(
+                    "PRIORITY_SHORTAGE_MISMATCH",
+                    "priority別不足が元需要と返却解に一致しません。",
+                    "/priority_summary",
                 )
-            _, _, summaries = evaluate(problem, result["solution"])
-            for name, value in summaries.items():
-                if result[name] != value:
-                    errors.append(
-                        diagnostic(
-                            "SUMMARY_MISMATCH", "結果の集計が返却解と一致しません。", "/" + name
-                        )
-                    )
+            )
+        if values != tuple(item["value"] for item in result["objectives"]):
+            errors.append(
+                diagnostic(
+                    "OBJECTIVE_VALUE_MISMATCH", "返却解の評価値が一致しません。", "/objectives"
+                )
+            )
+        _, _, summaries = evaluate(problem, result["solution"])
+        for name, value in summaries.items():
+            if result[name] != value:
+                errors.append(
+                    diagnostic("SUMMARY_MISMATCH", "結果の集計が返却解と一致しません。", "/" + name)
+                )
     if result["status"] in {"OPTIMAL", "FEASIBLE", "PARTIAL"}:
         proofs = [item["proven_optimal"] for item in result["objectives"]]
-        if result["schema_version"] in {
-            "0.5",
-            "0.6",
-            "0.7",
-            "0.8",
-            "0.9",
-            "0.10",
-            "0.11",
-            "0.12",
-            "0.13",
-            "0.14",
-            "0.15",
-        }:
-            groups = result["priority_summary"]["groups"]
-            levels = [g["priority"] for g in groups]
-            if (
-                levels != sorted(set(levels), reverse=True)
-                or sum(g["total_person_minutes"] for g in groups)
-                != result["shortage_summary"]["total_person_minutes"]
-            ):
-                errors.append(
-                    diagnostic(
-                        "PRIORITY_SHORTAGE_MISMATCH",
-                        "priority別不足の順序または合計が不正です。",
-                        "/priority_summary",
-                    )
+        groups = result["priority_summary"]["groups"]
+        levels = [g["priority"] for g in groups]
+        if (
+            levels != sorted(set(levels), reverse=True)
+            or sum(g["total_person_minutes"] for g in groups)
+            != result["shortage_summary"]["total_person_minutes"]
+        ):
+            errors.append(
+                diagnostic(
+                    "PRIORITY_SHORTAGE_MISMATCH",
+                    "priority別不足の順序または合計が不正です。",
+                    "/priority_summary",
                 )
-            proofs = [
-                result["shortage_summary"]["proven_minimal"],
-                *(g["proven_minimal"] for g in groups),
-                *proofs,
-            ]
-        if proofs != sorted(proofs, reverse=True) or (
-            result["status"] == "FEASIBLE"
-            and (
-                proofs
-                or result["schema_version"]
-                in {
-                    "0.3",
-                    "0.4",
-                    "0.5",
-                    "0.6",
-                    "0.7",
-                    "0.8",
-                    "0.9",
-                    "0.10",
-                    "0.11",
-                    "0.12",
-                    "0.13",
-                    "0.14",
-                    "0.15",
-                }
             )
-            and all(proofs)
+        proofs = [
+            result["shortage_summary"]["proven_minimal"],
+            *(g["proven_minimal"] for g in groups),
+            *proofs,
+        ]
+        if proofs != sorted(proofs, reverse=True) or (
+            result["status"] == "FEASIBLE" and all(proofs)
         ):
             errors.append(
                 diagnostic(
@@ -231,25 +151,7 @@ def validate_response(result, request=None):
                     "/objectives",
                 )
             )
-    if (
-        result["schema_version"]
-        in {
-            "0.3",
-            "0.4",
-            "0.5",
-            "0.6",
-            "0.7",
-            "0.8",
-            "0.9",
-            "0.10",
-            "0.11",
-            "0.12",
-            "0.13",
-            "0.14",
-            "0.15",
-        }
-        and result["shortage_summary"] is not None
-    ):
+    if result["shortage_summary"] is not None:
         summary = result["shortage_summary"]
         total = 0
         for index, item in enumerate(summary["shortages"]):
@@ -262,10 +164,7 @@ def validate_response(result, request=None):
                 seconds <= 0
                 or seconds % 60
                 or item["required_people"] - item["assigned_people"] != item["missing_people"]
-                or (
-                    result["schema_version"] in {"0.12", "0.13", "0.14", "0.15"}
-                    and not 0 <= item["minimum_people"] <= item["assigned_people"]
-                )
+                or (not 0 <= item["minimum_people"] <= item["assigned_people"])
             ):
                 errors.append(
                     diagnostic(
@@ -283,22 +182,7 @@ def validate_response(result, request=None):
                     "/shortage_summary/total_person_minutes",
                 )
             )
-    if request is not None and request["schema_version"] in {
-        "0.2",
-        "0.3",
-        "0.4",
-        "0.5",
-        "0.6",
-        "0.7",
-        "0.8",
-        "0.9",
-        "0.10",
-        "0.11",
-        "0.12",
-        "0.13",
-        "0.14",
-        "0.15",
-    }:
+    if request is not None:
         from .diagnosis import validate_result
 
         errors.extend(validate_result(request, result))
@@ -397,75 +281,25 @@ def solve(request: dict, *, num_workers: int = 2) -> dict:
             loaded_at = time.perf_counter()
             outcome = flow.run(problem)
         solved_at = time.perf_counter()
-        if (
-            backend == "min_cost_flow"
-            and outcome.status == "FEASIBLE"
-            and schema_version
-            not in {
-                "0.3",
-                "0.4",
-                "0.5",
-                "0.6",
-                "0.7",
-                "0.8",
-                "0.9",
-                "0.10",
-                "0.11",
-                "0.12",
-                "0.13",
-                "0.14",
-                "0.15",
-            }
-        ):
-            raise RuntimeError("Unexpected flow outcome")
         result = response(
             request_id, outcome.status, outcome.diagnostics, backend, schema_version=schema_version
         )
         if outcome.status in {"OPTIMAL", "FEASIBLE"}:
             shortage = None
-            if schema_version in {
-                "0.3",
-                "0.4",
-                "0.5",
-                "0.6",
-                "0.7",
-                "0.8",
-                "0.9",
-                "0.10",
-                "0.11",
-                "0.12",
-                "0.13",
-                "0.14",
-                "0.15",
-            }:
-                violations, values, shortage = verify_plan(problem, outcome.solution)
-                if (
-                    shortage is not None
-                    and shortage["total_person_minutes"] != outcome.shortage_person_minutes
-                ):
-                    violations.append(
-                        diagnostic(
-                            "SHORTAGE_MISMATCH",
-                            "ソルバーの不足量が返却解と一致しません。",
-                            "/shortage_summary",
-                        )
+            violations, values, shortage = verify_plan(problem, outcome.solution)
+            if (
+                shortage is not None
+                and shortage["total_person_minutes"] != outcome.shortage_person_minutes
+            ):
+                violations.append(
+                    diagnostic(
+                        "SHORTAGE_MISMATCH",
+                        "ソルバーの不足量が返却解と一致しません。",
+                        "/shortage_summary",
                     )
-            else:
-                violations, values = verify_solution(problem, outcome.solution)
+                )
             priorities = None
-            if shortage is not None and schema_version in {
-                "0.5",
-                "0.6",
-                "0.7",
-                "0.8",
-                "0.9",
-                "0.10",
-                "0.11",
-                "0.12",
-                "0.13",
-                "0.14",
-                "0.15",
-            }:
+            if shortage is not None:
                 priorities = priority_summary(request, shortage)
                 if backend == "cp_sat" and cp_sat.priority_stages(request):
                     if (
@@ -526,58 +360,25 @@ def solve(request: dict, *, num_workers: int = 2) -> dict:
                 result["solution"] = outcome.solution
                 if priorities is not None:
                     result["priority_summary"] = priorities
-                if schema_version in {
-                    "0.3",
-                    "0.4",
-                    "0.5",
-                    "0.6",
-                    "0.7",
-                    "0.8",
-                    "0.9",
-                    "0.10",
-                    "0.11",
-                    "0.12",
-                    "0.13",
-                    "0.14",
-                    "0.15",
-                }:
-                    minimal = (
-                        shortage["total_person_minutes"] == 0 or outcome.shortage_proven_minimal
-                    )
-                    result["shortage_summary"] = {**shortage, "proven_minimal": minimal}
-                    result["status"] = (
-                        "PARTIAL"
-                        if shortage["total_person_minutes"]
-                        else "OPTIMAL"
-                        if (
-                            all(outcome.proven_optimal)
-                            and (
-                                priorities is None
-                                or all(g["proven_minimal"] for g in priorities["groups"])
-                            )
+                minimal = shortage["total_person_minutes"] == 0 or outcome.shortage_proven_minimal
+                result["shortage_summary"] = {**shortage, "proven_minimal": minimal}
+                result["status"] = (
+                    "PARTIAL"
+                    if shortage["total_person_minutes"]
+                    else "OPTIMAL"
+                    if (
+                        all(outcome.proven_optimal)
+                        and (
+                            priorities is None
+                            or all(g["proven_minimal"] for g in priorities["groups"])
                         )
-                        else "FEASIBLE"
                     )
-                if schema_version in {
-                    "0.2",
-                    "0.3",
-                    "0.4",
-                    "0.5",
-                    "0.6",
-                    "0.7",
-                    "0.8",
-                    "0.9",
-                    "0.10",
-                    "0.11",
-                    "0.12",
-                    "0.13",
-                    "0.14",
-                    "0.15",
-                }:
-                    from .extensions import evaluate
+                    else "FEASIBLE"
+                )
+                from .extensions import evaluate
 
-                    _, _, summaries = evaluate(problem, outcome.solution)
-                    result.update(summaries)
+                _, _, summaries = evaluate(problem, outcome.solution)
+                result.update(summaries)
                 result["verification"] = verification
                 result["objectives"] = [
                     {
@@ -619,25 +420,7 @@ def solve(request: dict, *, num_workers: int = 2) -> dict:
                             best_bound=bound,
                         )
                     )
-            if (
-                schema_version
-                in {
-                    "0.3",
-                    "0.4",
-                    "0.5",
-                    "0.6",
-                    "0.7",
-                    "0.8",
-                    "0.9",
-                    "0.10",
-                    "0.11",
-                    "0.12",
-                    "0.13",
-                    "0.14",
-                    "0.15",
-                }
-                and outcome.shortage_bound is not None
-            ):
+            if outcome.shortage_bound is not None:
                 result["diagnostics"].append(
                     diagnostic(
                         "SHORTAGE_BOUND",

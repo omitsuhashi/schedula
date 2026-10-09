@@ -16,14 +16,12 @@ from shift_schedula.model import normalize
 from tests.roster_support import (
     demand,
     interval,
-    legacy_request,
-    legacy_template,
     request,
     stamp,
     template,
 )
 from tests.support import assert_response, require_complete_demand
-from tests.test_extensions import legacy_extended, selected
+from tests.test_extensions import selected
 
 
 def current(data=None):
@@ -60,10 +58,10 @@ def preference(
 
 @pytest.mark.parametrize("version", SCHEMA_VERSIONS)
 def test_candidate_count_removed_for_explicit_generated_and_selected_shifts(version):
-    make_request = request if version == "0.15" else legacy_request
+    make_request = request if version == "0.15" else request
     data = make_request()
     if version not in {"0.1", "0.15"}:
-        data = legacy_extended(data)
+        data = current(data)
     data["schema_version"] = version
     data["shift_candidates"] = [
         {**data["shift_candidates"][0], "id": f"choice_{i}"} for i in range(5001)
@@ -80,7 +78,7 @@ def test_candidate_count_removed_for_explicit_generated_and_selected_shifts(vers
     assert_response(solve(data), "INVALID_INPUT")
     many = make_request(days=21, employees=tuple(f"e{i}" for i in range(239)))
     if version not in {"0.1", "0.15"}:
-        many = legacy_extended(many)
+        many = current(many)
     many["schema_version"] = version
     solution = {"assignments": [], "shifts": [selected(c) for c in many["shift_candidates"]]}
     assert len(solution["shifts"]) == 5019
@@ -89,7 +87,7 @@ def test_candidate_count_removed_for_explicit_generated_and_selected_shifts(vers
     generated = make_request(days=30, employees=tuple(f"e{i}" for i in range(100)))
     generated["roles"] = generated["roles"][:1]
     generated["shift_candidates"] = []
-    make_template = template if version == "0.15" else legacy_template
+    make_template = template if version == "0.15" else template
     generated["shift_templates"] = [
         make_template(
             tuple(e["id"] for e in generated["employees"]),
@@ -99,7 +97,7 @@ def test_candidate_count_removed_for_explicit_generated_and_selected_shifts(vers
         )
     ]
     if version not in {"0.1", "0.15"}:
-        generated = legacy_extended(generated)
+        generated = current(generated)
         t = generated["shift_templates"][0]
         t.pop("duration_minutes_options")
         t.pop("break_options")
@@ -111,7 +109,7 @@ def test_candidate_count_removed_for_explicit_generated_and_selected_shifts(vers
 @pytest.mark.parametrize("version", ["0.1", "0.2", "0.3"])
 @pytest.mark.parametrize("field", ["replan_mode", "bounds", "preference"])
 def test_new_conditions_rejected_by_old_versions(version, field):
-    data = legacy_request() if version == "0.1" else legacy_extended(legacy_request())
+    data = request() if version == "0.1" else current(request())
     data["schema_version"] = version
     if field == "replan_mode":
         data[field] = "rebuild"
@@ -491,9 +489,9 @@ def test_preserved_assignments_over_1000_do_not_expand_fixed_parts():
     "version,complete", [(v, False) for v in SCHEMA_VERSIONS] + [("0.15", True)]
 )
 def test_verification_has_no_solver_call_or_proofs(
-    version, complete, monkeypatch, assignment_request, legacy_assignment_request
+    version, complete, monkeypatch, assignment_request
 ):
-    data = copy.deepcopy(assignment_request if version == "0.15" else legacy_assignment_request)
+    data = copy.deepcopy(assignment_request)
     data["schema_version"] = version
     if version == "0.15":
         for item in data["demand"]:
@@ -586,7 +584,7 @@ def test_verification_invalid_input_and_internal_failure_are_not_valid(monkeypat
     assert result["verification"]["valid"] is not True
 
 
-@pytest.mark.parametrize("version", ["0.4", "0.15"])
+@pytest.mark.parametrize("version", ["0.15"])
 def test_public_schema_and_cli_verify(tmp_path, version):
     data = current()
     data["schema_version"] = version

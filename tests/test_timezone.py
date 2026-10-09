@@ -49,7 +49,7 @@ request = json.loads((root / 'examples/assignment.json').read_text(encoding='utf
 result = solve(request)
 assert result['status'] == 'OPTIMAL'
 assert verify(request, result['solution'])['status'] == 'VALID'
-assert get_schema('request', '0.4')['$id'] == 'urn:schedula:request:0.4'
+assert get_schema('request', '0.15')['$id'] == 'urn:schedula:request:0.15'
 request['planning_window']['timezone'] = 'unknown/zone'
 result = solve(request)
 assert result['status'] == 'INVALID_INPUT'

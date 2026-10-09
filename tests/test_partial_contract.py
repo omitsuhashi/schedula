@@ -1,4 +1,4 @@
-"""不足の合成応答と、明示した旧版の受理境界を検証する。"""
+"""不足の合成応答と、現在契約の検証境界を確認する。"""
 
 import copy
 import json
@@ -13,7 +13,7 @@ from shift_schedula.contract import InvalidInput, get_schema, schema_errors
 from shift_schedula.engine import response, validate_response
 from shift_schedula.model import normalize
 from shift_schedula.verify import verify_solution
-from tests.test_extensions import legacy_baseline as baseline
+from tests.test_extensions import baseline as baseline
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -196,49 +196,23 @@ def test_shortages_are_not_limited_by_diagnostic_count():
     validate_response(result)
 
 
-@pytest.mark.parametrize(
-    "name", ["assignment", "overnight", "split_roster", "fairness", "replan", "diagnosis"]
-)
-def test_version_three_preserves_extended_input_semantics(name):
-    path = ROOT / "tests/fixtures/contract-migration" / f"{name}.legacy.json"
-    old = json.loads(path.read_text())
-    request = copy.deepcopy(old)
-    request["schema_version"] = "0.3"
+@pytest.mark.parametrize("name", ["assignment", "overnight", "replan", "partial_roster"])
+def test_current_examples_keep_extended_input_semantics(name):
+    request = json.loads((ROOT / "examples" / f"{name}.json").read_text())
     original = copy.deepcopy(request)
-    before, after = normalize(old), normalize(request)
-    assert after.candidates == before.candidates
-    assert after.baseline == before.baseline
-    assert after.demand == before.demand
-    assert request == original
-    complete = solve(old)
-    if complete["status"] == "OPTIMAL":
-        complete["schema_version"] = "0.3"
-        complete["shortage_summary"] = {
-            "total_person_minutes": 0,
-            "proven_minimal": True,
-            "shortages": [],
-        }
-        complete.setdefault("fairness_summary", None)
-        complete.setdefault("change_summary", None)
-        complete.setdefault("diagnosis_result", None)
-        validate_response(complete, request)
     result = solve(request)
-    assert result["schema_version"] == "0.3"
-    assert result["status"] == ("PARTIAL" if name == "diagnosis" else "OPTIMAL")
+    assert result["schema_version"] == "0.15"
+    assert result["status"] in {"OPTIMAL", "PARTIAL"}
     assert result["shortage_summary"]["proven_minimal"]
     assert result["verification"]["valid"]
     validate_response(result, request)
+    assert request == original
 
 
 @pytest.mark.parametrize("case", ["history", "fairness", "fixed", "diagnosis"])
-@pytest.mark.parametrize("version", ["0.3", "0.15"])
+@pytest.mark.parametrize("version", ["0.15"])
 def test_extended_invalid_inputs_still_fail_before_execution_gate(case, version):
-    path = (
-        "examples/replan.json"
-        if version == "0.15"
-        else "tests/fixtures/contract-migration/replan.legacy.json"
-    )
-    request = json.loads((ROOT / path).read_text())
+    request = json.loads((ROOT / "examples/replan.json").read_text())
     request["schema_version"] = version
     if case == "history":
         request["employees"][0]["history"]["last_work_day"] = "2026-10-05"
@@ -260,26 +234,12 @@ def test_extended_invalid_inputs_still_fail_before_execution_gate(case, version)
     validate_response(result)
 
 
-def test_baseline_requires_complete_plan_and_preserves_old_version_boundary():
+def test_baseline_verifies_original_input_and_solution():
     request = baseline()
-    old = request["baseline"]
-    # 旧基準は0.1なので、0.3の勤務区間表現へ明示的に移す。
-    old["source_request"] = copy.deepcopy({k: v for k, v in request.items() if k != "baseline"})
-    old["source_request"]["schema_version"] = "0.3"
-    old["source_request"]["objectives"] = []
-    shift = old["source_solution"]["shifts"][0]
-    shift.update(
-        work_day="2026-10-05",
-        segments=[{"interval": shift.pop("interval"), "breaks": shift.pop("breaks")}],
-    )
-    with pytest.raises(InvalidInput, match="基準計画"):
-        normalize(request)
-    request["schema_version"] = "0.3"
-    assert normalize(request).baseline is not None
-    old["source_solution"]["assignments"] = []
+    request["baseline"]["source_solution"]["assignments"] = []
     with pytest.raises(InvalidInput) as error:
         normalize(request)
-    assert any(d["code"] == "DEMAND_SHORTAGE" for d in error.value.diagnostics)
+    assert any(d["code"] == "MINIMUM_DEMAND_VIOLATION" for d in error.value.diagnostics)
 
 
 def test_partial_diagnosis_never_searches_changes(assignment_request):
@@ -309,42 +269,24 @@ def test_partial_diagnosis_never_searches_changes(assignment_request):
     assert schema_errors("response", result)
 
 
-def test_full_response_with_original_request_and_legacy_boundaries(legacy_assignment_request):
-    legacy_assignment_request["schema_version"] = "0.2"
-    result = solve(legacy_assignment_request)
-    result["schema_version"] = legacy_assignment_request["schema_version"] = "0.3"
-    result["shortage_summary"] = {
-        "total_person_minutes": 0,
-        "proven_minimal": True,
-        "shortages": [],
-    }
-    validate_response(result, legacy_assignment_request)
-    assert verify_solution(normalize(legacy_assignment_request), result["solution"])[0] == []
-    for version in ("0.1", "0.2"):
-        result["schema_version"] = version
-        assert schema_errors("response", result)
-    legacy = solve({**legacy_assignment_request, "schema_version": "0.2"})
-    with pytest.raises(InvalidInput, match="契約版"):
-        validate_response(legacy, legacy_assignment_request)
-    # 元入力と合わない合成応答は独立検証で拒否する。
-    with pytest.raises(InvalidInput):
-        validate_response(result_example("PARTIAL", "0.3"), legacy_assignment_request)
-    # 完全な配置に架空の不足一覧を付けても照合をすり抜けさせない。
-    legacy["schema_version"] = "0.3"
-    legacy["status"] = "PARTIAL"
-    legacy["shortage_summary"] = result_example("PARTIAL", "0.3")["shortage_summary"]
-    legacy["shortage_summary"]["proven_minimal"] = True
+def test_full_response_cannot_forge_shortage(assignment_request):
+    result = solve(assignment_request)
+    validate_response(result, assignment_request)
+    assert verify_solution(normalize(assignment_request), result["solution"])[0] == []
+    result.update(status="PARTIAL", shortage_summary=result_example("PARTIAL")["shortage_summary"])
+    result["shortage_summary"]["proven_minimal"] = True
+    result["priority_summary"]["groups"][0]["total_person_minutes"] = 60
     with pytest.raises(InvalidInput) as error:
-        validate_response(legacy, legacy_assignment_request)
+        validate_response(result, assignment_request)
     assert error.value.diagnostics[0]["code"] == "SHORTAGE_MISMATCH"
 
 
 @pytest.mark.parametrize("kind", ["request", "response"])
-def test_cli_reads_contract_three(kind):
+def test_cli_reads_current_contract(kind):
     result = subprocess.run(
-        [sys.executable, "-m", "shift_schedula", "schema", kind, "--schema-version", "0.3"],
+        [sys.executable, "-m", "shift_schedula", "schema", kind, "--schema-version", "0.15"],
         capture_output=True,
         text=True,
     )
     assert result.returncode == 0 and result.stderr == ""
-    assert json.loads(result.stdout) == get_schema(kind, "0.3")
+    assert json.loads(result.stdout) == get_schema(kind, "0.15")

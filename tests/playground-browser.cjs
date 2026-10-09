@@ -313,7 +313,7 @@ async function jsonInputChecks(page) {
   }
   report.interactions.push("契約0.15の担当配置・勤務計画で必須最低人数とPARTIALの不足を表示し、下限違反・集計改ざんを拒否");
   for (const backend of ["auto", "min_cost_flow"]) {
-    const input = JSON.parse(readFileSync("tests/fixtures/contract-migration/assignment.015.json", "utf8"));
+    const input = JSON.parse(readFileSync("tests/fixtures/contract-015/assignment.json", "utf8"));
     input.solver.backend = backend;
     for (const available of [true, false]) {
       if (!available) input.employees.forEach(e => { e.availability = []; });
@@ -402,8 +402,8 @@ async function jsonInputChecks(page) {
     assert.equal(await page.locator("#json-output table").count(), 0);
   }
   report.interactions.push("契約0.15の履歴付き勤務回数・全5機能の休憩交代を実計算し、回数を表示、改ざん集計・bool目標を拒否");
-  // 旧版受理の意図的な回帰。#111の最終切替で旧版拒否へ置き換える。
-  for (const schema_version of ["0.6", "0.7", "0.8", "0.9", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15"]) {
+  // 現在契約の不足・証明と、全旧版の明示拒否を別々に確認する。
+  for (const schema_version of ["0.15"]) {
     const input = {...JSON.parse(readFileSync("examples/partial_assignment.json", "utf8")), schema_version};
     await page.locator("#json-input").fill(JSON.stringify(input));
     await page.locator("#json-calculate").click();
@@ -426,7 +426,26 @@ async function jsonInputChecks(page) {
       }, kind), /不足|priority/);
     }
   }
-  report.interactions.push("契約0.15の費用・夜勤評価をJSON貼り付けで実行、旧版0.6〜0.14と0.15の不足・priority・証明・解なし応答を検証");
+  for (const schema_version of [...Array.from({length:14}, (_, i) => `0.${i + 1}`), "0.16", null]) {
+    const input = {...JSON.parse(readFileSync("examples/partial_assignment.json", "utf8")), schema_version};
+    await page.locator("#json-input").fill(JSON.stringify(input));
+    await page.locator("#json-calculate").click();
+    await page.waitForFunction(() => !busy);
+    const pair = await page.evaluate(() => jsonPair);
+    assert.ok(pair, await page.locator("#json-status").innerText());
+    assert.deepEqual(pair.input, input);
+    assert.equal(pair.response.schema_version, "0.15");
+    assert.equal(pair.response.status, "INVALID_INPUT");
+    assert.equal(pair.response.solution, null);
+    assert.equal(pair.response.verification.performed, false);
+    assert.equal(await page.locator("#json-output table").count(), 0);
+    const forged = structuredClone(pair.response);
+    forged.schema_version = schema_version;
+    assert.equal(await page.evaluate(({response, input}) => {
+      try { acceptResponse(response, input, []); return false; } catch { return true; }
+    }, {response: forged, input}), true);
+  }
+  report.interactions.push("契約0.15の費用・夜勤評価・不足・priority・証明・解なし応答と、全旧版・未知版・不正型の明示拒否を検証");
   const request = JSON.parse(readFileSync('examples/assignment.json', 'utf8'));
   request.demand.forEach(demand => { demand.minimum_people = 0; });
   // 夏時間終了で同じ壁時計時刻が繰り返されても、実際の不足区間を区別する。
@@ -610,30 +629,28 @@ async function adapterChecks(page) {
   await page.screenshot({path:"test-results/adapter-mobile.png",fullPage:true});
   await page.setViewportSize({width:1440,height:1000});
   report.interactions.push("分割入力の未確認修正・個別確認・実計算・記録ダウンロード/再読み込み・失敗時の入力保持・再検証・PARTIALと過去の証明・古い応答の排除・キーボード/狭い画面");
-  const migration = spawnSync(process.env.PYTHON || ".venv/bin/python", ["-c",
-    "import json; from scripts.migrate_adapter import migrate_draft; from shift_schedula import read_draft; print(json.dumps(migrate_draft(read_draft('tests/fixtures/contract-migration/adapter/assignment.manifest.json'))['draft']))"
-  ], {encoding:"utf8"});
-  assert.equal(migration.status, 0, migration.stderr + migration.stdout);
-  await page.locator("#adapter-input").fill(migration.stdout);
+  const currentDraft = JSON.parse(readFileSync("examples/adapter/assignment.draft.json", "utf8"));
+  currentDraft.sources.find(s => s.section === "period").revision = "edited";
+  await page.locator("#adapter-input").fill(JSON.stringify(currentDraft));
   await page.locator("#adapter-check").click();
   await wait("INVALID_INPUT");
-  const migratedStates = await page.evaluate(() => JSON.parse(document.querySelector("#adapter-output details pre").textContent));
-  assert.equal(migratedStates.find(s => s.source_id === "period").state, "stale");
-  for (const id of ["basic", "common", "execution"]) assert.equal(migratedStates.find(s => s.source_id === id).state, "confirmed");
+  const updatedStates = await page.evaluate(() => JSON.parse(document.querySelector("#adapter-output details pre").textContent));
+  assert.equal(updatedStates.find(s => s.source_id === "period").state, "stale");
+  for (const id of ["basic", "common", "execution"]) assert.equal(updatedStates.find(s => s.source_id === id).state, "confirmed");
   await page.locator("#adapter-source").selectOption("period");
   await page.locator("#adapter-confirm").focus();
   await page.keyboard.press("Enter");
   await wait("入力候補");
   await page.locator("#adapter-run").click();
   await wait("現在の検証 VALID");
-  const migratedRecord = await page.evaluate(() => structuredClone(adapterRecord));
-  assert.equal(migratedRecord.request.schema_version, "0.15");
-  assert.ok(migratedRecord.request.demand.every(d => d.minimum_people === d.required_people));
-  const migratedDownload = page.waitForEvent("download");
+  const updatedRecord = await page.evaluate(() => structuredClone(adapterRecord));
+  assert.equal(updatedRecord.request.schema_version, "0.15");
+  assert.ok(updatedRecord.request.demand.every(d => d.minimum_people === d.required_people));
+  const updatedDownload = page.waitForEvent("download");
   await page.locator("#adapter-save-record").click();
-  await page.locator("#adapter-file").setInputFiles(await (await migratedDownload).path());
+  await page.locator("#adapter-file").setInputFiles(await (await updatedDownload).path());
   await wait("現在の検証 VALID");
-  assert.deepEqual(await page.evaluate(() => adapterRecord), migratedRecord);
+  assert.deepEqual(await page.evaluate(() => adapterRecord), updatedRecord);
   await page.locator("#adapter-reverify").click();
   await wait("現在の検証 VALID");
   const migratedView = JSON.parse(await page.locator("#adapter-output details").first().locator("pre").textContent());
@@ -791,13 +808,34 @@ async function main() {
   await page.locator('#restore').click();
   initial = await verified(page, {status: 'OPTIMAL', assigned_slots: 22});
 
+  for (const state of ["INTERNAL_ERROR", "UNKNOWN"]) {
+    const message = await page.evaluate(state => {
+      const response = structuredClone(current.response);
+      Object.assign(response, {status: state, solution: null, objectives: [], verification: {performed: true, valid: false, violations: [{code: "PLAN_INVALID", message: "原条件に違反", json_pointer: "/solution", related_ids: [], facts: []}]}});
+      for (const key of Object.keys(response)) if (key.endsWith("_summary")) response[key] = null;
+      try { acceptResponse(response, current.input); return ""; } catch (error) { return error.message; }
+    }, state);
+    if (state === "INTERNAL_ERROR") assert.equal(message, "");
+    else assert.match(message, /検証状態が不正/);
+  }
+
+  const badViolations = await page.evaluate(() => [undefined, null, {}, [], [{}], ["text"], [{code: "X", message: "x"}]].map(violations => {
+    const response = structuredClone(current.response);
+    Object.assign(response, {status: "INTERNAL_ERROR", solution: null, objectives: [], verification: {performed: true, valid: false}});
+    if (violations !== undefined) response.verification.violations = violations;
+    for (const key of Object.keys(response)) if (key.endsWith("_summary")) response[key] = null;
+    try { acceptResponse(response, current.input); return ""; } catch (error) { return error.message; }
+  }));
+  assert.ok(badViolations.every(message => /検証状態が不正/.test(message)));
+
   // 以下は実エンジンの実測ではなく、表示・応答失効を確認する応答サンプル。
-  for (const state of ["INFEASIBLE", "UNKNOWN", "INVALID_INPUT", "BACKEND_UNAVAILABLE", "INTERNAL_ERROR"]) {
+  for (const [state, performed] of [["INFEASIBLE", false], ["UNKNOWN", false], ["INVALID_INPUT", false], ["BACKEND_UNAVAILABLE", false], ["INTERNAL_ERROR", false], ["INTERNAL_ERROR", true]]) {
     await page.route("**/solve", async route => {
       const result = structuredClone(initial.response);
       result.request_id = route.request().postDataJSON().request_id;
       result.status = state;
       if (state !== "FEASIBLE") { result.shortage_summary = null; result.priority_summary = null; result.solution = null; result.objectives = []; result.verification = {performed: false, valid: null, violations: []}; }
+      if (performed) result.verification = {performed: true, valid: false, violations: [{code: "PLAN_INVALID", message: "原条件に違反", json_pointer: "/solution", related_ids: [], facts: []}]};
       result.diagnostics = [{code: "DISPLAY_SAMPLE", message: "表示確認用の応答サンプル", json_pointer: "/demand/0/required_people", related_ids: [], facts: []}];
       await route.fulfill({json: result});
     });
@@ -807,7 +845,7 @@ async function main() {
     if (state !== "FEASIBLE") assert.ok(!(await page.locator("#comparison").innerText()).includes("担当差分："));
     await page.getByRole("button", {name: /入力欄へ/}).click();
     assert.equal(await page.evaluate(() => document.activeElement.dataset.pointer), "/demand/0/required_people");
-    report.response_samples.push(state);
+    report.response_samples.push(performed ? `${state}_VERIFIED` : state);
     await page.unroute("**/solve");
   }
   for (const kind of ["http-error", "communication", "request-id", "verification", "malformed", "shortage", "double"]) {

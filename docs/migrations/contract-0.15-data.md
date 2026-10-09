@@ -1,7 +1,9 @@
 # Request・解・基準計画の明示移行
 
+> 履歴記録: 旧版からの明示移行を検証した際の手順と結果です。一時スクリプト・専用試験・旧fixtureは検証後に撤去しました。原資材は[固定commit](https://github.com/omitsuhashi/schedula/tree/d17a036a9790999c8182cdd319473d32368ddaec)に保存されています。現在の通常入口は契約0.15だけを受理します。
+
 [Issue #109](https://github.com/omitsuhashi/schedula/issues/109) の移行入口は
-[scripts/migrate_contract.py](../../scripts/migrate_contract.py)。通常のsolve/validateへ暗黙変換を追加しない。
+[scripts/migrate_contract.py](https://github.com/omitsuhashi/schedula/blob/d17a036a9790999c8182cdd319473d32368ddaec/scripts/migrate_contract.py)。通常のsolve/validateへ暗黙変換を追加しない。
 所有者の2026-10-09回答により、例・テスト以外の保存済み実データはない。
 現行例の一括切替は #124、Draft・manifest・実行記録は #110、アプリの保存往復は #125 が担当する。
 Draft・manifest・実行記録の入口は [Adapterの明示移行](contract-0.15-adapter.md) を参照する。
@@ -102,7 +104,7 @@ source_fixed_states・snapshot_origin・fixed_parts・replan_modeを保持し、
 
 ## 検証の対応
 
-[tests/test_contract_migration.py](../../tests/test_contract_migration.py) で、
+[tests/test_contract_migration.py](https://github.com/omitsuhashi/schedula/blob/d17a036a9790999c8182cdd319473d32368ddaec/tests/test_contract_migration.py) で、
 固定済み全旧版16組との一致、保存解と元証拠、確認が必要な履歴、完全/PARTIAL、
 基準・固定・重複期間・継続勤務、許可変更案、最大編集数、DSTと期間端、
 不正入力/解・厳密JSON・保存失敗・中断・再実行・原本/成功済み出力の不変を試験する。

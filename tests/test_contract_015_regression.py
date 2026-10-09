@@ -1,93 +1,16 @@
 """旧版の意味の比較と、現行0.15の独立した回帰基準。"""
 
 import copy
-import hashlib
 import itertools
-from pathlib import Path
 
 import pytest
 
 from shift_schedula import InvalidInput, cp_sat, engine, load_json, solve, validate, verify
-from shift_schedula.model import normalize
 from tests.roster_support import demand, request
 from tests.support import assert_response, require_complete_demand
 from tests.test_assignment import exhaustive_value
-from tests.test_objectives import METRICS, control_search, legacy_tradeoff_request
+from tests.test_objectives import METRICS, control_search, tradeoff_request
 from tests.test_roster import exhaustive_value as exhaustive_roster_value
-
-FIXTURES = Path(__file__).parent / "fixtures/contract-migration"
-MANIFEST = load_json((FIXTURES / "cases.json").read_text(encoding="utf-8"))
-CASES = tuple(row["name"] for row in MANIFEST["cases"])
-
-
-def read_case(name, kind):
-    return load_json((FIXTURES / f"{name}.{kind}.json").read_text(encoding="utf-8"))
-
-
-@pytest.mark.parametrize("case", MANIFEST["cases"], ids=CASES)
-def test_representative_bytes_match_recorded_hashes(case):
-    for kind, field in (("legacy", "legacy_sha256"), ("015", "target_sha256")):
-        path = FIXTURES / f"{case['name']}.{kind}.json"
-        assert hashlib.sha256(path.read_bytes()).hexdigest() == case[field], path.name
-
-
-def test_representatives_cover_every_legacy_version():
-    assert {read_case(name, "legacy")["schema_version"] for name in CASES} == {
-        f"0.{i}" for i in range(1, 15)
-    }
-
-
-@pytest.mark.parametrize("name", CASES)
-def test_legacy_and_explicit_target_keep_conditions_values_and_proofs(name):
-    legacy, target = read_case(name, "legacy"), read_case(name, "015")
-    saved = copy.deepcopy((legacy, target))
-    assert target["schema_version"] == "0.15"
-    assert legacy["planning_window"] == target["planning_window"]
-    for key in ("skills", "roles", "constraints", "preferences", "objectives", "solver"):
-        assert legacy[key] == target[key]
-    for old, new in zip(legacy["demand"], target["demand"], strict=True):
-        assert old.items() <= new.items()
-        assert new.get("minimum_people", 0) == (
-            old["required_people"]
-            if legacy["schema_version"] in {"0.1", "0.2"}
-            else old.get("minimum_people", 0)
-        )
-    results = []
-    for data in (legacy, target):
-        assert validate(data)["status"] == "VALID"
-        result = solve(data)
-        assert_response(result, result["status"])
-        assert result["status"] in {"OPTIMAL", "PARTIAL", "INFEASIBLE"}
-        if result["solution"] is not None:
-            checked = verify(data, result["solution"])
-            assert checked["status"] == ("PARTIAL" if result["status"] == "PARTIAL" else "VALID")
-            assert all(not item["proven_optimal"] for item in checked["objectives"])
-        results.append(result)
-    before, after = results
-    assert before["status"] == after["status"]
-    assert before["objectives"] == after["objectives"]
-    if before.get("shortage_summary") is not None:
-        for key in ("total_person_minutes", "proven_minimal"):
-            assert before["shortage_summary"][key] == after["shortage_summary"][key]
-    elif before["solution"] is not None:
-        assert after["shortage_summary"] == {
-            "total_person_minutes": 0,
-            "proven_minimal": True,
-            "shortages": [],
-        }
-    else:
-        assert after["shortage_summary"] is None
-    assert (legacy, target) == saved
-
-
-def test_original_candidate_ids_intervals_breaks_and_template_expansion_are_preserved():
-    def candidates(data):
-        return [
-            (c.id, c.employee_id, c.day, c.start, c.end, c.breaks, c.work_slots)
-            for c in normalize(data).candidates
-        ]
-
-    assert candidates(read_case("roster", "legacy")) == candidates(read_case("roster", "015"))
 
 
 @pytest.mark.parametrize("complete", [False, True])
@@ -106,17 +29,11 @@ def test_common_roster_fixture_keeps_partial_and_complete_meanings(complete):
 
 @pytest.mark.parametrize("order", tuple(itertools.permutations(METRICS)))
 def test_current_015_objective_order_matches_raw_json_enumeration(order):
-    legacy = legacy_tradeoff_request(order)
-    data = request(employees=("alice", "bob"))
-    for key in ("demand", "preferences", "objectives"):
-        data[key] = copy.deepcopy(legacy[key])
-    data["shift_candidates"][1]["segments"][0]["interval"]["end"] = legacy["shift_candidates"][1][
-        "interval"
-    ]["end"]
+    data = tradeoff_request(order)
     require_complete_demand(data)
     result = solve(data)
     assert_response(result, "OPTIMAL")
-    assert tuple(o["value"] for o in result["objectives"]) == exhaustive_roster_value(legacy)
+    assert tuple(o["value"] for o in result["objectives"]) == exhaustive_roster_value(data)
     assert verify(data, result["solution"])["status"] == "VALID"
 
 

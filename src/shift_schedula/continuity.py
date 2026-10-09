@@ -118,7 +118,7 @@ def facts(request, grid):
         try:
             validate_history(
                 {
-                    "schema_version": "0.6",
+                    "schema_version": "0.15",
                     "employees": [{"id": row["employee_id"], "history": anchor}],
                 },
                 replace(grid, start=start, end=end),

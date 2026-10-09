@@ -49,3 +49,51 @@ baseのOS行列相当（timezone / input / execution / 応答境界）は204件�
 隔離wheel/sdistと同梱業務回帰・型検査は全体pytestに含む。
 pre-commitと `mypy --strict examples/typed_api.py examples/typed_adapter.py` が成功した。
 この内部整理のWindows再実行は行っていない。既存のLinux/Windows CI設定は維持する。
+
+## 通常入口の単一契約切替
+
+#124の入口準備と、#125の候補保存往復が完了した後、通常実行・Schema・公開型を0.15に統一した。
+`validate/solve/verify/make_baseline`、AdapterのDraft/manifest/recordとCLIは、
+0.1〜0.14・未知版・版欠落・不正型を拒否する。失敗応答も0.15の形を持ち、
+原入力を架空の正常Requestへ補完しない。request_id・未実施の検証・nullの集計を保持する。
+Schema取得の既定値とURNは0.15だけで、旧版を指定したSchema APIはValueError、CLIは終了コード2。
+
+0.15のRequest/Response/solution/verification Schemaは整理前の内容と完全一致した。
+原需要・下限省略0・priority省略0・目的順・証明接頭辞・原区間・固定・重複期間の意味を変更しない。
+版で決まる分岐だけを整理し、assignment/roster・continuity有無・任意機能・backend能力・
+解の状態に応じた分岐を維持した。テンプレート生成IDの`0.2`は既存IDのハッシュ名前空間であり、
+旧契約の受付を残すものではない。完全需要のbase最小費用流とソルバーなし独立検証も維持する。
+
+`SchemaVersion/Request/Response/Solution/Verification`とstubは現在契約の形だけを公開する。
+旧専用のRequest01〜Request014、Responseの旧各版、旧候補・履歴の構築型を除去し、
+呼出側は公開Request/Response/SolutionまたはRequest015へ移した。
+勤務区間・休憩・履歴・制約・診断の業務構造は現在版で必要な共通型として保持する。
+
+### テストと一時資材の行先
+
+| 整理対象 | 切替後の検証 |
+| --- | --- |
+| 版だけ異なる同じ正常入力・全探索・CLI・型 | 0.15の同じ業務テストへ統合。技能AND、残余経路、競合、加算選好、辞書式目的、改ざん拒否を保持 |
+| 旧勤務候補・テンプレート・履歴の形状 | segments/segment_options/last_work_dayで同じ休憩・展開・DST・休息・連勤を検証。旧版だけの日跨ぎ禁止は現在版の受理条件に持ち込まない |
+| 旧版の基準の受理順・旧Response/Schema | 現在基準の原条件・元解の再検証と、旧版の明示拒否に置換 |
+| 不足・勤務量・希望日時・再計画・独立検証 | `test_partial_contract/test_contract_04`の数量・状態・証明・全探索・両再計画・反復保存・公開verifyを維持 |
+| 現行0.15の独立回帰 | `tests/test_contract_015_regression.py`へ分離し、base/cp-sat、既定値・空値・目的順・証明範囲を維持 |
+| 旧版・未知版・欠落版の通常入口 | `tests/test_single_contract.py`でAPI/CLI/Adapterの明示拒否、原入力非変更、失敗応答の契約を確認 |
+| 実ブラウザーの移行済みDraft | 現行の完全需要Draftの期間revision変更→確認失効→再確認→求解→保存→再読込を確認 |
+| 一回限りのRequest/Draft/record/app移行 | #109/#110/#125の固定PR・commit・SHA・受入結果を履歴に残し、scripts/migrate_*.py・専用テスト・旧fixture・CI専用ステップを撤去 |
+
+現在の固定代表は`tests/fixtures/contract-015/`、旧原SHAと移行先SHAは
+[比較台帳](contract-0.15-cases.json)に保存する。一回限りの原資材は
+[撤去前の固定commit](https://github.com/omitsuhashi/schedula/tree/d17a036a9790999c8182cdd319473d32368ddaec)
+から参照できる。履歴文書のコマンドは撤去前の手順として表示し、現在の実行手順と区別する。
+
+### 切替時の受け入れ結果
+
+macOS ARM64 / Python 3.14.8 / OR-Tools 9.15.6755 / lock固定で、生成物を消してから
+全体pytestを実行し、2,149 passed + 6 subtests、547.36秒、failure/error/skip 0を確認した。
+隔離sdistからの再構築wheelと同梱中核回帰、base/cp-satの隔離導入・公開型はこの全体検査に含む。
+旧版・未知版の実HTTP/API/CLI/Adapter境界は別途193件成功。
+実Chromiumは10 scenarios / 21 interactions / 25 response samples、page error 0で成功し、
+0.1〜0.14・未知版・版欠落の入力と旧応答拒否も検証した。
+Ruff/pre-commit、mypy strictのAPI/Adapter型例、deployのbash構文検査が成功した。
+Windows/Linuxの既存CI行列・skip拒否・配布とChromium検査は維持する。

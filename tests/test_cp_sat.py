@@ -197,7 +197,7 @@ def test_invalid_linked_input_rejected_before_solver(assignment_request, monkeyp
     assert result["solver"]["backend"] == "none"
 
 
-@pytest.mark.parametrize("assignment_request", ["0.1", "0.15"], indirect=True)
+@pytest.mark.parametrize("assignment_request", ["0.15"], indirect=True)
 @pytest.mark.parametrize(
     "backend, constraints, metric, selected, reason",
     [
@@ -537,7 +537,7 @@ request = json.loads((root / 'examples/assignment.json').read_text(encoding='utf
 result = shift_schedula.solve(request)
 assert result['status'] == 'OPTIMAL' and result['verification']['valid'] is True
 assert result['solver']['backend'] == 'min_cost_flow' and not schema_errors('response', result)
-complete = json.loads((root / 'tests/fixtures/contract-migration/assignment.015.json').read_text())
+complete = json.loads((root / 'tests/fixtures/contract-015/assignment.json').read_text())
 for backend in ('auto', 'min_cost_flow'):
     complete['solver']['backend'] = backend
     assert validate(complete)['status'] == 'VALID'
@@ -591,7 +591,7 @@ checked = verify(request, saved)
 assert checked['objectives'][0]['value'] == 0 and not checked['objectives'][0]['proven_optimal']
 assert not checked['shortage_summary']['proven_minimal']
 for kind in ('request','response','solution','verification'):
-    Draft202012Validator.check_schema(get_schema(kind, '0.4'))
+    Draft202012Validator.check_schema(get_schema(kind, '0.15'))
 partial_solution = {**saved, 'assignments': []}
 assert verify(request, partial_solution)['status'] == 'PARTIAL'
 invalid_solution = json.loads(json.dumps(saved))

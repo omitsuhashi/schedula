@@ -11,7 +11,7 @@ import pytest
 from jsonschema import Draft202012Validator
 
 from shift_schedula import InvalidInput, cp_sat, get_schema, make_baseline, solve, validate, verify
-from shift_schedula.contract import SCHEMA_VERSIONS, schema_errors
+from shift_schedula.contract import schema_errors
 from shift_schedula.engine import validate_response
 from shift_schedula.extensions import evaluate
 from shift_schedula.model import normalize
@@ -171,18 +171,14 @@ def test_baseline_roundtrip_preserves_history_and_hard_fixed_parts(mode):
     assert again["source_request"]["duty_balance"] == data["duty_balance"]
 
 
-def test_version_order_accepts_old_baselines_and_rejects_new_in_old():
+@pytest.mark.parametrize("version", [f"0.{i}" for i in range(1, 15)])
+def test_current_baseline_rejects_old_source_requests(version):
     data = example()
-    old = copy.deepcopy(data)
-    old["schema_version"] = "0.9"
-    old["duty_balance"][0]["evaluation_period"] = interval(1, 0, 1440)
-    old["duty_balance"][0]["intervals"] = [interval(1, 1200, 1440)]
-    baseline = make_baseline(old, solve(old)["solution"], "old")
-    assert validate({**data, "baseline": baseline})["status"] == "VALID"
-    old["baseline"] = make_baseline(data, solve(data)["solution"], "new")
-    result = validate(old)
+    baseline = make_baseline(data, solve(data)["solution"], "saved")
+    baseline["source_request"]["schema_version"] = version
+    result = validate({**data, "baseline": baseline})
     assert result["status"] == "INVALID_INPUT"
-    assert result["diagnostics"][0]["code"] == "UNSUPPORTED_BASELINE_VERSION"
+    assert result["diagnostics"][0]["code"] == "SCHEMA_VIOLATION"
 
 
 def test_sliding_fixed_replan_keeps_original_evaluation_and_explicit_history():
@@ -218,17 +214,12 @@ def test_sliding_fixed_replan_keeps_original_evaluation_and_explicit_history():
     )
 
 
-@pytest.mark.parametrize("version", ["0.9", "0.10"])
-def test_without_continuity_preserves_plan_only_metrics(version):
+def test_without_continuity_keeps_plan_only_metrics():
     data = cost_request()
-    data["schema_version"] = version
-    old = solve(data)
-    data["schema_version"] = "0.15"
-    new = solve(data)
-    assert_response(new, "OPTIMAL")
-    assert old["solution"] == new["solution"]
-    assert old["cost_summary"] == new["cost_summary"]
-    assert new["continuity_summary"] is None
+    result = solve(data)
+    assert_response(result, "OPTIMAL")
+    assert result["cost_summary"] is not None
+    assert result["continuity_summary"] is None
 
 
 @pytest.mark.parametrize(
@@ -536,7 +527,11 @@ def test_conflict_refinement_preserves_history_and_commitment_background():
 
 @pytest.mark.parametrize(
     "version",
-    [v for v in SCHEMA_VERSIONS if v not in {"0.10", "0.11", "0.12", "0.13", "0.14", "0.15"}],
+    [
+        v
+        for v in [f"0.{i}" for i in range(1, 15)]
+        if v not in {"0.10", "0.11", "0.12", "0.13", "0.14", "0.15"}
+    ],
 )
 def test_older_versions_reject_history_evaluation(version):
     data = example()

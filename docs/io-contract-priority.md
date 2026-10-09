@@ -1,5 +1,7 @@
 # 需要priorityと不足配分の契約0.5
 
+> 契約導入時の履歴仕様です。以下にある旧版の受付・型・コマンドは現在のサポート範囲ではありません。現在の全機能と意味は[現行契約0.15](io-contract-current.md)、変更と終了の条件は[サポート方針](contract-support.md)を参照してください。
+
 [Issue #66](https://github.com/omitsuhashi/schedula/issues/66)に基づき、
 需要ごとの任意 `priority` を追加する。親Issue #58で版を採番した。
 0.1〜0.4のSchemaと意味は変更しない。0.5は0.4の勤務条件・未完成の基準計画・公開検証を引き継ぐ。

@@ -1,5 +1,7 @@
 # 利用入口を0.15へ移す準備の記録
 
+> 履歴記録: 旧版からの明示移行を検証した際の手順と結果です。一時スクリプト・専用試験・旧fixtureは検証後に撤去しました。原資材は[固定commit](https://github.com/omitsuhashi/schedula/tree/d17a036a9790999c8182cdd319473d32368ddaec)に保存されています。現在の通常入口は契約0.15だけを受理します。
+
 [Issue #124](https://github.com/omitsuhashi/schedula/issues/124) の勤務計画・Adapterの変更。
 基点は `0d17150b52567e4dff6850d38c7bd7dcd72d8f57`（PR #144）、配布版0.1.6、既存 `uv.lock`。
 旧版の通常受付・Schema・公開型・求解・独立検証は引き続き維持する。

@@ -1,5 +1,7 @@
 # 実績と確定勤務を引き継ぐ契約0.6
 
+> 契約導入時の履歴仕様です。以下にある旧版の受付・型・コマンドは現在のサポート範囲ではありません。現在の全機能と意味は[現行契約0.15](io-contract-current.md)、変更と終了の条件は[サポート方針](contract-support.md)を参照してください。
+
 [Issue #74](https://github.com/omitsuhashi/schedula/issues/74)の実装。
 0.6は0.5の需要優先度と0.4の勤務条件・未完成の計画・公開検証に、`roster` 専用の `continuity` を加える。
 不足総量→priority群ごとの不足→指定目的の順序を維持する。

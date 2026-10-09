@@ -1,7 +1,9 @@
 # Draft・manifest・実行記録の明示移行
 
+> 履歴記録: 旧版からの明示移行を検証した際の手順と結果です。一時スクリプト・専用試験・旧fixtureは検証後に撤去しました。原資材は[固定commit](https://github.com/omitsuhashi/schedula/tree/d17a036a9790999c8182cdd319473d32368ddaec)に保存されています。現在の通常入口は契約0.15だけを受理します。
+
 [Issue #110](https://github.com/omitsuhashi/schedula/issues/110) の入口は
-[scripts/migrate_adapter.py](../../scripts/migrate_adapter.py)。
+[scripts/migrate_adapter.py](https://github.com/omitsuhashi/schedula/blob/d17a036a9790999c8182cdd319473d32368ddaec/scripts/migrate_adapter.py)。
 [Request・解・基準計画の移行](contract-0.15-data.md)を再利用し、求解せず別出力を作る。
 旧契約を受理する導入commitと既存lockで実行する。通常のAdapter APIへ暗黙変換を追加しない。
 所有者の2026-10-09回答により、例・テスト以外の保存済みJSON・SQLiteはない。
@@ -93,7 +95,7 @@ manifestは明示された参照単位を検査し、移行後はfile欄を元�
 絶対/親参照・symlink・循環/重複参照・URL・暗黙探索を許可しない。
 出力は新規ファイルの原子保存だけ。参照元と履歴確認を含む原本、成功済み出力を変更しない。
 
-[tests/test_adapter_migration.py](../../tests/test_adapter_migration.py) で全旧版の分割/取り込み、
+[tests/test_adapter_migration.py](https://github.com/omitsuhashi/schedula/blob/d17a036a9790999c8182cdd319473d32368ddaec/tests/test_adapter_migration.py) で全旧版の分割/取り込み、
 全所有項目、複数所有元、確認保持/失効/未確認、未解決項目、原期間、履歴要確認、
 基準、保存記録・現在検証・再実行の新run_id、保存/再読込、パス・JSON・上限・保存失敗を確認する。
 既存CIのLinux/Windows × base/cp-satへ移行CLIを追加し、sdistからの再実行とskip拒否を維持する。
