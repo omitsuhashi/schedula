@@ -135,7 +135,7 @@ uv run --locked --extra cp-sat python -m shift_schedula solve examples/partial_r
 
 ## 再計画・期間別勤務量・希望日時と編集後の検証
 
-契約0.4のrosterは、担当済み枠を保持する `preserve_assigned` と固定・変更最小化を外す `rebuild`、
+現行0.15のrosterは、担当済み枠を保持する `preserve_assigned` と固定・変更最小化を外す `rebuild`、
 期間ごとの必須上下限 `scheduled_minutes_bounds`、`prefer_work` / `avoid_work` を扱います。
 同じ需要・業務条件・共通目的で方式ごとに `solve` を呼び、各案の不足・目的値・変更量と証明を比較します。
 
@@ -150,7 +150,7 @@ uv run --locked python -m shift_schedula verify examples/roster_conditions.json 
 全体案は不足0・`OPTIMAL`です。公開 `verify(request, solution)` はOR-Toolsなしで保存済み・編集済み解を検証し、
 `VALID` / `PARTIAL` / `INVALID_INPUT` / `INVALID_PLAN` を分けます。検証だけでは最適性を付与しません。
 公開 `make_baseline(request, solution, plan_id)` で固定条件を保持した次の基準へ変換し、
-`get_schema("request" | "response" | "solution" | "verification", "0.4")` でSchemaを取得できます。
+`get_schema("request" | "response" | "solution" | "verification")` でSchemaを取得できます。
 実績・確定勤務を引き継ぐ週・月境界の集計は[契約0.6](docs/io-contract-continuity.md)で利用できます。
 月末夜勤420分を過去120分・計画内300分へ分け、原区間と休憩を保持します。
 
@@ -307,16 +307,16 @@ PY
 | --- | --- | --- |
 | `OPTIMAL` | 検証成功を確認して解を採用する。指定した条件・候補・粒度・目的の範囲で最適 | 0 |
 | `FEASIBLE` | 検証成功と未証明の目的を確認し、採用または探索予算を増やして再計算する | 0 |
-| `PARTIAL` | 契約0.3〜0.15の未完成の計画。不足一覧・合計人分・`proven_minimal` を読み、需要充足と検証成功を区別する | 2 |
-| `INFEASIBLE` | 必須条件を満たす解がないと証明された。0.3では需要不足を許容しても計画を作れない。診断を確認する | 2 |
+| `PARTIAL` | 元需要に不足がある未完成の計画。不足一覧・合計人分・`proven_minimal` を読み、需要充足と検証成功を区別する | 2 |
+| `INFEASIBLE` | 必須条件を満たす解がないと証明された。需要下限を含む必須条件を満たす計画がない。診断を確認する | 2 |
 | `UNKNOWN` | 解も不可能性の証明もない。予算や問題規模を見直す | 2 |
 | `INVALID_INPUT` | `code` / `json_pointer` / `related_ids` / `facts` を基に入力を修正する | 2 |
 | `BACKEND_UNAVAILABLE` | `cp-sat` extra を導入して再実行する | 2 |
 | `INTERNAL_ERROR` | 解を採用せず、入力・エンジン版・診断を保存して調査する | 2 |
 
 解を返すのは独立検証に成功した `OPTIMAL` / `FEASIBLE` / `PARTIAL` だけです。
-0.1・0.2は完全充足を求め、0.3〜0.15が元需要を保持した不足付き計画を許容します。
-0.12の明示した最低人数は必須であり、その不足はPARTIALとして許容しません。
+完全充足は全需要へ `minimum_people = required_people` を明示します。
+下限を満たす不足はPARTIAL、必須下限違反は有効なPARTIALとして返しません。
 それ以外は `solution: null` / `objectives: []`。終了コード2だけでは状態を区別できません。
 `message` は補助説明で、プログラムでは `status` と診断の `code` で分岐します。
 次の2例は意図的に終了コード2となります。
