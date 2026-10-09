@@ -12,14 +12,11 @@ from shift_schedula.contract import InvalidInput
 from shift_schedula.engine import validate_response
 from shift_schedula.model import normalize
 from shift_schedula.verify import verify_plan, verify_solution
-from tests.roster_support import demand, interval, rule
-from tests.roster_support import legacy_request as request
+from tests.roster_support import demand, interval, request, rule
 from tests.support import assert_response
 from tests.test_cli import cli
 from tests.test_cp_sat import small_request, stamp
-from tests.test_extensions import fairness, selected
-from tests.test_extensions import legacy_baseline as baseline
-from tests.test_extensions import legacy_extended as extended
+from tests.test_extensions import baseline, fairness, selected
 from tests.test_objectives import control_search
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -27,12 +24,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def partial(data):
     data = copy.deepcopy(data)
-    data["schema_version"] = "0.3"
+    for item in data["demand"]:
+        item["minimum_people"] = 0
     return data
 
 
-def test_verification_merges_only_equal_adjacent_shortages(legacy_assignment_request):
-    data = partial(legacy_assignment_request)
+def test_verification_merges_only_equal_adjacent_shortages(assignment_request):
+    data = partial(assignment_request)
     data["demand"] = data["demand"][:1]
     data["demand"][0]["interval"]["end"] = "2026-10-05T12:00:00+09:00"
     data["demand"][0]["required_people"] = 2
@@ -67,12 +65,15 @@ def test_verification_merges_only_equal_adjacent_shortages(legacy_assignment_req
         ("later", 2),
     ]
     assert summary["shortages"][2]["interval"] == data["demand"][1]["interval"]
-    assert verify_solution(normalize({**data, "schema_version": "0.2"}), solution)[0]
+    complete = copy.deepcopy(data)
+    for item in complete["demand"]:
+        item["minimum_people"] = item["required_people"]
+    assert verify_solution(normalize(complete), solution)[0]
     assert verify_solution(problem, solution, require_complete=True)[0]
 
 
-def test_shortage_uses_elapsed_minutes_across_clock_change(legacy_assignment_request):
-    data = partial(legacy_assignment_request)
+def test_shortage_uses_elapsed_minutes_across_clock_change(assignment_request):
+    data = partial(assignment_request)
     window = {"start": "2026-11-01T00:00:00-04:00", "end": "2026-11-01T03:00:00-05:00"}
     data["planning_window"].update(window, timezone="America/New_York")
     data["demand"] = [{**data["demand"][0], "interval": window}]
@@ -123,8 +124,8 @@ def test_response_rejects_tampered_shortages(case):
 
 
 @pytest.mark.parametrize("case", ["skill", "double", "excess", "unspecified", "break", "fixed"])
-def test_partial_verification_does_not_relax_other_rules(legacy_assignment_request, case):
-    data = partial(legacy_assignment_request)
+def test_partial_verification_does_not_relax_other_rules(assignment_request, case):
+    data = partial(assignment_request)
     solution = solve(data)["solution"]
     code = {
         "skill": "SKILL_VIOLATION",
@@ -146,7 +147,7 @@ def test_partial_verification_does_not_relax_other_rules(legacy_assignment_reque
     elif case == "unspecified":
         data["demand"] = []
     elif case == "break":
-        data = partial(extended(request()))
+        data = partial(request())
         data["demand"] = [demand()]
         data["shift_candidates"][0]["segments"][0]["breaks"] = [interval(start=630, end=660)]
         solution = {
@@ -174,8 +175,8 @@ def test_partial_verification_does_not_relax_other_rules(legacy_assignment_reque
     assert code in {v["code"] for v in violations}
 
 
-def test_shortage_list_is_not_truncated(legacy_assignment_request):
-    data = partial(legacy_assignment_request)
+def test_shortage_list_is_not_truncated(assignment_request):
+    data = partial(assignment_request)
     data["planning_window"]["end"] = "2026-10-26T11:30:00+09:00"
     data["demand"] = [
         {**data["demand"][0], "id": f"d{i}", "interval": {"start": stamp(i), "end": stamp(i + 1)}}
@@ -192,9 +193,9 @@ def test_shortage_list_is_not_truncated(legacy_assignment_request):
 @pytest.mark.parametrize("backend", ["min_cost_flow", "cp_sat"])
 @pytest.mark.parametrize("mode", ["some", "all", "zero", "competition"])
 def test_common_backends_preserve_original_demand_and_empty_objectives(
-    legacy_assignment_request, backend, mode
+    assignment_request, backend, mode
 ):
-    data = partial(small_request(legacy_assignment_request, ["kitchen", "hall"], employees=2))
+    data = partial(small_request(assignment_request, ["kitchen", "hall"], employees=2))
     data["demand"] += [
         {
             **d,
@@ -229,11 +230,9 @@ def test_common_backends_preserve_original_demand_and_empty_objectives(
 
 
 @pytest.mark.parametrize("linked", [False, True])
-def test_small_assignment_matches_exhaustive_lexicographic_search(
-    legacy_assignment_request, linked
-):
+def test_small_assignment_matches_exhaustive_lexicographic_search(assignment_request, linked):
     for availability in [(True, True), (True, False), (False, False)]:
-        data = partial(small_request(legacy_assignment_request, ["kitchen", "hall"], employees=2))
+        data = partial(small_request(assignment_request, ["kitchen", "hall"], employees=2))
         data["demand"] += [
             {
                 **d,
@@ -261,6 +260,7 @@ def test_small_assignment_matches_exhaustive_lexicographic_search(
         if linked:
             data["objectives"].append({"id": "switches", "metric": "role_switches"})
             data["constraints"] = [rule("max_assigned_minutes", 30)]
+        original = copy.deepcopy(data)
         scores = []
         for plan in itertools.product([None, "kitchen", "hall"], repeat=4):
             if any(plan[e * 2 + s] and not availability[e] for e in range(2) for s in range(2)):
@@ -284,11 +284,43 @@ def test_small_assignment_matches_exhaustive_lexicographic_search(
             scores.append((shortage, penalty, switches) if linked else (shortage, penalty))
         for backend in ["cp_sat"] if linked else ["cp_sat", "min_cost_flow"]:
             data["solver"]["backend"] = backend
+            original["solver"]["backend"] = backend
             result = solve(data)
             assert (
                 result["shortage_summary"]["total_person_minutes"],
                 *[o["value"] for o in result["objectives"]],
             ) == min(scores)
+            validate_response(result, data)
+            assert verify_solution(normalize(data), result["solution"])[0] == []
+            assert data == original
+
+
+@pytest.mark.parametrize("kind", ["assignment", "roster"])
+@pytest.mark.parametrize("minimum", [0, 1, 2])
+def test_partial_keeps_explicit_minimum_mandatory(assignment_request, kind, minimum):
+    data = (
+        partial(small_request(assignment_request, ["kitchen"]))
+        if kind == "assignment"
+        else request()
+    )
+    if kind == "roster":
+        data["demand"] = [demand()]
+    data["demand"][0].update(required_people=2, minimum_people=minimum)
+    original = copy.deepcopy(data)
+    result = solve(data)
+    assert_response(result, "INFEASIBLE" if minimum == 2 else "PARTIAL")
+    assert data == original
+    if minimum < 2:
+        assert result["shortage_summary"]["total_person_minutes"] == 30
+        assert result["shortage_summary"]["shortages"][0]["minimum_people"] == minimum
+        validate_response(result, data)
+        assert verify_solution(normalize(data), result["solution"])[0] == []
+        violations, _, shortage = verify_plan(normalize(data), {"assignments": [], "shifts": []})
+        assert bool(violations) == bool(minimum)
+        if minimum:
+            assert "MINIMUM_DEMAND_VIOLATION" in {item["code"] for item in violations}
+        else:
+            assert shortage["total_person_minutes"] == 60
 
 
 @pytest.mark.parametrize("name", ["overnight", "split_roster", "fairness", "replan", "diagnosis"])
@@ -322,7 +354,7 @@ def test_partial_extended_roster_interactions(name):
     ],
 )
 def test_roster_shortage_keeps_hard_limits(kind, value):
-    data = partial(extended(request()))
+    data = partial(request())
     data["demand"] = [demand(end=690)]
     data["constraints"] = [rule(kind, value)]
     if kind == "max_consecutive_days":
@@ -347,7 +379,7 @@ def test_roster_shortage_keeps_hard_limits(kind, value):
 
 
 def test_shortage_precedes_fairness_and_workload():
-    data = partial(extended(request()))
+    data = partial(request())
     data["demand"] = [demand(people=2)]
     fairness(data, {"alice": 0})
     data["objectives"].append({"id": "work", "metric": "scheduled_minutes"})
@@ -386,9 +418,9 @@ def test_fixed_parts_can_make_partial_model_infeasible():
     ],
 )
 def test_cp_sat_time_limit_keeps_plan_and_proof_scope(
-    legacy_assignment_request, monkeypatch, statuses, expected, minimal, proofs
+    assignment_request, monkeypatch, statuses, expected, minimal, proofs
 ):
-    data = partial(legacy_assignment_request)
+    data = partial(assignment_request)
     data["employees"][0]["availability"] = []
     data["solver"]["backend"] = "cp_sat"
     calls, _ = control_search(monkeypatch, statuses)
@@ -402,8 +434,8 @@ def test_cp_sat_time_limit_keeps_plan_and_proof_scope(
         assert result["shortage_summary"]["proven_minimal"] == minimal
 
 
-def test_flow_timeout_returns_verified_partial_prefix(legacy_assignment_request, monkeypatch):
-    data = partial(legacy_assignment_request)
+def test_flow_timeout_returns_verified_partial_prefix(assignment_request, monkeypatch):
+    data = partial(assignment_request)
     augment = flow.augment
     calls = []
 
@@ -424,9 +456,9 @@ def test_flow_timeout_returns_verified_partial_prefix(legacy_assignment_request,
 
 @pytest.mark.parametrize("objectives", [False, True])
 def test_zero_shortage_proves_minimality_even_with_native_feasible(
-    legacy_assignment_request, monkeypatch, objectives
+    assignment_request, monkeypatch, objectives
 ):
-    data = partial(legacy_assignment_request)
+    data = partial(assignment_request)
     data["solver"]["backend"] = "cp_sat"
     if not objectives:
         data["objectives"] = data["preferences"] = []
@@ -440,8 +472,8 @@ def test_zero_shortage_proves_minimality_even_with_native_feasible(
     }
 
 
-def test_solver_shortage_tampering_is_internal_error(legacy_assignment_request, monkeypatch):
-    data = partial(legacy_assignment_request)
+def test_solver_shortage_tampering_is_internal_error(assignment_request, monkeypatch):
+    data = partial(assignment_request)
     run = flow.run
 
     def tampered(problem):

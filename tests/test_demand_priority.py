@@ -9,18 +9,18 @@ import pytest
 from shift_schedula import cp_sat, get_schema, make_baseline, solve, verify
 from shift_schedula.contract import InvalidInput
 from shift_schedula.engine import validate_response
-from tests.roster_support import demand, interval
-from tests.roster_support import legacy_request as request
+from tests.roster_support import demand, interval, request
 from tests.support import assert_response
 from tests.test_cli import cli
 from tests.test_cp_sat import small_request
-from tests.test_extensions import legacy_extended as extended
 from tests.test_objectives import control_search
 
 
 def assignment(data, priorities=(10, 0), employees=1):
     data = small_request(data, ["kitchen"], employees=employees)
-    data["schema_version"] = "0.5"
+    data["schema_version"] = "0.15"
+    for item in data["demand"]:
+        item.pop("minimum_people", None)
     for role in data["roles"]:
         role["required_skills"] = []
     data["demand"] = [
@@ -41,8 +41,8 @@ def assignment(data, priorities=(10, 0), employees=1):
 
 
 @pytest.mark.parametrize("reverse", [False, True])
-def test_important_demand_beats_preference_and_id_order(legacy_assignment_request, reverse):
-    data = assignment(legacy_assignment_request)
+def test_important_demand_beats_preference_and_id_order(assignment_request, reverse):
+    data = assignment(assignment_request)
     if reverse:
         data["demand"].reverse()
         data["roles"].reverse()
@@ -67,8 +67,7 @@ def test_important_demand_beats_preference_and_id_order(legacy_assignment_reques
 
 
 def total_first():
-    data = extended(request())
-    data["schema_version"] = "0.5"
+    data = request()
     data["demand"] = [
         {**demand(end=630), "priority": 10},
         {**demand(start=630, end=690, role="hall"), "priority": 0},
@@ -84,7 +83,7 @@ def total_first():
     return data
 
 
-@pytest.mark.parametrize("version", ["0.5", "0.7", "0.8"])
+@pytest.mark.parametrize("version", ["0.5", "0.7", "0.8", "0.15"])
 def test_total_shortage_precedes_priority_and_survives_replanning(version):
     data = total_first()
     data["schema_version"] = version
@@ -108,8 +107,8 @@ def test_total_shortage_precedes_priority_and_survives_replanning(version):
 
 @pytest.mark.parametrize("priorities", [(0, 1), (1, 0), (3, 2), (0, 0)])
 @pytest.mark.parametrize("employees", [1, 2])
-def test_small_exhaustive_oracle(legacy_assignment_request, priorities, employees):
-    data = assignment(legacy_assignment_request, priorities, employees)
+def test_small_exhaustive_oracle(assignment_request, priorities, employees):
+    data = assignment(assignment_request, priorities, employees)
     window = data["planning_window"]
     window["end"] = window["end"].replace("11:30", "12:00")
     for d in data["demand"]:
@@ -124,6 +123,7 @@ def test_small_exhaustive_oracle(legacy_assignment_request, priorities, employee
             "limit_minutes": 30,
         }
     ]
+    original = copy.deepcopy(data)
     levels = sorted(set(priorities), reverse=True)
     best = None
     for cells in itertools.product((None, "kitchen", "hall"), repeat=employees * 2):
@@ -155,6 +155,9 @@ def test_small_exhaustive_oracle(legacy_assignment_request, priorities, employee
         result["objectives"][0]["value"],
     )
     assert actual == best
+    validate_response(result, data)
+    assert verify(data, result["solution"])["verification"]["valid"] is True
+    assert data == original
 
 
 @pytest.mark.parametrize(
@@ -166,11 +169,11 @@ def test_small_exhaustive_oracle(legacy_assignment_request, priorities, employee
         (("OPTIMAL", "OPTIMAL", "OPTIMAL", "FEASIBLE"), (True, True, True)),
     ],
 )
-@pytest.mark.parametrize("version", ["0.5", "0.7", "0.8"])
+@pytest.mark.parametrize("version", ["0.5", "0.7", "0.8", "0.15"])
 def test_time_limit_proves_only_reached_prefix(
-    legacy_assignment_request, monkeypatch, statuses, proofs, version
+    assignment_request, monkeypatch, statuses, proofs, version
 ):
-    data = assignment(legacy_assignment_request)
+    data = assignment(assignment_request)
     data["schema_version"] = version
     calls, _ = control_search(monkeypatch, statuses)
     result = solve(data)
@@ -186,8 +189,8 @@ def test_time_limit_proves_only_reached_prefix(
     assert reached == min(2, len(statuses) - 1)
 
 
-def test_shared_budget_and_tampered_priority_rejected(legacy_assignment_request, monkeypatch):
-    data = assignment(legacy_assignment_request)
+def test_shared_budget_and_tampered_priority_rejected(assignment_request, monkeypatch):
+    data = assignment(assignment_request)
     module, _ = cp_sat.load_backend()
     search = module.CpSolver.solve
     clock, limits = [0], []
@@ -232,6 +235,7 @@ def test_shared_budget_and_tampered_priority_rejected(legacy_assignment_request,
 
 def test_old_contracts_reject_priority_and_default_is_compatible(legacy_assignment_request):
     data = assignment(legacy_assignment_request, (0, 0))
+    data["schema_version"] = "0.5"
     for version in ("0.1", "0.2", "0.3", "0.4"):
         assert solve({**data, "schema_version": version})["status"] == "INVALID_INPUT"
     for value in (-1, True, 1.5, "1"):
@@ -255,8 +259,40 @@ def test_old_contracts_reject_priority_and_default_is_compatible(legacy_assignme
     assert solve(empty)["priority_summary"] == {"groups": []}
 
 
-def test_priority_cli_and_schemas(legacy_assignment_request, tmp_path):
-    data = assignment(legacy_assignment_request)
+@pytest.mark.parametrize("minimum", [None, 0])
+@pytest.mark.parametrize("priority", [None, 0])
+@pytest.mark.parametrize("backend", ["auto", "cp_sat", "min_cost_flow"])
+def test_current_defaults_keep_shortage_and_flow(assignment_request, minimum, priority, backend):
+    data = assignment(assignment_request, (0, 0))
+    for item in data["demand"]:
+        if priority is None:
+            item.pop("priority")
+        if minimum is not None:
+            item["minimum_people"] = minimum
+    data["solver"]["backend"] = backend
+    original = copy.deepcopy(data)
+    result = solve(data)
+    assert_response(result, "PARTIAL")
+    assert result["solver"]["backend"] == ("cp_sat" if backend == "cp_sat" else "min_cost_flow")
+    assert result["shortage_summary"]["total_person_minutes"] == 30
+    assert result["shortage_summary"]["shortages"][0]["minimum_people"] == 0
+    assert result["priority_summary"] == {
+        "groups": [{"priority": 0, "total_person_minutes": 30, "proven_minimal": True}]
+    }
+    assert result["objectives"][0]["value"] == 0
+    assert verify(data, result["solution"])["verification"]["valid"] is True
+    assert data == original
+
+
+@pytest.mark.parametrize("value", [-1, True, 1.5, "1"])
+def test_current_rejects_invalid_priority(assignment_request, value):
+    data = assignment(assignment_request)
+    data["demand"][0]["priority"] = value
+    assert_response(solve(data), "INVALID_INPUT")
+
+
+def test_priority_cli_and_schemas(assignment_request, tmp_path):
+    data = assignment(assignment_request)
     path = tmp_path / "request.json"
     path.write_text(json.dumps(data), encoding="utf-8")
     result = cli("solve", str(path))
@@ -272,7 +308,7 @@ def test_priority_cli_and_schemas(legacy_assignment_request, tmp_path):
         is None
     )
     for kind in ("request", "response", "solution", "verification"):
-        assert json.loads(cli("schema", kind, "--schema-version", "0.5").stdout) == get_schema(
-            kind, "0.5"
+        assert json.loads(cli("schema", kind, "--schema-version", "0.15").stdout) == get_schema(
+            kind, "0.15"
         )
     assert Path(__file__).resolve().parents[1].joinpath("examples/demand_priority.json").exists()

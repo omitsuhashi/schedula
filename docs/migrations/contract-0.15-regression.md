@@ -82,15 +82,22 @@ CLI/API・実行制御・logging・タイムゾーンの回帰は、この共通
 検出した違反と検証済み/無効の結果を保って解を拒否する。
 
 旧版と0.15を比較する明示パラメータは残す。
-旧版固有の受理範囲・移行元・各版のSchema/型検査と、後続で移す不足/priorityの回帰は
-`legacy_assignment_request` を明示する。`test_partial_plans`、`test_partial_contract`、
-`test_demand_priority`、`test_contract_04`、`test_minimum_demand` の旧版部分、
+不足/priorityの通常回帰は0.15の共通fixtureへ移した。
+`test_partial_plans.partial` は原需要の下限だけを明示0にし、
+`test_demand_priority.assignment` は下限省略の既定0を使う。省略/0・両backend・
+原JSON全探索・入力非変更・改ざんの独立拒否と、正の下限を満たすPARTIALを保持する。
+`test_partial_contract` の合成応答も0.15の必須集計・各不足行の下限を持ち、
+状態矛盾・数量・証明・10,001行・診断非適用を検証する。
+旧版固有の受理範囲・移行元・各版のSchema/型検査は、版・legacy fixtureを明示する。
+`test_partial_contract` の0.3導入/完全基準/旧Response/CLI、
+`test_demand_priority` の0.4/0.5の互換比較・0.5/0.7/0.8の明示比較、
+`test_contract_04`、`test_minimum_demand` の旧版部分、
 `test_contract_migration` と旧版の条件拒否が該当する。
 これらの業務回帰の0.15化と旧版受理の拒否への置換は、対応表の後続責務を維持する。
 勤務計画でも `legacy_request` / `legacy_candidate` / `legacy_template` を明示し、
 `test_roster_contract` の0.1固有の受理範囲、`test_contract_migration` の旧入力、
 objectives/extensionsの通常回帰は0.15へ移し、旧形式の比較・基準受理は
-legacyヘルパーを呼出側で明示する。後続で移すpartial/priority/再計画/勤務評価/日数の形状を保つ。
+legacyヘルパーを呼出側で明示する。後続で移す期間別勤務量/勤務希望/継続/診断/勤務評価/日数の形状を保つ。
 診断と移行が使う0.2入力は `legacy_extended_request` として残す。
 これらは通常の0.15fixtureの代替ではなく、#124の後続と#111の拒否への切替対象である。
 下限省略/明示0の既定値は `test_current_015_defaults_and_empty_output_structure` が別に検証する。
@@ -100,9 +107,9 @@ legacyヘルパーを呼出側で明示する。後続で移すpartial/priority/
 | assignment / cp_sat / verification | 全探索、技能AND、二重配置、競合需要、残余経路、加算選好、改ざん拒否 | 完全充足に明示下限。版だけ異なる同じ全探索は0.15へ統合可 | #108/#124。base完全充足・不足許容の両方を維持 |
 | roster / roster_contract / roster_verification / extended_roster | 同時最適化、候補展開、待機・休憩、勤務量・連勤・休息、夜勤・分割・履歴 | interval/breaksをsegmentsへ。テンプレートIDの保持と履歴要確認は移行試験 | #109/#124。旧版だけの日跨ぎ拒否は移行元検査へ |
 | objectives / extensions / combined | 辞書式目的順、全探索、ソフト目標0と未指定、基準・固定・変更量、証明接頭辞 | 通常の目的・公平性・原基準を0.15化。旧比較・基準受理はlegacyを明示 | #109/#124。`test_objectives` / `test_extensions` の全関数を保持。不足の先行段階・総期限・下限と、現行基準の変更量・固定・改ざんを確認 |
-| partial_plans / partial_contract | 元需要、不足の実経過人分、需要以外の必須条件、未証明解、空解、応答矛盾 | 各不足行へminimum_people=0。初期版の完全充足と統合しない | #124/#111。旧Responseは過去証拠として別保存 |
+| partial_plans / partial_contract | 元需要、不足の実経過人分、需要以外の必須条件、未証明解、空解、応答矛盾 | 通常入力・入れ子基準・合成応答を0.15化し、各不足行のminimum_people=0と必須集計を保持。初期版の完全充足と統合しない | #124/#111。全既存関数を保持。下限0/1/2、全探索・独立検証・改ざん拒否と旧Responseの明示境界を維持 |
 | contract_04 / public_api | 期間別上下限、勤務希望、未完成基準、preserve_assigned/rebuild、公開verify/make_baseline | 版ごとの同じ候補数・Schema型検査は現行型へ統合可 | #124/#111。型・CLI・入れ子基準を同時変更 |
-| demand_priority / minimum_demand | 不足総量→priority群→目的、正の下限、下限違反、予算切れ、許可変更案 | 省略/明示0と正の下限を区別。flowの一般下限対応を追加しない | #108/#124。新backend能力に合わせた試験も同じPR |
+| demand_priority / minimum_demand | 不足総量→priority群→目的、正の下限、下限違反、予算切れ、許可変更案 | priorityの通常入力を0.15化。省略/明示0と正の下限を区別し、旧版は比較パラメータで明示。flowの一般下限対応を追加しない | #108/#124。全既存関数を保持。0.15の保存/再計画・証明・省略/0・不正値・CLI/Schemaと、共有ヘルパーを使う0.12の下限試験を同時確認 |
 | continuity / overlap_replanning | 原区間と勤務日、文脈、実績・確定勤務、重複Wだけの比較 | 版番号だけを変え、原履歴・基準を自動移動しない | #109/#124。DST・期間端・未確認履歴を維持 |
 | diagnosis / conflict_refinement | 元条件の不可能性、背景条件、包含極小性、UNKNOWN、明示許可編集 | 完全充足の人数編集と下限の連動、元Responseは証明非転記 | #109/#124。編集・診断の意味を削除しない |
 | roster_metrics / continuity_duty_balance | 整数費用、区間和集合、0目標と対象外、原実績の偏差 | 旧版の同尺度を0.15へ。勤務回数へ置換しない | #124。値・目的順・境界・不正の全探索を維持 |

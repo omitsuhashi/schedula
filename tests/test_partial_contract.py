@@ -1,4 +1,4 @@
-"""契約の合成応答を検証する。0.3ソルバーの実行結果ではない。"""
+"""不足の合成応答と、明示した旧版の受理境界を検証する。"""
 
 import copy
 import json
@@ -18,10 +18,10 @@ from tests.test_extensions import legacy_baseline as baseline
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def result_example(status):
+def result_example(status, version="0.15"):
     result = response("contract_example", status)
     result.update(
-        schema_version="0.3",
+        schema_version=version,
         fairness_summary=None,
         change_summary=None,
         diagnosis_result=None,
@@ -62,6 +62,28 @@ def result_example(status):
                 }
             ],
         }
+    if version == "0.15":
+        result.update(
+            priority_summary=None,
+            continuity_summary=None,
+            cost_summary=None,
+            duty_balance_summary=None,
+            day_count_summary=None,
+            shift_count_balance_summary=None,
+        )
+        if result["solution"] is not None:
+            summary = result["shortage_summary"]
+            for row in summary["shortages"]:
+                row["minimum_people"] = 0
+            result["priority_summary"] = {
+                "groups": [
+                    {
+                        "priority": 0,
+                        "total_person_minutes": summary["total_person_minutes"],
+                        "proven_minimal": summary["proven_minimal"],
+                    }
+                ]
+            }
     return result
 
 
@@ -140,6 +162,7 @@ def test_semantics_reject_contradictory_values(case):
         }
     elif case == "proof_order":
         result["shortage_summary"]["proven_minimal"] = True
+        result["priority_summary"]["groups"][0]["proven_minimal"] = True
         result["objectives"].append(
             {"id": "changes", "metric": "role_switches", "value": 0, "proven_optimal": True}
         )
@@ -155,6 +178,7 @@ def test_semantics_reject_contradictory_values(case):
 def test_partial_optimality_is_separate_from_completeness(proven):
     result = result_example("PARTIAL")
     result["shortage_summary"]["proven_minimal"] = proven
+    result["priority_summary"]["groups"][0]["proven_minimal"] = proven
     result["objectives"][0]["proven_optimal"] = proven
     validate_response(result)
     result["objectives"] = []
@@ -168,6 +192,7 @@ def test_shortages_are_not_limited_by_diagnostic_count():
         {**row, "demand_id": f"demand_{i}"} for i in range(10001)
     ]
     result["shortage_summary"]["total_person_minutes"] = 60 * 10001
+    result["priority_summary"]["groups"][0]["total_person_minutes"] = 60 * 10001
     validate_response(result)
 
 
@@ -206,11 +231,15 @@ def test_version_three_preserves_extended_input_semantics(name):
 
 
 @pytest.mark.parametrize("case", ["history", "fairness", "fixed", "diagnosis"])
-def test_extended_invalid_inputs_still_fail_before_execution_gate(case):
-    request = json.loads(
-        (ROOT / "tests/fixtures/contract-migration/replan.legacy.json").read_text()
+@pytest.mark.parametrize("version", ["0.3", "0.15"])
+def test_extended_invalid_inputs_still_fail_before_execution_gate(case, version):
+    path = (
+        "examples/replan.json"
+        if version == "0.15"
+        else "tests/fixtures/contract-migration/replan.legacy.json"
     )
-    request["schema_version"] = "0.3"
+    request = json.loads((ROOT / path).read_text())
+    request["schema_version"] = version
     if case == "history":
         request["employees"][0]["history"]["last_work_day"] = "2026-10-05"
     elif case == "fairness":
@@ -226,7 +255,7 @@ def test_extended_invalid_inputs_still_fail_before_execution_gate(case):
             ],
         }
     result = solve(request)
-    assert result["schema_version"] == "0.3" and result["status"] == "INVALID_INPUT"
+    assert result["schema_version"] == version and result["status"] == "INVALID_INPUT"
     assert result["shortage_summary"] is None
     validate_response(result)
 
@@ -253,29 +282,30 @@ def test_baseline_requires_complete_plan_and_preserves_old_version_boundary():
     assert any(d["code"] == "DEMAND_SHORTAGE" for d in error.value.diagnostics)
 
 
-def test_partial_diagnosis_never_searches_changes(legacy_assignment_request):
-    legacy_assignment_request["schema_version"] = "0.3"
-    legacy_assignment_request["diagnosis"] = {
+def test_partial_diagnosis_never_searches_changes(assignment_request):
+    for item in assignment_request["demand"]:
+        item["minimum_people"] = 0
+    assignment_request["diagnosis"] = {
         "time_limit_seconds": 1,
         "max_suggestions": 1,
         "allowed_changes": [],
     }
     result = result_example("PARTIAL")
     result["diagnosis_result"] = diagnosis.diagnose(
-        legacy_assignment_request,
+        assignment_request,
         "PARTIAL",
         lambda _: pytest.fail("変更案を探索してはいけません。"),
     )
     detail = result["diagnosis_result"]
     assert detail["status"] == "NOT_APPLICABLE" and detail["reason"] == "ORIGINAL_PARTIAL"
     assert detail["conflict"] is None and detail["suggestions"] == []
-    codes = {item["code"] for item in diagnosis.conditions(legacy_assignment_request)}
+    codes = {item["code"] for item in diagnosis.conditions(assignment_request)}
     assert "DEMAND_LIMIT_AND_SINGLE_ASSIGNMENT" in codes
     assert "EXACT_DEMAND_AND_SINGLE_ASSIGNMENT" not in codes
     validate_response(result)
-    assert diagnosis.validate_result(legacy_assignment_request, result) == []
+    assert diagnosis.validate_result(assignment_request, result) == []
     detail["reason"] = "ORIGINAL_FEASIBLE"
-    assert diagnosis.validate_result(legacy_assignment_request, result)
+    assert diagnosis.validate_result(assignment_request, result)
     assert schema_errors("response", result)
 
 
@@ -298,11 +328,11 @@ def test_full_response_with_original_request_and_legacy_boundaries(legacy_assign
         validate_response(legacy, legacy_assignment_request)
     # 元入力と合わない合成応答は独立検証で拒否する。
     with pytest.raises(InvalidInput):
-        validate_response(result_example("PARTIAL"), legacy_assignment_request)
+        validate_response(result_example("PARTIAL", "0.3"), legacy_assignment_request)
     # 完全な配置に架空の不足一覧を付けても照合をすり抜けさせない。
     legacy["schema_version"] = "0.3"
     legacy["status"] = "PARTIAL"
-    legacy["shortage_summary"] = result_example("PARTIAL")["shortage_summary"]
+    legacy["shortage_summary"] = result_example("PARTIAL", "0.3")["shortage_summary"]
     legacy["shortage_summary"]["proven_minimal"] = True
     with pytest.raises(InvalidInput) as error:
         validate_response(legacy, legacy_assignment_request)
