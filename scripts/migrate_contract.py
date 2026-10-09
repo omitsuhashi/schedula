@@ -237,7 +237,7 @@ def main(argv=None):
             )
             else "INVALID_INPUT"
         )
-        print(json.dumps({"status": status, "diagnostics": diagnostics}, ensure_ascii=False))
+        print(json.dumps({"status": status, "diagnostics": diagnostics}))
         return 2
 
 

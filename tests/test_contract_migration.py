@@ -302,7 +302,10 @@ def test_cli_strict_json_failure_leaves_no_output(tmp_path, raw, capsys):
 
 
 @pytest.mark.parametrize("option", ["--solution", "--response", "--history-confirmations"])
-def test_cli_multiple_stdin_inputs_return_json_without_creating_output(tmp_path, option):
+def test_cli_multiple_stdin_inputs_return_json_without_creating_output(
+    tmp_path, option, monkeypatch
+):
+    monkeypatch.setenv("PYTHONIOENCODING", "ascii")
     target = tmp_path / "output.json"
     result = subprocess.run(
         [
@@ -323,6 +326,7 @@ def test_cli_multiple_stdin_inputs_return_json_without_creating_output(tmp_path,
     status = json.loads(result.stdout)
     assert status["status"] == "INVALID_INPUT"
     assert status["diagnostics"][0]["code"] == "INVALID_MIGRATION_INPUT"
+    assert status["diagnostics"][0]["message"] == "標準入力は一つの入力だけに指定します。"
     assert not target.exists()
 
 
