@@ -1,4 +1,4 @@
-"""契約0.13の分類・休日・並び・日群を原区間と全探索で確認する。"""
+"""契約0.15の分類・休日・並び・日群を原区間と全探索で確認する。"""
 
 import copy
 import itertools
@@ -25,9 +25,30 @@ from tests.test_objectives import control_search
 
 
 def example(days=9, employees=("alice",)):
-    data = days_example(days, employees)
-    data["schema_version"] = "0.13"
-    return data
+    return days_example(days, employees)
+
+
+@pytest.mark.parametrize("minimum", [0, 1])
+def test_forbidden_successions_keep_mandatory_demand_without_relaxing_rules(minimum):
+    data = example()
+    data["shift_categories"] = [category("all")]
+    data["constraints"] = [
+        pattern(
+            "forbidden_shift_successions",
+            from_category_id="all",
+            to_category_id="all",
+            day_offset=1,
+        )
+    ]
+    data["demand"] = [demand(2) | {"minimum_people": 1}, demand(3) | {"minimum_people": minimum}]
+    saved = copy.deepcopy(data)
+    result = solve(data)
+    assert_response(result, "INFEASIBLE" if minimum else "PARTIAL")
+    if not minimum:
+        assert result["shortage_summary"]["total_person_minutes"] == 30
+        assert verify(data, result["solution"])["status"] == "PARTIAL"
+        assert_pattern_violation(data, by_days(data, 2, 3))
+    assert data == saved
 
 
 def pattern(kind, first=2, last=5, **fields):
@@ -436,8 +457,10 @@ def test_shared_search_budget_and_proofs_with_pattern_conditions(monkeypatch, st
     assert all(not o["proven_optimal"] for o in result["objectives"])
 
 
-def test_public_schemas_types_cli_and_diagnosis_edits(tmp_path):
+@pytest.mark.parametrize("version", ["0.13", "0.15"])
+def test_public_schemas_types_cli_and_diagnosis_edits(tmp_path, version):
     data = example()
+    data["schema_version"] = version
     data["constraints"] = [pattern("min_consecutive_days_off", min_days=2)]
     data["shift_categories"] = [category("all")]
     request_path = tmp_path / "request.json"
@@ -449,20 +472,21 @@ def test_public_schemas_types_cli_and_diagnosis_edits(tmp_path):
             [sys.executable, "-m", "shift_schedula", *args], capture_output=True, text=True
         )
         assert completed.returncode == 0, completed.stdout
-        assert json.loads(completed.stdout)["schema_version"] == "0.13"
+        assert json.loads(completed.stdout)["schema_version"] == version
     for kind in ("request", "response", "solution", "verification"):
-        schema = get_schema(kind, "0.13")
+        schema = get_schema(kind, version)
         Draft202012Validator.check_schema(schema)
         completed = subprocess.run(
-            [sys.executable, "-m", "shift_schedula", "schema", kind, "--schema-version", "0.13"],
+            [sys.executable, "-m", "shift_schedula", "schema", kind, "--schema-version", version],
             capture_output=True,
             text=True,
         )
         assert completed.returncode == 0
         assert json.loads(completed.stdout) == schema
-    assert types.Request013.__required_keys__ == set(get_schema("request", "0.13")["required"])
-    assert set(get_type_hints(types.Request013)) == set(get_schema("request", "0.13")["properties"])
-    assert get_args(get_type_hints(types.Request013)["schema_version"]) == ("0.13",)
+    request_type = types.Request013 if version == "0.13" else types.Request015
+    assert request_type.__required_keys__ == set(get_schema("request", version)["required"])
+    assert set(get_type_hints(request_type)) == set(get_schema("request", version)["properties"])
+    assert get_args(get_type_hints(request_type)["schema_version"]) == (version,)
     data["diagnosis"] = {
         "time_limit_seconds": 1,
         "max_suggestions": 1,

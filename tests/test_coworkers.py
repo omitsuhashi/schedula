@@ -1,4 +1,4 @@
-"""契約0.14の同時勤務を原区間・小規模全探索と公開入口で照合する。"""
+"""契約0.15の同時勤務を原区間・小規模全探索と公開入口で照合する。"""
 
 import copy
 import itertools
@@ -25,7 +25,6 @@ from tests.test_objectives import control_search
 
 def example():
     data = days_example(1, ("trainee", "mentor_a", "mentor_b"))
-    data["schema_version"] = "0.14"
     data["request_id"] = "coworkers_example"
     data["skills"] = [{"id": "service", "label": "担当技能"}]
     data["employees"][0]["skills"] = [{"skill_id": "service", "level": 1}]

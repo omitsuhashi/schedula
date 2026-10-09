@@ -6,20 +6,20 @@ from pathlib import Path
 
 import pytest
 
-from shift_schedula import diagnosis, solve
+from shift_schedula import cp_sat, diagnosis, solve, verify
 from shift_schedula.contract import InvalidInput, get_schema
 from shift_schedula.engine import validate_response
 from shift_schedula.model import normalize
 from shift_schedula.verify import verify_solution
-from tests.roster_support import demand, rule
+from tests.roster_support import complete_demand as demand
+from tests.roster_support import request, rule
 from tests.support import assert_response
-from tests.test_extended_roster import legacy_extended_request as extended_request
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def impossible(mode="roster"):
-    data = extended_request()
+    data = request()
     data["demand"] = [demand(people=2)]
     data["diagnosis"] = {
         "time_limit_seconds": 10,
@@ -27,11 +27,17 @@ def impossible(mode="roster"):
         "allowed_changes": [
             {
                 "id": "one_person",
-                "edits": [{"json_pointer": "/demand/0/required_people", "value": 1}],
+                "edits": [
+                    {"json_pointer": "/demand/0/required_people", "value": 1},
+                    {"json_pointer": "/demand/0/minimum_people", "value": 1},
+                ],
             },
             {
                 "id": "unchanged",
-                "edits": [{"json_pointer": "/demand/0/required_people", "value": 2}],
+                "edits": [
+                    {"json_pointer": "/demand/0/required_people", "value": 2},
+                    {"json_pointer": "/demand/0/minimum_people", "value": 2},
+                ],
             },
         ],
     }
@@ -59,6 +65,8 @@ def test_allowed_change_is_a_separate_verified_plan(mode):
     modified = suggestion["modified_request"]
     assert suggestion["option_id"] == "one_person"
     assert modified["demand"][0]["required_people"] == 1
+    assert modified["demand"][0]["minimum_people"] == 1
+    assert modified["schema_version"] == suggestion["response"]["schema_version"] == "0.15"
     assert "diagnosis" not in modified
     assert 0 < modified["solver"]["time_limit_seconds"] <= 10
     assert_response(suggestion["response"], "OPTIMAL")
@@ -79,7 +87,7 @@ def test_allowed_change_is_a_separate_verified_plan(mode):
 @pytest.mark.parametrize("case", ["skills", "candidates", "scheduled", "consecutive", "rest"])
 def test_conflict_tracks_competing_and_joint_conditions(case):
     data = impossible()
-    data["demand"][0]["required_people"] = 1
+    data["demand"][0].update(required_people=1, minimum_people=1)
     data["diagnosis"]["allowed_changes"] = []
     if case == "skills":
         data["demand"].append({**data["demand"][0], "id": "hall_need", "role_id": "hall"})
@@ -100,8 +108,12 @@ def test_conflict_tracks_competing_and_joint_conditions(case):
     assert_response(result, "INFEASIBLE")
     conditions = result["diagnosis_result"]["conflict"]["conditions"]
     pointers = {condition["json_pointer"] for condition in conditions}
-    assert "/demand/0" in pointers and "/employees/0/skills" in pointers
-    assert "/shift_candidates" in pointers
+    background = {
+        condition["json_pointer"]
+        for condition in result["diagnosis_result"]["conflict"]["background_conditions"]
+    }
+    assert "/demand/0" in pointers and "/employees/0/skills" in background
+    assert "/shift_candidates" in background
     if case in {"scheduled", "consecutive", "rest"}:
         assert "/constraints/0" in pointers
     assert result["diagnosis_result"]["suggestions"] == []
@@ -136,7 +148,12 @@ def test_duplicate_edits_and_explicit_flow_are_rejected():
 
 
 @pytest.mark.parametrize(
-    "status,reason", [("UNKNOWN", "ORIGINAL_UNKNOWN"), ("OPTIMAL", "ORIGINAL_FEASIBLE")]
+    "status,reason",
+    [
+        ("UNKNOWN", "ORIGINAL_UNKNOWN"),
+        ("OPTIMAL", "ORIGINAL_FEASIBLE"),
+        ("PARTIAL", "ORIGINAL_PARTIAL"),
+    ],
 )
 def test_unknown_does_not_claim_impossibility_or_retry(status, reason):
     result = diagnosis.diagnose(impossible(), status, lambda _: pytest.fail("Unexpected retry"))
@@ -185,21 +202,36 @@ def test_tampered_suggestion_and_objectives_are_rejected():
     assert detail["status"] == "ERROR" and detail["suggestions"] == []
 
 
-def test_cli_diagnosis_and_schema_version(tmp_path):
+@pytest.mark.parametrize("version", ["0.2", "0.15"])
+def test_cli_diagnosis_and_schema_version(tmp_path, version):
+    data = impossible()
+    data["schema_version"] = version
+    if version == "0.2":
+        # 旧版受付は#111で拒否へ切り替えるまで明示して保持する。
+        data["demand"][0].pop("minimum_people")
+        for option in data["diagnosis"]["allowed_changes"]:
+            option["edits"] = option["edits"][:1]
     path = tmp_path / "diagnosis.json"
-    path.write_text(json.dumps(impossible()))
+    path.write_text(json.dumps(data))
     process = subprocess.run(
         [sys.executable, "-m", "shift_schedula", "solve", str(path)], capture_output=True, text=True
     )
     assert process.returncode == 2 and not process.stderr
-    assert_response(json.loads(process.stdout), "INFEASIBLE")
-    for kind in ["request", "response"]:
+    result = json.loads(process.stdout)
+    assert_response(result, "INFEASIBLE")
+    assert result["schema_version"] == version
+    kinds = (
+        ["request", "response"]
+        if version == "0.2"
+        else ["request", "response", "solution", "verification"]
+    )
+    for kind in kinds:
         process = subprocess.run(
-            [sys.executable, "-m", "shift_schedula", "schema", kind, "--schema-version", "0.2"],
+            [sys.executable, "-m", "shift_schedula", "schema", kind, "--schema-version", version],
             capture_output=True,
             text=True,
         )
-        assert process.returncode == 0 and json.loads(process.stdout) == get_schema(kind, "0.2")
+        assert process.returncode == 0 and json.loads(process.stdout) == get_schema(kind, version)
 
 
 def test_broken_diagnosis_output_preserves_original_result(monkeypatch):
@@ -266,3 +298,43 @@ def test_outer_diagnosis_validation_is_in_elapsed_and_timeout(monkeypatch):
     detail = result["diagnosis_result"]
     assert detail["status"] == "TIME_LIMIT" and detail["elapsed_seconds"] == 11
     assert len(detail["suggestions"]) == 1
+
+
+@pytest.mark.parametrize("mode", ["assignment", "roster"])
+@pytest.mark.parametrize("edit", ["upper_only", "lower_only", "both"])
+def test_explicit_demand_edits_keep_original_and_reverify_without_proofs(monkeypatch, mode, edit):
+    data = impossible(mode)
+    option = data["diagnosis"]["allowed_changes"][0]
+    option["id"] = edit
+    if edit == "upper_only":
+        option["edits"] = option["edits"][:1]
+    elif edit == "lower_only":
+        option["edits"] = option["edits"][1:]
+    data["diagnosis"]["allowed_changes"] = [option]
+    saved = copy.deepcopy(data)
+    result = solve(data)
+    assert_response(result, "INFEASIBLE")
+    detail = result["diagnosis_result"]
+    assert detail["conflict"]["infeasibility_proven"]
+    if edit == "upper_only":
+        assert detail["suggestions"] == []
+        assert any(d["code"] == "OPTION_REJECTED" for d in detail["diagnostics"])
+    else:
+        suggestion = detail["suggestions"][0]
+        modified, response = suggestion["modified_request"], suggestion["response"]
+        assert_response(response, "PARTIAL" if edit == "lower_only" else "OPTIMAL")
+        assert modified["demand"][0]["required_people"] == (2 if edit == "lower_only" else 1)
+        assert modified["demand"][0]["minimum_people"] == 1
+        assert response["shortage_summary"]["total_person_minutes"] == (
+            30 if edit == "lower_only" else 0
+        )
+        assert modified["planning_window"] == data["planning_window"]
+        for key in ("employees", "shift_candidates", "constraints", "objectives"):
+            assert modified[key] == data[key]
+        monkeypatch.setattr(cp_sat, "load_backend", lambda: pytest.fail("検証が探索を開始しました"))
+        checked = verify(modified, response["solution"])
+        assert checked["status"] == ("PARTIAL" if edit == "lower_only" else "VALID")
+        assert not checked["shortage_summary"]["proven_minimal"]
+        assert all(not o["proven_optimal"] for o in checked["objectives"])
+        assert verify(data, response["solution"])["status"] == "INVALID_PLAN"
+    assert data == saved

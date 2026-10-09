@@ -185,6 +185,53 @@ Adapter例の確認は作成時に移行前後の条件を照合し、以前確�
 残る診断・日数/勤務分類/同僚等の通常回帰、評価再実行入力・設計例は#124の後続作業、
 アプリ保存往復は#125の責務である。#124/#105の完了、#111の旧版除去・移行専用資産の撤去は行わない。
 
+## 診断・必須最低人数・日数・勤務分類・同僚の通常回帰
+
+基点 `60dc489751b4286f35d2b3e312027beb2458f94a`（PR #151）から、
+`test_diagnosis` / `test_minimum_demand` / `test_day_counts` /
+`test_shift_patterns` / `test_coworkers` の共通入力を0.15へ移した。
+`test_conflict_refinement` の背景条件の試験も、通常の継続計画を0.8へ戻さず使う。
+担当配置・勤務計画の診断、必須最低人数、日数、勤務分類、同僚の代表6組は、
+基点の旧入力へ `scripts/migrate_contract.py:migrate_request` を適用した結果と一致し、
+原入力も変更しない。候補ID・原区間・休憩・日付・履歴・元需要・目的順を保持する。
+0.2の完全充足の診断だけは、元需要と許可した人数編集に同じ必須下限を付ける。
+日数・分類・同僚の下限省略を必須充足へ変えない。
+
+| 検証内容 | 今回の行先・維持した判定 |
+| --- | --- |
+| 元条件と許可変更後の計画 | `test_diagnosis`。assignment/rosterの完全充足、競合需要・候補・勤務量・連勤・休息、許可編集・不正pointer・重複拒否、入力非変更を保持 |
+| 需要の上下限の明示編集 | 必要人数だけを下げて下限を越える案は拒否、最低人数だけを下げる案は元需要を保ったPARTIAL、両方を下げる案は完全充足。変更案は元条件の正式解として扱わない |
+| 診断の背景条件と矛盾縮小 | `test_conflict_refinement`。資格・候補・実績・確定勤務を背景へ分け、条件グループ・十分性・包含極小性・UNKNOWN・検証した証拠・固定解除・予算/障害を保持。全列挙と別モデルの照合も継続 |
+| 必須最低人数と不足の目的順 | `test_minimum_demand`。下限0/省略・資格競合・250人境界・不足総量→priority→目的、両再計画モード・基準保存・原JSONの全探索・全候補部分集合を保持 |
+| 勤務日・占有日・完全休日 | `test_day_counts`。原開始日・夜勤・00:00・分割間/休憩・月末/年末・DST・実績/確定勤務の一度だけの集計、全探索・範囲/型/余白拒否を0.15で検証 |
+| 勤務分類と4種類の勤務パターン | `test_shift_patterns`。区間和集合・閾値・待機/休憩/分割間、連続休日・勤務後休み・禁止並び・日付群、原履歴・余白・固定/全体再計画・原JSON全探索・独立拒否を保持 |
+| 同時勤務の必要条件・禁止 | `test_coworkers`。指導者の交代・最低人数・相互条件・待機・休憩・分割間・DST、集合の全組・原区間からの全探索・改ざん/固定/未確認の拒否を保持 |
+| 日数・禁止並びと必須下限 | 日数条件と下限0/1/2、禁止並びと下限0/1を併用。PARTIALとINFEASIBLEを分け、元条件を緩めず下限違反解を独立拒否 |
+| 現在検証と元の証明 | 探索を禁止した公開verifyでも変更案・日数を検証し、最適性・不足最小性を付与しない。元条件に戻した変更案の解を拒否 |
+| CLI・Schema・型と旧版境界 | 通常の0.15のsolve/verify/Schema4種類・公開型を確認。0.2/0.8/0.11/0.12/0.13のSchema/CLI、導入前の拒否・旧基準の受理は版やlegacy fixtureを明示して保持。#111で旧版拒否へ整理 |
+
+変更した6ファイルの既存テスト関数109個をすべて保持した。
+追加ケースは需要編集6件、日数と下限3件、禁止並びと下限2件、PARTIAL診断非適用1件、
+CLI/Schema・最低人数編集の現行版追加6件の計18件。
+同じヘルパーを使う勤務回数・全機能併用・移行試験も全体回帰で検証する。
+通常のエンジン・旧版受付・Schema・公開型・配布版はこの変更で更新しない。
+残る評価再実行入力・設計例と通常入口の最終棚卸しは#124、アプリ保存往復は#125の責務である。
+#124/#105の完了、#111の旧版除去・移行専用資産の撤去はまだ行わない。
+
+基点mainのCI [37914520923](https://github.com/omitsuhashi/schedula/actions/runs/37914520923) は、
+GitHub Actionsのアカウントの支払い・利用上限を理由に全5ジョブが開始されなかった。
+テストの実行失敗とは区別し、必須CI成功の証拠として扱わない。
+
+[Draft PR #152](https://github.com/omitsuhashi/schedula/pull/152) の実装commit
+`0b2b1edcefc7185c418afe715ef16a8a9465034c` で、手元の全体回帰は
+`uv run --locked --extra cp-sat pytest -q -ra --junitxml=test-results/pytest.xml` により
+2,618 passed, 6 subtests passed in 685.06s、JUnitのfailure/error/skip 0。
+対象8テスト群は417 passed、隔離wheel/sdist・公開型・base/cp-satの回帰も全体に含む。
+pre-commitとstrict mypy（`examples/typed_api.py` / `examples/typed_adapter.py`）が成功し、
+実Chromiumは10 scenarios / 21 interactions / 25 response samples / page errors 0だった。
+PRの [CI 37915936701](https://github.com/omitsuhashi/schedula/actions/runs/37915936701) も
+同じ支払い・利用上限の理由で全5ジョブが開始されず、main反映後の受け入れは未完了である。
+
 ## 原bytesと更新後bytesのSHA-256
 
 原本は上記基点commitの各パスを参照する。JSONをcanonical化した内容ハッシュとは区別する。
