@@ -273,7 +273,7 @@ def normalize(request):
         reject(
             "UNSUPPORTED_BACKEND",
             "min_cost_flow は roster・明示制約・role_switches 目的・"
-            "診断・非既定priority・完全充足以外の正の最低人数を扱えません。",
+            "診断・非既定priority・0.15の完全充足以外の正の最低人数を扱えません。",
             "/solver/backend",
         )
 
