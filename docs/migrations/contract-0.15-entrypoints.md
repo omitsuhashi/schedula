@@ -339,3 +339,24 @@ GitHub Actionsの支払い・利用上限により全5ジョブが検査開始�
 | `docs/evaluations/inputs/roster-week-infeasible.json` | 0.1 | `e31ebe900d24cc5807c3feb5aa5c7ecada944e4633a433ea18959b2facd22bc1` | `c60869bb4f07d311d8b7f55c0b24fe0a7e85a5dff28b5b4807b4b3500d7ae004` |
 | `docs/evaluations/inputs/roster-week-timeout.json` | 0.1 | `729cbc9307d8567b0cf9729563befa9f15df86afee0e3a797cb1a5121dbb771c` | `eca3e11d12290feb0f073164054220bb1a082754869eedc60e490b236469ec73` |
 | `docs/evaluations/inputs/roster-week.json` | 0.1 | `b9c3f1f9713027b9534b304fd4f9e0366aecbb97d9d90a01aab105ac1ef9941c` | `f63768b0004748b1886302899955aec2039e5174da54af2e0827ca9d65cb97bb` |
+
+### この変更の検証結果
+
+[Draft PR #153](https://github.com/omitsuhashi/schedula/pull/153) の実装commit
+`525d58a0ce8633ea9b5bcc11e3615f4a6486108c` で、手元の全体回帰は
+`uv run --locked --extra cp-sat pytest -q -ra --junitxml=test-results/pytest.xml` により
+2,647 passed, 6 subtests passed in 704.80s、JUnitのfailure/error/skip 0。
+対象回帰40件、隔離wheel/sdistとその同梱業務回帰・公開型・base/cp-satも成功した。
+既存テスト関数11個をすべて保持し、通常の入力・設計例に29ケースを追加した。
+pre-commit・strict mypyは成功。実Chromiumは10 scenarios / 21 interactions /
+25 response samples / page errors 0で、フォーム・JSON・100人30日・Adapter確認/失効・
+記録保存/再読込/再検証・基準保存/再計画・キーボード・狭い画面の回帰を保持した。
+
+22件すべてが既存の明示移行結果と一致し、旧新の有限候補の業務属性を照合した。
+原SHA・更新後SHAは上表と一致し、既存0.15の4件と過去の測定結果・旧比較fixtureは非変更。
+今回の内容は通常回帰の準備であり、#116の同条件の性能・解品質の再測定を代替しない。
+
+実装commitの [PR CI 37918987719](https://github.com/omitsuhashi/schedula/actions/runs/37918987719) は、
+GitHub Actionsの支払い・利用上限により全5ジョブが検査開始前に失敗した。
+必須CI成功・main反映後の受け入れと、#125のアプリ保存往復は未完了。
+#124/#105はOPENに保ち、#111の旧版除去・移行専用資産の撤去へは進まない。
