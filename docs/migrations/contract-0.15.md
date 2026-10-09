@@ -27,7 +27,7 @@
 | アプリ固定エンジン | 0.1.5 / Schema 0.10 / `fd8c140ff0dae8c8cefa82b5d3857ec0e0e90eaf`。wheel SHA-256 `3b8256c0d277da253cd79252683727c65c9ab7265c02aec93ff26a24006e9195` を現物と照合 |
 | リポジトリ内データ | エンジンexamples 50 JSON、評価再実行入力26 JSON、過去測定42 JSON、アプリ例13 JSON。原bytesのSHA・版・入れ子pointerは[棚卸し記録](contract-0.15-inventory.json)に固定 |
 | テスト・フォーム | testsの生成fixture、demoのフォーム/JSON/サンプル、型付き例は保存済み実データとは区別し、#107/#124で移す。参照原本 `docs/reference/` は歴史資料として保持 |
-| 顧客保存先 | アプリは起動引数 `--data-dir` の `sessions.sqlite3` を正本とし、JSONは取込・持出し。現行mainのGit管理ファイルには顧客DBがなく、実保存先・件数の有無は利用者へ確認中。不存在と断定しない |
+| 顧客保存先 | アプリは起動引数 `--data-dir` の `sessions.sqlite3` を正本とし、JSONは取込・持出し。2026-10-09に所有者が、例・テスト以外のschedula / schedula-appの保存済みJSON・SQLiteはないと回答。今回の対象はリポジトリ内データと代表移行試験に限定 |
 
 ## 全機能の対応表
 
@@ -113,7 +113,8 @@ source_fixed_statesを元Wで検証し、重複部分だけを今回比較する
 
 旧完全充足で `allowed_changes` がrequired_peopleを2から1へ下げることを許した場合、
 移行でminimum_peopleだけ2に残すと変更案が消える。一方、元許可を超えて下限だけ緩めることも禁止する。
-#109でrequired_peopleと等しい下限を同じ編集に対応させる方法を確定し、許可後の入力を0.15で再検証する。
+#109の[明示移行](contract-0.15-data.md)でrequired_peopleと同じ値の下限編集を
+同じ選択肢へ追加し、許可後の入力を0.15で再検証する。
 diagnosis・suggestionsは元Responseの過去証拠を保持し、移行した正式解や新たな不可能性証明として転記しない。
 
 ## 保存データごとの扱い
@@ -129,9 +130,9 @@ diagnosis・suggestionsは元Responseの過去証拠を保持し、移行した�
 | baseline | 再計画例のsource_request/source_solution、source_fixed_states/snapshot_origin | 元期間で再帰的に移行・検証。入れ子参照を全部たどり、最後に公開make_baselineで投影。固定・来歴の落ちた単なるsnapshotへの置換を禁止 |
 | RequestDraft | examples/adapterのdraft、testsで生成。outer 1.0、inner 0.1/0.3/0.4/0.6等 | 確認済み空と未確認、assumptions/unresolvedを保全。内版・意味・値・依存が変わる入力元のdigest/確認を失効。無変更部分の確認を一律失効させない |
 | manifest/入力元 | assignment.manifest.jsonと明示された4参照ファイル、outer 1.0、inner 0.1 | 一つの参照単位として別出力へ。改訂・applies_to・順序・override・referencesを追跡し、追加下限や履歴を所有する元だけ更新。パス境界を緩めない |
-| record | tests/test_adapter.pyとデモ操作で生成、常設保存recordは未確認 | 原Request/Response/実行設定/source/provenance、元run_idを保持。内容変更後は別run_id、元証拠とcurrent_verificationを別保存。外側形状が変わる場合だけ版を変更 |
-| アプリJSON | schedula-app/1、engine pin、input文字列、plans、selected/baseline、edit。実保存先は確認中 | 対象の旧pinを確認して明示移行し、新pinの新JSON/新セッションで全解を再検証する。未完成input/editを勝手に正規化しない。元証拠をevidenceへ、現在結果をresultへ |
-| アプリSQLite | DB Schema 1、metadata.engine、sessionsとplans。実保存先は確認中 | 実データを移行する場合は既存の標準backupで整合した読取元を得る。新しい専用ディレクトリへ新pinのDBを作り、稼働原本/既存セッションを上書きしない |
+| record | tests/test_adapter.pyとデモ操作で生成。例・テスト以外の保存済みJSONはないと所有者が確認 | 原Request/Response/実行設定/source/provenance、元run_idを保持。内容変更後は別run_id、元証拠とcurrent_verificationを別保存。外側形状が変わる場合だけ版を変更 |
+| アプリJSON | schedula-app/1、engine pin、input文字列、plans、selected/baseline、edit。例・テスト以外の実保存データなしと所有者が確認 | 代表fixtureで対象の旧pinを確認して明示移行し、新pinの新JSON/新セッションで全解を再検証する。未完成input/editを勝手に正規化しない。元証拠をevidenceへ、現在結果をresultへ |
+| アプリSQLite | DB Schema 1、metadata.engine、sessionsとplans。例・テスト以外の実保存データなしと所有者が確認 | 代表fixtureで別保存先への往復と失敗時の原本不変を試験する。将来実データを確認した場合は標準backupで整合した読取元を得て、新しい専用ディレクトリへ取込。稼働原本/既存セッションを上書きしない |
 | 過去測定・参照原本 | docs/evaluations/results、docs/reference | 歴史資料として版・当時の結果を保持。通常回帰と再実行入力だけ #107/#124へ対応付ける。過去の成功を新契約の証明に読み替えない |
 
 実保存データがない形式にも意味の対応と各旧版の代表移行試験を残す。
@@ -200,7 +201,7 @@ diagnosis・suggestionsは元Responseの過去証拠を保持し、移行した�
 | #116 | 対応表全行、旧→新と現行0.15維持の別比較、性能/解品質・全CI/main・実Chromium・移行/保存と原本保護。未解決の退行を残して全体完了としない |
 
 旧版除去を妨げる事項は、完全充足flowの補完、明示移行/確認失効の実装、通常callerの0.15化、
-候補アプリ保存往復、実保存先確認である。実保存先・件数は確認中として #105/#106へ記録し、
-未知を0件としない。対象を拡大する情報が出た場合は一覧に追加し、後続責任と除去条件を更新する。
+候補アプリ保存往復である。保存済み実データの確認待ちは所有者の2026-10-09回答で解消した。
+対象を拡大する情報が出た場合は一覧に追加し、後続責任と除去条件を更新する。
 各PRの全必須CI・skip拒否・独立検証・実Chromiumを維持する。
 PyPI公開・GitHub Release・実環境デプロイは #105 の完了条件に含めない。
