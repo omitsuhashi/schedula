@@ -147,7 +147,7 @@ diagnosis・suggestionsは元Responseの過去証拠を保持し、移行した�
 詳細は[Python公開API](../python-api.md)、[配布方針](../distribution.md)、
 [入力Adapter](../input-adapter.md)、[CI](https://github.com/omitsuhashi/schedula/blob/bbb7a93b757cc3272943bbc09f9f2dcb359bd457/.github/workflows/ci.yml)に対応付ける。
 旧固定環境は通常配布のwheel/sdistから除外し、
-[Git保存した復旧用成果物](https://github.com/omitsuhashi/schedula/tree/main/docs/migrations/legacy)から取得する。
+[Git保存した復旧用成果物](https://github.com/omitsuhashi/schedula/tree/74424c0a3658c21a4f1cf3afdb2cfea3f817faac/docs/migrations/legacy)から取得する。
 旧Schemaの常設再同梱で移行を解決しない。
 
 ## schedula-appの接続と保存の決定
