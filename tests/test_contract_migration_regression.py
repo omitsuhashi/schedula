@@ -12,7 +12,7 @@ from shift_schedula.model import normalize
 from tests.roster_support import demand, request
 from tests.support import assert_response, require_complete_demand
 from tests.test_assignment import exhaustive_value
-from tests.test_objectives import METRICS, control_search, tradeoff_request
+from tests.test_objectives import METRICS, control_search, legacy_tradeoff_request
 from tests.test_roster import exhaustive_value as exhaustive_roster_value
 
 FIXTURES = Path(__file__).parent / "fixtures/contract-migration"
@@ -106,7 +106,7 @@ def test_common_roster_fixture_keeps_partial_and_complete_meanings(complete):
 
 @pytest.mark.parametrize("order", tuple(itertools.permutations(METRICS)))
 def test_current_015_objective_order_matches_raw_json_enumeration(order):
-    legacy = tradeoff_request(order)
+    legacy = legacy_tradeoff_request(order)
     data = request(employees=("alice", "bob"))
     for key in ("demand", "preferences", "objectives"):
         data[key] = copy.deepcopy(legacy[key])

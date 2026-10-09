@@ -31,7 +31,7 @@ from tests.support import assert_response, require_complete_demand
 from tests.test_cp_sat import small_request
 from tests.test_day_counts import bounds, continuity, example
 from tests.test_demand_priority import assignment, total_first
-from tests.test_extensions import extended
+from tests.test_extensions import legacy_extended as extended
 from tests.test_objectives import control_search
 
 ROOT = Path(__file__).resolve().parents[1]

@@ -19,7 +19,8 @@ from tests.roster_support import legacy_candidate as candidate
 from tests.roster_support import legacy_request as request
 from tests.support import assert_response
 from tests.test_continuity import example as continuity_example
-from tests.test_extensions import extended, fairness, selected
+from tests.test_extensions import fairness, selected
+from tests.test_extensions import legacy_extended as extended
 from tests.test_objectives import control_search
 
 ROOT = Path(__file__).resolve().parents[1]
