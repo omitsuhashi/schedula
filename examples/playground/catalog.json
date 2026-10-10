@@ -331,11 +331,16 @@
       ],
       "issue": 130,
       "progress": {
-        "detail": "pending",
-        "measurement": "pending",
-        "screen": "pending",
-        "test": "pending"
-      }
+        "detail": "confirmed",
+        "measurement": "confirmed",
+        "screen": "confirmed",
+        "test": "confirmed"
+      },
+      "lesson_file": "examples/playground/lessons.json",
+      "request_file": "examples/playground/consecutive-days-off.json",
+      "measurement_files": [
+        "docs/evaluations/results/pattern-demo-20261010.json"
+      ]
     },
     {
       "id": "rest_after_shift",
@@ -350,11 +355,16 @@
       ],
       "issue": 130,
       "progress": {
-        "detail": "pending",
-        "measurement": "pending",
-        "screen": "pending",
-        "test": "pending"
-      }
+        "detail": "confirmed",
+        "measurement": "confirmed",
+        "screen": "confirmed",
+        "test": "confirmed"
+      },
+      "lesson_file": "examples/playground/lessons.json",
+      "request_file": "examples/playground/rest-after-shift.json",
+      "measurement_files": [
+        "docs/evaluations/results/pattern-demo-20261010.json"
+      ]
     },
     {
       "id": "forbidden_successions",
@@ -369,11 +379,16 @@
       ],
       "issue": 130,
       "progress": {
-        "detail": "pending",
-        "measurement": "pending",
-        "screen": "pending",
-        "test": "pending"
-      }
+        "detail": "confirmed",
+        "measurement": "confirmed",
+        "screen": "confirmed",
+        "test": "confirmed"
+      },
+      "lesson_file": "examples/playground/lessons.json",
+      "request_file": "examples/playground/forbidden-successions.json",
+      "measurement_files": [
+        "docs/evaluations/results/pattern-demo-20261010.json"
+      ]
     },
     {
       "id": "worked_date_groups",
@@ -388,11 +403,16 @@
       ],
       "issue": 130,
       "progress": {
-        "detail": "pending",
-        "measurement": "pending",
-        "screen": "pending",
-        "test": "pending"
-      }
+        "detail": "confirmed",
+        "measurement": "confirmed",
+        "screen": "confirmed",
+        "test": "confirmed"
+      },
+      "lesson_file": "examples/playground/lessons.json",
+      "request_file": "examples/playground/worked-date-groups.json",
+      "measurement_files": [
+        "docs/evaluations/results/pattern-demo-20261010.json"
+      ]
     },
     {
       "id": "required_coworkers",

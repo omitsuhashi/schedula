@@ -2261,5 +2261,655 @@
         }
       }
     ]
+  },
+  {
+    "id": "consecutive_days_off",
+    "label": "休みを連続させる",
+    "intro": "連続休日の下限と、別条件の完全休日数下限を編集します。評価期間は10月5〜9日。前後の余白に続く休日も切らずに確認します。",
+    "premises": [
+      "架空のAのみ、Asia/Tokyo・固定日付・30分粒度。元の需要と必須条件を緩めない。必要人数の不足を最小化した後、勤務量を最小化する。",
+      "原勤務全体を保持する。完全休日は休憩を含む原区間に触れない日で、夜勤明けは休日ではない。終端00:00は翌日を占有せず、分割間は勤務ではない。",
+      "分類は明示区間の和集合と原勤務全体の休憩を除く重なり分数で判定する。待機を含む。分類名・候補IDから夜勤や早番を推定しない。",
+      "評価期間は終端を含まない。必要な前後余白を計画内に置き、計画外の未来を休日と推定しない。入力不正・解なし・条件を守った不足を分ける。",
+      "5日の需要は必須最低人数1人、7・8日は0人。6日に需要はないが勤務候補はある。完全休日を少なくとも1日確保する別条件を初期に指定する。",
+      "連続休日は評価期間と交差する各最大区間を検査する。休日がない場合は違反しない。この条件だけで休日を強制しない。"
+    ],
+    "editable_fields": [
+      {
+        "collection": "constraints",
+        "ids": [
+          "pattern"
+        ],
+        "field": "min_days",
+        "label": "連続休日下限",
+        "unit": "日"
+      },
+      {
+        "collection": "constraints",
+        "ids": [
+          "off"
+        ],
+        "field": "min_days",
+        "label": "完全休日数下限（別条件）",
+        "unit": "日"
+      }
+    ],
+    "steps": [
+      {
+        "id": "initial",
+        "instruction": "初期計算。6日の完全休日1日と、前後の余白を確認する。",
+        "changes": {},
+        "restore": false,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "off_days": 1,
+          "shortest_run": 1
+        }
+      },
+      {
+        "id": "two",
+        "instruction": "連続休日を2日へ変更。6・7日を休み、不足60人分になる。",
+        "changes": {
+          "constraints": {
+            "pattern": {
+              "min_days": 2
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 60,
+          "off_days": 2,
+          "shortest_run": 2
+        }
+      },
+      {
+        "id": "three",
+        "instruction": "3日へ変更。評価期間端を越えて続く休日も数え、6日の勤務が必要になる。",
+        "changes": {
+          "constraints": {
+            "pattern": {
+              "min_days": 3
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 60,
+          "off_days": 1,
+          "shortest_run": 4
+        }
+      },
+      {
+        "id": "no_holiday",
+        "instruction": "連続休日2日、別条件の休日数下限を0日へ変更。評価期間に休日がなくても成立する。",
+        "changes": {
+          "constraints": {
+            "pattern": {
+              "min_days": 2
+            },
+            "off": {
+              "min_days": 0
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "off_days": 0,
+          "shortest_run": null
+        }
+      },
+      {
+        "id": "margin",
+        "instruction": "連続休日を4日へ変更。未来の余白が計画外になるため入力を拒否する。",
+        "changes": {
+          "constraints": {
+            "pattern": {
+              "min_days": 4
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "INVALID_INPUT",
+          "total_person_minutes": null
+        }
+      },
+      {
+        "id": "restored",
+        "instruction": "初期条件と実結果へ復元する。",
+        "changes": {},
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "off_days": 1,
+          "shortest_run": 1
+        }
+      }
+    ],
+    "module": "patterns",
+    "request_file": "consecutive-days-off.json",
+    "operation": "solve",
+    "indicators": [
+      "勤務分類・完全休日・原開始日差・勤務した日付群",
+      "shortage_summary.total_person_minutes"
+    ]
+  },
+  {
+    "id": "rest_after_shift",
+    "label": "夜勤などの後に休む",
+    "intro": "夜勤後の完全休日数、原勤務の終端、分類に必要な重なり分数を編集します。翌日06時終了と0時終了では、次に働ける日の境界が変わります。",
+    "premises": [
+      "架空のAのみ、Asia/Tokyo・固定日付・30分粒度。元の需要と必須条件を緩めない。必要人数の不足を最小化した後、勤務量を最小化する。",
+      "原勤務全体を保持する。完全休日は休憩を含む原区間に触れない日で、夜勤明けは休日ではない。終端00:00は翌日を占有せず、分割間は勤務ではない。",
+      "分類は明示区間の和集合と原勤務全体の休憩を除く重なり分数で判定する。待機を含む。分類名・候補IDから夜勤や早番を推定しない。",
+      "評価期間は終端を含まない。必要な前後余白を計画内に置き、計画外の未来を休日と推定しない。入力不正・解なし・条件を守った不足を分ける。",
+      "5日22〜23時の需要は必須最低人数1人。8日23時30分〜9日1時は0人。勤務中の休憩23〜23時30分は分類分数から除く。",
+      "夜勤分類の2区間は重複しているため、和集合で一度だけ数える。初期は450分で該当する。",
+      "5日22時〜6日06時の夜勤後に2完全休日なら、6日の残りと7・8日を休み、最も早い次勤務は9日00時。6日00時終了なら6・7日が完全休日で8日00時から勤務可能。"
+    ],
+    "editable_fields": [
+      {
+        "collection": "constraints",
+        "ids": [
+          "pattern"
+        ],
+        "field": "min_days",
+        "label": "勤務後の完全休日下限",
+        "unit": "日"
+      },
+      {
+        "collection": "shift_candidates",
+        "ids": [
+          "origin"
+        ],
+        "field": "segments",
+        "label": "元の勤務区間と休憩",
+        "unit": ""
+      },
+      {
+        "collection": "shift_categories",
+        "ids": [
+          "night"
+        ],
+        "field": "min_overlap_minutes",
+        "label": "夜勤分類の最低重なり",
+        "unit": "分"
+      },
+      {
+        "collection": "demand",
+        "ids": [
+          "next"
+        ],
+        "field": "minimum_people",
+        "label": "深夜需要の必須最低人数",
+        "unit": "人"
+      }
+    ],
+    "steps": [
+      {
+        "id": "initial",
+        "instruction": "2完全休日の境界は9日00時。直前30分は不足する。",
+        "changes": {},
+        "restore": false,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 30,
+          "classified_candidates": 1,
+          "earliest_next": "2026-10-09T00:00:00+09:00"
+        }
+      },
+      {
+        "id": "one",
+        "instruction": "完全休日を1日へ変更。8日00時から勤務でき、不足がなくなる。",
+        "changes": {
+          "constraints": {
+            "pattern": {
+              "min_days": 1
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "classified_candidates": 1,
+          "earliest_next": "2026-10-08T00:00:00+09:00"
+        }
+      },
+      {
+        "id": "three",
+        "instruction": "完全休日を3日へ変更。次勤務は10日00時以降となり、不足90人分。",
+        "changes": {
+          "constraints": {
+            "pattern": {
+              "min_days": 3
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 90,
+          "classified_candidates": 1,
+          "earliest_next": "2026-10-10T00:00:00+09:00"
+        }
+      },
+      {
+        "id": "midnight",
+        "instruction": "夜勤の終端だけを6日00時へ変更。2完全休日の境界は8日00時になる。",
+        "changes": {
+          "shift_candidates": {
+            "origin": {
+              "segments": [
+                {
+                  "interval": {
+                    "start": "2026-10-05T22:00:00+09:00",
+                    "end": "2026-10-06T00:00:00+09:00"
+                  },
+                  "breaks": [
+                    {
+                      "start": "2026-10-05T23:00:00+09:00",
+                      "end": "2026-10-05T23:30:00+09:00"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "classified_candidates": 1,
+          "earliest_next": "2026-10-08T00:00:00+09:00"
+        }
+      },
+      {
+        "id": "classification",
+        "instruction": "分類閾値を480分へ変更。休憩を除く450分は届かず、夜勤後の休みの対象にならない。",
+        "changes": {
+          "shift_categories": {
+            "night": {
+              "min_overlap_minutes": 480
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "classified_candidates": 0,
+          "earliest_next": null
+        }
+      },
+      {
+        "id": "mandatory",
+        "instruction": "不足する深夜時間も必須最低人数1人へ変更。休み条件を緩めず、解なしになる。",
+        "changes": {
+          "demand": {
+            "next": {
+              "minimum_people": 1
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "INFEASIBLE",
+          "total_person_minutes": null
+        }
+      },
+      {
+        "id": "restored",
+        "instruction": "初期条件と実結果へ復元する。",
+        "changes": {},
+        "restore": true,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 30,
+          "classified_candidates": 1,
+          "earliest_next": "2026-10-09T00:00:00+09:00"
+        }
+      }
+    ],
+    "module": "patterns",
+    "request_file": "rest-after-shift.json",
+    "operation": "solve",
+    "indicators": [
+      "勤務分類・完全休日・原開始日差・勤務した日付群",
+      "shortage_summary.total_person_minutes"
+    ]
+  },
+  {
+    "id": "forbidden_successions",
+    "label": "特定の勤務の並びを禁止する",
+    "intro": "遅番→早番を禁止する開始日差と、早番の分類閾値を編集します。間に別の勤務があっても、指定した暦日差で判定します。",
+    "premises": [
+      "架空のAのみ、Asia/Tokyo・固定日付・30分粒度。元の需要と必須条件を緩めない。必要人数の不足を最小化した後、勤務量を最小化する。",
+      "原勤務全体を保持する。完全休日は休憩を含む原区間に触れない日で、夜勤明けは休日ではない。終端00:00は翌日を占有せず、分割間は勤務ではない。",
+      "分類は明示区間の和集合と原勤務全体の休憩を除く重なり分数で判定する。待機を含む。分類名・候補IDから夜勤や早番を推定しない。",
+      "評価期間は終端を含まない。必要な前後余白を計画内に置き、計画外の未来を休日と推定しない。入力不正・解なし・条件を守った不足を分ける。",
+      "5日遅番と6日14〜15時の中間勤務は必須最低人数1人。7日の早番は0人。",
+      "禁止は次に採用した勤務の順番ではなく、原勤務の開始日の差で判定する。評価期間より前に始まった遅番も、禁止対象日が評価期間に入れば対象。"
+    ],
+    "editable_fields": [
+      {
+        "collection": "constraints",
+        "ids": [
+          "pattern"
+        ],
+        "field": "day_offset",
+        "label": "禁止する開始日差",
+        "unit": "日"
+      },
+      {
+        "collection": "shift_categories",
+        "ids": [
+          "early"
+        ],
+        "field": "min_overlap_minutes",
+        "label": "早番分類の最低重なり",
+        "unit": "分"
+      },
+      {
+        "collection": "constraints",
+        "ids": [
+          "pattern"
+        ],
+        "field": "evaluation_period",
+        "label": "評価期間",
+        "unit": ""
+      }
+    ],
+    "steps": [
+      {
+        "id": "initial",
+        "instruction": "開始日差2日。中間勤務を挟んでも7日の早番を禁止し、不足60人分。",
+        "changes": {},
+        "restore": false,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 60,
+          "candidate_pairs": 1
+        }
+      },
+      {
+        "id": "one",
+        "instruction": "開始日差1日へ変更。翌日の中間勤務は早番に該当せず、不足0人分。",
+        "changes": {
+          "constraints": {
+            "pattern": {
+              "day_offset": 1
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "candidate_pairs": 0
+        }
+      },
+      {
+        "id": "three",
+        "instruction": "開始日差3日へ変更。該当する候補の組がなく、不足0人分になる。",
+        "changes": {
+          "constraints": {
+            "pattern": {
+              "day_offset": 3
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "candidate_pairs": 0
+        }
+      },
+      {
+        "id": "classification",
+        "instruction": "早番分類の閾値を90分へ変更。60分の早番候補は該当しない。",
+        "changes": {
+          "shift_categories": {
+            "early": {
+              "min_overlap_minutes": 90
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "candidate_pairs": 0
+        }
+      },
+      {
+        "id": "period",
+        "instruction": "評価開始を6日へ変更、日差2日。5日開始の遅番も7日の禁止へ影響する。",
+        "changes": {
+          "constraints": {
+            "pattern": {
+              "day_offset": 2,
+              "evaluation_period": {
+                "start": "2026-10-06T00:00:00+09:00",
+                "end": "2026-10-08T00:00:00+09:00"
+              }
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 60,
+          "candidate_pairs": 1
+        }
+      },
+      {
+        "id": "margin",
+        "instruction": "開始日差5日へ変更。必要な未来の余白が計画外となり、入力を拒否する。",
+        "changes": {
+          "constraints": {
+            "pattern": {
+              "day_offset": 5
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "INVALID_INPUT",
+          "total_person_minutes": null
+        }
+      },
+      {
+        "id": "restored",
+        "instruction": "初期条件と実結果へ復元する。",
+        "changes": {},
+        "restore": true,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 60,
+          "candidate_pairs": 1
+        }
+      }
+    ],
+    "module": "patterns",
+    "request_file": "forbidden-successions.json",
+    "operation": "solve",
+    "indicators": [
+      "勤務分類・完全休日・原開始日差・勤務した日付群",
+      "shortage_summary.total_person_minutes"
+    ]
+  },
+  {
+    "id": "worked_date_groups",
+    "label": "週末などの勤務を交代する",
+    "intro": "勤務する日付群の上限と、群の分け方を編集します。同じ週末の土日両日に触れても1群です。夜勤明けが触れる日も数えます。",
+    "premises": [
+      "架空のAのみ、Asia/Tokyo・固定日付・30分粒度。元の需要と必須条件を緩めない。必要人数の不足を最小化した後、勤務量を最小化する。",
+      "原勤務全体を保持する。完全休日は休憩を含む原区間に触れない日で、夜勤明けは休日ではない。終端00:00は翌日を占有せず、分割間は勤務ではない。",
+      "分類は明示区間の和集合と原勤務全体の休憩を除く重なり分数で判定する。待機を含む。分類名・候補IDから夜勤や早番を推定しない。",
+      "評価期間は終端を含まない。必要な前後余白を計画内に置き、計画外の未来を休日と推定しない。入力不正・解なし・条件を守った不足を分ける。",
+      "週末は利用側が10・11日と17・18日を二群として明示する。エンジンは週末を推定しない。同じ群の複数日に触れても一群。",
+      "9日22〜23時は必須最低人数1人、11・17日の需要は0人。9日の夜勤は10日に触れるため第1群を勤務済みにする。0時終了では10日に触れない。"
+    ],
+    "editable_fields": [
+      {
+        "collection": "constraints",
+        "ids": [
+          "pattern"
+        ],
+        "field": "max_groups",
+        "label": "勤務する日付群の上限",
+        "unit": "群"
+      },
+      {
+        "collection": "constraints",
+        "ids": [
+          "pattern"
+        ],
+        "field": "date_groups",
+        "label": "明示した日付群",
+        "unit": ""
+      },
+      {
+        "collection": "shift_candidates",
+        "ids": [
+          "crossing"
+        ],
+        "field": "segments",
+        "label": "夜勤の原区間",
+        "unit": ""
+      }
+    ],
+    "steps": [
+      {
+        "id": "initial",
+        "instruction": "二群・3つの群内日付に勤務。同じ週末の土日を二群と数えない。",
+        "changes": {},
+        "restore": false,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "worked_groups": 2,
+          "group_days": 3
+        }
+      },
+      {
+        "id": "one",
+        "instruction": "上限を1群へ変更。第1週末だけを勤務し、第2週末に60人分不足。",
+        "changes": {
+          "constraints": {
+            "pattern": {
+              "max_groups": 1
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 60,
+          "worked_groups": 1,
+          "group_days": 2
+        }
+      },
+      {
+        "id": "zero",
+        "instruction": "上限0群へ変更。必須の夜勤が第1群へ触れるため解なしになる。",
+        "changes": {
+          "constraints": {
+            "pattern": {
+              "max_groups": 0
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "INFEASIBLE",
+          "total_person_minutes": null
+        }
+      },
+      {
+        "id": "combined",
+        "instruction": "4日を一つの日付群へまとめ、上限1群。3日へ触れても一群で不足0人分。",
+        "changes": {
+          "constraints": {
+            "pattern": {
+              "max_groups": 1,
+              "date_groups": [
+                {
+                  "id": "combined",
+                  "dates": [
+                    "2026-10-10",
+                    "2026-10-11",
+                    "2026-10-17",
+                    "2026-10-18"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "worked_groups": 1,
+          "group_days": 3
+        }
+      },
+      {
+        "id": "midnight",
+        "instruction": "夜勤の終端を10日00時へ変更。10日を占有せず、群内の勤務日付は2日になる。",
+        "changes": {
+          "shift_candidates": {
+            "crossing": {
+              "segments": [
+                {
+                  "interval": {
+                    "start": "2026-10-09T22:00:00+09:00",
+                    "end": "2026-10-10T00:00:00+09:00"
+                  },
+                  "breaks": []
+                }
+              ]
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "worked_groups": 2,
+          "group_days": 2
+        }
+      },
+      {
+        "id": "restored",
+        "instruction": "初期条件と実結果へ復元する。",
+        "changes": {},
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "worked_groups": 2,
+          "group_days": 3
+        }
+      }
+    ],
+    "module": "patterns",
+    "request_file": "worked-date-groups.json",
+    "operation": "solve",
+    "indicators": [
+      "勤務分類・完全休日・原開始日差・勤務した日付群",
+      "shortage_summary.total_person_minutes"
+    ]
   }
 ]

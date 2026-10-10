@@ -1,6 +1,6 @@
 "use strict";
 
-function isWorkLesson() { return ["basic", "conditions", "days"].includes(lesson?.module); }
+function isWorkLesson() { return ["basic", "conditions", "days", "patterns"].includes(lesson?.module); }
 function basicSelect(id, label, value, choices, update) {
   const select = node("select", "", {id}, choices.map(([value, label]) => node("option", label, {value})));
   select.value = String(value);
@@ -24,6 +24,7 @@ function basicNumber(id, label, value, min, max, update) {
 }
 function renderBasicFields() {
   const area = $("feature-fields"), input = feature.input;
+  if (lesson.module === "patterns") return renderPatternFields();
   if (lesson.module === "days") {
     const rule=input.constraints[0];
     for (const [field,label] of [["min_days","日数下限"],["max_days","日数上限"]]) area.append(basicSelect(`day-${field}`, `${label}（日）`, rule[field],
@@ -92,11 +93,12 @@ function basicCards(pair, base) {
     const first = feature.initial[collection].find(item => item.id === id), current = pair.input[collection].find(item => item.id === id);
     if (JSON.stringify(first[field]) === JSON.stringify(current[field])) continue;
     const card = featureMetric(`変更した条件 · ${label}${ids.length > 1 ? ` (${current.label || current.interval?.start.slice(0,10) || id})` : ""}`,
-      displayField(field,first[field]), displayField(field,current[field]), ["required_people","limit_minutes","min_minutes","max_minutes","min_days","max_days"].includes(field) ? unit : "");
-    if (!["required_people","limit_minutes","min_minutes","max_minutes","min_days","max_days"].includes(field)) card.classList.add("feature-condition");
+      displayField(field,first[field]), displayField(field,current[field]), ["required_people","minimum_people","limit_minutes","min_minutes","max_minutes","min_days","max_days","day_offset","max_groups","min_overlap_minutes"].includes(field) ? unit : "");
+    if (!["required_people","minimum_people","limit_minutes","min_minutes","max_minutes","min_days","max_days","day_offset","max_groups","min_overlap_minutes"].includes(field)) card.classList.add("feature-condition");
     cards.push(card);
   }
   if (!cards.length) cards.push(node("p", "初期条件からの変更なし。", {class:"note"}));
+  if (lesson.module === "patterns") return [...cards,...patternIndicators(pair,base)];
   if (lesson.module === "days") {
     const previous=base?.response.day_count_summary?.[0].employees[0], current=pair.response.day_count_summary[0].employees[0];
     for (const [field,label] of [["work_days","勤務日：原勤務の開始日"],["occupied_days","占有日：夜勤明けも含む"],["days_off","完全休日：占有のない日"]])
@@ -121,8 +123,8 @@ function dayFacts(pair) {
   return [...known.actual_shifts.map(s=>({...s,source:"確認済み実績"})), ...known.committed_shifts.map(s=>({...s,source:"確定勤務"})),
     ...pair.response.solution.shifts.filter(s=>!s.committed_shift_id).map(s=>({...s,source:"今回の採用"}))];
 }
-function dayRows(pair) {
-  const rule=pair.input.constraints[0], window={...pair.input.planning_window,...rule.interval}, slots=jsonSlots({planning_window:window});
+function dayRows(pair,interval=pair.input.constraints[0].interval) {
+  const window={...pair.input.planning_window,...interval}, slots=jsonSlots({planning_window:window});
   const date=new Intl.DateTimeFormat("en-CA",{timeZone:window.timezone,year:"numeric",month:"2-digit",day:"2-digit"}), facts=dayFacts(pair);
   return [...new Set(slots.map(s=>s.date))].map(day=>{
     const range=slots.filter(s=>s.date===day), start=range[0].start, end=range.at(-1).end;
@@ -146,6 +148,7 @@ function dayPlan(pair, base) {
   return area;
 }
 function basicPlan(pair, base) {
+  if (lesson.module === "patterns") return patternPlan(pair,base);
   if (lesson.module === "days") return dayPlan(pair,base);
   const area = node("div"), input = pair.input, shifts = pair.response.solution.shifts;
   if (lesson.module === "conditions") {

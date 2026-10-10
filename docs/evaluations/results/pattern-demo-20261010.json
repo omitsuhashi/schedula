@@ -1,0 +1,2686 @@
+{
+  "measured_date": "2026-10-10",
+  "base_commit": "2c4e301d18f0b41c118341a0321d9c7e13d0a1c9",
+  "environment": {
+    "os": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+    "architecture": "arm64",
+    "logical_cpus": 8,
+    "python": "3.14.8 (main, Oct  3 2026, 00:54:40) [Clang 22.1.3 ]",
+    "ortools": "9.15.6755",
+    "num_workers": 1,
+    "time_limit_seconds": 5,
+    "seed": 0
+  },
+  "methods": {
+    "cold": "新プロセス。OSキャッシュは消去せず、親で起動・import・solve・有効な解のverify・終了を測定。子elapsedはsolve・verify。",
+    "warm": "同一プロセスのsolveと有効な解のverifyを各段階3回。解なしの不成立はverifyを実施できない。",
+    "http": "POST往復・応答受理・DOM更新・2回の描画待ち。ページ/教材GETを除く。",
+    "runner_source": "import json,sys,time; from shift_schedula import solve,verify; v=json.load(sys.stdin); t=time.perf_counter(); r=solve(v,num_workers=1); checked=verify(v,r['solution']) if r['solution'] else None; assert checked is None or checked['verification']['valid']; print(json.dumps({'elapsed_seconds':time.perf_counter()-t,'status':r['status'],'solver':r['solver'],'stats':r['stats'],'shortage':r['shortage_summary']['total_person_minutes'] if r['shortage_summary'] else None,'verification':checked['verification'] if checked else None}))"
+  },
+  "source_sha256": {
+    "demo/pattern-demo.js": "51495bf05bccf1e08f71ce5ec1162d311d3e0c3e86be153236a6f65ae95b8837",
+    "demo/index.html": "010bfaff71b1d0f6a586eb4a22449aa00992cc86bd967a79953a68dfa7c2dc6b",
+    "demo/app.js": "d57da24052c2dc43a0133bf4510a1511d6ff4b05fc7b9f7cd9b6f148c4e51ed7",
+    "demo/basic-demo.js": "0baa3d063c94b7d1d953370c580475c2cd3cfea03056ac0302819117956048b8",
+    "demo/features.js": "40f4930d1d1f775b6380f3946048218f2e48998117643bd310baeadbd03d5391",
+    "demo/server.py": "3a8963ce92cda565faf17ee5975991dbce4bf4e71e11917cd3aa45bc39ca5aa3",
+    "demo/style.css": "c7f47db9bc78f6ff12a9cf69847eeca4ea22dd7ee5043e5d40b7b1cebfcdfbbb",
+    "examples/playground/lessons.json": "dc7b2b4a35a18158fca50c166d3f1b39adc4e7c013e017c176d8e500222e57f3",
+    "examples/playground/catalog.json": "3b79f6126127e6ba6d17f64e4f0749f1ba924c1eb0cbe7d234e9a499911e3045",
+    "tests/pattern-browser.cjs": "7a6ae10bc66c81cd5d506ae720e35ec6065054d28f7150858d8420864484d30c",
+    "tests/test_pattern_demo_lessons.py": "f6f58e9087f2e50a4b2a4f58f1a40f7138bb2d3fcae5bb51887ae887f070659c",
+    "uv.lock": "3c78a475a4a9e39636e5bf59cf889d8c10c0f12e51b9fec1dc6f96b9743ab4c7",
+    "examples/playground/consecutive-days-off.json": "6dfd97e00ddb9a992d097e329e9dd95eb4406fea3992e50497e626cfbd0ae117",
+    "examples/playground/rest-after-shift.json": "fc3ad022b01af9dc503c79661e70072900144001ee9fde98594f3ea340eefdce",
+    "examples/playground/forbidden-successions.json": "2a5358caa696ce0aa9d3e14fa7af492b263056367cf35755a8ca03147b5ebcc5",
+    "examples/playground/worked-date-groups.json": "257f4d020fa87b3101eef10a61e673b4d93c3e5d70a64138dbfa68f9d8193ac9"
+  },
+  "backend_samples": [
+    {
+      "lesson": "consecutive_days_off",
+      "step": "initial",
+      "input_sha256": "d1adb63a09384afb70376bd13ce59605ee465bf59ba99e0c1e6353946efdbe71",
+      "cold": {
+        "elapsed_seconds": 0.4259426250355318,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.389457083074376
+        },
+        "shortage": 0,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.5933461670065299
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.43176487495657057,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.39665983302984387
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.015893833013251424,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.01096716697793454
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.013464665971696377,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.010178208001889288
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "consecutive_days_off",
+      "step": "two",
+      "input_sha256": "1627ab2c0731d9415259cf3ddc73a05f607f6963772f24d7e54fe563a1d2524b",
+      "cold": {
+        "elapsed_seconds": 0.4449773330707103,
+        "status": "PARTIAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.4047482500318438
+        },
+        "shortage": 60,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.6045330839697272
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.01754716702271253,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.014464125037193298
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.014028790988959372,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.011006459011696279
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.01568841701373458,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.01247395807877183
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "consecutive_days_off",
+      "step": "three",
+      "input_sha256": "ebc261e6f4cdb4305e4741349246e9fccf7e01921cfc71cd37fe377676a378f4",
+      "cold": {
+        "elapsed_seconds": 0.42976808303501457,
+        "status": "PARTIAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.3840212499490008
+        },
+        "shortage": 60,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.5863242920022458
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.01802416704595089,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.01371095806825906
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.013377583003602922,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.010279417037963867
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.017326834029518068,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.013184290961362422
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "consecutive_days_off",
+      "step": "no_holiday",
+      "input_sha256": "e5d4017a189dfe8666551b31e58f3153932f6b01766229cef09b512b48bb538b",
+      "cold": {
+        "elapsed_seconds": 0.44616387505084276,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.3963050829479471
+        },
+        "shortage": 0,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.6000054170144722
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.01583770802244544,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.012541707954369485
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.015949915978126228,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.011752457940019667
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.015591625007800758,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.012326083960942924
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "consecutive_days_off",
+      "step": "margin",
+      "input_sha256": "b51b0cb2c6c6bfd2936ee89421f93bc1c7bc8b994a33d8765ff99391ed340700",
+      "cold": {
+        "elapsed_seconds": 0.10979854199104011,
+        "status": "INVALID_INPUT",
+        "solver": {
+          "backend": "none",
+          "engine_version": "0.2.0",
+          "library_version": null,
+          "selection_reason": "NOT_SELECTED"
+        },
+        "stats": {
+          "elapsed_seconds": 0.10978683398570865
+        },
+        "shortage": null,
+        "verification": null,
+        "process_elapsed_seconds": 0.2074607500107959
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.004560915986075997,
+          "status": "INVALID_INPUT",
+          "solver": {
+            "backend": "none",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "NOT_SELECTED"
+          },
+          "stats": {
+            "elapsed_seconds": 0.004505832912400365
+          },
+          "verification": null
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.0028799580177292228,
+          "status": "INVALID_INPUT",
+          "solver": {
+            "backend": "none",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "NOT_SELECTED"
+          },
+          "stats": {
+            "elapsed_seconds": 0.0028765840688720345
+          },
+          "verification": null
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.0025194589979946613,
+          "status": "INVALID_INPUT",
+          "solver": {
+            "backend": "none",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "NOT_SELECTED"
+          },
+          "stats": {
+            "elapsed_seconds": 0.002517333021387458
+          },
+          "verification": null
+        }
+      ]
+    },
+    {
+      "lesson": "consecutive_days_off",
+      "step": "restored",
+      "input_sha256": "d1adb63a09384afb70376bd13ce59605ee465bf59ba99e0c1e6353946efdbe71",
+      "cold": {
+        "elapsed_seconds": 0.4380737090250477,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.40279337496031076
+        },
+        "shortage": 0,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.5935278340475634
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.013685417012311518,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.010507665923796594
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.014987166970968246,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.01151870796456933
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.013431417057290673,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.010342709021642804
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "rest_after_shift",
+      "step": "initial",
+      "input_sha256": "0be0e33a953c771a4906d38330f8e9c28adc27015840b7d25ea0f4ea159dcf83",
+      "cold": {
+        "elapsed_seconds": 0.43567687494214624,
+        "status": "PARTIAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.3978338750312105
+        },
+        "shortage": 30,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.5892487079836428
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.011996791930869222,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009409916936419904
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.013387582963332534,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009176374995149672
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.01262808300089091,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.01004845800343901
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "rest_after_shift",
+      "step": "one",
+      "input_sha256": "7bd26668ea122fc671b358b5e394306207b9fc16264f99cbddec44a5181a1fe7",
+      "cold": {
+        "elapsed_seconds": 0.4313225840451196,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.3862762920325622
+        },
+        "shortage": 0,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.5796492079971358
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.013195500010624528,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.01058825000654906
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.011480042012408376,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.008686457993462682
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.012534625013358891,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.00936354196164757
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "rest_after_shift",
+      "step": "three",
+      "input_sha256": "c2fe9912aea2c942d4d8885a0a5601192a3724968e2168347863766f85e4bc54",
+      "cold": {
+        "elapsed_seconds": 0.4169100830331445,
+        "status": "PARTIAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.3809194579953328
+        },
+        "shortage": 90,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.5812931660329923
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.01250083395279944,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009816916077397764
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.0101595000596717,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.007751833996735513
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.009345375001430511,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.006945124943740666
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "rest_after_shift",
+      "step": "midnight",
+      "input_sha256": "6216be46a9ec686925a3fb4de6c353261778bfdfbf60d91de1f6d447265363b1",
+      "cold": {
+        "elapsed_seconds": 0.4432410839945078,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.40878049994353205
+        },
+        "shortage": 0,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.6084044999442995
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.01208570902235806,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.00934358302038163
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.01039495796430856,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.007799166953191161
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.012285207980312407,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009216874954290688
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "rest_after_shift",
+      "step": "classification",
+      "input_sha256": "64e9d4e7c2abd7d5d365d5b24a699a926505f680fe17db7ced242272f3e84fc8",
+      "cold": {
+        "elapsed_seconds": 0.42789195803925395,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.3938290000660345
+        },
+        "shortage": 0,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.5823029159801081
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.012086667004041374,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.008546042023226619
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.01036095805466175,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.007905749953351915
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.012224792037159204,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.00966450001578778
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "rest_after_shift",
+      "step": "mandatory",
+      "input_sha256": "65655aa66113f12d220e3da39db1e1f4202a53a80b257cef3b96878c1b3f64d5",
+      "cold": {
+        "elapsed_seconds": 0.3664282080717385,
+        "status": "INFEASIBLE",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.36641070898622274
+        },
+        "shortage": null,
+        "verification": null,
+        "process_elapsed_seconds": 0.5308918749215081
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.006063916953280568,
+          "status": "INFEASIBLE",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.006005584029480815
+          },
+          "verification": null
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.0031277500092983246,
+          "status": "INFEASIBLE",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.0031103750225156546
+          },
+          "verification": null
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.00340962503105402,
+          "status": "INFEASIBLE",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.003393166931346059
+          },
+          "verification": null
+        }
+      ]
+    },
+    {
+      "lesson": "rest_after_shift",
+      "step": "restored",
+      "input_sha256": "0be0e33a953c771a4906d38330f8e9c28adc27015840b7d25ea0f4ea159dcf83",
+      "cold": {
+        "elapsed_seconds": 0.41415349999442697,
+        "status": "PARTIAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.3795182090252638
+        },
+        "shortage": 30,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.5698971250094473
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.011984416982159019,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009428665973246098
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.011964458972215652,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009345750091597438
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.011778415995649993,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.007609958061948419
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "forbidden_successions",
+      "step": "initial",
+      "input_sha256": "c2a74c48cb7829b5244859785b07a35ddf38b7a3a97620d36e3ce264b9cd6c05",
+      "cold": {
+        "elapsed_seconds": 0.43411366699729115,
+        "status": "PARTIAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.39654866594355553
+        },
+        "shortage": 60,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.5955602920148522
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.012801833101548254,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009267959045246243
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.010337332962080836,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.007246750057674944
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.012310791062191129,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009221874992363155
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "forbidden_successions",
+      "step": "one",
+      "input_sha256": "c55a145f1b6bcf27063a422b1ee68100d47b1f91bcf357c2ccaa977ce6079d20",
+      "cold": {
+        "elapsed_seconds": 0.4161412080284208,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.3824414169648662
+        },
+        "shortage": 0,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.5740610420471057
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.012155458913184702,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009338167030364275
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.01347820891533047,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009955791989341378
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.012819708907045424,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009879083023406565
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "forbidden_successions",
+      "step": "three",
+      "input_sha256": "d40cbec8fa3c53cf6069e03104f4d0445cf61f986adc9380b3fc6f15c33e458a",
+      "cold": {
+        "elapsed_seconds": 0.4321118750376627,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.3973655831068754
+        },
+        "shortage": 0,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.5996477080043405
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.014864625059999526,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.012121375068090856
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.011220375075936317,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.00850745802745223
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.011224083020351827,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.007923249970190227
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "forbidden_successions",
+      "step": "classification",
+      "input_sha256": "ba894b17ec9ae884b4002464cefcde1074539873218caa22d9c6974307ba7d44",
+      "cold": {
+        "elapsed_seconds": 0.4113362090429291,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.37674716697074473
+        },
+        "shortage": 0,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.5650821250164881
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.013249874929897487,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.010526666999794543
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.01203049998730421,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009292915929108858
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.011784750036895275,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.008067583083175123
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "forbidden_successions",
+      "step": "period",
+      "input_sha256": "49c9a07b2e26f72fdb1da5e787982e6965498ac2377f2c7b971df6cbca200773",
+      "cold": {
+        "elapsed_seconds": 0.41559904103633016,
+        "status": "PARTIAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.3792760840151459
+        },
+        "shortage": 60,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.571164125110954
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.012480583041906357,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009716166998259723
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.011644916026853025,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.007831958937458694
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.014181457925587893,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.011576457996852696
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "forbidden_successions",
+      "step": "margin",
+      "input_sha256": "9d75ff37b862d6bac3e4d296ed45a0b593d637eef5c5246110b55c35b89dbb23",
+      "cold": {
+        "elapsed_seconds": 0.10777991602662951,
+        "status": "INVALID_INPUT",
+        "solver": {
+          "backend": "none",
+          "engine_version": "0.2.0",
+          "library_version": null,
+          "selection_reason": "NOT_SELECTED"
+        },
+        "stats": {
+          "elapsed_seconds": 0.10777612507808954
+        },
+        "shortage": null,
+        "verification": null,
+        "process_elapsed_seconds": 0.223473499994725
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.003964207950048149,
+          "status": "INVALID_INPUT",
+          "solver": {
+            "backend": "none",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "NOT_SELECTED"
+          },
+          "stats": {
+            "elapsed_seconds": 0.003918375005014241
+          },
+          "verification": null
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.0023564579896628857,
+          "status": "INVALID_INPUT",
+          "solver": {
+            "backend": "none",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "NOT_SELECTED"
+          },
+          "stats": {
+            "elapsed_seconds": 0.002354124910198152
+          },
+          "verification": null
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.002060792059637606,
+          "status": "INVALID_INPUT",
+          "solver": {
+            "backend": "none",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "NOT_SELECTED"
+          },
+          "stats": {
+            "elapsed_seconds": 0.0020589999621734023
+          },
+          "verification": null
+        }
+      ]
+    },
+    {
+      "lesson": "forbidden_successions",
+      "step": "restored",
+      "input_sha256": "c2a74c48cb7829b5244859785b07a35ddf38b7a3a97620d36e3ce264b9cd6c05",
+      "cold": {
+        "elapsed_seconds": 0.41769270796794444,
+        "status": "PARTIAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.38133991707582027
+        },
+        "shortage": 60,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.5679343329975381
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.012710790964774787,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.008945584064349532
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.010272332932800055,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.007739582913927734
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.010125208995305002,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.007563667022623122
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "worked_date_groups",
+      "step": "initial",
+      "input_sha256": "5e056789b5d5a1e53e7afe0566e349c82de64e339a054972acc86d48771aef73",
+      "cold": {
+        "elapsed_seconds": 0.41626237495802343,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.3805983329657465
+        },
+        "shortage": 0,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.5664664999349043
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.012037290958687663,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009398792055435479
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.010348333045840263,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.007799540995620191
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.01238808291964233,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.008559375070035458
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "worked_date_groups",
+      "step": "one",
+      "input_sha256": "155cc3ec1130b581457116da89d23232a7116e55883f5571f489585385342738",
+      "cold": {
+        "elapsed_seconds": 0.45208191592246294,
+        "status": "PARTIAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.4142317500663921
+        },
+        "shortage": 60,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.6148945420281962
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.011304958024993539,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.00877762504387647
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.013609457993879914,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.008234624983742833
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.012415791978128254,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009369333041831851
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "worked_date_groups",
+      "step": "zero",
+      "input_sha256": "888c7719b28344b2d8da1265d3e6ed808065583062ef30965e6590218b60201f",
+      "cold": {
+        "elapsed_seconds": 0.3659662090940401,
+        "status": "INFEASIBLE",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.36594641697593033
+        },
+        "shortage": null,
+        "verification": null,
+        "process_elapsed_seconds": 0.5202689580619335
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.004291707999072969,
+          "status": "INFEASIBLE",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.004223915981128812
+          },
+          "verification": null
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.0029434580355882645,
+          "status": "INFEASIBLE",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.002930041984654963
+          },
+          "verification": null
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.0033056250540539622,
+          "status": "INFEASIBLE",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.003290874999947846
+          },
+          "verification": null
+        }
+      ]
+    },
+    {
+      "lesson": "worked_date_groups",
+      "step": "combined",
+      "input_sha256": "362127ebd2e57e84fc70c1ab34eeb8ea8b531493869e5cdbef6617b014f84069",
+      "cold": {
+        "elapsed_seconds": 0.41620275005698204,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.38019574992358685
+        },
+        "shortage": 0,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.5643785409629345
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.014247708022594452,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.01153558399528265
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.0117744579911232,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.0088119589490816
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.011117791989818215,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.00804562505800277
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "worked_date_groups",
+      "step": "midnight",
+      "input_sha256": "563e844e46401061c53e16aaef1395b62b1c217d87982fad7ac7380c00b8612e",
+      "cold": {
+        "elapsed_seconds": 0.4317115000449121,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.39565979095641524
+        },
+        "shortage": 0,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.5912890830077231
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.012497417046688497,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009658874943852425
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.011807999922893941,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009209458017721772
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.012882207985967398,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.008916917024180293
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "worked_date_groups",
+      "step": "restored",
+      "input_sha256": "5e056789b5d5a1e53e7afe0566e349c82de64e339a054972acc86d48771aef73",
+      "cold": {
+        "elapsed_seconds": 0.41894458304159343,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.3829605409409851
+        },
+        "shortage": 0,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.5684574590995908
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.014123041066341102,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.010666082962416112
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.010367040988057852,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.007758165942505002
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.012071209028363228,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "MANDATORY_DEMAND"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009319916018284857
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "利用者理解度・実スクリーンリーダー発話・性能保証・本番デプロイは未確認",
+    "実測は同じホストで全体回帰も稼働中。制御応答は性能証拠に含めない。"
+  ],
+  "browser": {
+    "engine": "Chromium",
+    "version": "151.0.7922.34",
+    "playwright": "1.62.1",
+    "timezone": "UTC",
+    "widths": [
+      1440,
+      390
+    ],
+    "http_samples": [
+      {
+        "id": "consecutive_days_off",
+        "initial": true,
+        "elapsed_ms": 60.699999928474426,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.01166920899413526
+        }
+      },
+      {
+        "id": "consecutive_days_off",
+        "initial": false,
+        "elapsed_ms": 47.5,
+        "status": "PARTIAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.016301791998557746
+        }
+      },
+      {
+        "id": "consecutive_days_off",
+        "initial": false,
+        "elapsed_ms": 47.699999928474426,
+        "status": "PARTIAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.01739258400630206
+        }
+      },
+      {
+        "id": "consecutive_days_off",
+        "initial": false,
+        "elapsed_ms": 47.699999928474426,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.01750025001820177
+        }
+      },
+      {
+        "id": "consecutive_days_off",
+        "initial": false,
+        "elapsed_ms": 47.300000071525574,
+        "status": "INVALID_INPUT",
+        "solver": {
+          "backend": "none",
+          "engine_version": "0.2.0",
+          "library_version": null,
+          "selection_reason": "NOT_SELECTED"
+        },
+        "stats": {
+          "elapsed_seconds": 0.004237000015564263
+        }
+      },
+      {
+        "id": "consecutive_days_off",
+        "initial": false,
+        "elapsed_ms": 47.699999928474426,
+        "status": "PARTIAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.01631479198113084
+        }
+      },
+      {
+        "id": "consecutive_days_off",
+        "initial": false,
+        "elapsed_ms": 47.699999928474426,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.016380749992094934
+        }
+      },
+      {
+        "id": "rest_after_shift",
+        "initial": true,
+        "elapsed_ms": 46.90000009536743,
+        "status": "PARTIAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.012154416996054351
+        }
+      },
+      {
+        "id": "rest_after_shift",
+        "initial": false,
+        "elapsed_ms": 47.39999997615814,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.014105667010881007
+        }
+      },
+      {
+        "id": "rest_after_shift",
+        "initial": false,
+        "elapsed_ms": 47.39999997615814,
+        "status": "PARTIAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.011900000041350722
+        }
+      },
+      {
+        "id": "rest_after_shift",
+        "initial": false,
+        "elapsed_ms": 47.5,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.011753792059607804
+        }
+      },
+      {
+        "id": "rest_after_shift",
+        "initial": false,
+        "elapsed_ms": 47.5,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.013771583908237517
+        }
+      },
+      {
+        "id": "rest_after_shift",
+        "initial": false,
+        "elapsed_ms": 47.39999997615814,
+        "status": "INFEASIBLE",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.00494249991606921
+        }
+      },
+      {
+        "id": "rest_after_shift",
+        "initial": false,
+        "elapsed_ms": 47.40000009536743,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.011196416919119656
+        }
+      },
+      {
+        "id": "rest_after_shift",
+        "initial": false,
+        "elapsed_ms": 47.60000002384186,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.013965874910354614
+        }
+      },
+      {
+        "id": "rest_after_shift",
+        "initial": false,
+        "elapsed_ms": 47.60000002384186,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.011546374997124076
+        }
+      },
+      {
+        "id": "rest_after_shift",
+        "initial": false,
+        "elapsed_ms": 47.800000071525574,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.009966999990865588
+        }
+      },
+      {
+        "id": "forbidden_successions",
+        "initial": true,
+        "elapsed_ms": 30,
+        "status": "PARTIAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.009095082990825176
+        }
+      },
+      {
+        "id": "forbidden_successions",
+        "initial": false,
+        "elapsed_ms": 48.5,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.012091708020307124
+        }
+      },
+      {
+        "id": "forbidden_successions",
+        "initial": false,
+        "elapsed_ms": 45.5,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.013932917034253478
+        }
+      },
+      {
+        "id": "forbidden_successions",
+        "initial": false,
+        "elapsed_ms": 47.39999997615814,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.014161249971948564
+        }
+      },
+      {
+        "id": "forbidden_successions",
+        "initial": false,
+        "elapsed_ms": 47.5,
+        "status": "PARTIAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.012987792026251554
+        }
+      },
+      {
+        "id": "forbidden_successions",
+        "initial": false,
+        "elapsed_ms": 47.39999997615814,
+        "status": "INVALID_INPUT",
+        "solver": {
+          "backend": "none",
+          "engine_version": "0.2.0",
+          "library_version": null,
+          "selection_reason": "NOT_SELECTED"
+        },
+        "stats": {
+          "elapsed_seconds": 0.003543166909366846
+        }
+      },
+      {
+        "id": "forbidden_successions",
+        "initial": false,
+        "elapsed_ms": 47.699999928474426,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.012634958024136722
+        }
+      },
+      {
+        "id": "forbidden_successions",
+        "initial": false,
+        "elapsed_ms": 44.200000047683716,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.011804250068962574
+        }
+      },
+      {
+        "id": "forbidden_successions",
+        "initial": false,
+        "elapsed_ms": 47.700000047683716,
+        "status": "PARTIAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.011778749991208315
+        }
+      },
+      {
+        "id": "worked_date_groups",
+        "initial": true,
+        "elapsed_ms": 30.200000047683716,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.010858875000849366
+        }
+      },
+      {
+        "id": "worked_date_groups",
+        "initial": false,
+        "elapsed_ms": 47.5,
+        "status": "PARTIAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.014618000015616417
+        }
+      },
+      {
+        "id": "worked_date_groups",
+        "initial": false,
+        "elapsed_ms": 47.60000002384186,
+        "status": "INFEASIBLE",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.004740041913464665
+        }
+      },
+      {
+        "id": "worked_date_groups",
+        "initial": false,
+        "elapsed_ms": 47.60000002384186,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.016649833996780217
+        }
+      },
+      {
+        "id": "worked_date_groups",
+        "initial": false,
+        "elapsed_ms": 47.60000002384186,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.014347999938763678
+        }
+      },
+      {
+        "id": "worked_date_groups",
+        "initial": false,
+        "elapsed_ms": 47.699999928474426,
+        "status": "PARTIAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.012289124890230596
+        }
+      },
+      {
+        "id": "worked_date_groups",
+        "initial": false,
+        "elapsed_ms": 47.89999997615814,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.012247125036083162
+        }
+      },
+      {
+        "id": "worked_date_groups",
+        "initial": false,
+        "elapsed_ms": 47.89999997615814,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "MANDATORY_DEMAND"
+        },
+        "stats": {
+          "elapsed_seconds": 0.012943375040777028
+        }
+      }
+    ]
+  }
+}
