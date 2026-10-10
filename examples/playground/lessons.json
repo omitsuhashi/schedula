@@ -1407,5 +1407,429 @@
         }
       }
     ]
+  },
+  {
+    "id": "assigned_limit",
+    "label": "担当する時間を制限する",
+    "module": "conditions",
+    "request_file": "assigned-limit.json",
+    "operation": "solve",
+    "editable_fields": [
+      {
+        "collection": "constraints",
+        "ids": [
+          "limit"
+        ],
+        "field": "limit_minutes",
+        "label": "担当時間上限",
+        "unit": "分",
+        "min": 0,
+        "max": 1440
+      }
+    ],
+    "indicators": [
+      "shortage_summary.total_person_minutes",
+      "個人別担当・勤務分数",
+      "適用する条件と評価期間"
+    ],
+    "premises": [
+      "架空の有限候補と勤務可能時間。必要人数は1人、必須最低人数は0人。人数不足以外の条件違反は許さない。",
+      "勤務量は待機を含み、休憩と分割間の非勤務を除く実経過分数。最適性は入力した有限候補と目的順序の範囲だけ。"
+    ],
+    "steps": [
+      {
+        "id": "initial",
+        "instruction": "初期条件で計算し、適用条件と担当・勤務量、不足0人分を確認する。",
+        "changes": {},
+        "restore": false,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 180.0,
+          "original_work_minutes": 0
+        }
+      },
+      {
+        "id": "lower",
+        "instruction": "担当時間の上限だけを90分へ下げる。Aは上限内に収まり、不足は30人分になる。",
+        "changes": {
+          "constraints": {
+            "limit": {
+              "limit_minutes": 90
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 30,
+          "assigned_minutes": 150.0,
+          "original_work_minutes": 0
+        }
+      },
+      {
+        "id": "zero",
+        "instruction": "担当時間の上限だけを0分へ下げる。Bの60分だけが担当可能で、不足は120人分になる。",
+        "changes": {
+          "constraints": {
+            "limit": {
+              "limit_minutes": 0
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 120,
+          "assigned_minutes": 60.0,
+          "original_work_minutes": 0
+        }
+      },
+      {
+        "id": "restored",
+        "instruction": "初期条件と初期結果へ復元する。",
+        "changes": {},
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 180.0,
+          "original_work_minutes": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "scheduled_limit",
+    "label": "勤務時間を制限する",
+    "module": "conditions",
+    "request_file": "scheduled-limit.json",
+    "operation": "solve",
+    "editable_fields": [
+      {
+        "collection": "constraints",
+        "ids": [
+          "limit"
+        ],
+        "field": "limit_minutes",
+        "label": "勤務時間上限",
+        "unit": "分",
+        "min": 0,
+        "max": 1440
+      }
+    ],
+    "indicators": [
+      "shortage_summary.total_person_minutes",
+      "個人別担当・勤務分数",
+      "適用する条件と評価期間"
+    ],
+    "premises": [
+      "架空の有限候補と勤務可能時間。必要人数は1人、必須最低人数は0人。人数不足以外の条件違反は許さない。",
+      "勤務量は待機を含み、休憩と分割間の非勤務を除く実経過分数。最適性は入力した有限候補と目的順序の範囲だけ。"
+    ],
+    "steps": [
+      {
+        "id": "initial",
+        "instruction": "初期条件で計算し、適用条件と担当・勤務量、不足0人分を確認する。",
+        "changes": {},
+        "restore": false,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 240.0,
+          "original_work_minutes": 300.0
+        }
+      },
+      {
+        "id": "lower",
+        "instruction": "勤務時間の上限だけを180分へ下げる。Aの240分の候補は選べず、不足は180人分になる。",
+        "changes": {
+          "constraints": {
+            "limit": {
+              "limit_minutes": 180
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 180,
+          "assigned_minutes": 60.0,
+          "original_work_minutes": 60.0
+        }
+      },
+      {
+        "id": "higher",
+        "instruction": "勤務時間の上限だけを300分へ増やす。候補は変わらず、待機を含む勤務量も変わらない。",
+        "changes": {
+          "constraints": {
+            "limit": {
+              "limit_minutes": 300
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 240.0,
+          "original_work_minutes": 300.0
+        }
+      },
+      {
+        "id": "restored",
+        "instruction": "初期条件と初期結果へ復元する。",
+        "changes": {},
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 240.0,
+          "original_work_minutes": 300.0
+        }
+      }
+    ]
+  },
+  {
+    "id": "scheduled_bounds",
+    "label": "週・月の勤務量を制限する",
+    "module": "conditions",
+    "request_file": "scheduled-bounds.json",
+    "operation": "solve",
+    "editable_fields": [
+      {
+        "collection": "constraints",
+        "ids": [
+          "bounds"
+        ],
+        "field": "interval",
+        "label": "評価期間",
+        "unit": "Asia/Tokyo"
+      },
+      {
+        "collection": "constraints",
+        "ids": [
+          "bounds"
+        ],
+        "field": "min_minutes",
+        "label": "勤務量下限",
+        "unit": "分",
+        "min": 0,
+        "max": 1440
+      },
+      {
+        "collection": "constraints",
+        "ids": [
+          "bounds"
+        ],
+        "field": "max_minutes",
+        "label": "勤務量上限",
+        "unit": "分",
+        "min": 0,
+        "max": 1440
+      }
+    ],
+    "indicators": [
+      "shortage_summary.total_person_minutes",
+      "個人別担当・勤務分数",
+      "適用する条件と評価期間"
+    ],
+    "premises": [
+      "架空の有限候補と勤務可能時間。必要人数は1人、必須最低人数は0人。人数不足以外の条件違反は許さない。",
+      "勤務量は待機を含み、休憩と分割間の非勤務を除く実経過分数。最適性は入力した有限候補と目的順序の範囲だけ。",
+      "評価の週は10月5〜12日、月は10月1日〜11月1日。確認済みの架空実績はAが10月2日に300分、Bは0分。既知の確定勤務は両者なし。未入力の未来を保証しない。"
+    ],
+    "steps": [
+      {
+        "id": "initial",
+        "instruction": "初期条件で計算し、適用条件と担当・勤務量、不足0人分を確認する。",
+        "changes": {},
+        "restore": false,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 120.0,
+          "original_work_minutes": 180.0
+        }
+      },
+      {
+        "id": "minimum",
+        "instruction": "週の下限だけを180分へ増やす。Aの2勤務を選び、待機も勤務量に含める。",
+        "changes": {
+          "constraints": {
+            "bounds": {
+              "min_minutes": 180
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 120.0,
+          "original_work_minutes": 180.0
+        }
+      },
+      {
+        "id": "impossible",
+        "instruction": "週の下限だけを270分へ増やす。Aの候補は最大180分なので、条件を緩めず不成立になる。",
+        "changes": {
+          "constraints": {
+            "bounds": {
+              "min_minutes": 270
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "INFEASIBLE",
+          "total_person_minutes": null,
+          "assigned_minutes": null,
+          "original_work_minutes": null
+        }
+      },
+      {
+        "id": "maximum",
+        "instruction": "週の上限だけを0分へ下げる。Aは勤務できず、2日目に60人分の不足が残る。",
+        "changes": {
+          "constraints": {
+            "bounds": {
+              "max_minutes": 0
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 60,
+          "assigned_minutes": 60.0,
+          "original_work_minutes": 90.0
+        }
+      },
+      {
+        "id": "month",
+        "instruction": "評価期間だけを10月へ変える。確認済み実績300分を含み、Aの90分候補は上限360分を超える。",
+        "changes": {
+          "constraints": {
+            "bounds": {
+              "interval": {
+                "start": "2026-10-01T00:00:00+09:00",
+                "end": "2026-11-01T00:00:00+09:00"
+              }
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 60,
+          "assigned_minutes": 60.0,
+          "original_work_minutes": 90.0
+        }
+      },
+      {
+        "id": "restored",
+        "instruction": "初期条件と初期結果へ復元する。",
+        "changes": {},
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 120.0,
+          "original_work_minutes": 180.0
+        }
+      }
+    ]
+  },
+  {
+    "id": "rest",
+    "label": "勤務間に休息を取る",
+    "module": "conditions",
+    "request_file": "rest.json",
+    "operation": "solve",
+    "editable_fields": [
+      {
+        "collection": "constraints",
+        "ids": [
+          "rest"
+        ],
+        "field": "limit_minutes",
+        "label": "必要な休息",
+        "unit": "分",
+        "min": 0,
+        "max": 1440
+      }
+    ],
+    "indicators": [
+      "shortage_summary.total_person_minutes",
+      "個人別担当・勤務分数",
+      "適用する条件と評価期間"
+    ],
+    "premises": [
+      "架空の有限候補と勤務可能時間。必要人数は1人、必須最低人数は0人。人数不足以外の条件違反は許さない。",
+      "勤務量は待機を含み、休憩と分割間の非勤務を除く実経過分数。最適性は入力した有限候補と目的順序の範囲だけ。"
+    ],
+    "steps": [
+      {
+        "id": "initial",
+        "instruction": "初期条件で計算し、適用条件と担当・勤務量、不足0人分を確認する。",
+        "changes": {},
+        "restore": false,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 720.0,
+          "original_work_minutes": 720.0
+        }
+      },
+      {
+        "id": "longer",
+        "instruction": "必要な休息だけを420分へ増やす。2候補の間は360分なので同時採用できず、240人分の不足になる。",
+        "changes": {
+          "constraints": {
+            "rest": {
+              "limit_minutes": 420
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 240,
+          "assigned_minutes": 480.0,
+          "original_work_minutes": 480.0
+        }
+      },
+      {
+        "id": "shorter",
+        "instruction": "必要な休息だけを300分へ下げる。360分の間隔は条件を満たし、不足は0人分のまま。",
+        "changes": {
+          "constraints": {
+            "rest": {
+              "limit_minutes": 300
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 720.0,
+          "original_work_minutes": 720.0
+        }
+      },
+      {
+        "id": "restored",
+        "instruction": "初期条件と初期結果へ復元する。",
+        "changes": {},
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 720.0,
+          "original_work_minutes": 720.0
+        }
+      }
+    ]
   }
 ]

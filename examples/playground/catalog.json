@@ -162,11 +162,16 @@
       ],
       "issue": 128,
       "progress": {
-        "detail": "pending",
-        "measurement": "pending",
-        "screen": "pending",
-        "test": "pending"
-      }
+        "detail": "confirmed",
+        "measurement": "confirmed",
+        "screen": "confirmed",
+        "test": "confirmed"
+      },
+      "lesson_file": "examples/playground/lessons.json",
+      "request_file": "examples/playground/assigned-limit.json",
+      "measurement_files": [
+        "docs/evaluations/results/condition-demo-20261010.json"
+      ]
     },
     {
       "id": "scheduled_limit",
@@ -181,11 +186,16 @@
       ],
       "issue": 128,
       "progress": {
-        "detail": "pending",
-        "measurement": "pending",
-        "screen": "pending",
-        "test": "pending"
-      }
+        "detail": "confirmed",
+        "measurement": "confirmed",
+        "screen": "confirmed",
+        "test": "confirmed"
+      },
+      "lesson_file": "examples/playground/lessons.json",
+      "request_file": "examples/playground/scheduled-limit.json",
+      "measurement_files": [
+        "docs/evaluations/results/condition-demo-20261010.json"
+      ]
     },
     {
       "id": "scheduled_bounds",
@@ -200,11 +210,16 @@
       ],
       "issue": 128,
       "progress": {
-        "detail": "pending",
-        "measurement": "pending",
-        "screen": "pending",
-        "test": "pending"
-      }
+        "detail": "confirmed",
+        "measurement": "confirmed",
+        "screen": "confirmed",
+        "test": "confirmed"
+      },
+      "lesson_file": "examples/playground/lessons.json",
+      "request_file": "examples/playground/scheduled-bounds.json",
+      "measurement_files": [
+        "docs/evaluations/results/condition-demo-20261010.json"
+      ]
     },
     {
       "id": "rest",
@@ -219,11 +234,16 @@
       ],
       "issue": 128,
       "progress": {
-        "detail": "pending",
-        "measurement": "pending",
-        "screen": "pending",
-        "test": "pending"
-      }
+        "detail": "confirmed",
+        "measurement": "confirmed",
+        "screen": "confirmed",
+        "test": "confirmed"
+      },
+      "lesson_file": "examples/playground/lessons.json",
+      "request_file": "examples/playground/rest.json",
+      "measurement_files": [
+        "docs/evaluations/results/condition-demo-20261010.json"
+      ]
     },
     {
       "id": "consecutive_days",

@@ -1,6 +1,6 @@
 "use strict";
 
-function isBasicLesson() { return lesson?.module === "basic"; }
+function isWorkLesson() { return ["basic", "conditions"].includes(lesson?.module); }
 function basicSelect(id, label, value, choices, update) {
   const select = node("select", "", {id}, choices.map(([value, label]) => node("option", label, {value})));
   select.value = String(value);
@@ -24,6 +24,15 @@ function basicNumber(id, label, value, min, max, update) {
 }
 function renderBasicFields() {
   const area = $("feature-fields"), input = feature.input;
+  if (["assigned_limit", "scheduled_limit", "rest"].includes(lesson.id)) area.append(
+    basicNumber("condition-limit", lesson.editable_fields[0].label, input.constraints[0].limit_minutes, 0, 1440, (v,n) => { v.constraints[0].limit_minutes=n; }));
+  if (lesson.id === "scheduled_bounds") {
+    const rule=input.constraints[0];
+    area.append(basicNumber("condition-min", "Aの期間別勤務量の下限", rule.min_minutes, 0, 1440, (v,n) => { v.constraints[0].min_minutes=n; }),
+      basicNumber("condition-max", "Aの期間別勤務量の上限", rule.max_minutes, 0, 1440, (v,n) => { v.constraints[0].max_minutes=n; }),
+      basicSelect("condition-period", "評価期間（Asia/Tokyo）", rule.interval.start, [["2026-10-05T00:00:00+09:00","週：10月5日〜12日"],["2026-10-01T00:00:00+09:00","月：10月1日〜11月1日"]],
+        (v,n) => { v.constraints[0].interval={start:n,end:n.includes("10-05") ? "2026-10-12T00:00:00+09:00" : "2026-11-01T00:00:00+09:00"}; }));
+  }
   if (lesson.id === "skills") area.append(
     basicSelect("basic-skill", "Aの接客技能レベル", input.employees[0].skills[0].level, [0,1,2].map(n => [n, n]), (v,n) => { v.employees[0].skills[0].level = Number(n); }),
     basicSelect("basic-required", "担当に必要な接客技能レベル", input.roles[0].required_skills[0].min_level, [0,1,2].map(n => [n,n]), (v,n) => { v.roles[0].required_skills[0].min_level = Number(n); }));
@@ -61,14 +70,21 @@ function basicTotals(pair) {
   return {assigned, original: shifts.reduce((n,s) => n+basicMinutes(s.segments),0), scheduled: shifts.reduce((n,s) => n+basicMinutes(s.segments,pair.input.planning_window),0)};
 }
 function basicQualified(input, employee, role) { return role.required_skills.every(required => employee.skills.some(skill => skill.skill_id === required.skill_id && skill.level >= required.min_level)); }
+function conditionMinutes(pair) {
+  const rule=pair.input.constraints[0], employee=rule.employee_ids[0];
+  if (lesson.id === "assigned_limit") return pair.response.solution.assignments.filter(a=>a.employee_id===employee).reduce((n,a)=>n+(Date.parse(a.interval.end)-Date.parse(a.interval.start))/60000,0);
+  const selected=pair.response.solution.shifts.filter(s=>s.employee_id===employee);
+  const known=lesson.id === "scheduled_bounds" ? pair.input.continuity.employees.find(e=>e.employee_id===employee) : null;
+  return [...selected,...(known?.actual_shifts || []),...(known?.committed_shifts || [])].reduce((n,s)=>n+basicMinutes(s.segments,rule.interval || pair.input.planning_window),0);
+}
 function basicCards(pair, base) {
   const cards = [];
   for (const {collection, ids, field, label, unit} of lesson.editable_fields) for (const id of ids) {
     const first = feature.initial[collection].find(item => item.id === id), current = pair.input[collection].find(item => item.id === id);
     if (JSON.stringify(first[field]) === JSON.stringify(current[field])) continue;
     const card = featureMetric(`変更した条件 · ${label}${ids.length > 1 ? ` (${current.label || current.interval?.start.slice(0,10) || id})` : ""}`,
-      displayField(field,first[field]), displayField(field,current[field]), ["required_people","limit_minutes"].includes(field) ? unit : "");
-    if (!["required_people","limit_minutes"].includes(field)) card.classList.add("feature-condition");
+      displayField(field,first[field]), displayField(field,current[field]), ["required_people","limit_minutes","min_minutes","max_minutes"].includes(field) ? unit : "");
+    if (!["required_people","limit_minutes","min_minutes","max_minutes"].includes(field)) card.classList.add("feature-condition");
     cards.push(card);
   }
   if (!cards.length) cards.push(node("p", "初期条件からの変更なし。", {class:"note"}));
@@ -77,6 +93,9 @@ function basicCards(pair, base) {
     const qualified = v => v.employees.filter(e => basicQualified(v,e,v.roles[0])).length;
     cards.push(featureMetric("担当資格のある人",qualified(feature.initial),qualified(pair.input),"人"));
   }
+  if (["assigned_limit","scheduled_limit","scheduled_bounds"].includes(lesson.id)) cards.push(featureMetric(
+    lesson.id === "assigned_limit" ? "Aが担当した時間" : lesson.id === "scheduled_limit" ? "Aの計画内勤務量（待機込み）" : "Aの評価期間の勤務量（実績・確定勤務込み）",
+    before ? conditionMinutes(base) : null,conditionMinutes(pair),"分"));
   if (pair.input.problem_type === "roster") cards.push(featureMetric("計画内の勤務量（休憩・分割間を除く）",before?.scheduled ?? null,current.scheduled,"分"),
     featureMetric("計画内の待機（勤務量に含む）",before ? before.scheduled-before.assigned : null,current.scheduled-current.assigned,"分"));
   else cards.push(featureMetric("担当した時間",before?.assigned ?? null,current.assigned,"分"));
@@ -84,6 +103,19 @@ function basicCards(pair, base) {
 }
 function basicPlan(pair, base) {
   const area = node("div"), input = pair.input, shifts = pair.response.solution.shifts;
+  if (lesson.module === "conditions") {
+    const rule=input.constraints[0];
+    if (lesson.id === "rest") {
+      const [first,next]=input.shift_candidates, end=first.segments.at(-1).interval.end, start=next.segments[0].interval.start;
+      const gap=(Date.parse(start)-Date.parse(end))/60000;
+      area.append(scroll("勤務間の休息",table("前勤務の最終終了から次勤務の最初の開始まで。勤務中の休憩とは別です。",["前勤務終了","次勤務開始","候補間の休息","必要な休息","同時採用の可否","今回の採用"],[node("tr","",{},[
+        node("td",dated(end)),node("td",dated(start)),node("td",`${gap}分`),node("td",`${rule.limit_minutes}分`),node("td",gap>=rule.limit_minutes ? "休息条件を満たす" : "休息条件を満たさない"),node("td",shifts.map(s=>s.candidate_id===first.id ? "夜勤" : "日勤").join("・") || "なし")])])));
+    } else {
+      const bounded=lesson.id === "scheduled_bounds", amount=conditionMinutes(pair);
+      area.append(scroll("適用条件と実際の分数",table(bounded ? "評価区間に重なる実績・確定勤務・今回の勤務を一度ずつ集計します。" : "担当時間は役割担当だけ。勤務量は待機を含み、休憩・分割間を除きます。",["対象者","評価期間","下限","上限","実際","条件の充足"],[node("tr","",{},[
+        node("th",input.employees.find(e=>e.id===rule.employee_ids[0]).label,{scope:"row"}),node("td",datedRange(rule.interval || input.planning_window)),node("td",bounded ? `${rule.min_minutes}分` : "指定なし"),node("td",`${bounded ? rule.max_minutes : rule.limit_minutes}分`),node("td",`${amount}分`),node("td","条件内")])])));
+    }
+  }
   if (lesson.id === "skills") area.append(scroll("担当資格の比較",table("必要技能を満たす人だけが担当可能",["従業員","保有レベル","必要レベル","担当資格"],input.employees.map(e => node("tr","",{},[
     node("th",e.label,{scope:"row"}),node("td",e.skills[0].level),node("td",input.roles[0].required_skills[0].min_level),node("td",basicQualified(input,e,input.roles[0]) ? "担当可能" : "担当不可")])))));
   if (input.problem_type === "roster") {
