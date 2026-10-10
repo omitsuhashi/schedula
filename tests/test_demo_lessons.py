@@ -90,7 +90,11 @@ def work_runs(request, solution):
 
 @pytest.mark.parametrize(
     "lesson",
-    [item for item in LESSONS if item["operation"] == "solve" and item.get("module") != "basic"],
+    [
+        item
+        for item in LESSONS
+        if item["operation"] == "solve" and item.get("module") not in {"basic", "conditions"}
+    ],
     ids=lambda item: item["id"],
 )
 def test_lesson_initial_changes_history_and_restore(lesson):

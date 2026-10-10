@@ -8,6 +8,7 @@ const featureMeasurements = [];
 function dated(value) { return `${value.slice(0, 10)} ${value.slice(11, 16)} Asia/Tokyo`; }
 function datedRange(interval) { return `${dated(interval.start)}〜${dated(interval.end)}`; }
 function displayField(field, value) {
+  if (field === "interval") return datedRange(value);
   if (field === "employee_targets") return ["alice", "bob"].map(id => { const target = value.find(item => item.employee_id === id); return `${id} ${target ? `${target.target_count}回` : "未指定（対象外）"}`; }).join(" / ");
   if (field === "intervals") return value.map(datedRange).join(" / ");
   if (field === "availability") return value.map(datedRange).join(" / ") || "勤務不可";
@@ -60,7 +61,7 @@ function featureMetric(label, before, after, unit, warning = false) {
 function featureSummary(pair, base) {
   const comparable = base && operationView(lesson.operation, base.response).validPlan;
   const cards = [];
-  if (isBasicLesson()) cards.push(...basicCards(pair, base));
+  if (isWorkLesson()) cards.push(...basicCards(pair, base));
   if (lesson.id === "demand") {
     const count = input => input.demand.find(item => item.id === "hall_2").required_people;
     const assigned = value => {
@@ -103,7 +104,7 @@ function featureSummary(pair, base) {
 }
 
 function featurePlan(pair, base = null) {
-  if (isBasicLesson()) return basicPlan(pair, base);
+  if (isWorkLesson()) return basicPlan(pair, base);
   const comparable = base && operationView(lesson.operation, base.response).validPlan;
   if (lesson.id === "consecutive_days") {
     const dates = [...new Set(jsonSlots(pair.input).map(slot => slot.date))];
@@ -203,7 +204,10 @@ function renderFeature(message) {
           node("ul", "", {}, differences.map(text => node("li", text)))]));
       } else area.append(node("p", "初期結果に有効な計画がないため勤務表の差分は比較できません。"));
       area.append(proof);
-    } else area.append(inputs, node("p", "解がないため勤務表の差分は比較できません。入力と状態を比較してください。"));
+    } else {
+      if (lesson.module === "conditions") inputs.open = true;
+      area.append(inputs, node("p", "解がないため勤務表の差分は比較できません。入力と状態を比較してください。"));
+    }
     if (!operationView(lesson.operation, pair.response).validPlan) area.append(...pair.response.diagnostics.map(item => node("p", `${item.code}：${item.message} (${item.json_pointer ?? ""})`)));
     const technical = node("details", "", {}, [node("summary", "入力・診断・保存した結果（詳細）"),
       details("全診断", pair.response.diagnostics), details("確定入力・全Response・目的と証明範囲", pair)]);
@@ -228,7 +232,7 @@ function renderFeatureFields() {
   area.replaceChildren();
   if (lesson.id === "shift_count_balance") return renderCountFields();
   if (lesson.operation === "verify") return renderVerifyFields();
-  if (isBasicLesson()) return renderBasicFields();
+  if (isWorkLesson()) return renderBasicFields();
   const definition = lesson.editable_fields[0];
   const number = node("input", "", {id: "feature-number", type: "number", required: "", min: definition.min, max: definition.max, step: "1"});
   number.value = feature.input[definition.collection].find(item => item.id === definition.ids[0])[definition.field];
@@ -373,6 +377,7 @@ async function routeFeature() {
       "連勤上限だけを5日から3日へ変えます。Aの希望を優先する選好、B・Cの交代要員、各日09:00〜10:00の需要1人が前提です。");
     $("feature-premises").replaceChildren(node("p", `${request.employees.length}人 / ${datedRange(request.planning_window)} / ${request.planning_window.slot_minutes}分刻み / ${lesson.operation === "verify" ? "公開verify：探索なし" : `探索予算${request.solver.time_limit_seconds}秒（総応答時間とは別）`}`),
       node("p", `目的順序：${request.objectives.map(item => item.metric).join(" → ") || "なし"}`),
+      ...(lesson.premises || []).map(text => node("p", text)),
       details("技能・需要・候補・希望・必須条件を含む全入力", input));
     renderFeatureFields(); renderFeatureGuide();
     $("feature-controls").disabled = false;
