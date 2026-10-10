@@ -24,7 +24,10 @@ module.exports=async(browser,url,report)=>{
         assert.equal(await page.locator(".feature-overview").count(),0);
         assert.equal(await page.locator(".feature-input-changes").evaluate(x=>x.open),true);
         assert.match(await page.locator("#feature-output").innerText(),/変更した条件.*解がないため/s);
-        if(step.id==="future")assert.match(await page.locator("#feature-output").innerText(),/INVALID_DAY_COUNT_INTERVAL/);
+        if(step.id==="future"){
+          assert.match(await page.locator("#feature-output").innerText(),/INVALID_DAY_COUNT_INTERVAL/);
+          assert.match(await page.locator("#day-period option:checked").innerText(),/10月5日〜11日/);
+        }
       }else{
         assert.deepEqual(pair.response.day_count_summary[0].employees[0],step.expected.day_counts);
         assert.equal(pair.response.shortage_summary.total_person_minutes,step.expected.total_person_minutes);
@@ -54,7 +57,7 @@ module.exports=async(browser,url,report)=>{
     assert.equal(await page.evaluate(()=>feature.current),null);await page.locator("#feature-run").click();await ready();
     assert.equal(await page.evaluate(()=>feature.current.response.status),"INVALID_INPUT");assert.equal(await page.locator(".feature-overview").count(),0);
     await page.locator("#day-min_days").selectOption("0");await page.locator("#day-max_days").selectOption("5");
-    await page.locator("#day-period").selectOption("2026-10-04T00:00:00+09:00");await page.locator("#feature-run").click();await ready();
+    await page.locator("#day-period").selectOption("2026-10-04T00:00:00+09:00/2026-10-10T00:00:00+09:00");await page.locator("#feature-run").click();await ready();
     assert.equal(await page.evaluate(()=>feature.current.response.day_count_summary[0].employees[0].work_days),4);
     await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
     const region=page.getByRole("region",{name:"日別の数え方",exact:true});await region.focus();await page.keyboard.press("ArrowRight");assert.equal(await region.evaluate(x=>x===document.activeElement),true);

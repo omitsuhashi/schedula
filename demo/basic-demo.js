@@ -28,9 +28,10 @@ function renderBasicFields() {
     const rule=input.constraints[0];
     for (const [field,label] of [["min_days","日数下限"],["max_days","日数上限"]]) area.append(basicSelect(`day-${field}`, `${label}（日）`, rule[field],
       Array.from({length:6},(_,n)=>[n,n]), (v,n)=>{v.constraints[0][field]=Number(n);}));
-    area.append(basicSelect("day-period", "評価期間（Asia/Tokyo・終端を含まない）", rule.interval.start,
-      [["2026-10-05T00:00:00+09:00","10月5日〜10日：計画期間"],["2026-10-04T00:00:00+09:00","10月4日〜10日：確認済み実績込み"],["2026-10-09T00:00:00+09:00","10月9日〜10日：0時終了の翌日"]],
-      (v,n)=>{v.constraints[0].interval={start:n,end:"2026-10-10T00:00:00+09:00"};}));
+    area.append(basicSelect("day-period", "評価期間（Asia/Tokyo・終端を含まない）", `${rule.interval.start}/${rule.interval.end}`,
+      [[5,10,"10月5日〜10日：計画期間"],[4,10,"10月4日〜10日：確認済み実績込み"],[9,10,"10月9日〜10日：0時終了の翌日"],[5,11,"10月5日〜11日：計画外の未来（入力不正）"]]
+        .map(([start,end,label])=>[`2026-10-0${start}T00:00:00+09:00/2026-10-${end}T00:00:00+09:00`,label]),
+      (v,n)=>{const [start,end]=n.split("/");v.constraints[0].interval={start,end};}));
   }
   if (["assigned_limit", "scheduled_limit", "rest"].includes(lesson.id)) area.append(
     basicNumber("condition-limit", lesson.editable_fields[0].label, input.constraints[0].limit_minutes, 0, 1440, (v,n) => { v.constraints[0].limit_minutes=n; }));
