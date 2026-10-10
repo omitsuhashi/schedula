@@ -35,7 +35,7 @@ Python教材試験は`tests/test_basic_demo_lessons.py`、HTTPと既存教材の
 1440px/390px、表スクロールへのキーボードフォーカス、強制配色、日付・タイムゾーン、原区間・非勤務・休息を確認する。
 既存4主題、JSON・ファイル・複合フォーム・100人30日・入力確認・記録の全回帰も維持する。
 
-環境、固定依存、入力・画面・テストのSHA-256、各段階の冷起動と同一プロセス反復、HTTPから描画までの実測は[生記録](https://github.com/omitsuhashi/schedula/blob/codex/basic-feature-demos/docs/evaluations/results/basic-demo-20261010.json)に保存する。
+環境、固定依存、入力・画面・テストのSHA-256、各段階の冷起動と同一プロセス反復、HTTPから描画までの実測は[生記録](https://github.com/omitsuhashi/schedula/blob/60263dc0c7bce708f95ba3caa155699bf4b68db5/docs/evaluations/results/basic-demo-20261010.json)に保存する。
 冷起動は新しいPythonプロセスのimport・solve・verifyと起動終了を含む。OSキャッシュは消さない。
 継続は同一プロセスで3回のsolve・verify。HTTPの測定はPOSTの往復・応答受理・DOM更新と2回の描画待ちまでで、ページ／教材GETを含まない。
 探索予算5秒と総応答時間は別であり、少数標本の最大値を一般的な性能保証にしない。
