@@ -39,6 +39,9 @@ module.exports = async (browser, url, report) => {
       if(lesson.id==="split_shift"&&step.id!=="long_gap")assert.match(await page.getByRole("region",{name:"日付付き勤務表"}).innerText(),/分割間の非勤務/);
       if(lesson.id.startsWith("coverage_"))assert.equal(await page.locator(".basic-day").count(),lesson.id==="coverage_24h"?1:2);
       assert.match(await page.locator(".basic-day > summary").first().innerText(),/2026-10-05 Asia\/Tokyo/);
+      const firstSlot=await page.getByRole("region",{name:"JSON の担当配置表",exact:true}).first().locator("thead th").nth(1).innerText();
+      if(lesson.id==="overnight")assert.equal(firstSlot,"22:00〜22:30");
+      if(lesson.id.startsWith("coverage_"))assert.equal(firstSlot,"00:00〜00:30");
       if(lesson.id==="coverage_48h"&&step.id==="rest")assert.match(await page.getByRole("region",{name:"候補間の休息"}).innerText(),/960分.*1020分.*休息条件を満たさない/s);
       if(step.id==="restored")assert.deepEqual(pair,baseline);
       report.interactions.push({lesson:lesson.id,step:step.id,status:pair.response.status,verification:pair.response.verification});
