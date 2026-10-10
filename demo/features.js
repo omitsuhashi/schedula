@@ -41,21 +41,104 @@ function consecutiveRuns(pair) {
   });
 }
 
-function featureIndicators(pair) {
-  const values = [`不足合計 ${pair.response.shortage_summary.total_person_minutes}人分`];
-  if (lesson.id === "consecutive_days") values.push(`最大連勤（履歴込み） ${Math.max(...consecutiveRuns(pair).map(item => item.maximum))}日`);
-  if (lesson.id === "shift_count_balance") values.push(...countIndicators(pair));
-  return values;
+function featureMetric(label, before, after, unit, warning = false) {
+  return node("div", "", {class: `feature-metric${warning ? " shortage" : ""}`}, [
+    node("p", label, {class: "note"}),
+    node("div", "", {class: "feature-values"}, [
+      node("span", "", {}, [node("small", "初期"), node("strong", before == null ? "—" : `${before}${unit}`)]),
+      node("span", "→", {"aria-hidden": "true"}),
+      node("span", "", {}, [node("small", "現在"), node("strong", `${after}${unit}`)]),
+    ]),
+    node("small", before == null ? "初期結果は比較できません" : before === after ? "変化なし" : "初期から変化"),
+  ]);
 }
 
-function featurePlan(pair) {
+function featureSummary(pair, base) {
+  const comparable = base && operationView(lesson.operation, base.response).validPlan;
+  const cards = [];
+  if (lesson.id === "demand") {
+    const count = input => input.demand.find(item => item.id === "hall_2").required_people;
+    const assigned = value => {
+      const demand = value.input.demand.filter(item => ["hall_2", "hall_3"].includes(item.id));
+      const counts = jsonSlots(value.input).filter(slot => demand.some(item => Date.parse(item.interval.start) <= slot.start && Date.parse(item.interval.end) >= slot.end))
+        .map(slot => value.response.solution.assignments.filter(item => item.role_id === "hall" && Date.parse(item.interval.start) <= slot.start && Date.parse(item.interval.end) >= slot.end).length);
+      const minimum = Math.min(...counts), maximum = Math.max(...counts);
+      return minimum === maximum ? String(minimum) : `${minimum}〜${maximum}`;
+    };
+    cards.push(featureMetric("変更した条件 · 12:00〜13:00のホール", count(feature.initial), count(pair.input), "人"),
+      featureMetric("12:00〜13:00に配置できた人数", comparable ? assigned(base) : null, assigned(pair), "人"));
+  }
+  if (lesson.id === "consecutive_days") {
+    const limit = input => input.constraints.find(item => item.id === "consecutive").limit_days;
+    for (const {collection, ids, field, label, unit} of lesson.editable_fields) for (const id of ids) {
+      const before = feature.initial[collection].find(item => item.id === id);
+      const after = pair.input[collection].find(item => item.id === id);
+      if (JSON.stringify(before[field]) === JSON.stringify(after[field])) continue;
+      const card = featureMetric(`変更した条件 · ${label}${collection === "employees" ? ` (${after.label})` : ""}`,
+        displayField(field, before[field]), displayField(field, after[field]), field === "limit_days" ? unit : "");
+      if (field !== "limit_days") card.classList.add("feature-condition");
+      cards.push(card);
+    }
+    if (!cards.length) cards.push(featureMetric("条件 · 連勤上限", limit(feature.initial), limit(pair.input), "日"));
+    cards.push(featureMetric("実際の最大連勤（履歴込み）", comparable ? Math.max(...consecutiveRuns(base).map(item => item.maximum)) : null,
+      Math.max(...consecutiveRuns(pair).map(item => item.maximum)), "日"));
+  }
+  if (lesson.id === "shift_count_balance") cards.push(featureMetric("勤務回数の目標偏差", comparable ? base.response.shift_count_balance_summary[0].total_deviation_count : null,
+    pair.response.shift_count_balance_summary[0].total_deviation_count, "回"));
+  const shortage = pair.response.shortage_summary.total_person_minutes;
+  cards.push(featureMetric("不足合計", comparable ? base.response.shortage_summary.total_person_minutes : null, shortage, "人分", shortage > 0));
+  const summary = node("div", "", {class: "feature-summary"}, cards);
+  const title = shortage ? "必要人数を満たせない時間帯があります" : "必要人数をすべて満たしています";
+  return node("section", "", {class: "feature-overview", "aria-label": "変更と結果の要点"}, [
+    node("h3", title), node("p", "必須条件は守れています。", {class: "feature-validity"}), summary,
+    ...(shortage ? [node("ul", "", {class: "feature-shortage-locations"}, pair.response.shortage_summary.shortages.map(item =>
+      node("li", `${pair.input.roles.find(role => role.id === item.role_id).label} · ${datedRange(item.interval)} · 不足${item.missing_people}人`)))] : []),
+    ...(shortage ? [node("p", "不足1人が60分続くと60人分です。追加する従業員の人数とは異なります。", {class: "note"})] : []),
+  ]);
+}
+
+function featurePlan(pair, base = null) {
+  const comparable = base && operationView(lesson.operation, base.response).validPlan;
   if (lesson.id === "consecutive_days") {
     const dates = [...new Set(jsonSlots(pair.input).map(slot => slot.date))];
-    return scroll("日別の勤務表", table("勤務の開始日で数える勤務日・明示履歴を含む最大連勤", ["従業員", "直前の連勤", ...dates, "最大連勤"],
+    const initialRuns = comparable ? consecutiveRuns(base) : [];
+    return scroll("日別の勤務表", table(`${dates[0]}〜${dates.at(-1)} Asia/Tokyo · 勤務の開始日で数える・休みはこの例の完全休日`, ["従業員", "直前の連勤", ...dates.map(day => day.slice(5).replace("-", "/")), "最大連勤"],
       consecutiveRuns(pair).map(({employee, days, maximum}) => node("tr", "", {}, [
         node("th", employee.label, {scope: "row"}), node("td", `${employee.history.consecutive_work_days_before_window}日`),
-        ...dates.map(day => node("td", days.has(day) ? "勤務 09:00〜10:00" : "勤務なし")), node("td", `${maximum}日`),
+        ...dates.map(day => {
+          const previous = initialRuns.find(item => item.employee.id === employee.id);
+          const changed = previous && previous.days.has(day) !== days.has(day);
+          return node("td", "", {class: `${days.has(day) ? "feature-work" : "feature-off"}${changed ? " feature-changed" : ""}`}, [
+            node("strong", days.has(day) ? "勤務" : "休み"),
+            node("small", days.has(day) ? "09:00〜10:00" : "完全休日"),
+            ...(changed ? [node("small", "変更"), node("small", `${previous.days.has(day) ? "勤務" : "休み"}→${days.has(day) ? "勤務" : "休み"}`)] : []),
+          ]);
+        }), node("td", `${maximum}日`),
       ]))));
+  }
+  if (lesson.id === "demand") {
+    const covers = (interval, slot) => Date.parse(interval.start) <= slot.start && Date.parse(interval.end) >= slot.end;
+    const counts = (value, role, slot) => ({
+      required: value.input.demand.find(item => item.role_id === role && covers(item.interval, slot))?.required_people || 0,
+      assigned: value.response.solution.assignments.filter(item => item.role_id === role && covers(item.interval, slot)).length,
+    });
+    const peak = pair.input.demand.filter(item => ["hall_2", "hall_3"].includes(item.id));
+    const grid = jsonSlots(pair.input).filter(slot => peak.some(item => covers(item.interval, slot)) || pair.input.roles.some(role => {
+      const now = counts(pair, role.id, slot), before = comparable ? counts(base, role.id, slot) : null;
+      return now.assigned < now.required || (before && (now.assigned !== before.assigned || now.required !== before.required));
+    }));
+    return scroll("必要人数と配置人数", table("12:00〜13:00と、人数変化・不足のある時間帯 · ● 配置 / □ 不足", ["役割", ...grid.map(slot => slot.label)],
+      pair.input.roles.map(role => node("tr", "", {}, [node("th", role.label, {scope: "row"}), ...grid.map(slot => {
+        const now = counts(pair, role.id, slot), before = comparable ? counts(base, role.id, slot) : null;
+        const missing = Math.max(0, now.required - now.assigned);
+        const changed = before && (now.required !== before.required || now.assigned !== before.assigned);
+        return node("td", "", {class: `${missing ? "shortage" : ""}${changed ? " feature-changed" : ""}`}, [
+          node("span", "●".repeat(now.assigned) + "□".repeat(missing), {class: "feature-people", "aria-hidden": "true"}),
+          node("strong", `配置${now.assigned} / 必要${now.required}人`),
+          node("small", missing ? `不足${missing}人` : "不足なし"),
+          ...(changed ? [node("small", `変更 · 初期は配置${before.assigned} / 必要${before.required}人`)] : []),
+        ]);
+      })]))));
   }
   const area = node("div"), grid = jsonSlots(pair.input);
   renderJSONDay(pair, grid, area);
@@ -82,31 +165,47 @@ function renderFeature(message) {
   if (lesson.operation === "verify") return renderVerify(message);
   const area = $("feature-output"), pair = feature.current, base = feature.baseline;
   $("feature-status").textContent = message || (pair ? `${pair.response.status} · ${pair.response.status === "PARTIAL" ? "必要人数に不足のある計画です。" : pair.response.status === "OPTIMAL" ? "必須条件と需要を満たす計画です。" : stateText[pair.response.status]}` : "未計算：編集した条件で再計算してください。");
-  area.replaceChildren(node("h3", "入力差分"));
+  area.replaceChildren();
   const changes = featureChanges(lesson.editable_fields, feature.initial, feature.input);
-  area.append(node("ul", "", {}, (changes.length ? changes : ["初期条件からの変更なし"]).map(text => node("li", text))));
+  const inputs = node("details", "", {class: "feature-input-changes"}, [node("summary", changes.length ? `変更した条件 · ${changes.length}項目` : "初期条件からの変更なし"),
+    node("ul", "", {}, changes.map(text => node("li", text)))]);
+  if (!pair) {
+    inputs.open = true;
+    area.append(inputs);
+  }
   if (lesson.id === "shift_count_balance") area.append(countPremises(feature.input));
-  if (base) area.append(node("p", `初期比較元：${base.response.status} / 現在：${pair?.response.status || "未計算"}`));
   if (pair) {
     if (operationView(lesson.operation, pair.response).validPlan) {
-      area.append(node("h3", "この機能の指標"), ...featureIndicators(pair).map(text => node("p", text)), renderShortages(pair));
-      area.append(node("p", `有効性：独立検証済み / 最適性：${pair.response.status === "OPTIMAL" ? "目的順序すべて証明済み" : "全目的の最適性は未証明"}`));
+      area.append(featureSummary(pair, base));
+      if (lesson.id === "shift_count_balance") area.append(...countIndicators(pair).map(text => node("p", text)));
+      const highlighted = ["demand", "consecutive_days"].includes(lesson.id);
+      area.append(node("h3", lesson.id === "demand" ? "どの時間帯が変わったか" : highlighted ? "誰の勤務が変わったか" : "現在の勤務・担当表"),
+        node("p", `${highlighted ? "枠線と「変更」は初期からの変化です。" : ""}同率解の差も含み得ます。`, {class: "note"}), featurePlan(pair, base), inputs);
+      const proven = pair.response.shortage_summary.proven_minimal && pair.response.priority_summary.groups.every(item => item.proven_minimal) &&
+        pair.response.objectives.every(item => item.proven_optimal);
+      const proof = node("details", "", {class: "feature-proof"}, [node("summary", "条件の検証・不足・最適性の詳しい情報"),
+        node("p", `有効性：独立検証済み / 最適性：${proven ? "目的順序すべて証明済み" : "全目的の最適性は未証明"}`), renderShortages(pair)]);
+      if (lesson.id === "demand") {
+        const assignments = node("details", "", {}, [node("summary", "誰を配置したか · 担当表")]);
+        const plan = node("div"); renderJSONDay(pair, jsonSlots(pair.input), plan);
+        assignments.append(plan); area.append(assignments);
+      }
       if (base && operationView(lesson.operation, base.response).validPlan) {
-        const initial = featureIndicators(base), actual = featureIndicators(pair);
-        area.append(...actual.map((value, i) => node("p", `${initial[i]} → ${value}${initial[i] === value ? "（この指標は変わらない）" : ""}`)));
         const differences = featurePlanChanges(base, pair);
-        area.append(node("h3", `勤務・担当の差分：${differences.length}件`),
+        area.append(node("details", "", {}, [node("summary", `勤務・担当の差分：${differences.length}件`),
           node("p", "同率解の差も含み得ます。表示比較であり、変更最小化ではありません。"),
-          node("ul", "", {}, differences.map(text => node("li", text))));
+          node("ul", "", {}, differences.map(text => node("li", text)))]));
       } else area.append(node("p", "初期結果に有効な計画がないため勤務表の差分は比較できません。"));
-      area.append(node("h3", "現在の勤務・担当表"), featurePlan(pair));
-    } else area.append(node("p", "解がないため勤務表の差分は比較できません。入力と状態を比較してください。"));
+      area.append(proof);
+    } else area.append(inputs, node("p", "解がないため勤務表の差分は比較できません。入力と状態を比較してください。"));
     if (!operationView(lesson.operation, pair.response).validPlan) area.append(...pair.response.diagnostics.map(item => node("p", `${item.code}：${item.message} (${item.json_pointer ?? ""})`)));
-    area.append(details("全診断", pair.response.diagnostics),
-      details("確定入力・全Response・目的と証明範囲", pair));
+    const technical = node("details", "", {}, [node("summary", "入力・診断・保存した結果（詳細）"),
+      details("全診断", pair.response.diagnostics), details("確定入力・全Response・目的と証明範囲", pair)]);
+    if (base) technical.append(details("初期入力と実結果", base));
+    if (feature.previous) technical.append(details("変更前の結果（現在の条件には無効）", feature.previous));
+    area.append(technical);
   }
-  if (base) area.append(details("初期入力と実結果", base));
-  if (feature.previous) area.append(details("変更前の結果（現在の条件には無効）", feature.previous));
+  if (!pair && feature.previous) area.append(details("変更前の結果（現在の条件には無効）", feature.previous));
 }
 
 function featureEdited(input) {
