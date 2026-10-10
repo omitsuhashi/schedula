@@ -25,6 +25,8 @@ module.exports = async (browser, url, report) => {
           await page.locator(`[data-step="${step.id}"]`).click();
           assert.equal(await page.evaluate(() => feature.current), null);
           assert.match(await page.locator("#feature-status").innerText(), /未計算/);
+          assert.equal(await page.locator(".feature-overview").count(), 0);
+          assert.equal(await page.locator(".feature-input-changes").evaluate(element => element.open), true);
           await page.locator("#feature-run").click();
         }
       }
@@ -44,8 +46,35 @@ module.exports = async (browser, url, report) => {
       if (step.expected.max_consecutive_days) {
         assert.equal(await page.evaluate(() => Math.max(...consecutiveRuns(feature.current).map(item => item.maximum))), step.expected.max_consecutive_days);
       }
-      if (step.id === "shorter") assert.match(await page.locator("#feature-output").innerText(), /5 → 3 · 日/);
-      if (step.id === "covered") assert.match(await page.locator("#feature-output").innerText(), /2 → 3 · 人/);
+      const summary = page.getByRole("region", {name: "変更と結果の要点"});
+      assert.match(await summary.innerText(), new RegExp(`現在\\s*${step.expected.total_person_minutes}人分`));
+      const proof = page.locator(".feature-proof");
+      assert.equal(await proof.evaluate(element => element.open), false);
+      await proof.locator("summary").click();
+      assert.match(await proof.innerText(), /有効性：独立検証済み/);
+      assert.match(await proof.innerText(), /不足最小性：証明済み/);
+      await proof.locator("summary").click();
+      if (step.id === "shorter") {
+        assert.match(await summary.innerText(), /初期\s*5日\s*→\s*現在\s*3日/);
+        assert.ok(await page.locator(".feature-changed").count() > 0);
+      }
+      if (step.id === "covered") {
+        assert.match(await summary.innerText(), /初期\s*2人\s*→\s*現在\s*3人/);
+        assert.equal(await page.locator(".feature-changed").count(), 2);
+      }
+      if (lesson.id === "demand" && step.id === "shortage") {
+        const counts = ["hall_2", "hall_3"].map(id => {
+          const interval = pair.input.demand.find(item => item.id === id).interval;
+          return pair.response.solution.assignments.filter(item => item.role_id === "hall" && Date.parse(item.interval.start) <= Date.parse(interval.start) && Date.parse(item.interval.end) >= Date.parse(interval.end)).length;
+        });
+        const value = counts[0] === counts[1] ? String(counts[0]) : `${Math.min(...counts)}〜${Math.max(...counts)}`;
+        assert.match(await summary.innerText(), new RegExp(`配置できた人数\\s*初期\\s*2人\\s*→\\s*現在\\s*${value}人`));
+        assert.match(await summary.innerText(), /必要人数を満たせない時間帯/);
+        const coverage = await page.getByRole("region", {name: "必要人数と配置人数"}).innerText();
+        for (const count of counts) assert.match(coverage, new RegExp(`配置${count} / 必要4人\\s*${count === 4 ? "不足なし" : `不足${4 - count}人`}`));
+      }
+      if (["covered", "shortage", "shorter", "fewer_backups"].includes(step.id))
+        await page.screenshot({path: `test-results/feature-${lesson.id}-${step.id}.png`, fullPage: true});
       if (step.id === "restored") assert.deepEqual(pair, initial);
       report.interactions.push({lesson: lesson.id, step: step.id, status: pair.response.status, verification: pair.response.verification});
     }
@@ -56,9 +85,13 @@ module.exports = async (browser, url, report) => {
     await page.locator("#feature-run").click(); await ready(page);
     await page.setViewportSize({width: 390, height: 844});
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
-    await page.getByRole("region", {name: lesson.id === "consecutive_days" ? "日別の勤務表" : "JSON の担当配置表", exact: true}).focus();
+    assert.equal(await page.locator(".feature-summary").evaluate(element => getComputedStyle(element).gridTemplateColumns.split(" ").length), 1);
+    await page.getByRole("region", {name: lesson.id === "consecutive_days" ? "日別の勤務表" : lesson.id === "demand" ? "必要人数と配置人数" : "JSON の担当配置表", exact: true}).focus();
     await page.keyboard.press("ArrowRight");
     await page.screenshot({path: `test-results/feature-${lesson.id}-mobile.png`, fullPage: true});
+    await page.emulateMedia({forcedColors: "active"});
+    assert.match(await page.locator("#feature-output").innerText(), /必須条件は守れています/);
+    await page.emulateMedia({forcedColors: "none"});
     await page.setViewportSize({width: 1440, height: 1000});
     await page.locator("#feature-restore").click(); await ready(page);
     // HTTP + 描画を3回。最初の画面計算と継続実行を別々に記録。
@@ -84,6 +117,21 @@ module.exports = async (browser, url, report) => {
   assert.match(await page.locator("#feature-output").innerText(), /初期結果に有効な計画がない/);
   await page.unroute("**/solve-json");
   report.response_samples.push("機能デモの初期INFEASIBLEから編集・実再試行");
+  const proofText = await page.evaluate(() => {
+    const actual = feature.current.response;
+    feature.current.response = structuredClone(actual);
+    feature.current.response.status = "FEASIBLE";
+    feature.current.response.shortage_summary.proven_minimal = false;
+    for (const item of feature.current.response.priority_summary.groups) item.proven_minimal = false;
+    for (const item of feature.current.response.objectives) item.proven_optimal = false;
+    renderFeature();
+    const text = document.querySelector(".feature-proof").textContent;
+    feature.current.response = actual; renderFeature();
+    return text;
+  });
+  assert.match(proofText, /全目的の最適性は未証明/);
+  assert.match(proofText, /不足最小性：未証明/);
+  report.response_samples.push("最適性・不足最小性が未証明の有効計画の表示（制御データ）");
   // HTTP失敗後の再試行と、遅い応答をデモ切替後に採用しないこと。
   await page.route("**/solve-json", route => route.fulfill({status: 503, json: {error: {code: "BUSY", message: "計算中"}}}));
   await page.locator("#feature-run").click();
