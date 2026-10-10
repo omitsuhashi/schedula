@@ -377,6 +377,7 @@ async function routeFeature() {
       "連勤上限だけを5日から3日へ変えます。Aの希望を優先する選好、B・Cの交代要員、各日09:00〜10:00の需要1人が前提です。");
     $("feature-premises").replaceChildren(node("p", `${request.employees.length}人 / ${datedRange(request.planning_window)} / ${request.planning_window.slot_minutes}分刻み / ${lesson.operation === "verify" ? "公開verify：探索なし" : `探索予算${request.solver.time_limit_seconds}秒（総応答時間とは別）`}`),
       node("p", `目的順序：${request.objectives.map(item => item.metric).join(" → ") || "なし"}`),
+      ...(lesson.premises || []).map(text => node("p", text)),
       details("技能・需要・候補・希望・必須条件を含む全入力", input));
     renderFeatureFields(); renderFeatureGuide();
     $("feature-controls").disabled = false;

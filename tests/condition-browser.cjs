@@ -7,6 +7,11 @@ module.exports=async(browser,url,report)=>{
   const ready=()=>page.waitForFunction(()=>feature?.current&&!document.getElementById("feature-controls").disabled);
   for(const lesson of lessons){
     await page.goto(url);await page.locator(`#feature-list a[href="#${lesson.id}"]`).click();await ready();
+    assert.equal(await page.locator("#feature-intro").innerText(),lesson.intro);
+    assert.doesNotMatch(lesson.intro,/連勤上限|B・C/);
+    await page.getByText("この例の前提・目的順序",{exact:true}).click();
+    for(const premise of lesson.premises)assert.ok((await page.locator("#feature-premises").innerText()).includes(premise));
+    await page.getByText("この例の前提・目的順序",{exact:true}).click();
     const baseline=await page.evaluate(()=>structuredClone(feature.current));
     for(const step of lesson.steps){
       if(step.id!=="initial"){
