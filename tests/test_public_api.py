@@ -82,6 +82,14 @@ def test_installed_wheel_types_check_consumer_and_reject_typos(tmp_path):
         tmp_path / "consumer" / ("Scripts/python.exe" if sys.platform == "win32" else "bin/python")
     )
     run("uv", "pip", "install", "--python", str(python), str(wheel), "mypy==2.4.0")
+    run(
+        str(python),
+        "-I",
+        "-c",
+        "import importlib.util; assert importlib.util.find_spec('ortools') is not None",
+    )
+    # 通常依存の導入確認後、独立検証がバックエンドなしでも動く環境を明示的に作る。
+    run("uv", "pip", "uninstall", "--python", str(python), "ortools")
     minimum_request = json.loads(
         (ROOT / "examples/minimum_roster.json").read_text(encoding="utf-8")
     )
