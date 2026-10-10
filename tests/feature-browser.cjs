@@ -14,7 +14,7 @@ module.exports = async (browser, url, report) => {
   assert.equal(await page.locator("#feature-list .feature-cards li").count(), 44);
   assert.equal(requests, 0);
   assert.equal(await page.locator("#editor").isVisible(), false);
-  for (const lesson of lessons.filter(item => item.operation === "solve")) {
+  for (const lesson of lessons.filter(item => item.operation === "solve" && item.module !== "basic")) {
     await page.goto(`${url}#${lesson.id}`);
     await ready(page);
     const initial = await page.evaluate(() => structuredClone(feature.current));
@@ -116,6 +116,7 @@ module.exports = async (browser, url, report) => {
     report.feature_measurements ||= [];
     report.feature_measurements.push(...await page.evaluate(() => featureMeasurements.splice(0)));
   }
+  await require("./basic-browser.cjs")(browser, url, report);
   await require("./verify-browser.cjs")(page, url, report);
   // 初期解なし→編集→実再試行。制御応答の証拠として記録する。
   let first = true;
@@ -182,7 +183,7 @@ module.exports = async (browser, url, report) => {
   assert.match(differences[0], /レベル1 → s レベル2/);
   assert.match(differences[1], /2026-10-02/);
   assert.match(differences[2], /scheduled_cost → preference_penalty/);
-  await page.goto(`${url}#skills`);
+  await page.goto(`${url}#max_assigned_minutes`);
   await page.waitForFunction(() => document.querySelector("#feature-list [role=status]").textContent.includes("準備中"));
   for (const sample of ["lunch", "scenarios"]) {
     await page.route(`**/samples/${sample}.json`, route => route.fulfill({status: 503, json: {error: "読込失敗の制御応答"}}));

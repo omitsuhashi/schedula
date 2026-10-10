@@ -63,7 +63,7 @@ FILES = {
     ),
 }
 FILES["/adapter.js"] = (ROOT / "demo" / "adapter.js", "text/javascript; charset=utf-8")
-for name in ("feature-state", "count-demo", "verify-demo", "features"):
+for name in ("feature-state", "count-demo", "verify-demo", "basic-demo", "features"):
     FILES[f"/{name}.js"] = (ROOT / "demo" / f"{name}.js", "text/javascript; charset=utf-8")
 for name in (
     "catalog",
@@ -73,6 +73,14 @@ for name in (
     "night-count",
     "manual-verify",
     "manual-verify.solution",
+    "skills",
+    "availability",
+    "shift-candidates",
+    "breaks",
+    "overnight",
+    "split-shift",
+    "coverage-24h",
+    "coverage-48h",
 ):
     FILES[f"/samples/{name}.json"] = (SAMPLES / f"{name}.json", "application/json; charset=utf-8")
 for name in ("assignment", "roster", "partial_roster", "continuity_week", "unconfirmed"):

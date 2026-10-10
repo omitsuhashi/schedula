@@ -494,5 +494,918 @@
         }
       }
     ]
+  },
+  {
+    "id": "skills",
+    "label": "技能に合う人を配置する",
+    "request_file": "skills.json",
+    "operation": "solve",
+    "module": "basic",
+    "editable_fields": [
+      {
+        "collection": "employees",
+        "ids": [
+          "a"
+        ],
+        "field": "skills",
+        "label": "Aの接客技能",
+        "unit": "レベル"
+      },
+      {
+        "collection": "roles",
+        "ids": [
+          "work"
+        ],
+        "field": "required_skills",
+        "label": "必要な接客技能",
+        "unit": "最低レベル"
+      }
+    ],
+    "indicators": [
+      "shortage_summary.total_person_minutes",
+      "主題の資格・原勤務・勤務量"
+    ],
+    "intro": "同じ技能IDの保有レベルと必要レベルを比べます。技能不足は不足として表示し、資格条件は緩めません。",
+    "steps": [
+      {
+        "id": "initial",
+        "instruction": "初期条件の充足と指標を確認する。",
+        "changes": {},
+        "restore": false,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 120.0,
+          "original_work_minutes": 0
+        }
+      },
+      {
+        "id": "lower",
+        "instruction": "Aの技能レベルを2から1へ下げる。",
+        "changes": {
+          "employees": {
+            "a": {
+              "skills": [
+                {
+                  "skill_id": "service",
+                  "level": 1
+                }
+              ]
+            }
+          }
+        },
+        "restore": false,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 120,
+          "assigned_minutes": 0,
+          "original_work_minutes": 0
+        }
+      },
+      {
+        "id": "requirement",
+        "instruction": "必要レベルを1へ変え、担当資格の変化を確認する。",
+        "changes": {
+          "roles": {
+            "work": {
+              "required_skills": [
+                {
+                  "skill_id": "service",
+                  "min_level": 1
+                }
+              ]
+            }
+          }
+        },
+        "restore": false,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 120.0,
+          "original_work_minutes": 0
+        }
+      },
+      {
+        "id": "restored",
+        "instruction": "初期条件へ復元する。",
+        "changes": {},
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 120.0,
+          "original_work_minutes": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "availability",
+    "label": "勤務可能時間を変える",
+    "request_file": "availability.json",
+    "operation": "solve",
+    "module": "basic",
+    "editable_fields": [
+      {
+        "collection": "employees",
+        "ids": [
+          "a"
+        ],
+        "field": "availability",
+        "label": "Aの勤務可能時間",
+        "unit": "日時・Asia/Tokyo"
+      }
+    ],
+    "indicators": [
+      "shortage_summary.total_person_minutes",
+      "主題の資格・原勤務・勤務量"
+    ],
+    "intro": "Aは09〜12時、Bは10〜12時が勤務可能です。勤務可能時間は勤務の決定ではありません。",
+    "steps": [
+      {
+        "id": "initial",
+        "instruction": "初期条件の充足と指標を確認する。",
+        "changes": {},
+        "restore": false,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 180.0,
+          "original_work_minutes": 0
+        }
+      },
+      {
+        "id": "late",
+        "instruction": "Aを10時から勤務可能にする。",
+        "changes": {
+          "employees": {
+            "a": {
+              "availability": [
+                {
+                  "start": "2026-10-05T10:00:00+09:00",
+                  "end": "2026-10-05T12:00:00+09:00"
+                }
+              ]
+            }
+          }
+        },
+        "restore": false,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 60,
+          "assigned_minutes": 120.0,
+          "original_work_minutes": 0
+        }
+      },
+      {
+        "id": "absent",
+        "instruction": "Aを勤務不可にし、不足が変わらない場合も確認する。",
+        "changes": {
+          "employees": {
+            "a": {
+              "availability": []
+            }
+          }
+        },
+        "restore": false,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 60,
+          "assigned_minutes": 120.0,
+          "original_work_minutes": 0
+        }
+      },
+      {
+        "id": "restored",
+        "instruction": "初期条件へ復元する。",
+        "changes": {},
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 180.0,
+          "original_work_minutes": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "shift_candidates",
+    "label": "出退勤を選ぶ",
+    "request_file": "shift-candidates.json",
+    "operation": "solve",
+    "module": "basic",
+    "editable_fields": [
+      {
+        "collection": "shift_templates",
+        "ids": [
+          "template"
+        ],
+        "field": "start_times",
+        "label": "テンプレートの開始時刻",
+        "unit": "Asia/Tokyo"
+      },
+      {
+        "collection": "shift_templates",
+        "ids": [
+          "template"
+        ],
+        "field": "segment_options",
+        "label": "テンプレートの勤務長",
+        "unit": "分"
+      },
+      {
+        "collection": "shift_candidates",
+        "ids": [
+          "direct"
+        ],
+        "field": "segments",
+        "label": "直接指定の勤務候補",
+        "unit": "日時・Asia/Tokyo"
+      }
+    ],
+    "indicators": [
+      "shortage_summary.total_person_minutes",
+      "主題の資格・原勤務・勤務量"
+    ],
+    "intro": "直接候補09〜12時と、有限のテンプレートを比較します。候補外の時刻を探索せず、勤務分数を最小化します。",
+    "steps": [
+      {
+        "id": "initial",
+        "instruction": "初期条件の充足と指標を確認する。",
+        "changes": {},
+        "restore": false,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 120.0,
+          "original_work_minutes": 120.0
+        }
+      },
+      {
+        "id": "later",
+        "instruction": "テンプレートの開始を11時へ変え、直接候補への交代を確認する。",
+        "changes": {
+          "shift_templates": {
+            "template": {
+              "start_times": [
+                "11:00"
+              ]
+            }
+          }
+        },
+        "restore": false,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 120.0,
+          "original_work_minutes": 180.0
+        }
+      },
+      {
+        "id": "shorter",
+        "instruction": "初期条件からテンプレートの勤務長を60分へ変える。",
+        "changes": {
+          "shift_templates": {
+            "template": {
+              "segment_options": [
+                [
+                  {
+                    "offset_minutes": 0,
+                    "duration_minutes": 60,
+                    "breaks": []
+                  }
+                ]
+              ]
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 120.0,
+          "original_work_minutes": 180.0
+        }
+      },
+      {
+        "id": "restricted",
+        "instruction": "開始を11時に限定した候補で、10〜11時の不足を確認する。",
+        "changes": {
+          "shift_candidates": {
+            "direct": {
+              "segments": [
+                {
+                  "interval": {
+                    "start": "2026-10-05T11:00:00+09:00",
+                    "end": "2026-10-05T13:00:00+09:00"
+                  },
+                  "breaks": []
+                }
+              ]
+            }
+          },
+          "shift_templates": {
+            "template": {
+              "start_times": [
+                "11:00"
+              ],
+              "segment_options": [
+                [
+                  {
+                    "offset_minutes": 0,
+                    "duration_minutes": 120,
+                    "breaks": []
+                  }
+                ]
+              ]
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 60,
+          "assigned_minutes": 60.0,
+          "original_work_minutes": 120.0
+        }
+      },
+      {
+        "id": "restored",
+        "instruction": "初期条件へ復元する。",
+        "changes": {},
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 120.0,
+          "original_work_minutes": 120.0
+        }
+      }
+    ]
+  },
+  {
+    "id": "breaks",
+    "label": "休憩を組み込む",
+    "request_file": "breaks.json",
+    "operation": "solve",
+    "module": "basic",
+    "editable_fields": [
+      {
+        "collection": "shift_candidates",
+        "ids": [
+          "main"
+        ],
+        "field": "segments",
+        "label": "Aの勤務内の休憩",
+        "unit": "日時・Asia/Tokyo"
+      },
+      {
+        "collection": "employees",
+        "ids": [
+          "b"
+        ],
+        "field": "availability",
+        "label": "交代要員Bの勤務可能時間",
+        "unit": "日時・Asia/Tokyo"
+      }
+    ],
+    "indicators": [
+      "shortage_summary.total_person_minutes",
+      "主題の資格・原勤務・勤務量"
+    ],
+    "intro": "休憩中は担当できません。13〜14時は需要のない待機です。勤務量は休憩を除き、待機を含めます。",
+    "steps": [
+      {
+        "id": "initial",
+        "instruction": "初期条件の充足と指標を確認する。",
+        "changes": {},
+        "restore": false,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 240.0,
+          "original_work_minutes": 300.0
+        }
+      },
+      {
+        "id": "move",
+        "instruction": "Aの休憩を11〜12時へ移す。",
+        "changes": {
+          "shift_candidates": {
+            "main": {
+              "segments": [
+                {
+                  "interval": {
+                    "start": "2026-10-05T09:00:00+09:00",
+                    "end": "2026-10-05T14:00:00+09:00"
+                  },
+                  "breaks": [
+                    {
+                      "start": "2026-10-05T11:00:00+09:00",
+                      "end": "2026-10-05T12:00:00+09:00"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "restore": false,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 240.0,
+          "original_work_minutes": 300.0
+        }
+      },
+      {
+        "id": "absent",
+        "instruction": "交代要員Bを勤務不可にし、休憩中の不足を確認する。",
+        "changes": {
+          "employees": {
+            "b": {
+              "availability": []
+            }
+          }
+        },
+        "restore": false,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 60,
+          "assigned_minutes": 180.0,
+          "original_work_minutes": 240.0
+        }
+      },
+      {
+        "id": "restored",
+        "instruction": "初期条件へ復元する。",
+        "changes": {},
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 240.0,
+          "original_work_minutes": 300.0
+        }
+      }
+    ]
+  },
+  {
+    "id": "overnight",
+    "label": "日付をまたいで勤務する",
+    "request_file": "overnight.json",
+    "operation": "solve",
+    "module": "basic",
+    "editable_fields": [
+      {
+        "collection": "shift_candidates",
+        "ids": [
+          "night"
+        ],
+        "field": "segments",
+        "label": "夜勤の出退勤と休憩",
+        "unit": "日時・Asia/Tokyo"
+      }
+    ],
+    "indicators": [
+      "shortage_summary.total_person_minutes",
+      "主題の資格・原勤務・勤務量"
+    ],
+    "intro": "22時から翌日06時の夜勤です。勤務日は開始日の10月5日、02〜03時の休憩を除く実勤務は420分です。",
+    "steps": [
+      {
+        "id": "initial",
+        "instruction": "初期条件の充足と指標を確認する。",
+        "changes": {},
+        "restore": false,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 420.0,
+          "original_work_minutes": 420.0
+        }
+      },
+      {
+        "id": "longer",
+        "instruction": "終了を翌日07時へ伸ばし、実勤務量と待機を確認する。",
+        "changes": {
+          "shift_candidates": {
+            "night": {
+              "segments": [
+                {
+                  "interval": {
+                    "start": "2026-10-05T22:00:00+09:00",
+                    "end": "2026-10-06T07:00:00+09:00"
+                  },
+                  "breaks": [
+                    {
+                      "start": "2026-10-06T02:00:00+09:00",
+                      "end": "2026-10-06T03:00:00+09:00"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "restore": false,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 420.0,
+          "original_work_minutes": 480.0
+        }
+      },
+      {
+        "id": "later",
+        "instruction": "初期条件から開始を23時へ遅らせ、不足位置を確認する。",
+        "changes": {
+          "shift_candidates": {
+            "night": {
+              "segments": [
+                {
+                  "interval": {
+                    "start": "2026-10-05T23:00:00+09:00",
+                    "end": "2026-10-06T06:00:00+09:00"
+                  },
+                  "breaks": [
+                    {
+                      "start": "2026-10-06T02:00:00+09:00",
+                      "end": "2026-10-06T03:00:00+09:00"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 60,
+          "assigned_minutes": 360.0,
+          "original_work_minutes": 360.0
+        }
+      },
+      {
+        "id": "restored",
+        "instruction": "初期条件へ復元する。",
+        "changes": {},
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 420.0,
+          "original_work_minutes": 420.0
+        }
+      }
+    ]
+  },
+  {
+    "id": "split_shift",
+    "label": "一日の勤務を分割する",
+    "request_file": "split-shift.json",
+    "operation": "solve",
+    "module": "basic",
+    "editable_fields": [
+      {
+        "collection": "constraints",
+        "ids": [
+          "gap"
+        ],
+        "field": "limit_minutes",
+        "label": "分割間の最小間隔",
+        "unit": "分"
+      },
+      {
+        "collection": "shift_candidates",
+        "ids": [
+          "split"
+        ],
+        "field": "segments",
+        "label": "分割勤務の区間",
+        "unit": "日時・Asia/Tokyo"
+      }
+    ],
+    "indicators": [
+      "shortage_summary.total_person_minutes",
+      "主題の資格・原勤務・勤務量"
+    ],
+    "intro": "09〜12時と17〜21時は一つの勤務です。12〜17時は休憩ではなく非勤務で、勤務量に含めません。",
+    "steps": [
+      {
+        "id": "initial",
+        "instruction": "初期条件の充足と指標を確認する。",
+        "changes": {},
+        "restore": false,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 420.0,
+          "original_work_minutes": 420.0
+        }
+      },
+      {
+        "id": "same",
+        "instruction": "間隔の下限を240分へ下げ、結果が変わらないことを確認する。",
+        "changes": {
+          "constraints": {
+            "gap": {
+              "limit_minutes": 240
+            }
+          }
+        },
+        "restore": false,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 420.0,
+          "original_work_minutes": 420.0
+        }
+      },
+      {
+        "id": "long_gap",
+        "instruction": "下限を360分へ増やし、候補を採用できない不足を確認する。",
+        "changes": {
+          "constraints": {
+            "gap": {
+              "limit_minutes": 360
+            }
+          }
+        },
+        "restore": false,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 420,
+          "assigned_minutes": 0,
+          "original_work_minutes": 0
+        }
+      },
+      {
+        "id": "later",
+        "instruction": "初期条件から夕方の開始を18時へ遅らせる。",
+        "changes": {
+          "shift_candidates": {
+            "split": {
+              "segments": [
+                {
+                  "interval": {
+                    "start": "2026-10-05T09:00:00+09:00",
+                    "end": "2026-10-05T12:00:00+09:00"
+                  },
+                  "breaks": []
+                },
+                {
+                  "interval": {
+                    "start": "2026-10-05T18:00:00+09:00",
+                    "end": "2026-10-05T21:00:00+09:00"
+                  },
+                  "breaks": []
+                }
+              ]
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 60,
+          "assigned_minutes": 360.0,
+          "original_work_minutes": 360.0
+        }
+      },
+      {
+        "id": "restored",
+        "instruction": "初期条件へ復元する。",
+        "changes": {},
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 420.0,
+          "original_work_minutes": 420.0
+        }
+      }
+    ]
+  },
+  {
+    "id": "coverage_24h",
+    "label": "24時間のシフト調整",
+    "request_file": "coverage-24h.json",
+    "operation": "solve",
+    "module": "basic",
+    "editable_fields": [
+      {
+        "collection": "demand",
+        "ids": [
+          "night0"
+        ],
+        "field": "required_people",
+        "label": "18〜24時の必要人数",
+        "unit": "人"
+      },
+      {
+        "collection": "employees",
+        "ids": [
+          "d"
+        ],
+        "field": "availability",
+        "label": "夜勤担当Dの勤務可能時間",
+        "unit": "日時・Asia/Tokyo"
+      }
+    ],
+    "indicators": [
+      "shortage_summary.total_person_minutes",
+      "主題の資格・原勤務・勤務量"
+    ],
+    "intro": "計画期間は24時間、各勤務は8時間（内部休憩1時間）です。4人の有限候補で全期間を充足し、夜勤の終了と休憩は計画端を越えても原区間のまま保ちます。",
+    "steps": [
+      {
+        "id": "initial",
+        "instruction": "初期条件の充足と指標を確認する。",
+        "changes": {},
+        "restore": false,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 1440.0,
+          "original_work_minutes": 1680.0
+        }
+      },
+      {
+        "id": "night_need",
+        "instruction": "18〜24時の必要人数を2人へ増やす。",
+        "changes": {
+          "demand": {
+            "night0": {
+              "required_people": 2
+            }
+          }
+        },
+        "restore": false,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 300,
+          "assigned_minutes": 1500.0,
+          "original_work_minutes": 1680.0
+        }
+      },
+      {
+        "id": "absent",
+        "instruction": "初期条件から夜勤担当Dを勤務不可にする。",
+        "changes": {
+          "employees": {
+            "d": {
+              "availability": []
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 300,
+          "assigned_minutes": 1140.0,
+          "original_work_minutes": 1260.0
+        }
+      },
+      {
+        "id": "restored",
+        "instruction": "初期条件へ復元する。",
+        "changes": {},
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 1440.0,
+          "original_work_minutes": 1680.0
+        }
+      }
+    ]
+  },
+  {
+    "id": "coverage_48h",
+    "label": "48時間のシフト調整",
+    "request_file": "coverage-48h.json",
+    "operation": "solve",
+    "module": "basic",
+    "editable_fields": [
+      {
+        "collection": "demand",
+        "ids": [
+          "night0",
+          "night1"
+        ],
+        "field": "required_people",
+        "label": "18〜24時の必要人数",
+        "unit": "人"
+      },
+      {
+        "collection": "employees",
+        "ids": [
+          "d"
+        ],
+        "field": "availability",
+        "label": "夜勤担当Dの勤務可能時間",
+        "unit": "日時・Asia/Tokyo"
+      },
+      {
+        "collection": "constraints",
+        "ids": [
+          "rest"
+        ],
+        "field": "limit_minutes",
+        "label": "勤務間に必要な休息",
+        "unit": "分"
+      }
+    ],
+    "indicators": [
+      "shortage_summary.total_person_minutes",
+      "主題の資格・原勤務・勤務量"
+    ],
+    "intro": "計画期間は48時間、各勤務は8時間（内部休憩1時間）です。4人の有限候補で全期間を充足し、夜勤の終了と休憩は計画端を越えても原区間のまま保ちます。",
+    "steps": [
+      {
+        "id": "initial",
+        "instruction": "初期条件の充足と指標を確認する。",
+        "changes": {},
+        "restore": false,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 2880.0,
+          "original_work_minutes": 3360.0
+        }
+      },
+      {
+        "id": "night_need",
+        "instruction": "18〜24時の必要人数を2人へ増やす。",
+        "changes": {
+          "demand": {
+            "night0": {
+              "required_people": 2
+            },
+            "night1": {
+              "required_people": 2
+            }
+          }
+        },
+        "restore": false,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 600,
+          "assigned_minutes": 3000.0,
+          "original_work_minutes": 3360.0
+        }
+      },
+      {
+        "id": "absent",
+        "instruction": "初期条件から夜勤担当Dを勤務不可にする。",
+        "changes": {
+          "employees": {
+            "d": {
+              "availability": []
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 600,
+          "assigned_minutes": 2280.0,
+          "original_work_minutes": 2520.0
+        }
+      },
+      {
+        "id": "rest",
+        "instruction": "初期条件から必要な休息を17時間に増やす。",
+        "changes": {
+          "constraints": {
+            "rest": {
+              "limit_minutes": 1020
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 1260,
+          "assigned_minutes": 1620.0,
+          "original_work_minutes": 1680.0
+        }
+      },
+      {
+        "id": "restored",
+        "instruction": "初期条件へ復元する。",
+        "changes": {},
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "assigned_minutes": 2880.0,
+          "original_work_minutes": 3360.0
+        }
+      }
+    ]
   }
 ]

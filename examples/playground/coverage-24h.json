@@ -1,0 +1,295 @@
+{
+  "schema_version": "0.15",
+  "request_id": "demo_coverage_24h",
+  "problem_type": "roster",
+  "planning_window": {
+    "start": "2026-10-05T00:00:00+09:00",
+    "end": "2026-10-06T00:00:00+09:00",
+    "timezone": "Asia/Tokyo",
+    "slot_minutes": 30
+  },
+  "skills": [],
+  "roles": [
+    {
+      "id": "work",
+      "label": "担当",
+      "required_skills": []
+    }
+  ],
+  "employees": [
+    {
+      "id": "a",
+      "label": "A",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-05T00:00:00+09:00",
+          "end": "2026-10-07T00:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "id": "b",
+      "label": "B",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-05T00:00:00+09:00",
+          "end": "2026-10-07T00:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "id": "c",
+      "label": "C",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-05T00:00:00+09:00",
+          "end": "2026-10-07T00:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "id": "d",
+      "label": "D",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-05T00:00:00+09:00",
+          "end": "2026-10-07T00:00:00+09:00"
+        }
+      ]
+    }
+  ],
+  "demand": [
+    {
+      "id": "a0",
+      "role_id": "work",
+      "interval": {
+        "start": "2026-10-05T00:00:00+09:00",
+        "end": "2026-10-05T06:00:00+09:00"
+      },
+      "required_people": 1,
+      "minimum_people": 0
+    },
+    {
+      "id": "b0",
+      "role_id": "work",
+      "interval": {
+        "start": "2026-10-05T06:00:00+09:00",
+        "end": "2026-10-05T12:00:00+09:00"
+      },
+      "required_people": 1,
+      "minimum_people": 0
+    },
+    {
+      "id": "c0",
+      "role_id": "work",
+      "interval": {
+        "start": "2026-10-05T12:00:00+09:00",
+        "end": "2026-10-05T18:00:00+09:00"
+      },
+      "required_people": 1,
+      "minimum_people": 0
+    },
+    {
+      "id": "night0",
+      "role_id": "work",
+      "interval": {
+        "start": "2026-10-05T18:00:00+09:00",
+        "end": "2026-10-06T00:00:00+09:00"
+      },
+      "required_people": 1,
+      "minimum_people": 0
+    }
+  ],
+  "constraints": [
+    {
+      "id": "rest",
+      "type": "min_rest_minutes",
+      "employee_ids": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "limit_minutes": 720
+    }
+  ],
+  "preferences": [],
+  "objectives": [
+    {
+      "id": "work",
+      "metric": "scheduled_minutes"
+    }
+  ],
+  "solver": {
+    "backend": "auto",
+    "time_limit_seconds": 5,
+    "seed": 0
+  },
+  "shift_candidates": [],
+  "continuity": {
+    "context_window": {
+      "start": "2026-10-05T00:00:00+09:00",
+      "end": "2026-10-07T00:00:00+09:00"
+    },
+    "employees": [
+      {
+        "employee_id": "a",
+        "before_context": {
+          "last_shift_end": null,
+          "last_work_day": null,
+          "consecutive_work_days_before_window": 0
+        },
+        "past_complete": true,
+        "actual_shifts": [],
+        "commitments_complete": true,
+        "committed_shifts": []
+      },
+      {
+        "employee_id": "b",
+        "before_context": {
+          "last_shift_end": null,
+          "last_work_day": null,
+          "consecutive_work_days_before_window": 0
+        },
+        "past_complete": true,
+        "actual_shifts": [],
+        "commitments_complete": true,
+        "committed_shifts": []
+      },
+      {
+        "employee_id": "c",
+        "before_context": {
+          "last_shift_end": null,
+          "last_work_day": null,
+          "consecutive_work_days_before_window": 0
+        },
+        "past_complete": true,
+        "actual_shifts": [],
+        "commitments_complete": true,
+        "committed_shifts": []
+      },
+      {
+        "employee_id": "d",
+        "before_context": {
+          "last_shift_end": null,
+          "last_work_day": null,
+          "consecutive_work_days_before_window": 0
+        },
+        "past_complete": true,
+        "actual_shifts": [],
+        "commitments_complete": true,
+        "committed_shifts": []
+      }
+    ]
+  },
+  "shift_templates": [
+    {
+      "id": "a",
+      "employee_ids": [
+        "a"
+      ],
+      "dates": [
+        "2026-10-05"
+      ],
+      "start_times": [
+        "00:00"
+      ],
+      "segment_options": [
+        [
+          {
+            "offset_minutes": 0,
+            "duration_minutes": 480,
+            "breaks": [
+              {
+                "offset_minutes": 360,
+                "duration_minutes": 60
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "id": "b",
+      "employee_ids": [
+        "b"
+      ],
+      "dates": [
+        "2026-10-05"
+      ],
+      "start_times": [
+        "06:00"
+      ],
+      "segment_options": [
+        [
+          {
+            "offset_minutes": 0,
+            "duration_minutes": 480,
+            "breaks": [
+              {
+                "offset_minutes": 360,
+                "duration_minutes": 60
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "id": "c",
+      "employee_ids": [
+        "c"
+      ],
+      "dates": [
+        "2026-10-05"
+      ],
+      "start_times": [
+        "12:00"
+      ],
+      "segment_options": [
+        [
+          {
+            "offset_minutes": 0,
+            "duration_minutes": 480,
+            "breaks": [
+              {
+                "offset_minutes": 360,
+                "duration_minutes": 60
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "id": "d",
+      "employee_ids": [
+        "d"
+      ],
+      "dates": [
+        "2026-10-05"
+      ],
+      "start_times": [
+        "18:00"
+      ],
+      "segment_options": [
+        [
+          {
+            "offset_minutes": 0,
+            "duration_minutes": 480,
+            "breaks": [
+              {
+                "offset_minutes": 360,
+                "duration_minutes": 60
+              }
+            ]
+          }
+        ]
+      ]
+    }
+  ]
+}

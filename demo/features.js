@@ -13,6 +13,10 @@ function displayField(field, value) {
   if (field === "availability") return value.map(datedRange).join(" / ") || "勤務不可";
   if (field === "history") return `${value.last_shift_end ? dated(value.last_shift_end) : "最終勤務なし"}・開始日${value.last_work_day || "なし"}・直前${value.consecutive_work_days_before_window}日`;
   if (field === "skills") return value.map(item => `${item.skill_id} レベル${item.level}`).join(" / ") || "なし";
+  if (field === "required_skills") return value.map(item => `${item.skill_id} 最低レベル${item.min_level}`).join(" / ") || "なし";
+  if (field === "segments") return value.map(item => `${datedRange(item.interval)} · 休憩 ${item.breaks.map(datedRange).join(" / ") || "なし"}`).join(" / ");
+  if (field === "start_times") return value.join(" / ");
+  if (field === "segment_options") return value.map(option => option.map(item => `開始から${item.offset_minutes}分後 · 勤務長${item.duration_minutes}分`).join(" / ")).join(" または ");
   if (field === "objectives") return value.map(item => item.metric).join(" → ");
   return String(value);
 }
@@ -56,6 +60,7 @@ function featureMetric(label, before, after, unit, warning = false) {
 function featureSummary(pair, base) {
   const comparable = base && operationView(lesson.operation, base.response).validPlan;
   const cards = [];
+  if (isBasicLesson()) cards.push(...basicCards(pair, base));
   if (lesson.id === "demand") {
     const count = input => input.demand.find(item => item.id === "hall_2").required_people;
     const assigned = value => {
@@ -98,6 +103,7 @@ function featureSummary(pair, base) {
 }
 
 function featurePlan(pair, base = null) {
+  if (isBasicLesson()) return basicPlan(pair, base);
   const comparable = base && operationView(lesson.operation, base.response).validPlan;
   if (lesson.id === "consecutive_days") {
     const dates = [...new Set(jsonSlots(pair.input).map(slot => slot.date))];
@@ -222,6 +228,7 @@ function renderFeatureFields() {
   area.replaceChildren();
   if (lesson.id === "shift_count_balance") return renderCountFields();
   if (lesson.operation === "verify") return renderVerifyFields();
+  if (isBasicLesson()) return renderBasicFields();
   const definition = lesson.editable_fields[0];
   const number = node("input", "", {id: "feature-number", type: "number", required: "", min: definition.min, max: definition.max, step: "1"});
   number.value = feature.input[definition.collection].find(item => item.id === definition.ids[0])[definition.field];
@@ -335,7 +342,7 @@ async function routeFeature() {
     if (id === "large") $("json-sample").value = "roster-100-30";
     return;
   }
-  const topic = catalog.topics.find(item => item.id === id);
+  const topic = [...catalog.topics, ...catalog.templates].find(item => item.id === id);
   lesson = lessons.find(item => item.id === id);
   if (!lesson) {
     $("feature-list").hidden = false;
@@ -390,7 +397,7 @@ async function startFeatures() {
       return response.json();
     }));
     const area = $("feature-list");
-    area.replaceChildren(node("h2", "できること"), node("p", "必要人数・連続勤務日数・夜勤回数・手修正検証を試せます。"), node("p", "", {role: "status", "aria-live": "polite"}));
+    area.replaceChildren(node("h2", "できること"), node("p", "担当配置・勤務計画の実装済みの主題を選び、条件を編集して比較できます。"), node("p", "", {role: "status", "aria-live": "polite"}));
     for (const [group, title] of Object.entries(groups)) area.append(node("h3", title), node("ul", "", {class: "feature-cards"},
       catalog.topics.filter(item => item.group === group).map(item => {
         const ready = lessons.some(lesson => lesson.id === item.id);
@@ -402,7 +409,7 @@ async function startFeatures() {
       node("a", "100人・30日で試す", {href: "#large"}), document.createTextNode(" · "),
       node("a", "JSONで自由に試す", {href: "#json"}), document.createTextNode(" · "),
       node("a", "入力確認・実行記録", {href: "#records"}),
-    ]), ...catalog.templates.map(item => node("p", `${item.title}：準備中（#${item.issue}）`)));
+    ]), ...catalog.templates.map(item => node("p", "", {}, lessons.some(lesson => lesson.id === item.id) ? [node("a", item.title, {href: `#${item.id}`})] : [document.createTextNode(`${item.title}：準備中（#${item.issue}）`)])));
     window.addEventListener("hashchange", routeFeature);
     await routeFeature();
   } catch (error) {
