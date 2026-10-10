@@ -206,6 +206,7 @@ module.exports = async (browser, url, report) => {
   await page.reload(); await sampleWaiting;
   assert.equal(await page.locator("#calculate").isDisabled(), true);
   await page.evaluate(() => { location.hash = "demand"; });
+  await page.waitForFunction(() => lesson?.id === "demand");
   sampleRelease(); await page.unrouteAll({behavior: "wait"}); await ready(page);
   assert.equal(await page.locator("#editor").isVisible(), false);
   await page.goto(`${url}#combined`);
