@@ -8,8 +8,9 @@ const featureMeasurements = [];
 function dated(value) { return `${value.slice(0, 10)} ${value.slice(11, 16)} Asia/Tokyo`; }
 function datedRange(interval) { return `${dated(interval.start)}〜${dated(interval.end)}`; }
 function displayField(field, value) {
-  if (field === "interval") return datedRange(value);
+  if (["interval","evaluation_period"].includes(field)) return datedRange(value);
   if (field === "employee_targets") return ["alice", "bob"].map(id => { const target = value.find(item => item.employee_id === id); return `${id} ${target ? `${target.target_count}回` : "未指定（対象外）"}`; }).join(" / ");
+  if (field === "date_groups") return value.map(g=>`${g.id}：${g.dates.join("・")}`).join(" / ");
   if (field === "intervals") return value.map(datedRange).join(" / ");
   if (field === "availability") return value.map(datedRange).join(" / ") || "勤務不可";
   if (field === "history") return `${value.last_shift_end ? dated(value.last_shift_end) : "最終勤務なし"}・開始日${value.last_work_day || "なし"}・直前${value.consecutive_work_days_before_window}日`;
@@ -205,7 +206,7 @@ function renderFeature(message) {
       } else area.append(node("p", "初期結果に有効な計画がないため勤務表の差分は比較できません。"));
       area.append(proof);
     } else {
-      if (["conditions","days"].includes(lesson.module)) inputs.open = true;
+      if (["conditions","days","patterns"].includes(lesson.module)) inputs.open = true;
       area.append(inputs, node("p", "解がないため勤務表の差分は比較できません。入力と状態を比較してください。"));
     }
     if (!operationView(lesson.operation, pair.response).validPlan) area.append(...pair.response.diagnostics.map(item => node("p", `${item.code}：${item.message} (${item.json_pointer ?? ""})`)));

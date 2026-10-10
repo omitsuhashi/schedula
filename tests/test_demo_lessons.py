@@ -94,7 +94,7 @@ def work_runs(request, solution):
         item
         for item in LESSONS
         if item["operation"] == "solve"
-        and item.get("module") not in {"basic", "conditions", "days"}
+        and item.get("module") not in {"basic", "conditions", "days", "patterns"}
     ],
     ids=lambda item: item["id"],
 )
