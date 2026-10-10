@@ -58,6 +58,20 @@ module.exports = async (browser, url, report) => {
         assert.match(await summary.innerText(), /初期\s*5日\s*→\s*現在\s*3日/);
         assert.ok(await page.locator(".feature-changed").count() > 0);
       }
+      if (lesson.id === "consecutive_days" && ["history", "fewer_backups"].includes(step.id)) {
+        const conditions = summary.locator(".feature-condition");
+        assert.equal(await conditions.count(), step.id === "history" ? 1 : 2);
+        if (step.id === "history") {
+          assert.match(await conditions.innerText(), /計画前の最終勤務と連勤 \(A\).*初期\s*最終勤務なし.*直前0日.*現在\s*2026-10-04 10:00 Asia\/Tokyo.*開始日2026-10-04.*直前3日/s);
+          assert.doesNotMatch(await summary.innerText(), /変更した条件 · 連勤上限/);
+        } else for (const name of ["B", "C"]) {
+          const card = conditions.filter({hasText: `交代要員の勤務可能時間 (${name})`});
+          assert.match(await card.innerText(), /初期\s*2026-10-05 00:00 Asia\/Tokyo.*現在\s*2026-10-10 00:00 Asia\/Tokyo.*2026-10-12 00:00 Asia\/Tokyo.*初期から変化/s);
+        }
+        await page.setViewportSize({width: 390, height: 844});
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+        await page.setViewportSize({width: 1440, height: 1000});
+      }
       if (step.id === "covered") {
         assert.match(await summary.innerText(), /初期\s*2人\s*→\s*現在\s*3人/);
         assert.equal(await page.locator(".feature-changed").count(), 2);
@@ -75,7 +89,10 @@ module.exports = async (browser, url, report) => {
       }
       if (["covered", "shortage", "shorter", "fewer_backups"].includes(step.id))
         await page.screenshot({path: `test-results/feature-${lesson.id}-${step.id}.png`, fullPage: true});
-      if (step.id === "restored") assert.deepEqual(pair, initial);
+      if (step.id === "restored") {
+        assert.deepEqual(pair, initial);
+        assert.equal(await summary.locator(".feature-condition").count(), 0);
+      }
       report.interactions.push({lesson: lesson.id, step: step.id, status: pair.response.status, verification: pair.response.verification});
     }
     // 自由編集とキーボード、狭い画面の表スクロール。

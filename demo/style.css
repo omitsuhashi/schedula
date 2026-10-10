@@ -67,6 +67,8 @@ li { overflow-wrap: anywhere; }
 .feature-values { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .feature-values small, #feature-output td small, #feature-output td strong { display: block; }
 .feature-values strong { font-size: 24px; white-space: nowrap; }
+.feature-condition .feature-values { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
+.feature-condition .feature-values strong { font-size: 16px; white-space: normal; overflow-wrap: anywhere; }
 .feature-values small, #feature-output td small { font-size: 12px; font-weight: 400; }
 .feature-work { background: #e3eee8; }
 .feature-off { background: #f5f6f5; color: #59675f; }

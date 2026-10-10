@@ -70,9 +70,18 @@ function featureSummary(pair, base) {
   }
   if (lesson.id === "consecutive_days") {
     const limit = input => input.constraints.find(item => item.id === "consecutive").limit_days;
-    cards.push(featureMetric("変更した条件 · 連勤上限", limit(feature.initial), limit(pair.input), "日"),
-      featureMetric("実際の最大連勤（履歴込み）", comparable ? Math.max(...consecutiveRuns(base).map(item => item.maximum)) : null,
-        Math.max(...consecutiveRuns(pair).map(item => item.maximum)), "日"));
+    for (const {collection, ids, field, label, unit} of lesson.editable_fields) for (const id of ids) {
+      const before = feature.initial[collection].find(item => item.id === id);
+      const after = pair.input[collection].find(item => item.id === id);
+      if (JSON.stringify(before[field]) === JSON.stringify(after[field])) continue;
+      const card = featureMetric(`変更した条件 · ${label}${collection === "employees" ? ` (${after.label})` : ""}`,
+        displayField(field, before[field]), displayField(field, after[field]), field === "limit_days" ? unit : "");
+      if (field !== "limit_days") card.classList.add("feature-condition");
+      cards.push(card);
+    }
+    if (!cards.length) cards.push(featureMetric("条件 · 連勤上限", limit(feature.initial), limit(pair.input), "日"));
+    cards.push(featureMetric("実際の最大連勤（履歴込み）", comparable ? Math.max(...consecutiveRuns(base).map(item => item.maximum)) : null,
+      Math.max(...consecutiveRuns(pair).map(item => item.maximum)), "日"));
   }
   if (lesson.id === "shift_count_balance") cards.push(featureMetric("勤務回数の目標偏差", comparable ? base.response.shift_count_balance_summary[0].total_deviation_count : null,
     pair.response.shift_count_balance_summary[0].total_deviation_count, "回"));
