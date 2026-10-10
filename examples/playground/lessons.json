@@ -1835,5 +1835,431 @@
       }
     ],
     "intro": "夜勤終了10月6日06時→日勤開始12時の間は360分です。必要な休息だけを変更し、同じAの2候補を両方採用できるか確認します。"
+  },
+  {
+    "id": "work_days",
+    "label": "期間内の勤務日数を制限する",
+    "module": "days",
+    "request_file": "work-days.json",
+    "operation": "solve",
+    "editable_fields": [
+      {
+        "collection": "constraints",
+        "ids": [
+          "days"
+        ],
+        "field": "min_days",
+        "label": "日数下限",
+        "unit": "日"
+      },
+      {
+        "collection": "constraints",
+        "ids": [
+          "days"
+        ],
+        "field": "max_days",
+        "label": "日数上限",
+        "unit": "日"
+      },
+      {
+        "collection": "constraints",
+        "ids": [
+          "days"
+        ],
+        "field": "interval",
+        "label": "評価期間",
+        "unit": ""
+      }
+    ],
+    "indicators": [
+      "day_count_summary",
+      "勤務日・占有日・完全休日の日別比較",
+      "shortage_summary.total_person_minutes"
+    ],
+    "premises": [
+      "架空のAのみ。必要人数は1人、必須最低人数は0人。人数不足以外の条件違反は許さない。目的は不足を最小化した後、計画内の勤務量を最小化する。",
+      "勤務日は原勤務の最初の開始日。占有日は休憩を含む原勤務区間が正の長さで触れる日。分割間の空き時間を勤務にせず、完全休日は評価日のうち占有されない日。",
+      "夜勤明けは完全休日ではない。終端00:00は翌日を占有せず、分割勤務は1勤務日。確認済み実績・確定勤務・今回選んだ候補を一度ずつ数える。",
+      "計画期間は10月5日〜10日、終端を含まない。評価開始は確認済みの過去まで広げられるが、計画終端を越える未来は評価できない。既知の確定勤務があっても未来を休日と推定しない。"
+    ],
+    "intro": "Aの勤務日数の上下限と評価期間を日単位で編集します。夜勤・分割勤務・0時終了を日別の表で比較します。",
+    "steps": [
+      {
+        "id": "initial",
+        "instruction": "初期計算。勤務3日、占有4日、完全休日1日を比較する。",
+        "changes": {},
+        "restore": false,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "day_counts": {
+            "employee_id": "a",
+            "work_days": 3,
+            "occupied_days": 4,
+            "days_off": 1
+          }
+        }
+      },
+      {
+        "id": "upper",
+        "instruction": "勤務日上限を2日へ下げる。完全休日とは別の数え方で、不足60人分になる。",
+        "changes": {
+          "constraints": {
+            "days": {
+              "max_days": 2
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 60,
+          "day_counts": {
+            "employee_id": "a",
+            "work_days": 2,
+            "occupied_days": 3,
+            "days_off": 2
+          }
+        }
+      },
+      {
+        "id": "lower",
+        "instruction": "勤務日下限を4日へ上げる。需要のない日にも勤務が必要になる。",
+        "changes": {
+          "constraints": {
+            "days": {
+              "min_days": 4
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "day_counts": {
+            "employee_id": "a",
+            "work_days": 4,
+            "occupied_days": 5,
+            "days_off": 0
+          }
+        }
+      },
+      {
+        "id": "impossible",
+        "instruction": "勤務日下限を5日へ上げる。候補と確定勤務の開始日は4日分しかなく、解がない。",
+        "changes": {
+          "constraints": {
+            "days": {
+              "min_days": 5
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "INFEASIBLE",
+          "total_person_minutes": null,
+          "day_counts": null
+        }
+      },
+      {
+        "id": "history",
+        "instruction": "評価開始を10月4日へ広げる。確認済み実績も1勤務日・1占有日として加算する。",
+        "changes": {
+          "constraints": {
+            "days": {
+              "interval": {
+                "start": "2026-10-04T00:00:00+09:00",
+                "end": "2026-10-10T00:00:00+09:00"
+              }
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "day_counts": {
+            "employee_id": "a",
+            "work_days": 4,
+            "occupied_days": 5,
+            "days_off": 1
+          }
+        }
+      },
+      {
+        "id": "last_day",
+        "instruction": "10月9日だけを評価する。前夜の勤務は0時に終了し、この日は完全休日になる。",
+        "changes": {
+          "constraints": {
+            "days": {
+              "interval": {
+                "start": "2026-10-09T00:00:00+09:00",
+                "end": "2026-10-10T00:00:00+09:00"
+              }
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "day_counts": {
+            "employee_id": "a",
+            "work_days": 0,
+            "occupied_days": 0,
+            "days_off": 1
+          }
+        }
+      },
+      {
+        "id": "future",
+        "instruction": "評価終端を計画期間の先へ延ばす。未来を休日と推定せず、入力を拒否する。",
+        "changes": {
+          "constraints": {
+            "days": {
+              "interval": {
+                "start": "2026-10-05T00:00:00+09:00",
+                "end": "2026-10-11T00:00:00+09:00"
+              }
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "INVALID_INPUT",
+          "total_person_minutes": null,
+          "day_counts": null
+        }
+      },
+      {
+        "id": "restored",
+        "instruction": "初期条件と初期結果へ復元する。",
+        "changes": {},
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "day_counts": {
+            "employee_id": "a",
+            "work_days": 3,
+            "occupied_days": 4,
+            "days_off": 1
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "days_off",
+    "label": "完全休日を確保する",
+    "module": "days",
+    "request_file": "days-off.json",
+    "operation": "solve",
+    "editable_fields": [
+      {
+        "collection": "constraints",
+        "ids": [
+          "days"
+        ],
+        "field": "min_days",
+        "label": "日数下限",
+        "unit": "日"
+      },
+      {
+        "collection": "constraints",
+        "ids": [
+          "days"
+        ],
+        "field": "max_days",
+        "label": "日数上限",
+        "unit": "日"
+      },
+      {
+        "collection": "constraints",
+        "ids": [
+          "days"
+        ],
+        "field": "interval",
+        "label": "評価期間",
+        "unit": ""
+      }
+    ],
+    "indicators": [
+      "day_count_summary",
+      "勤務日・占有日・完全休日の日別比較",
+      "shortage_summary.total_person_minutes"
+    ],
+    "premises": [
+      "架空のAのみ。必要人数は1人、必須最低人数は0人。人数不足以外の条件違反は許さない。目的は不足を最小化した後、計画内の勤務量を最小化する。",
+      "勤務日は原勤務の最初の開始日。占有日は休憩を含む原勤務区間が正の長さで触れる日。分割間の空き時間を勤務にせず、完全休日は評価日のうち占有されない日。",
+      "夜勤明けは完全休日ではない。終端00:00は翌日を占有せず、分割勤務は1勤務日。確認済み実績・確定勤務・今回選んだ候補を一度ずつ数える。",
+      "計画期間は10月5日〜10日、終端を含まない。評価開始は確認済みの過去まで広げられるが、計画終端を越える未来は評価できない。既知の確定勤務があっても未来を休日と推定しない。"
+    ],
+    "intro": "Aの完全休日数の上下限と評価期間を日単位で編集します。夜勤・分割勤務・0時終了を日別の表で比較します。",
+    "steps": [
+      {
+        "id": "initial",
+        "instruction": "初期計算。勤務3日、占有4日、完全休日1日を比較する。",
+        "changes": {},
+        "restore": false,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "day_counts": {
+            "employee_id": "a",
+            "work_days": 3,
+            "occupied_days": 4,
+            "days_off": 1
+          }
+        }
+      },
+      {
+        "id": "lower",
+        "instruction": "完全休日下限を2日へ上げる。夜勤明けを休日にせず、不足60人分になる。",
+        "changes": {
+          "constraints": {
+            "days": {
+              "min_days": 2
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "PARTIAL",
+          "total_person_minutes": 60,
+          "day_counts": {
+            "employee_id": "a",
+            "work_days": 2,
+            "occupied_days": 3,
+            "days_off": 2
+          }
+        }
+      },
+      {
+        "id": "upper",
+        "instruction": "完全休日上限を0日へ下げる。需要のない日にも勤務が必要になる。",
+        "changes": {
+          "constraints": {
+            "days": {
+              "max_days": 0
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "day_counts": {
+            "employee_id": "a",
+            "work_days": 4,
+            "occupied_days": 5,
+            "days_off": 0
+          }
+        }
+      },
+      {
+        "id": "impossible",
+        "instruction": "完全休日下限を4日へ上げる。確定夜勤が2日を占有するため、解がない。",
+        "changes": {
+          "constraints": {
+            "days": {
+              "min_days": 4
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "INFEASIBLE",
+          "total_person_minutes": null,
+          "day_counts": null
+        }
+      },
+      {
+        "id": "history",
+        "instruction": "評価開始を10月4日へ広げる。確認済み実績も1勤務日・1占有日として加算する。",
+        "changes": {
+          "constraints": {
+            "days": {
+              "interval": {
+                "start": "2026-10-04T00:00:00+09:00",
+                "end": "2026-10-10T00:00:00+09:00"
+              }
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "day_counts": {
+            "employee_id": "a",
+            "work_days": 4,
+            "occupied_days": 5,
+            "days_off": 1
+          }
+        }
+      },
+      {
+        "id": "last_day",
+        "instruction": "10月9日だけを評価する。前夜の勤務は0時に終了し、この日は完全休日になる。",
+        "changes": {
+          "constraints": {
+            "days": {
+              "interval": {
+                "start": "2026-10-09T00:00:00+09:00",
+                "end": "2026-10-10T00:00:00+09:00"
+              }
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "day_counts": {
+            "employee_id": "a",
+            "work_days": 0,
+            "occupied_days": 0,
+            "days_off": 1
+          }
+        }
+      },
+      {
+        "id": "future",
+        "instruction": "評価終端を計画期間の先へ延ばす。未来を休日と推定せず、入力を拒否する。",
+        "changes": {
+          "constraints": {
+            "days": {
+              "interval": {
+                "start": "2026-10-05T00:00:00+09:00",
+                "end": "2026-10-11T00:00:00+09:00"
+              }
+            }
+          }
+        },
+        "restore": true,
+        "expected": {
+          "status": "INVALID_INPUT",
+          "total_person_minutes": null,
+          "day_counts": null
+        }
+      },
+      {
+        "id": "restored",
+        "instruction": "初期条件と初期結果へ復元する。",
+        "changes": {},
+        "restore": true,
+        "expected": {
+          "status": "OPTIMAL",
+          "total_person_minutes": 0,
+          "day_counts": {
+            "employee_id": "a",
+            "work_days": 3,
+            "occupied_days": 4,
+            "days_off": 1
+          }
+        }
+      }
+    ]
   }
 ]

@@ -205,7 +205,7 @@ function renderFeature(message) {
       } else area.append(node("p", "初期結果に有効な計画がないため勤務表の差分は比較できません。"));
       area.append(proof);
     } else {
-      if (lesson.module === "conditions") inputs.open = true;
+      if (["conditions","days"].includes(lesson.module)) inputs.open = true;
       area.append(inputs, node("p", "解がないため勤務表の差分は比較できません。入力と状態を比較してください。"));
     }
     if (!operationView(lesson.operation, pair.response).validPlan) area.append(...pair.response.diagnostics.map(item => node("p", `${item.code}：${item.message} (${item.json_pointer ?? ""})`)));

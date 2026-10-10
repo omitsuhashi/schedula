@@ -1,0 +1,1601 @@
+{
+  "measured_date": "2026-10-10",
+  "base_commit": "799a93345fd58b1016e4be7c17765ecd876163c5",
+  "environment": {
+    "os": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+    "architecture": "arm64",
+    "logical_cpus": 8,
+    "python": "3.14.8 (main, Oct  3 2026, 00:54:40) [Clang 22.1.3 ]",
+    "ortools": "9.15.6755",
+    "num_workers": 1,
+    "time_limit_seconds": 5,
+    "seed": 0
+  },
+  "methods": {
+    "cold": "新プロセス。OSキャッシュは消去せず、親で起動・import・solve・有効な解のverify・終了を測定。子elapsedはsolve・verify。",
+    "warm": "同一プロセスのsolveと有効な解のverifyを各段階3回。解なしの不成立はverifyを実施できない。",
+    "http": "POST往復・応答受理・DOM更新・2回の描画待ち。ページ/教材GETを除く。",
+    "runner_source": "import json,sys,time; from shift_schedula import solve,verify; v=json.load(sys.stdin); t=time.perf_counter(); r=solve(v,num_workers=1); checked=verify(v,r['solution']) if r['solution'] else None; assert checked is None or checked['verification']['valid']; print(json.dumps({'elapsed_seconds':time.perf_counter()-t,'status':r['status'],'solver':r['solver'],'stats':r['stats'],'shortage':r['shortage_summary']['total_person_minutes'] if r['shortage_summary'] else None,'verification':checked['verification'] if checked else None}))"
+  },
+  "source_sha256": {
+    "demo/basic-demo.js": "76989dd78720ea9a6887b704a22ca2a8afd08f31748e3f6818496baf4b815c92",
+    "demo/features.js": "6e99766988a95aca6b85512651004c74f296986d46a51a1295248f4b7f4b6368",
+    "demo/server.py": "a63f32bb055012d24a306067a10049d27869c6f46f85c75ca5948cb414a776ee",
+    "demo/style.css": "c7f47db9bc78f6ff12a9cf69847eeca4ea22dd7ee5043e5d40b7b1cebfcdfbbb",
+    "examples/playground/lessons.json": "0a617ced1cf45ee7552c8096b12ed3d7f6008dd46058adc2f5fcf230edf00545",
+    "examples/playground/catalog.json": "76391516f3587332e7ad4f274771b068f1b6286794930a96bbd267b466af7024",
+    "tests/day-browser.cjs": "fe9c79aa4aae5c567e9fc0642c8525f55bca78138637d2b2418eeff7693745b5",
+    "tests/test_day_demo_lessons.py": "db04048aa730ac16d6dc960229505eb832017fc3d3a0194efaad31b552d551bd",
+    "uv.lock": "3c78a475a4a9e39636e5bf59cf889d8c10c0f12e51b9fec1dc6f96b9743ab4c7",
+    "examples/playground/work-days.json": "0fbdc61bd32ff2fc81047afd9fbe94d75cf0a56f779bc9138315a5acd0b262f0",
+    "examples/playground/days-off.json": "2adc0c0bc38bd36fb2bf6b3dc743907260f5030cb5218504d2cae4680757b1de"
+  },
+  "backend_samples": [
+    {
+      "lesson": "work_days",
+      "step": "initial",
+      "input_sha256": "3050bb168745c1d2cfb4a7c18b4714585b485e93244d7997cfd2e31ab2261437",
+      "cold": {
+        "elapsed_seconds": 0.4866905000526458,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.45251374994404614
+        },
+        "shortage": 0,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.6385269159218296
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.40609008294995874,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.37255079089663923
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.013121832977049053,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009826917084865272
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.012933582998812199,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009614542010240257
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "work_days",
+      "step": "upper",
+      "input_sha256": "aecf421abc2a91e18be9dc315df6baf8d184b55920e02ce4f9fbb8daa64e8d7e",
+      "cold": {
+        "elapsed_seconds": 0.4011029578978196,
+        "status": "PARTIAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.366970167029649
+        },
+        "shortage": 60,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.5566053749062121
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.013819416984915733,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.010774750029668212
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.011868792003951967,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.008895167033188045
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.011605207924731076,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.008634416968561709
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "work_days",
+      "step": "lower",
+      "input_sha256": "ffbfd77dbab4157a5ba85777a3235d71f50d5b80c0b611b42b70e7c65366d281",
+      "cold": {
+        "elapsed_seconds": 0.4037469170289114,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.37037229095585644
+        },
+        "shortage": 0,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.5677331669721752
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.014862249954603612,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.011202041991055012
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.013525750022381544,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.010216582915745676
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.01285675005055964,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009577041957527399
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "work_days",
+      "step": "impossible",
+      "input_sha256": "f51240e9e802a147966d28b7825a409ed31421bd7c4c5038e8e63bf60f59071c",
+      "cold": {
+        "elapsed_seconds": 0.3545254999771714,
+        "status": "INFEASIBLE",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.35450966702774167
+        },
+        "shortage": null,
+        "verification": null,
+        "process_elapsed_seconds": 0.49856674997135997
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.00498791690915823,
+          "status": "INFEASIBLE",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.0049302090192213655
+          },
+          "verification": null
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.003655417007394135,
+          "status": "INFEASIBLE",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.0036307499976828694
+          },
+          "verification": null
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.0036452499916777015,
+          "status": "INFEASIBLE",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.0036227909149602056
+          },
+          "verification": null
+        }
+      ]
+    },
+    {
+      "lesson": "work_days",
+      "step": "history",
+      "input_sha256": "2e425152b2538bf7104deb454b005b9c3bf4da370a24093b2e1822b616533788",
+      "cold": {
+        "elapsed_seconds": 0.3992480000015348,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.3661264169495553
+        },
+        "shortage": 0,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.5498871660092846
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.014052583021111786,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.010941292042843997
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.012545458972454071,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009387957979924977
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.012279249960556626,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009182584006339312
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "work_days",
+      "step": "last_day",
+      "input_sha256": "cfcebdb6a66b41935352ea14ddb82e438da255343afb3de16b3111224a523e6f",
+      "cold": {
+        "elapsed_seconds": 0.4084113750141114,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.3742931659799069
+        },
+        "shortage": 0,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.5624153329990804
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.013547875103540719,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.01043370901606977
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.01236937497742474,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009260708000510931
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.011918207979761064,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.008840083028189838
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "work_days",
+      "step": "future",
+      "input_sha256": "db794089dbba87a3f13c35ee7566f5001350f7a2f48a27769410dc263865a60b",
+      "cold": {
+        "elapsed_seconds": 0.10160258295945823,
+        "status": "INVALID_INPUT",
+        "solver": {
+          "backend": "none",
+          "engine_version": "0.2.0",
+          "library_version": null,
+          "selection_reason": "NOT_SELECTED"
+        },
+        "stats": {
+          "elapsed_seconds": 0.10159841703716666
+        },
+        "shortage": null,
+        "verification": null,
+        "process_elapsed_seconds": 0.19620837492402643
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.0029342500492930412,
+          "status": "INVALID_INPUT",
+          "solver": {
+            "backend": "none",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "NOT_SELECTED"
+          },
+          "stats": {
+            "elapsed_seconds": 0.0028895840514451265
+          },
+          "verification": null
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.001980791916139424,
+          "status": "INVALID_INPUT",
+          "solver": {
+            "backend": "none",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "NOT_SELECTED"
+          },
+          "stats": {
+            "elapsed_seconds": 0.001978792017325759
+          },
+          "verification": null
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.002113542053848505,
+          "status": "INVALID_INPUT",
+          "solver": {
+            "backend": "none",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "NOT_SELECTED"
+          },
+          "stats": {
+            "elapsed_seconds": 0.0021113749826326966
+          },
+          "verification": null
+        }
+      ]
+    },
+    {
+      "lesson": "work_days",
+      "step": "restored",
+      "input_sha256": "3050bb168745c1d2cfb4a7c18b4714585b485e93244d7997cfd2e31ab2261437",
+      "cold": {
+        "elapsed_seconds": 0.3948709169635549,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.36135712498798966
+        },
+        "shortage": 0,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.5411680829711258
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.01365470897872001,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.010524916928261518
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.01211504207458347,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009035042021423578
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.012531167012639344,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009437041939236224
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "days_off",
+      "step": "initial",
+      "input_sha256": "2bcdcc7767290a19ecf6d2e13e829404fa29eeb3de8b45618ad22b3c4a6cbac3",
+      "cold": {
+        "elapsed_seconds": 0.399249583017081,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.36573308298829943
+        },
+        "shortage": 0,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.548458999954164
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.013715458917431533,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.010609999997541308
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.012912583071738482,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009490084019489586
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.012441499973647296,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009320207987912
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "days_off",
+      "step": "lower",
+      "input_sha256": "e9a657aafea4d05f7a451c047b7c61446c6aadd981880766e74e2345e9b853b2",
+      "cold": {
+        "elapsed_seconds": 0.39706687501166016,
+        "status": "PARTIAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.3633802909171209
+        },
+        "shortage": 60,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.5553423339733854
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.016642333008348942,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.013480624998919666
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.012309666024520993,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009148500044830143
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.012469750014133751,
+          "status": "PARTIAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.00935362500604242
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "days_off",
+      "step": "upper",
+      "input_sha256": "b32b672b9e0e5f65135e92377dbf428e8b963a911ff8fbd8c18fe1d87577ac90",
+      "cold": {
+        "elapsed_seconds": 0.4008614580379799,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.3676333340117708
+        },
+        "shortage": 0,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.546910542063415
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.014287791913375258,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.010984416003338993
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.014273458044044673,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.010887000011280179
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.014666375005617738,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.011039749952033162
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "days_off",
+      "step": "impossible",
+      "input_sha256": "80839d1e98285072131abd9c80310e35a7aeb66d12855c29c03dbc0428479417",
+      "cold": {
+        "elapsed_seconds": 0.3480036250548437,
+        "status": "INFEASIBLE",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.3479873340111226
+        },
+        "shortage": null,
+        "verification": null,
+        "process_elapsed_seconds": 0.5065633750054985
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.004901750013232231,
+          "status": "INFEASIBLE",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.004829916055314243
+          },
+          "verification": null
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.003685917006805539,
+          "status": "INFEASIBLE",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.0036715000169351697
+          },
+          "verification": null
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.0037320409901440144,
+          "status": "INFEASIBLE",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.0037128330441191792
+          },
+          "verification": null
+        }
+      ]
+    },
+    {
+      "lesson": "days_off",
+      "step": "history",
+      "input_sha256": "f442adabed22b431aa8f30b129de1ba4c7d181940f7c1b556865831dd5445efe",
+      "cold": {
+        "elapsed_seconds": 0.39630845794454217,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.36152091703843325
+        },
+        "shortage": 0,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.5520567080238834
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.015317499986849725,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.012003790936432779
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.012374416925013065,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009249208029359579
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.012172167073003948,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009079583920538425
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "days_off",
+      "step": "last_day",
+      "input_sha256": "ba4e1aee3a1689492c22f9e07ab463be215bcf1959d9e68a2851f4b95aad242b",
+      "cold": {
+        "elapsed_seconds": 0.39882416604086757,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.36501604109071195
+        },
+        "shortage": 0,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.5540050419513136
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.014896624954417348,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.011547500034794211
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.01320704200770706,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.00985595805104822
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.012692624935880303,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009447875083424151
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    },
+    {
+      "lesson": "days_off",
+      "step": "future",
+      "input_sha256": "3177febe9e349f0389503c310ab118c49ac6a4329d2bcca5e89e75470e82e373",
+      "cold": {
+        "elapsed_seconds": 0.10197137494105846,
+        "status": "INVALID_INPUT",
+        "solver": {
+          "backend": "none",
+          "engine_version": "0.2.0",
+          "library_version": null,
+          "selection_reason": "NOT_SELECTED"
+        },
+        "stats": {
+          "elapsed_seconds": 0.10196658398490399
+        },
+        "shortage": null,
+        "verification": null,
+        "process_elapsed_seconds": 0.20048208406660706
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.0032820000778883696,
+          "status": "INVALID_INPUT",
+          "solver": {
+            "backend": "none",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "NOT_SELECTED"
+          },
+          "stats": {
+            "elapsed_seconds": 0.0032402920769527555
+          },
+          "verification": null
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.0022000829922035336,
+          "status": "INVALID_INPUT",
+          "solver": {
+            "backend": "none",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "NOT_SELECTED"
+          },
+          "stats": {
+            "elapsed_seconds": 0.0021973750554025173
+          },
+          "verification": null
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.0020860000513494015,
+          "status": "INVALID_INPUT",
+          "solver": {
+            "backend": "none",
+            "engine_version": "0.2.0",
+            "library_version": null,
+            "selection_reason": "NOT_SELECTED"
+          },
+          "stats": {
+            "elapsed_seconds": 0.002083999919705093
+          },
+          "verification": null
+        }
+      ]
+    },
+    {
+      "lesson": "days_off",
+      "step": "restored",
+      "input_sha256": "2bcdcc7767290a19ecf6d2e13e829404fa29eeb3de8b45618ad22b3c4a6cbac3",
+      "cold": {
+        "elapsed_seconds": 0.4027863750234246,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.36904141609556973
+        },
+        "shortage": 0,
+        "verification": {
+          "performed": true,
+          "valid": true,
+          "violations": []
+        },
+        "process_elapsed_seconds": 0.5565298330038786
+      },
+      "warm": [
+        {
+          "repeat": 0,
+          "elapsed_seconds": 0.014828542014583945,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.011641375022009015
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 1,
+          "elapsed_seconds": 0.012560208910144866,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009318333002738655
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        },
+        {
+          "repeat": 2,
+          "elapsed_seconds": 0.013001417042687535,
+          "status": "OPTIMAL",
+          "solver": {
+            "backend": "cp_sat",
+            "engine_version": "0.2.0",
+            "library_version": "9.15.6755",
+            "selection_reason": "JOINT_ROSTER"
+          },
+          "stats": {
+            "elapsed_seconds": 0.009797999984584749
+          },
+          "verification": {
+            "performed": true,
+            "valid": true,
+            "violations": []
+          }
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "利用者理解度・実スクリーンリーダー発話・性能保証・本番デプロイは未確認",
+    "実測は同じホストで全体回帰も稼働中。制御応答は性能証拠に含めない。"
+  ],
+  "browser": {
+    "engine": "Chromium",
+    "version": "151.0.7922.34",
+    "playwright": "1.62.1",
+    "timezone": "UTC",
+    "widths": [
+      1440,
+      390
+    ],
+    "http_samples": [
+      {
+        "id": "work_days",
+        "initial": true,
+        "elapsed_ms": 58.10000002384186,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.013130249921232462
+        }
+      },
+      {
+        "id": "work_days",
+        "initial": false,
+        "elapsed_ms": 47.39999997615814,
+        "status": "PARTIAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.01110070792492479
+        }
+      },
+      {
+        "id": "work_days",
+        "initial": false,
+        "elapsed_ms": 46.799999952316284,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.01201370800845325
+        }
+      },
+      {
+        "id": "work_days",
+        "initial": false,
+        "elapsed_ms": 47.800000071525574,
+        "status": "INFEASIBLE",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.003711041994392872
+        }
+      },
+      {
+        "id": "work_days",
+        "initial": false,
+        "elapsed_ms": 48.799999952316284,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.0114180410746485
+        }
+      },
+      {
+        "id": "work_days",
+        "initial": false,
+        "elapsed_ms": 48,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.012617875006981194
+        }
+      },
+      {
+        "id": "work_days",
+        "initial": false,
+        "elapsed_ms": 48.39999997615814,
+        "status": "INVALID_INPUT",
+        "solver": {
+          "backend": "none",
+          "engine_version": "0.2.0",
+          "library_version": null,
+          "selection_reason": "NOT_SELECTED"
+        },
+        "stats": {
+          "elapsed_seconds": 0.0024962089955806732
+        }
+      },
+      {
+        "id": "work_days",
+        "initial": false,
+        "elapsed_ms": 47,
+        "status": "INVALID_INPUT",
+        "solver": {
+          "backend": "none",
+          "engine_version": "0.2.0",
+          "library_version": null,
+          "selection_reason": "NOT_SELECTED"
+        },
+        "stats": {
+          "elapsed_seconds": 0.0025705420412123203
+        }
+      },
+      {
+        "id": "work_days",
+        "initial": false,
+        "elapsed_ms": 49.39999997615814,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.010934417019598186
+        }
+      },
+      {
+        "id": "days_off",
+        "initial": true,
+        "elapsed_ms": 46.200000047683716,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.013150667073205113
+        }
+      },
+      {
+        "id": "days_off",
+        "initial": false,
+        "elapsed_ms": 47.799999952316284,
+        "status": "PARTIAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.011121125076897442
+        }
+      },
+      {
+        "id": "days_off",
+        "initial": false,
+        "elapsed_ms": 47.89999997615814,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.010370290954597294
+        }
+      },
+      {
+        "id": "days_off",
+        "initial": false,
+        "elapsed_ms": 47.89999997615814,
+        "status": "INFEASIBLE",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.003883874975144863
+        }
+      },
+      {
+        "id": "days_off",
+        "initial": false,
+        "elapsed_ms": 48,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.012076665996573865
+        }
+      },
+      {
+        "id": "days_off",
+        "initial": false,
+        "elapsed_ms": 47.59999990463257,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.013337915996089578
+        }
+      },
+      {
+        "id": "days_off",
+        "initial": false,
+        "elapsed_ms": 47.799999952316284,
+        "status": "INVALID_INPUT",
+        "solver": {
+          "backend": "none",
+          "engine_version": "0.2.0",
+          "library_version": null,
+          "selection_reason": "NOT_SELECTED"
+        },
+        "stats": {
+          "elapsed_seconds": 0.0026021249359473586
+        }
+      },
+      {
+        "id": "days_off",
+        "initial": false,
+        "elapsed_ms": 47.799999952316284,
+        "status": "INVALID_INPUT",
+        "solver": {
+          "backend": "none",
+          "engine_version": "0.2.0",
+          "library_version": null,
+          "selection_reason": "NOT_SELECTED"
+        },
+        "stats": {
+          "elapsed_seconds": 0.002433125046081841
+        }
+      },
+      {
+        "id": "days_off",
+        "initial": false,
+        "elapsed_ms": 47.799999952316284,
+        "status": "OPTIMAL",
+        "solver": {
+          "backend": "cp_sat",
+          "engine_version": "0.2.0",
+          "library_version": "9.15.6755",
+          "selection_reason": "JOINT_ROSTER"
+        },
+        "stats": {
+          "elapsed_seconds": 0.01142962509766221
+        }
+      }
+    ]
+  }
+}
