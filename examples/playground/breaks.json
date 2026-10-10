@@ -1,0 +1,122 @@
+{
+  "schema_version": "0.15",
+  "request_id": "demo_breaks",
+  "problem_type": "roster",
+  "planning_window": {
+    "start": "2026-10-05T00:00:00+09:00",
+    "end": "2026-10-06T00:00:00+09:00",
+    "timezone": "Asia/Tokyo",
+    "slot_minutes": 30
+  },
+  "skills": [],
+  "roles": [
+    {
+      "id": "work",
+      "label": "担当",
+      "required_skills": []
+    }
+  ],
+  "employees": [
+    {
+      "id": "a",
+      "label": "A",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-05T09:00:00+09:00",
+          "end": "2026-10-05T14:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "last_work_day": null,
+        "consecutive_work_days_before_window": 0
+      }
+    },
+    {
+      "id": "b",
+      "label": "B",
+      "skills": [],
+      "availability": [
+        {
+          "start": "2026-10-05T10:00:00+09:00",
+          "end": "2026-10-05T12:00:00+09:00"
+        }
+      ],
+      "history": {
+        "last_shift_end": null,
+        "last_work_day": null,
+        "consecutive_work_days_before_window": 0
+      }
+    }
+  ],
+  "demand": [
+    {
+      "id": "need",
+      "role_id": "work",
+      "interval": {
+        "start": "2026-10-05T09:00:00+09:00",
+        "end": "2026-10-05T13:00:00+09:00"
+      },
+      "required_people": 1,
+      "minimum_people": 0
+    }
+  ],
+  "constraints": [],
+  "preferences": [],
+  "objectives": [
+    {
+      "id": "work",
+      "metric": "scheduled_minutes"
+    }
+  ],
+  "solver": {
+    "backend": "auto",
+    "time_limit_seconds": 5,
+    "seed": 0
+  },
+  "shift_candidates": [
+    {
+      "id": "main",
+      "employee_id": "a",
+      "segments": [
+        {
+          "interval": {
+            "start": "2026-10-05T09:00:00+09:00",
+            "end": "2026-10-05T14:00:00+09:00"
+          },
+          "breaks": [
+            {
+              "start": "2026-10-05T10:00:00+09:00",
+              "end": "2026-10-05T11:00:00+09:00"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "shift_templates": [
+    {
+      "id": "backup",
+      "employee_ids": [
+        "b"
+      ],
+      "dates": [
+        "2026-10-05"
+      ],
+      "start_times": [
+        "10:00",
+        "11:00"
+      ],
+      "segment_options": [
+        [
+          {
+            "offset_minutes": 0,
+            "duration_minutes": 60,
+            "breaks": []
+          }
+        ]
+      ]
+    }
+  ]
+}

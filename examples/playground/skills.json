@@ -1,0 +1,84 @@
+{
+  "schema_version": "0.15",
+  "request_id": "demo_skills",
+  "problem_type": "assignment",
+  "planning_window": {
+    "start": "2026-10-05T09:00:00+09:00",
+    "end": "2026-10-05T11:00:00+09:00",
+    "timezone": "Asia/Tokyo",
+    "slot_minutes": 30
+  },
+  "skills": [
+    {
+      "id": "service",
+      "label": "接客技能"
+    }
+  ],
+  "roles": [
+    {
+      "id": "work",
+      "label": "担当",
+      "required_skills": [
+        {
+          "skill_id": "service",
+          "min_level": 2
+        }
+      ]
+    }
+  ],
+  "employees": [
+    {
+      "id": "a",
+      "label": "A",
+      "skills": [
+        {
+          "skill_id": "service",
+          "level": 2
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-05T09:00:00+09:00",
+          "end": "2026-10-05T11:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "id": "b",
+      "label": "B",
+      "skills": [
+        {
+          "skill_id": "service",
+          "level": 1
+        }
+      ],
+      "availability": [
+        {
+          "start": "2026-10-05T09:00:00+09:00",
+          "end": "2026-10-05T11:00:00+09:00"
+        }
+      ]
+    }
+  ],
+  "demand": [
+    {
+      "id": "need",
+      "role_id": "work",
+      "interval": {
+        "start": "2026-10-05T09:00:00+09:00",
+        "end": "2026-10-05T11:00:00+09:00"
+      },
+      "required_people": 1,
+      "minimum_people": 0
+    }
+  ],
+  "constraints": [],
+  "preferences": [],
+  "objectives": [],
+  "solver": {
+    "backend": "auto",
+    "time_limit_seconds": 5,
+    "seed": 0
+  },
+  "shift_candidates": []
+}

@@ -70,6 +70,8 @@ li { overflow-wrap: anywhere; }
 .feature-condition { grid-column: 1 / -1; }
 .feature-condition .feature-values { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
 .feature-condition .feature-values strong { font-size: 16px; white-space: normal; overflow-wrap: anywhere; }
+#feature-fields select { max-width: 100%; }
+#feature-output .feature-changed th::after { content: " · 変更"; }
 .feature-values small, #feature-output td small { font-size: 12px; font-weight: 400; }
 .feature-work { background: #e3eee8; }
 .feature-off { background: #f5f6f5; color: #59675f; }

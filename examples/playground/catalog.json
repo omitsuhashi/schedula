@@ -39,11 +39,12 @@
       ],
       "issue": 127,
       "progress": {
-        "detail": "pending",
-        "measurement": "pending",
-        "screen": "pending",
-        "test": "pending"
-      }
+        "detail": "confirmed",
+        "measurement": "confirmed",
+        "screen": "confirmed",
+        "test": "confirmed"
+      },
+      "lesson_file": "examples/playground/lessons.json"
     },
     {
       "id": "availability",
@@ -58,11 +59,12 @@
       ],
       "issue": 127,
       "progress": {
-        "detail": "pending",
-        "measurement": "pending",
-        "screen": "pending",
-        "test": "pending"
-      }
+        "detail": "confirmed",
+        "measurement": "confirmed",
+        "screen": "confirmed",
+        "test": "confirmed"
+      },
+      "lesson_file": "examples/playground/lessons.json"
     },
     {
       "id": "shift_candidates",
@@ -78,11 +80,12 @@
       ],
       "issue": 127,
       "progress": {
-        "detail": "pending",
-        "measurement": "pending",
-        "screen": "pending",
-        "test": "pending"
-      }
+        "detail": "confirmed",
+        "measurement": "confirmed",
+        "screen": "confirmed",
+        "test": "confirmed"
+      },
+      "lesson_file": "examples/playground/lessons.json"
     },
     {
       "id": "breaks",
@@ -97,11 +100,12 @@
       ],
       "issue": 127,
       "progress": {
-        "detail": "pending",
-        "measurement": "pending",
-        "screen": "pending",
-        "test": "pending"
-      }
+        "detail": "confirmed",
+        "measurement": "confirmed",
+        "screen": "confirmed",
+        "test": "confirmed"
+      },
+      "lesson_file": "examples/playground/lessons.json"
     },
     {
       "id": "overnight",
@@ -117,11 +121,12 @@
       ],
       "issue": 127,
       "progress": {
-        "detail": "pending",
-        "measurement": "pending",
-        "screen": "pending",
-        "test": "pending"
-      }
+        "detail": "confirmed",
+        "measurement": "confirmed",
+        "screen": "confirmed",
+        "test": "confirmed"
+      },
+      "lesson_file": "examples/playground/lessons.json"
     },
     {
       "id": "split_shift",
@@ -137,11 +142,12 @@
       ],
       "issue": 127,
       "progress": {
-        "detail": "pending",
-        "measurement": "pending",
-        "screen": "pending",
-        "test": "pending"
-      }
+        "detail": "confirmed",
+        "measurement": "confirmed",
+        "screen": "confirmed",
+        "test": "confirmed"
+      },
+      "lesson_file": "examples/playground/lessons.json"
     },
     {
       "id": "assigned_limit",
@@ -898,11 +904,12 @@
       "integration_issue": 120,
       "acceptance_issue": 123,
       "progress": {
-        "detail": "pending",
-        "measurement": "pending",
-        "screen": "pending",
-        "test": "pending"
-      }
+        "detail": "confirmed",
+        "measurement": "confirmed",
+        "screen": "confirmed",
+        "test": "confirmed"
+      },
+      "lesson_file": "examples/playground/lessons.json"
     },
     {
       "id": "coverage_48h",
@@ -925,11 +932,12 @@
       "integration_issue": 120,
       "acceptance_issue": 123,
       "progress": {
-        "detail": "pending",
-        "measurement": "pending",
-        "screen": "pending",
-        "test": "pending"
-      }
+        "detail": "confirmed",
+        "measurement": "confirmed",
+        "screen": "confirmed",
+        "test": "confirmed"
+      },
+      "lesson_file": "examples/playground/lessons.json"
     }
   ]
 }

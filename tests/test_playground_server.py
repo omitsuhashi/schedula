@@ -81,6 +81,14 @@ def test_http_matches_cli_and_only_serves_allowlist(http_server):
         "/samples/night-count.json",
         "/samples/manual-verify.json",
         "/samples/manual-verify.solution.json",
+        "/samples/skills.json",
+        "/samples/availability.json",
+        "/samples/shift-candidates.json",
+        "/samples/breaks.json",
+        "/samples/overnight.json",
+        "/samples/split-shift.json",
+        "/samples/coverage-24h.json",
+        "/samples/coverage-48h.json",
     ):
         assert call(http_server, method="GET", path=path)[0] == 200
     for path in ("/../pyproject.toml", "/.git/config", "/samples/", "/solve"):

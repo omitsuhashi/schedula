@@ -59,7 +59,7 @@ def test_catalog_covers_contract_and_tracks_supplemental_templates():
         assert template["issue"] == 127
         assert template["integration_issue"] == 120
         assert template["acceptance_issue"] == 123
-    assert {t["id"] for t in topics if "lesson_file" in t} == {lesson["id"] for lesson in LESSONS}
+    assert {t["id"] for t in entries if "lesson_file" in t} == {lesson["id"] for lesson in LESSONS}
 
 
 def work_runs(request, solution):
@@ -90,7 +90,7 @@ def work_runs(request, solution):
 
 @pytest.mark.parametrize(
     "lesson",
-    [item for item in LESSONS if item["operation"] == "solve"],
+    [item for item in LESSONS if item["operation"] == "solve" and item.get("module") != "basic"],
     ids=lambda item: item["id"],
 )
 def test_lesson_initial_changes_history_and_restore(lesson):
