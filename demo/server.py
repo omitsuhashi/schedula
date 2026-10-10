@@ -85,6 +85,8 @@ for name in (
     "scheduled-limit",
     "scheduled-bounds",
     "rest",
+    "work-days",
+    "days-off",
 ):
     FILES[f"/samples/{name}.json"] = (SAMPLES / f"{name}.json", "application/json; charset=utf-8")
 for name in ("assignment", "roster", "partial_roster", "continuity_week", "unconfirmed"):

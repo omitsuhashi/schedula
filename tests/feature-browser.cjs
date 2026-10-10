@@ -14,7 +14,7 @@ module.exports = async (browser, url, report) => {
   assert.equal(await page.locator("#feature-list .feature-cards li").count(), 44);
   assert.equal(requests, 0);
   assert.equal(await page.locator("#editor").isVisible(), false);
-  for (const lesson of lessons.filter(item => item.operation === "solve" && !["basic","conditions"].includes(item.module))) {
+  for (const lesson of lessons.filter(item => item.operation === "solve" && !["basic","conditions","days"].includes(item.module))) {
     await page.goto(`${url}#${lesson.id}`);
     await ready(page);
     const initial = await page.evaluate(() => structuredClone(feature.current));
@@ -118,6 +118,7 @@ module.exports = async (browser, url, report) => {
   }
   await require("./basic-browser.cjs")(browser, url, report);
   await require("./condition-browser.cjs")(browser, url, report);
+  await require("./day-browser.cjs")(browser, url, report);
   await require("./verify-browser.cjs")(page, url, report);
   // 初期解なし→編集→実再試行。制御応答の証拠として記録する。
   let first = true;

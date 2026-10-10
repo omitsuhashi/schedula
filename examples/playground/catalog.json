@@ -283,11 +283,16 @@
       ],
       "issue": 129,
       "progress": {
-        "detail": "pending",
-        "measurement": "pending",
-        "screen": "pending",
-        "test": "pending"
-      }
+        "detail": "confirmed",
+        "measurement": "confirmed",
+        "screen": "confirmed",
+        "test": "confirmed"
+      },
+      "lesson_file": "examples/playground/lessons.json",
+      "request_file": "examples/playground/work-days.json",
+      "measurement_files": [
+        "docs/evaluations/results/day-demo-20261010.json"
+      ]
     },
     {
       "id": "days_off",
@@ -302,11 +307,16 @@
       ],
       "issue": 129,
       "progress": {
-        "detail": "pending",
-        "measurement": "pending",
-        "screen": "pending",
-        "test": "pending"
-      }
+        "detail": "confirmed",
+        "measurement": "confirmed",
+        "screen": "confirmed",
+        "test": "confirmed"
+      },
+      "lesson_file": "examples/playground/lessons.json",
+      "request_file": "examples/playground/days-off.json",
+      "measurement_files": [
+        "docs/evaluations/results/day-demo-20261010.json"
+      ]
     },
     {
       "id": "consecutive_days_off",

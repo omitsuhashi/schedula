@@ -1,6 +1,6 @@
 "use strict";
 
-function isWorkLesson() { return ["basic", "conditions"].includes(lesson?.module); }
+function isWorkLesson() { return ["basic", "conditions", "days"].includes(lesson?.module); }
 function basicSelect(id, label, value, choices, update) {
   const select = node("select", "", {id}, choices.map(([value, label]) => node("option", label, {value})));
   select.value = String(value);
@@ -24,6 +24,14 @@ function basicNumber(id, label, value, min, max, update) {
 }
 function renderBasicFields() {
   const area = $("feature-fields"), input = feature.input;
+  if (lesson.module === "days") {
+    const rule=input.constraints[0];
+    for (const [field,label] of [["min_days","日数下限"],["max_days","日数上限"]]) area.append(basicSelect(`day-${field}`, `${label}（日）`, rule[field],
+      Array.from({length:6},(_,n)=>[n,n]), (v,n)=>{v.constraints[0][field]=Number(n);}));
+    area.append(basicSelect("day-period", "評価期間（Asia/Tokyo・終端を含まない）", rule.interval.start,
+      [["2026-10-05T00:00:00+09:00","10月5日〜10日：計画期間"],["2026-10-04T00:00:00+09:00","10月4日〜10日：確認済み実績込み"],["2026-10-09T00:00:00+09:00","10月9日〜10日：0時終了の翌日"]],
+      (v,n)=>{v.constraints[0].interval={start:n,end:"2026-10-10T00:00:00+09:00"};}));
+  }
   if (["assigned_limit", "scheduled_limit", "rest"].includes(lesson.id)) area.append(
     basicNumber("condition-limit", lesson.editable_fields[0].label, input.constraints[0].limit_minutes, 0, 1440, (v,n) => { v.constraints[0].limit_minutes=n; }));
   if (lesson.id === "scheduled_bounds") {
@@ -83,11 +91,17 @@ function basicCards(pair, base) {
     const first = feature.initial[collection].find(item => item.id === id), current = pair.input[collection].find(item => item.id === id);
     if (JSON.stringify(first[field]) === JSON.stringify(current[field])) continue;
     const card = featureMetric(`変更した条件 · ${label}${ids.length > 1 ? ` (${current.label || current.interval?.start.slice(0,10) || id})` : ""}`,
-      displayField(field,first[field]), displayField(field,current[field]), ["required_people","limit_minutes","min_minutes","max_minutes"].includes(field) ? unit : "");
-    if (!["required_people","limit_minutes","min_minutes","max_minutes"].includes(field)) card.classList.add("feature-condition");
+      displayField(field,first[field]), displayField(field,current[field]), ["required_people","limit_minutes","min_minutes","max_minutes","min_days","max_days"].includes(field) ? unit : "");
+    if (!["required_people","limit_minutes","min_minutes","max_minutes","min_days","max_days"].includes(field)) card.classList.add("feature-condition");
     cards.push(card);
   }
   if (!cards.length) cards.push(node("p", "初期条件からの変更なし。", {class:"note"}));
+  if (lesson.module === "days") {
+    const previous=base?.response.day_count_summary?.[0].employees[0], current=pair.response.day_count_summary[0].employees[0];
+    for (const [field,label] of [["work_days","勤務日：原勤務の開始日"],["occupied_days","占有日：夜勤明けも含む"],["days_off","完全休日：占有のない日"]])
+      cards.push(featureMetric(label,previous?.[field] ?? null,current[field],"日"));
+    return cards;
+  }
   const before = base && operationView(lesson.operation,base.response).validPlan ? basicTotals(base) : null, current = basicTotals(pair);
   if (lesson.id === "skills") {
     const qualified = v => v.employees.filter(e => basicQualified(v,e,v.roles[0])).length;
@@ -101,7 +115,37 @@ function basicCards(pair, base) {
   else cards.push(featureMetric("担当した時間",before?.assigned ?? null,current.assigned,"分"));
   return cards;
 }
+function dayFacts(pair) {
+  const known=pair.input.continuity.employees[0];
+  return [...known.actual_shifts.map(s=>({...s,source:"確認済み実績"})), ...known.committed_shifts.map(s=>({...s,source:"確定勤務"})),
+    ...pair.response.solution.shifts.filter(s=>!s.committed_shift_id).map(s=>({...s,source:"今回の採用"}))];
+}
+function dayRows(pair) {
+  const rule=pair.input.constraints[0], window={...pair.input.planning_window,...rule.interval}, slots=jsonSlots({planning_window:window});
+  const date=new Intl.DateTimeFormat("en-CA",{timeZone:window.timezone,year:"numeric",month:"2-digit",day:"2-digit"}), facts=dayFacts(pair);
+  return [...new Set(slots.map(s=>s.date))].map(day=>{
+    const range=slots.filter(s=>s.date===day), start=range[0].start, end=range.at(-1).end;
+    const starts=facts.some(s=>date.format(Date.parse(s.segments[0].interval.start))===day);
+    const occupied=facts.some(s=>s.segments.some(t=>Date.parse(t.interval.start)<end && start<Date.parse(t.interval.end)));
+    return {day,starts,occupied};
+  });
+}
+function dayPlan(pair, base) {
+  const rule=pair.input.constraints[0], counts=pair.response.day_count_summary[0].employees[0], value=counts[rule.type==="work_days_bounds" ? "work_days" : "days_off"];
+  const area=node("div"), previous=base && operationView(lesson.operation,base.response).validPlan ? dayRows(base) : [];
+  const state=r=>r ? `${r.starts ? "勤務開始あり" : "勤務開始なし"} / ${r.occupied ? "占有日" : "完全休日"}` : "評価対象外";
+  area.append(scroll("日数条件と集計",table("A · Asia/Tokyo · 評価終端を含まない",["評価期間","数える対象","下限","上限","実際","条件の充足"],[node("tr","",{},[
+    node("td",datedRange(rule.interval)),node("td",rule.type==="work_days_bounds" ? "勤務日" : "完全休日"),node("td",`${rule.min_days}日`),node("td",`${rule.max_days}日`),node("td",`${value}日`),node("td","条件内")])])));
+  area.append(scroll("日別の数え方",table("勤務開始と占有を分離。夜勤明けは占有日、0時終了は翌日を占有しません。分割勤務は1勤務日。",["日付（Asia/Tokyo）","初期","現在","勤務日","占有日","完全休日","初期からの変化"],dayRows(pair).map(r=>{
+    const first=previous.find(p=>p.day===r.day), changed=!!base && state(first)!==state(r);
+    return node("tr","",{class:changed ? "feature-changed" : ""},[node("th",r.day,{scope:"row"}),node("td",base ? state(first) : "比較不可"),node("td",state(r)),node("td",r.starts ? "1日" : "0日"),node("td",r.occupied ? "1日" : "0日"),node("td",r.occupied ? "0日" : "1日"),node("td",changed ? "変更" : "変化なし")]);
+  }))));
+  area.append(node("details","",{},[node("summary","何を数えたか · 実績・確定勤務・今回の採用"),scroll("集計元の原勤務",table("確定勤務は今回の解にも含まれますが、一度だけ数えます。評価期間外の実績はその期間の集計に含めません。",["区分","開始日（Asia/Tokyo）","原勤務区間"],dayFacts(pair).map(s=>node("tr","",{},[
+    node("th",s.source,{scope:"row"}),node("td",s.segments[0].interval.start.slice(0,10)),node("td",s.segments.map(t=>datedRange(t.interval)).join(" / "))]))))]));
+  return area;
+}
 function basicPlan(pair, base) {
+  if (lesson.module === "days") return dayPlan(pair,base);
   const area = node("div"), input = pair.input, shifts = pair.response.solution.shifts;
   if (lesson.module === "conditions") {
     const rule=input.constraints[0];
