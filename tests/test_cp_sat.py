@@ -523,6 +523,23 @@ def test_wheel_without_ortools_reports_unavailable_and_preserves_flow(tmp_path):
     )
     assert build.returncode == 0, build.stderr
     (wheel,) = tmp_path.glob("*.whl")
+    python = (
+        tmp_path / "consumer" / ("Scripts/python.exe" if sys.platform == "win32" else "bin/python")
+    )
+    # 通常依存を確認してから、テスト専用環境でバックエンド欠落を明示的に作る。
+    for command in (
+        ("uv", "venv", "--python", sys.executable, str(tmp_path / "consumer")),
+        ("uv", "pip", "install", "--python", str(python), str(wheel), "jsonschema==4.26.0"),
+        (
+            str(python),
+            "-I",
+            "-c",
+            "import importlib.util; assert importlib.util.find_spec('ortools') is not None",
+        ),
+        ("uv", "pip", "uninstall", "--python", str(python), "ortools"),
+    ):
+        setup = subprocess.run(command, cwd=tmp_path, capture_output=True, text=True)
+        assert setup.returncode == 0, setup.stdout + setup.stderr
     script = """
 import importlib.util, json, pathlib, subprocess, sys
 assert importlib.util.find_spec('ortools') is None
@@ -627,17 +644,7 @@ print('isolated wheel: flow OPTIMAL; CP-SAT BACKEND_UNAVAILABLE; incompatible fl
 """
     result = subprocess.run(
         [
-            "uv",
-            "run",
-            "--no-project",
-            "--isolated",
-            "--python",
-            sys.executable,
-            "--with",
-            str(wheel),
-            "--with",
-            "jsonschema==4.26.0",
-            "python",
+            str(python),
             "-I",
             "-c",
             script,
