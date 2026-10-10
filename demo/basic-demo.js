@@ -111,10 +111,11 @@ function basicPlan(pair, base) {
       return node("tr","",{},[node("th",input.employees.find(e=>e.id===t.employee_ids[0]).label,{scope:"row"}),node("td",dated(new Date(Date.parse(end)+9*3600000).toISOString())),node("td",dated(new Date(Date.parse(start)+9*3600000).toISOString())),node("td",`${gap}分`),node("td",`${rest}分`),node("td",gap>=rest ? "休息条件を満たす" : "休息条件を満たさない")]);
     }))));
   }
+  if (!lesson.id.startsWith("coverage_")) area.append(node("p","時間帯表は需要・勤務のある枠を表示します。分割間の非勤務は原勤務表で確認できます。",{class:"note"}));
   const grid=jsonSlots(input), dates=[...new Set(grid.map(s=>s.date))];
   for (const date of dates) {
     const detail=node("details","",{class:"basic-day"},[node("summary",`${date} Asia/Tokyo · 配置人数／必要人数と担当表`)]); detail.open=true;
-    const tables=node("div"); renderJSONDay(pair,grid.filter(s=>s.date===date),tables,true); detail.append(tables); area.append(detail);
+    const tables=node("div"); renderJSONDay(pair,grid.filter(s=>s.date===date),tables,lesson.id.startsWith("coverage_")); detail.append(tables); area.append(detail);
   }
   return area;
 }
