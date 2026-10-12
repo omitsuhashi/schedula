@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 
 from shift_schedula import InvalidInput, cp_sat, get_schema, make_baseline, solve, validate, verify
-from shift_schedula.contract import SCHEMA_VERSIONS, schema_errors
+from shift_schedula.contract import schema_errors
 from shift_schedula.engine import validate_response
 from shift_schedula.extensions import evaluate
 from shift_schedula.model import normalize
@@ -378,8 +378,6 @@ def test_twenty_counts_twenty_duties_and_six_normal_objectives():
 
 def test_versions_schemas_and_cli_failure_shapes(tmp_path):
     data = example()
-    for version in SCHEMA_VERSIONS[:-1]:
-        assert schema_errors("request", {**data, "schema_version": version})
     result = solve(data)
     for kind, value in (
         ("request", data),

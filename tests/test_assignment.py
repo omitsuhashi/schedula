@@ -16,8 +16,7 @@ from tests.support import assert_response, require_complete_demand
 @pytest.mark.parametrize("backend", ["auto", "min_cost_flow"])
 def test_restaurant_example(assignment_request, backend):
     assignment_request["solver"]["backend"] = backend
-    if assignment_request["schema_version"] == "0.15":
-        require_complete_demand(assignment_request)
+    require_complete_demand(assignment_request)
     original = copy.deepcopy(assignment_request)
     result = solve(assignment_request)
     assert_response(result, "OPTIMAL")
@@ -251,8 +250,7 @@ def test_optimum_and_infeasibility_match_exhaustive_search(assignment_request, s
         }
         for index, employee in enumerate(request["employees"])
     ]
-    if request["schema_version"] == "0.15":
-        require_complete_demand(request)
+    require_complete_demand(request)
     saved = copy.deepcopy(request)
     expected = exhaustive_value(request)
     result = solve(request)

@@ -19,9 +19,62 @@ from shift_schedula import (
     verify,
 )
 from shift_schedula.contract import SCHEMA_VERSIONS, schema_errors
-from tests.roster_support import request
+from shift_schedula.model import normalize
+from tests.roster_support import request, template
 
 REJECTED = [*(f"0.{i}" for i in range(1, 15)), "0.16", "1.0", "", None, 15, True, []]
+
+
+def test_current_shift_shape_and_template_candidate_id_are_preserved():
+    data = request()
+    data["demand"] = []
+    data["shift_candidates"] = []
+    data["shift_templates"] = [template()]
+    problem = normalize(data)
+    (candidate,) = problem.candidates
+    assert candidate.id == "tmpl.cf8645f34824c400a0a65467ef0c76fda6734e1753e6e75227cfc2182b55e81e"
+    assert candidate.work_slots == {20, 21, 22}
+    shift = candidate.output(problem.grid)
+    assert shift == {
+        "candidate_id": candidate.id,
+        "employee_id": "alice",
+        "work_day": "2026-10-05",
+        "segments": [
+            {
+                "interval": {
+                    "start": "2026-10-05T10:00:00+09:00",
+                    "end": "2026-10-05T11:30:00+09:00",
+                },
+                "breaks": [],
+            }
+        ],
+    }
+    solution = {"assignments": [], "shifts": [shift]}
+    assert verify(data, solution)["status"] == "VALID"
+    assert make_baseline(data, solution, "saved")["source_solution"] == solution
+
+
+def test_current_contract_rejects_old_candidate_and_solution_shapes():
+    data = request()
+    data["demand"] = []
+    problem = normalize(data)
+    shift = problem.candidates[0].output(problem.grid)
+    solution = {"assignments": [], "shifts": [shift]}
+    assert verify(data, solution)["status"] == "VALID"
+    baseline = make_baseline(data, solution, "saved")
+    shift.update(shift.pop("segments")[0])
+    shift.pop("work_day")
+    original = copy.deepcopy(solution)
+    checked = verify(data, solution)
+    assert checked["status"] == "INVALID_PLAN"
+    assert any(d["json_pointer"].startswith("/shifts/0") for d in checked["diagnostics"])
+    with pytest.raises(InvalidInput):
+        make_baseline(data, solution, "saved")
+    baseline["source_solution"] = solution
+    assert validate({**data, "baseline": baseline})["status"] == "INVALID_INPUT"
+    data["shift_candidates"][0].update(data["shift_candidates"][0].pop("segments")[0])
+    assert validate(data)["status"] == "INVALID_INPUT"
+    assert solution == original
 
 
 @pytest.mark.parametrize("version", REJECTED)

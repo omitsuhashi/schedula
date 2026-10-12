@@ -58,17 +58,13 @@ def preference(
 
 @pytest.mark.parametrize("version", SCHEMA_VERSIONS)
 def test_candidate_count_removed_for_explicit_generated_and_selected_shifts(version):
-    make_request = request if version == "0.15" else request
-    data = make_request()
-    if version not in {"0.1", "0.15"}:
-        data = current(data)
+    data = request()
     data["schema_version"] = version
     data["shift_candidates"] = [
         {**data["shift_candidates"][0], "id": f"choice_{i}"} for i in range(5001)
     ]
     data["demand"] = [demand()]
-    if version == "0.15":
-        require_complete_demand(data)
+    require_complete_demand(data)
     original = copy.deepcopy(data)
     result = solve(data)
     assert_response(result, "OPTIMAL")
@@ -76,32 +72,23 @@ def test_candidate_count_removed_for_explicit_generated_and_selected_shifts(vers
     assert data == original
     data["shift_candidates"][0]["employee_id"] = "missing"
     assert_response(solve(data), "INVALID_INPUT")
-    many = make_request(days=21, employees=tuple(f"e{i}" for i in range(239)))
-    if version not in {"0.1", "0.15"}:
-        many = current(many)
+    many = request(days=21, employees=tuple(f"e{i}" for i in range(239)))
     many["schema_version"] = version
     solution = {"assignments": [], "shifts": [selected(c) for c in many["shift_candidates"]]}
     assert len(solution["shifts"]) == 5019
     assert not schema_errors("solution", solution, version)
     assert verify(many, solution)["status"] == "VALID"
-    generated = make_request(days=30, employees=tuple(f"e{i}" for i in range(100)))
+    generated = request(days=30, employees=tuple(f"e{i}" for i in range(100)))
     generated["roles"] = generated["roles"][:1]
     generated["shift_candidates"] = []
-    make_template = template if version == "0.15" else template
     generated["shift_templates"] = [
-        make_template(
+        template(
             tuple(e["id"] for e in generated["employees"]),
             tuple(stamp(d)[:10] for d in range(30)),
             starts=("10:00", "10:30"),
             durations=(60,),
         )
     ]
-    if version not in {"0.1", "0.15"}:
-        generated = current(generated)
-        t = generated["shift_templates"][0]
-        t.pop("duration_minutes_options")
-        t.pop("break_options")
-        t["segment_options"] = [[{"offset_minutes": 0, "duration_minutes": 60, "breaks": []}]]
     generated["schema_version"] = version
     assert len(normalize(generated).candidates) == 6000
 
@@ -109,7 +96,7 @@ def test_candidate_count_removed_for_explicit_generated_and_selected_shifts(vers
 @pytest.mark.parametrize("version", ["0.1", "0.2", "0.3"])
 @pytest.mark.parametrize("field", ["replan_mode", "bounds", "preference"])
 def test_new_conditions_rejected_by_old_versions(version, field):
-    data = request() if version == "0.1" else current(request())
+    data = request()
     data["schema_version"] = version
     if field == "replan_mode":
         data[field] = "rebuild"
@@ -493,9 +480,8 @@ def test_verification_has_no_solver_call_or_proofs(
 ):
     data = copy.deepcopy(assignment_request)
     data["schema_version"] = version
-    if version == "0.15":
-        for item in data["demand"]:
-            item["minimum_people"] = item["required_people"] if complete else 0
+    for item in data["demand"]:
+        item["minimum_people"] = item["required_people"] if complete else 0
     result = solve(data)
 
     def forbidden(*args):
@@ -512,9 +498,7 @@ def test_verification_has_no_solver_call_or_proofs(
     data["employees"][0]["skills"] = []
     assert verify(data, result["solution"])["status"] == "INVALID_PLAN"
     checked = verify(data, {"assignments": [], "shifts": []})
-    assert checked["status"] == (
-        "INVALID_PLAN" if version in {"0.1", "0.2"} or complete else "PARTIAL"
-    )
+    assert checked["status"] == ("INVALID_PLAN" if complete else "PARTIAL")
 
 
 @pytest.mark.parametrize(

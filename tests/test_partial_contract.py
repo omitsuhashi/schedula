@@ -18,10 +18,9 @@ from tests.test_extensions import baseline as baseline
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def result_example(status, version="0.15"):
+def result_example(status):
     result = response("contract_example", status)
     result.update(
-        schema_version=version,
         fairness_summary=None,
         change_summary=None,
         diagnosis_result=None,
@@ -62,28 +61,27 @@ def result_example(status, version="0.15"):
                 }
             ],
         }
-    if version == "0.15":
-        result.update(
-            priority_summary=None,
-            continuity_summary=None,
-            cost_summary=None,
-            duty_balance_summary=None,
-            day_count_summary=None,
-            shift_count_balance_summary=None,
-        )
-        if result["solution"] is not None:
-            summary = result["shortage_summary"]
-            for row in summary["shortages"]:
-                row["minimum_people"] = 0
-            result["priority_summary"] = {
-                "groups": [
-                    {
-                        "priority": 0,
-                        "total_person_minutes": summary["total_person_minutes"],
-                        "proven_minimal": summary["proven_minimal"],
-                    }
-                ]
-            }
+    result.update(
+        priority_summary=None,
+        continuity_summary=None,
+        cost_summary=None,
+        duty_balance_summary=None,
+        day_count_summary=None,
+        shift_count_balance_summary=None,
+    )
+    if result["solution"] is not None:
+        summary = result["shortage_summary"]
+        for row in summary["shortages"]:
+            row["minimum_people"] = 0
+        result["priority_summary"] = {
+            "groups": [
+                {
+                    "priority": 0,
+                    "total_person_minutes": summary["total_person_minutes"],
+                    "proven_minimal": summary["proven_minimal"],
+                }
+            ]
+        }
     return result
 
 

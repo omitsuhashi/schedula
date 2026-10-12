@@ -157,14 +157,13 @@ function coverageCell(assigned, required) {
 
 function verificationText(result) {
   if (result.status !== "PARTIAL") return "独立検証：成功";
-  return (result.schema_version === "0.15") ? "独立検証：不足集計・最低人数を含む必須条件を確認済み" : "独立検証：不足集計・需要以外の必須条件を確認済み";
+  return "独立検証：不足集計・最低人数を含む必須条件を確認済み";
 }
 
 function renderShortages(pair) {
   const summary = pair.response.shortage_summary;
   if (!summary) return node("span");
   const roles = new Map(pair.input.roles.map(role => [role.id, role.label || role.id]));
-  const hasMinimum = (pair.input.schema_version === "0.15");
   const zone = pair.input.planning_window.timezone;
   const dateTime = new Intl.DateTimeFormat("ja-JP", {timeZone: zone, month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZoneName: "shortOffset"});
   const result = node("div", "", {}, [
@@ -181,10 +180,10 @@ function renderShortages(pair) {
   const render = () => {
     const first = Number(select.value) * pageSize;
     const last = Math.min(first + pageSize, summary.shortages.length);
-    list.replaceChildren(scroll("不足の一覧", table(`元の必要人数と配置人数・不足人数 · 全${summary.shortages.length}件中${first + 1}〜${last}件`, ["需要ID", "役割", "時間帯", "必要人数", ...(hasMinimum ? ["最低人数"] : []), "配置人数", "不足人数"], summary.shortages.slice(first, last).map(item => node("tr", "", {}, [
+    list.replaceChildren(scroll("不足の一覧", table(`元の必要人数と配置人数・不足人数 · 全${summary.shortages.length}件中${first + 1}〜${last}件`, ["需要ID", "役割", "時間帯", "必要人数", "最低人数", "配置人数", "不足人数"], summary.shortages.slice(first, last).map(item => node("tr", "", {}, [
       node("th", item.demand_id, {scope: "row"}), node("td", roles.get(item.role_id)),
       node("td", `${dateTime.format(Date.parse(item.interval.start))}〜${dateTime.format(Date.parse(item.interval.end))}`),
-      node("td", `${item.required_people}人`), ...(hasMinimum ? [node("td", `${item.minimum_people}人`)] : []), node("td", `${item.assigned_people}人`), node("td", `不足${item.missing_people}人`, {class: "shortage"}),
+      node("td", `${item.required_people}人`), node("td", `${item.minimum_people}人`), node("td", `${item.assigned_people}人`), node("td", `不足${item.missing_people}人`, {class: "shortage"}),
     ])))));
   };
   select.addEventListener("change", render);
@@ -344,79 +343,69 @@ function acceptResponse(response, request, requestBoundaries = boundaries) {
     return;
   }
   if (success && (response.objectives.length !== request.objectives.length || response.objectives.some((item, i) => item.id !== request.objectives[i].id || item.metric !== request.objectives[i].metric || item.duty_id !== request.objectives[i].duty_id || item.balance_id !== request.objectives[i].balance_id))) throw new Error("応答の目的が入力と一致しません。");
-  if (request.schema_version === "0.15") {
-    const definitions = request.shift_count_balance || [], summaries = response.shift_count_balance_summary;
-    if (!success || !definitions.length) {
-      if (summaries !== null) throw new Error("対象外の応答に勤務回数集計があります。");
-    } else if (!Array.isArray(summaries) || summaries.length !== definitions.length || summaries.some((s, i) =>
-      s.id !== definitions[i].id || s.category_id !== definitions[i].category_id || s.unit !== "shifts" || s.scale !== "absolute_deviation" || s.normalized !== false ||
-      !Array.isArray(s.employees) || s.employees.length !== definitions[i].employee_targets.length || s.employees.some((e, j) =>
-        e.employee_id !== definitions[i].employee_targets[j].employee_id || e.target_count !== definitions[i].employee_targets[j].target_count ||
-        !Number.isSafeInteger(e.actual_count) || e.actual_count < 0 || e.deviation_count !== Math.abs(e.actual_count - e.target_count)) ||
-      s.total_deviation_count !== s.employees.reduce((total, e) => total + e.deviation_count, 0) ||
-      response.objectives.find(o => o.balance_id === s.id)?.value !== s.total_deviation_count)) throw new Error("勤務回数集計が入力・目的と一致しません。");
-  }
+  const definitions = request.shift_count_balance || [], summaries = response.shift_count_balance_summary;
+  if (!definitions.length) {
+    if (summaries !== null) throw new Error("対象外の応答に勤務回数集計があります。");
+  } else if (!Array.isArray(summaries) || summaries.length !== definitions.length || summaries.some((s, i) =>
+    s.id !== definitions[i].id || s.category_id !== definitions[i].category_id || s.unit !== "shifts" || s.scale !== "absolute_deviation" || s.normalized !== false ||
+    !Array.isArray(s.employees) || s.employees.length !== definitions[i].employee_targets.length || s.employees.some((e, j) =>
+      e.employee_id !== definitions[i].employee_targets[j].employee_id || e.target_count !== definitions[i].employee_targets[j].target_count ||
+      !Number.isSafeInteger(e.actual_count) || e.actual_count < 0 || e.deviation_count !== Math.abs(e.actual_count - e.target_count)) ||
+    s.total_deviation_count !== s.employees.reduce((total, e) => total + e.deviation_count, 0) ||
+    response.objectives.find(o => o.balance_id === s.id)?.value !== s.total_deviation_count)) throw new Error("勤務回数集計が入力・目的と一致しません。");
   if (success && !response.solution.assignments.every(item => item && request.employees.some(employee => employee.id === item.employee_id) &&
       request.roles.some(role => role.id === item.role_id) && requestBoundaries.some(value => Date.parse(value) === Date.parse(item.interval?.start)) &&
       requestBoundaries.some(value => Date.parse(value) === Date.parse(item.interval?.end)) && Date.parse(item.interval.start) < Date.parse(item.interval.end))) throw new Error("担当配置の参照または日時が不正です。");
-  if (!success && (request.schema_version === "0.15") && response.day_count_summary !== null) throw new Error("計画がない応答に日数集計があります。");
-  const hasPriority = (request.schema_version === "0.15");
-  if ((request.schema_version === "0.15")) {
-    if (!success && (request.schema_version === "0.15") && (response.cost_summary !== null || response.duty_balance_summary !== null)) throw new Error("計画がない応答に費用・指定区間の集計があります。");
-    if (!success) { if (hasPriority && response.priority_summary !== null) throw new Error("計画がない応答にpriority集計があります。"); if (response.shortage_summary !== null) throw new Error("計画がない応答に不足集計があります。"); return; }
-    const summary = response.shortage_summary;
-    if (!summary || typeof summary.proven_minimal !== "boolean" || !Number.isSafeInteger(summary.total_person_minutes) || !Array.isArray(summary.shortages)) throw new Error("不足集計が不正です。");
-    const grid = requestBoundaries.map(Date.parse), positions = new Map(grid.map((value, i) => [value, i]));
-    const counts = new Map(), occupied = new Set();
-    for (const item of response.solution.assignments) {
-      for (let i = positions.get(Date.parse(item.interval.start)); i < positions.get(Date.parse(item.interval.end)); i++) {
-        const key = `${item.role_id}/${i}`;
-        const employeeSlot = `${item.employee_id}/${i}`;
-        if (occupied.has(employeeSlot)) throw new Error("応答に二重配置があります。");
-        occupied.add(employeeSlot);
-        counts.set(key, (counts.get(key) || 0) + 1);
+  const summary = response.shortage_summary;
+  if (!summary || typeof summary.proven_minimal !== "boolean" || !Number.isSafeInteger(summary.total_person_minutes) || !Array.isArray(summary.shortages)) throw new Error("不足集計が不正です。");
+  const grid = requestBoundaries.map(Date.parse), positions = new Map(grid.map((value, i) => [value, i]));
+  const counts = new Map(), occupied = new Set();
+  for (const item of response.solution.assignments) {
+    for (let i = positions.get(Date.parse(item.interval.start)); i < positions.get(Date.parse(item.interval.end)); i++) {
+      const key = `${item.role_id}/${i}`;
+      const employeeSlot = `${item.employee_id}/${i}`;
+      if (occupied.has(employeeSlot)) throw new Error("応答に二重配置があります。");
+      occupied.add(employeeSlot);
+      counts.set(key, (counts.get(key) || 0) + 1);
+    }
+  }
+  const expected = [];
+  let total = 0;
+  for (const demand of request.demand) {
+    let run = null;
+    for (let i = positions.get(Date.parse(demand.interval.start)); i < positions.get(Date.parse(demand.interval.end)); i++) {
+      const assigned = counts.get(`${demand.role_id}/${i}`) || 0, missing = demand.required_people - assigned;
+      const minimum = demand.minimum_people ?? 0;
+      if (assigned < minimum) throw new Error("応答が必須の最低人数を満たしていません。");
+      if (missing < 0) throw new Error("応答に過剰配置があります。");
+      counts.delete(`${demand.role_id}/${i}`);
+      if (missing <= 0) { run = null; continue; }
+      total += missing * (grid[i + 1] - grid[i]) / 60000;
+      if (run && run.end === grid[i] && run.assigned_people === assigned) run.end = grid[i + 1];
+      else {
+        run = {demand_id: demand.id, role_id: demand.role_id, start: grid[i], end: grid[i + 1], required_people: demand.required_people, assigned_people: assigned, missing_people: missing};
+        run.minimum_people = minimum;
+        expected.push(run);
       }
     }
-    const expected = [];
-    let total = 0;
-    for (const demand of request.demand) {
-      let run = null;
-      for (let i = positions.get(Date.parse(demand.interval.start)); i < positions.get(Date.parse(demand.interval.end)); i++) {
-        const assigned = counts.get(`${demand.role_id}/${i}`) || 0, missing = demand.required_people - assigned;
-        const minimum = (request.schema_version === "0.15") ? demand.minimum_people ?? 0 : 0;
-        if (assigned < minimum) throw new Error("応答が必須の最低人数を満たしていません。");
-        if (missing < 0) throw new Error("応答に過剰配置があります。");
-        counts.delete(`${demand.role_id}/${i}`);
-        if (missing <= 0) { run = null; continue; }
-        total += missing * (grid[i + 1] - grid[i]) / 60000;
-        if (run && run.end === grid[i] && run.assigned_people === assigned) run.end = grid[i + 1];
-        else {
-          run = {demand_id: demand.id, role_id: demand.role_id, start: grid[i], end: grid[i + 1], required_people: demand.required_people, assigned_people: assigned, missing_people: missing};
-          if ((request.schema_version === "0.15")) run.minimum_people = minimum;
-          expected.push(run);
-        }
-      }
-    }
-    const actual = summary.shortages.map(item => ({demand_id: item.demand_id, role_id: item.role_id, start: Date.parse(item.interval?.start), end: Date.parse(item.interval?.end), required_people: item.required_people, assigned_people: item.assigned_people, missing_people: item.missing_people, ...((request.schema_version === "0.15") ? {minimum_people: item.minimum_people} : {})}));
-    const proofs = response.objectives.map(item => item.proven_optimal);
-    if (hasPriority) {
-      const groups = response.priority_summary?.groups;
-      const grouped = new Map(request.demand.map(d => [d.priority ?? 0, 0]));
-      const priorities = new Map(request.demand.map(d => [d.id, d.priority ?? 0]));
-      for (const item of expected) {
-        const priority = priorities.get(item.demand_id);
-        grouped.set(priority, grouped.get(priority) + (item.end - item.start) / 60000 * item.missing_people);
-      }
-      const ordered = [...grouped].sort(([a], [b]) => b - a);
-      if (!Array.isArray(groups) || groups.length !== ordered.length || groups.some((g, i) =>
-        g.priority !== ordered[i][0] || g.total_person_minutes !== ordered[i][1] || typeof g.proven_minimal !== "boolean")) throw new Error("priority別不足が元需要に一致しません。");
-      proofs.unshift(summary.proven_minimal, ...groups.map(g => g.proven_minimal));
-    }
-    if (counts.size || total !== summary.total_person_minutes || JSON.stringify(expected) !== JSON.stringify(actual) ||
-        (total > 0) !== (response.status === "PARTIAL") || (!total && !summary.proven_minimal) ||
-        (!summary.proven_minimal && proofs.some(Boolean)) || proofs.some((proof, i) => proof && proofs.slice(0, i).includes(false)) ||
-        (response.status === "OPTIMAL" && !proofs.every(Boolean)) || (response.status === "FEASIBLE" && proofs.every(Boolean))) throw new Error("不足・状態・最適性の証明が入力と一致しません。");
-  } else if (response.status === "PARTIAL") throw new Error("旧契約は不足付き計画に対応していません。");
+  }
+  const actual = summary.shortages.map(item => ({demand_id: item.demand_id, role_id: item.role_id, start: Date.parse(item.interval?.start), end: Date.parse(item.interval?.end), required_people: item.required_people, assigned_people: item.assigned_people, missing_people: item.missing_people, minimum_people: item.minimum_people}));
+  const proofs = response.objectives.map(item => item.proven_optimal);
+  const groups = response.priority_summary?.groups;
+  const grouped = new Map(request.demand.map(d => [d.priority ?? 0, 0]));
+  const priorities = new Map(request.demand.map(d => [d.id, d.priority ?? 0]));
+  for (const item of expected) {
+    const priority = priorities.get(item.demand_id);
+    grouped.set(priority, grouped.get(priority) + (item.end - item.start) / 60000 * item.missing_people);
+  }
+  const ordered = [...grouped].sort(([a], [b]) => b - a);
+  if (!Array.isArray(groups) || groups.length !== ordered.length || groups.some((g, i) =>
+    g.priority !== ordered[i][0] || g.total_person_minutes !== ordered[i][1] || typeof g.proven_minimal !== "boolean")) throw new Error("priority別不足が元需要に一致しません。");
+  proofs.unshift(summary.proven_minimal, ...groups.map(g => g.proven_minimal));
+  if (counts.size || total !== summary.total_person_minutes || JSON.stringify(expected) !== JSON.stringify(actual) ||
+      (total > 0) !== (response.status === "PARTIAL") || (!total && !summary.proven_minimal) ||
+      (!summary.proven_minimal && proofs.some(Boolean)) || proofs.some((proof, i) => proof && proofs.slice(0, i).includes(false)) ||
+      (response.status === "OPTIMAL" && !proofs.every(Boolean)) || (response.status === "FEASIBLE" && proofs.every(Boolean))) throw new Error("不足・状態・最適性の証明が入力と一致しません。");
 }
 
 async function calculate() {

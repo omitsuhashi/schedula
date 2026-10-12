@@ -146,25 +146,10 @@ def test_mismatched_grid_or_no_overlap_rejected(mutation):
 
 
 @pytest.mark.parametrize("version", ["0.4", "0.5", "0.6"])
-def test_old_contracts_keep_same_window_requirement(version):
+def test_old_contracts_are_rejected_before_baseline_comparison(version):
     data = example()
-    # 旧版0.4にも表現できる業務条件で期間だけを変更する。
     for request in (data, data["baseline"]["source_request"]):
         request["schema_version"] = version
-        request.pop("continuity")
-        request["constraints"] = request["constraints"][:2]
-        for demand in request["demand"]:
-            if version == "0.4":
-                demand.pop("priority")
-        for employee in request["employees"]:
-            employee["availability"] = [
-                {k: request["planning_window"][k] for k in ("start", "end")}
-            ]
-            employee["history"] = {
-                "last_shift_end": None,
-                "last_work_day": None,
-                "consecutive_work_days_before_window": 0,
-            }
     assert solve(data)["diagnostics"][0]["code"] == "SCHEMA_VIOLATION"
 
 

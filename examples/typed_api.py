@@ -27,13 +27,12 @@ def report(request: Request) -> Response:
     if result["status"] == "PARTIAL":
         print("配置件数", len(result["solution"]["assignments"]))
         print("不足", result["shortage_summary"])
-        if result["schema_version"] == "0.15":
-            print("優先度別不足", result["priority_summary"])
+        print("優先度別不足", result["priority_summary"])
     elif result["status"] == "OPTIMAL" or result["status"] == "FEASIBLE":
         print("配置件数", len(result["solution"]["assignments"]))
     else:
         print(result["diagnostics"])
-    if result["schema_version"] == "0.15" and result["continuity_summary"] is not None:
+    if result["continuity_summary"] is not None:
         for employee in result["continuity_summary"]["employees"]:
             print(
                 employee["employee_id"], employee["historical_minutes"], employee["planned_minutes"]

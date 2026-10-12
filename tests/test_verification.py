@@ -176,8 +176,7 @@ def test_response_objectives_match_request_order_and_ids(assignment_request):
 
 @pytest.mark.parametrize("assignment_request", ["0.15"], indirect=True)
 def test_search_timeout_is_unknown_with_no_partial_solution(assignment_request, monkeypatch):
-    if assignment_request["schema_version"] == "0.15":
-        require_complete_demand(assignment_request)
+    require_complete_demand(assignment_request)
     clock = iter([0, 20, 20])
     monkeypatch.setattr(flow.time, "monotonic", lambda: next(clock))
     result = solve(assignment_request)
@@ -187,8 +186,7 @@ def test_search_timeout_is_unknown_with_no_partial_solution(assignment_request, 
 
 @pytest.mark.parametrize("assignment_request", ["0.15"], indirect=True)
 def test_model_preparation_does_not_consume_search_budget(assignment_request, monkeypatch):
-    if assignment_request["schema_version"] == "0.15":
-        require_complete_demand(assignment_request)
+    require_complete_demand(assignment_request)
     clock = [0]
     prepare = flow.prepare
 

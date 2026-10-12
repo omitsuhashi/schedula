@@ -11,8 +11,7 @@ def states(grid, solution, *, continuity=False):
     """共通解から勤務・担当状態を再構成し、候補表やソルバー変数を参照しない。"""
     work, roles = {}, {}
     for index, shift in enumerate(solution["shifts"]):
-        segments = shift.get("segments", [shift])
-        for segment_index, segment in enumerate(segments):
+        for segment_index, segment in enumerate(shift["segments"]):
             path = f"/shifts/{index}/segments/{segment_index}"
             value = segment["interval"]
             if continuity:
