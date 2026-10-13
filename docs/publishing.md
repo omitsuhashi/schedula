@@ -5,12 +5,14 @@ OR-Toolsは通常の実行依存であり、extraの指定は不要。
 `publish.yml` は `v*` タグのpushで起動し、次を順に実行する。
 
 1. `vMAJOR.MINOR.PATCH` と `pyproject.toml` の `project.version` の一致を検査する。
-2. タグのcommitが `origin/main` に含まれることを検査する。
+2. タグのcommitが `origin/main` に含まれ、同じSHAに対する最新の `ci.yml` のmain push実行が
+   `completed` / `success` であることをGitHub APIで確認する。PR時の成功や別SHAの成功では代替しない。
 3. wheelとsdistをビルドし、メタデータとREADMEの描画を検査してSHA-256とともに保存する。
-4. 同じタグのcommitで既存 `ci.yml` を実行する。OS別の導入・全回帰・Chromium検証を含む。
-5. 全job成功後、保存した成果物のSHA-256を照合し、PyPIへ公開する。
+4. タグ時の全回帰・OS別テスト・Chromium検証は再実行しない。PR/main CIの責務とする。
+5. 公開元と成果物の検証成功後、保存した成果物のSHA-256を照合し、PyPIへ公開する。
 
 公開jobだけが `pypi` Environmentと `id-token: write` を使用する。
+ビルドjobは `actions: read` と `GITHUB_TOKEN` でCIの結果だけを読み取る。
 API tokenをRepository Secretsに保存せず、GitHubのOIDCによるTrusted Publishingで認証する。
 タグ作成は公開の指示になるため、初回は[配布方針の公開条件](distribution.md#公開作業の完了条件)を
 確認し、公開物・ライセンス・外部利用者向けセキュリティ窓口を整えてから実行する。
@@ -83,7 +85,9 @@ uv run --no-project --python 3.14 --with 'shift-schedula==0.2.0' \
 
 ## 失敗した場合
 
-版不一致・main未包含・CI失敗では公開jobは動かない。
+版不一致・main未包含・対象commitのmain CI未実行/実行中/失敗では公開jobは動かない。
+main CIの成功を待ってからActionsで公開workflowを再実行する。
+同じSHAで複数のmain push実行がある場合は最新の結果を使い、古い成功で新しい失敗を迂回しない。
 OIDC認証に失敗した場合はPyPIのowner・repository・workflow・Environmentの登録値を照合する。
 認証設定だけを直した場合はActionsの失敗した公開jobを再実行できる。
 同じ成果物の再送では `uv publish` が既存の同一ファイルを省略する。
@@ -104,3 +108,5 @@ GitHubでの実行成功、PyPIへの公開成功はそれぞれ別の確認が�
 - [新規PyPIプロジェクトのTrusted Publisher](https://docs.pypi.org/trusted-publishers/creating-a-project-through-oidc/)
 - [既存PyPIプロジェクトのTrusted Publisher](https://docs.pypi.org/trusted-publishers/adding-a-publisher/)
 - [PyPIのファイル名再利用制限](https://pypi.org/help/#file-name-reuse)
+
+GitHub APIの検索条件は[workflow runs公式仕様](https://docs.github.com/en/rest/actions/workflow-runs#list-workflow-runs-for-a-workflow)を参照する。

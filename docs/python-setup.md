@@ -100,7 +100,7 @@ hook を使わない場合は `uv run --locked ruff check .` と
 `uv run --locked ruff format --check .` で確認する。
 両方の経路で同じ Ruff 検証を繰り返す必要はない。
 
-CI の `deploy-entrypoint` も、uv 0.12.23 と `.python-version` を使い、
+CI の `quality-checks` も、uv 0.12.23 と `.python-version` を使い、
 `uv sync --locked`、Ruff hook、pytest、デプロイスクリプトの構文を確認する。
 全探索比較・両バックエンド比較・違反検出・依存不足の既存テストも同じ実行に含む。
 CP-SAT 導入下でスキップがあれば JUnit XML の確認を失敗させる。

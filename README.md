@@ -371,7 +371,7 @@ uv build --wheel
 uv run --locked python scripts/evaluate.py examples/assignment.json examples/roster.json docs/evaluations/inputs/assignment-week.json docs/evaluations/inputs/roster-week.json --output test-results/evaluation.json
 ```
 
-既存 CI の `deploy-entrypoint` は CP-SAT 導入下で全テストを実行し、スキップがあれば失敗します。
+既存 CI の `quality-checks` は CP-SAT 導入下で全テストを実行し、スキップがあれば失敗します。
 成功・失敗・スキップ理由は pytest ログと保存される `pytest-results` の JUnit XML で追跡できます。
 全探索との比較、両バックエンドの共通問題、独立検証器の違反検出に加え、
 wheel を lock file の実行依存とともに新しい隔離環境へ導入し、ライブラリ・CLI・Schema を確認します。
@@ -415,7 +415,8 @@ Git には採用判断で使う入力・条件・集計・失敗を含む生デ�
 
 `v0.2.0` のような正式タグをpushすると、`.github/workflows/publish.yml` が
 タグと配布版・mainへの包含を確認し、wheel/sdistをビルドする。
-既存CIが全件成功した後、同じ成果物をTrusted PublishingでPyPIへ公開する。
+対象commitの最新main CIが成功していることを確認し、成果物をTrusted PublishingでPyPIへ公開する。
+タグ時には全回帰テストを再実行しない。
 初回のPyPI登録・GitHub Environmentの設定・タグ操作は[公開手順](docs/publishing.md)を参照する。
 workflowの追加だけではPyPI側の登録や公開は完了しない。
 
@@ -423,7 +424,7 @@ workflowの追加だけではPyPI側の登録や公開は完了しない。
 
 ## Repository の変更管理
 
-main の変更には PR と、CI チェック `deploy-entrypoint` の成功が必要です。
+main の変更には PR と、CI チェック `quality-checks` の成功が必要です。
 一人運用のため、PR の必須承認は0名です。merge は squash のみに限定し、
 main の force push と削除は禁止します。ruleset の bypass は許可しません。
 

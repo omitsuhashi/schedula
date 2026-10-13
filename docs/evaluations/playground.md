@@ -10,7 +10,7 @@ Issue #28〜#31 に対して、実行入口・共通画面・3シナリオ・比
 検証時の実装・チェック・CI 定義の SHA-256、環境、コマンド、10条件の実結果を
 [生データ](https://github.com/omitsuhashi/schedula/blob/601f39283339fb7fee8d4469e62c928bead19adb/docs/evaluations/results/2026-10-06-playground-runtime.json)に保存した。
 確定した対象 commit と CI 実行 URL は、この変更を含む実装 PR の本文に記録する。
-CI は既存の `deploy-entrypoint` で全回帰と実 Chromium の結合チェックを実行し、
+CI は既存の `quality-checks` で全回帰と実 Chromium の結合チェックを実行し、
 JUnit XML・ブラウザー結果 JSON・画面画像を `pytest-results` artifact に保存する。
 
 | 項目 | ローカルで確認した環境 |

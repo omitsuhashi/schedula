@@ -11,6 +11,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -19,9 +22,10 @@ jobs:
         with:
           version: '0.12.23'
           enable-cache: false
-      - name: Validate release tag and main ancestry
+      - name: Validate release tag, main ancestry and successful main CI
         env:
           RELEASE_TAG: ${{ github.ref_name }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           git fetch origin main
           uv python install
@@ -37,11 +41,8 @@ jobs:
           name: pypi-distributions
           path: dist/
           if-no-files-found: error
-  ci:
-    needs: build
-    uses: ./.github/workflows/ci.yml
   publish:
-    needs: [build, ci]
+    needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment:

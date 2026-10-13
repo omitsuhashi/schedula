@@ -1,6 +1,5 @@
 name: CI
 on:
-  workflow_call:
   pull_request:
   push:
     branches: [main]
@@ -31,7 +30,7 @@ jobs:
         with:
           name: timezone-${{ matrix.os }}
           path: test-results/
-  deploy-entrypoint:
+  quality-checks:
     runs-on: ubuntu-latest
     # 全体回帰・sdist再構築後のブラウザー確認が10分上限で中断したため、15分を確保する。
     timeout-minutes: 15
@@ -47,7 +46,7 @@ jobs:
         run: uv sync --locked
       - name: Validate Ruff hooks
         run: uv run --locked pre-commit run --all-files --show-diff-on-failure
-      - name: Validate deployment entry point and scheduling engine
+      - name: Validate scripts and scheduling engine
         run: |
           bash -n scripts/deploy
           uv run --locked pytest -q -ra --junitxml=test-results/pytest.xml

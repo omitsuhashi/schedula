@@ -157,7 +157,7 @@ uv run --locked pytest -q -ra
 uv build --wheel
 ```
 
-既存 CI の `deploy-entrypoint` で、既存テストに加え、全探索比較150件、
+既存 CI の `quality-checks` で、既存テストに加え、全探索比較150件、
 両バックエンドの比較、時間横断条件を含む全探索80件、壊れた解の検出、
 厳密な入力・出力、時計変更、時間切れ、CLI、wheel と依存不足を検証する。
 wheel のテストは、ソース checkout を import せず同梱 Schema・ライブラリ・CLI を実行する。
