@@ -593,10 +593,9 @@ def test_optional_minimum_edit_is_versioned_and_bounded(version):
             {"id": "explicit", "edits": [{"json_pointer": "/demand/0/minimum_people", "value": 1}]}
         ]
     }
-    assert validate(data)["status"] == ("VALID" if version in {"0.12", "0.15"} else "INVALID_INPUT")
-    if version in {"0.12", "0.15"}:
-        data["diagnosis"]["allowed_changes"][0]["edits"][0]["value"] = 251
-        assert validate(data)["diagnostics"][0]["code"] == "INVALID_DIAGNOSIS_VALUE"
+    assert validate(data)["status"] == "VALID"
+    data["diagnosis"]["allowed_changes"][0]["edits"][0]["value"] = 251
+    assert validate(data)["diagnostics"][0]["code"] == "INVALID_DIAGNOSIS_VALUE"
 
 
 def test_maximum_people_bound_is_valid_but_unreachable():

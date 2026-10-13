@@ -48,8 +48,7 @@ def small_request(base, sequence, employees=1):
     ]
     request["preferences"] = []
     request["objectives"] = []
-    if request["schema_version"] == "0.15":
-        require_complete_demand(request)
+    require_complete_demand(request)
     return request
 
 
@@ -219,7 +218,7 @@ def test_only_one_backend_is_called(
         request["constraints"] = [limit("max_assigned_minutes", 60)]
     if metric:
         request["objectives"] = [{"id": "goal", "metric": metric}]
-    if request["schema_version"] == "0.15" and backend == "auto" and selected == "cp_sat":
+    if backend == "auto" and selected == "cp_sat":
         reason = "MANDATORY_DEMAND"
     calls = Counter()
     original_flow, original_sat = flow.run, cp_sat.run

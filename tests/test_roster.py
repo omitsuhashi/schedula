@@ -258,7 +258,7 @@ def exhaustive_value(data):
     parse = datetime.fromisoformat
     candidates = data["shift_candidates"]
     # shortcut: 単一区間の日勤の全探索。夜勤・分割を加えるときはextended側の全探索を使う。
-    assert all(len(c.get("segments", [c])) == 1 for c in candidates)
+    assert all(len(c["segments"]) == 1 for c in candidates)
     employees = {e["id"]: e for e in data["employees"]}
     role_skills = {r["id"]: r["required_skills"] for r in data["roles"]}
     first = parse(data["planning_window"]["start"])

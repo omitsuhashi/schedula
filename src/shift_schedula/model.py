@@ -89,18 +89,14 @@ class ShiftCandidate:
     start: int
     end: int
     breaks: tuple[tuple[int, int], ...]
-    segments: tuple = ()
+    segments: tuple
     absolute_segments: tuple = ()
 
     @property
     def work_slots(self):
-        return (
-            {slot for a, b, _ in self.segments for slot in range(a, b)}
-            - {slot for start, end in self.breaks for slot in range(start, end)}
-            if self.segments
-            else set(range(self.start, self.end))
-            - {slot for start, end in self.breaks for slot in range(start, end)}
-        )
+        return {slot for a, b, _ in self.segments for slot in range(a, b)} - {
+            slot for start, end in self.breaks for slot in range(start, end)
+        }
 
     def output(self, grid):
         if self.absolute_segments:
@@ -112,24 +108,17 @@ class ShiftCandidate:
                 "work_day": self.day.isoformat(),
                 "segments": output_segments(self.absolute_segments, grid),
             }
-        if self.segments:
-            return {
-                "candidate_id": self.id,
-                "employee_id": self.employee_id,
-                "work_day": self.day.isoformat(),
-                "segments": [
-                    {
-                        "interval": grid.output_interval(a, b),
-                        "breaks": [grid.output_interval(x, y) for x, y in rests],
-                    }
-                    for a, b, rests in self.segments
-                ],
-            }
         return {
             "candidate_id": self.id,
             "employee_id": self.employee_id,
-            "interval": grid.output_interval(self.start, self.end),
-            "breaks": [grid.output_interval(start, end) for start, end in self.breaks],
+            "work_day": self.day.isoformat(),
+            "segments": [
+                {
+                    "interval": grid.output_interval(a, b),
+                    "breaks": [grid.output_interval(x, y) for x, y in rests],
+                }
+                for a, b, rests in self.segments
+            ],
         }
 
 

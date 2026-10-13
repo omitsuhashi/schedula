@@ -168,7 +168,7 @@ def test_installed_wheel_types_check_consumer_and_reject_typos(tmp_path):
         "from shift_schedula.types import Request015\n"
         "def roundtrip(request: Request015) -> None:\n"
         "    result = solve(request)\n"
-        '    if result["schema_version"] == "0.15" and '
+        "    if "
         'result["status"] in {"OPTIMAL", "FEASIBLE", "PARTIAL"}:\n'
         '        make_baseline(request, result["solution"], "saved")\n'
         '        summary = result["change_summary"]\n'
@@ -180,11 +180,10 @@ def test_installed_wheel_types_check_consumer_and_reject_typos(tmp_path):
     refinement_consumer = tmp_path / "refinement_consumer.py"
     refinement_consumer.write_text(
         overlap_consumer.read_text(encoding="utf-8")
-        + '    if result["schema_version"] == "0.15":\n'
-        + '        detail = result["diagnosis_result"]\n'
-        + '        if detail is not None and detail["conflict"] is not None:\n'
-        + '            conflict = detail["conflict"]\n'
-        + '            print(conflict["background_only"], conflict["checks"])\n',
+        + '    detail = result["diagnosis_result"]\n'
+        + '    if detail is not None and detail["conflict"] is not None:\n'
+        + '        conflict = detail["conflict"]\n'
+        + '        print(conflict["background_only"], conflict["checks"])\n',
         encoding="utf-8",
     )
     run(str(python), "-m", "mypy", "--strict", str(refinement_consumer))
@@ -198,7 +197,7 @@ def test_installed_wheel_types_check_consumer_and_reject_typos(tmp_path):
         '"duty_id": "night"}\n'
         '    request["objectives"] = [cost, duty]\n'
         "    result = solve(request)\n"
-        '    if result["schema_version"] == "0.15" and '
+        "    if "
         'result["status"] in {"OPTIMAL", "FEASIBLE", "PARTIAL"}:\n'
         '        make_baseline(request, result["solution"], "saved")\n'
         '        checked = verify(request, result["solution"])\n'

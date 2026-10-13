@@ -165,8 +165,7 @@ def get_schema(kind, schema_version="0.15"):
             },
             demand_satisfied={"type": ["boolean", "null"]},
         )
-        if "priority_summary" in summary_fields(schema_version):
-            properties["priority_summary"] = schema["properties"]["priority_summary"]
+        properties["priority_summary"] = schema["properties"]["priority_summary"]
         properties["objectives"]["items"]["properties"]["proven_optimal"] = {"const": False}
         definitions = {k: v for k, v in schema["$defs"].items() if k != "solution"}
         definitions["shortage_summary"]["properties"]["proven_minimal"] = {"const": False}
@@ -201,8 +200,7 @@ def get_schema(kind, schema_version="0.15"):
                         for name in ("shortage_summary", "fairness_summary", "change_summary")
                     }
                 )
-            if "priority_summary" in properties:
-                expected["priority_summary"] = {"type": "object" if valid else "null"}
+            expected["priority_summary"] = {"type": "object" if valid else "null"}
             if not valid:
                 expected.update(
                     {name: {"type": "null"} for name in properties if name.endswith("_summary")}
