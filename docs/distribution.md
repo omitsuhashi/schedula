@@ -22,7 +22,7 @@ sdistには利用例・デモ・中核テストと補助ファイル・利用文
 非同梱資料への文書リンクは、保存時のGitHub参照へ案内する。
 各依存は独自ライセンスを維持する。表示はlock済み実行依存の配布元wheelから取得し、
 同梱物の著作権・ライセンス原文を保持した。別OS・将来版の依存wheelはその版の表示も確認する。
-OR-ToolsはApache-2.0で、任意の `cp-sat` extraとして導入する。
+OR-ToolsはApache-2.0で、通常の実行依存として導入する。
 依存wheel自体をschedulaのwheelへ埋め込む構成は採用しない。
 
 ## 利用者と委託先の責務
@@ -46,7 +46,7 @@ OR-ToolsはApache-2.0で、任意の `cp-sat` extraとして導入する。
 `urn:schedula:...` は保存済み入力との互換性のため維持する。
 
 現在はリポジトリが非公開で、PyPIには公開していない。
-アクセスできる利用者はcloneし、READMEの手順で `uv sync --locked --extra cp-sat` を実行する。
+アクセスできる利用者はcloneし、READMEの手順で `uv sync --locked` を実行する。
 配布のPython要件は `>=3.14`。実測した対応は通常のCPython 3.14、CIのLinuxとmacOS ARM64。
 2026-10-07時点の最新安定版も3.14.8であり、新しい安定版・free-threaded・他実装は未検証。
 Windows x86_64は2026-10-07のCIでbase/extraのwheel導入・求解・独立検証・Schema取得・入力検証・spawnによる総期限/取消と独立した並行実行を確認した。
@@ -57,11 +57,11 @@ OSのTZDB優先・tzdata fallbackと再現方法は[Pythonセットアップ](py
 
 ```sh
 uv build --wheel
-uv export --locked --extra cp-sat --no-dev --no-emit-project --output-file runtime-requirements.txt
+uv export --locked --no-dev --no-emit-project --output-file runtime-requirements.txt
 sha256sum dist/shift_schedula-0.2.0-py3-none-any.whl
 uv init --python 3.14 my-scheduler
 cd my-scheduler
-uv add --constraints ../runtime-requirements.txt '../dist/shift_schedula-0.2.0-py3-none-any.whl[cp-sat]'
+uv add --constraints ../runtime-requirements.txt '../dist/shift_schedula-0.2.0-py3-none-any.whl'
 uv run python -c 'from shift_schedula import solve, verify, make_baseline, get_schema; print(get_schema("request")["$id"])'
 ```
 
@@ -82,16 +82,16 @@ wheelの取得元を差し替えた場合はパスも明示して変更する。
 
 ```sh
 uv python install
-uv sync --locked --extra cp-sat
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/assignment.json
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/roster.json
-uv run --locked --extra cp-sat pytest -q -ra -m 'not repository and not distribution'
+uv sync --locked
+uv run --locked python -m shift_schedula solve examples/assignment.json
+uv run --locked python -m shift_schedula solve examples/roster.json
+uv run --locked pytest -q -ra -m 'not repository and not distribution'
 uv build --wheel
 uv run --locked python demo/server.py
 ```
 
 ライブラリ・CLI・デモの使い方は同梱の[README](../README.md)に従う。
-OR-Toolsなしで配置と独立検証だけを使う場合は、同期・実行の `--extra cp-sat` を省略できる。
+OR-Toolsは通常の同期で導入され、extraの指定は不要。
 中核テスト一式にはCP-SATが必要となる。
 
 `repository` はGitのcommit/lockを照合する評価テストとデプロイ入口の検証、
@@ -112,14 +112,14 @@ CIの配布検証では、sdistを展開して作ったwheelを別環境に依�
 
 ```sh
 uv remove schedula
-uv add '../dist/shift_schedula-0.2.0-py3-none-any.whl[cp-sat]'
+uv add '../dist/shift_schedula-0.2.0-py3-none-any.whl'
 uv run python -c 'from shift_schedula import solve, verify, make_baseline, get_schema; print(get_schema("request")["$id"])'
 ```
 
 コードの `from schedula ...` / `import schedula` を `shift_schedula` へ、
 CLIの `python -m schedula` を `python -m shift_schedula` へ変更する。
 保存済みJSONの名前やIDは変更しない。リポジトリの開発環境は更新後の
-`uv sync --locked --extra cp-sat` で旧editable配布を置き換える。
+`uv sync --locked` で旧editable配布を置き換える。
 過去の評価記録と参照資料は、実行時の識別子を保持している。
 
 PyPIは配布名のハイフン・アンダースコア・ピリオドを同一視する。
@@ -139,6 +139,10 @@ Private vulnerability reportingの設定APIは今回404だったため、有効�
 現在の非公開Issuesを、将来の公開環境でも非公開だと誤認して使わない。
 
 ## 公開作業の完了条件
+
+正式タグによるPyPI公開は[公開手順](publishing.md)に従う。
+OR-Toolsを通常依存へ統一したため、旧手順の `--extra cp-sat` と `[cp-sat]` は削除する。
+過去の評価・移行記録と参照原本は保存時の表記を保持する。
 
 このマイルストーンでは条件と配布物を整備し、可視性変更・タグ作成・PyPI公開は別作業とする。
 実際の公開前に次を確認する。

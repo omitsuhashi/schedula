@@ -53,7 +53,7 @@ Aliceの5日の勤務60分を確認済み実績として渡し、6・7日の担�
 休息・連勤の値は架空の試験条件で、就業規則の推奨値ではない。
 
 ```sh
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/continuity_replan.json
+uv run --locked python -m shift_schedula solve examples/continuity_replan.json
 uv run --locked python -m shift_schedula schema request --schema-version 0.7
 ```
 

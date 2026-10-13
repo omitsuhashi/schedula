@@ -1,7 +1,7 @@
 # 実行依存のライセンス表示
 
 2026-10-07、uv.lockで固定したmacOS ARM64の実行依存から取得した表示である。
-各依存はschedulaのMIT許諾とは別の条件に従う。OR-Toolsとその依存はcp-sat extraの利用時に必要。
+各依存はschedulaのMIT許諾とは別の条件に従う。OR-Toolsとその依存は通常の実行依存として導入する。
 配布元wheel内のライセンス・著作権表示を原文のまま保存する。依存wheel自体はschedulaのwheelに同梱しない。
 他OSのバイナリに追加の同梱物がある場合は、そのwheelの表示も保持する。
 

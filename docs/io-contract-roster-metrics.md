@@ -94,8 +94,8 @@ DSTでは時計表示差でなくUTC上の実経過分数を使う。係数・�
 ## 実行と独立検証
 
 ```sh
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/scheduled_cost.json
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/duty_balance.json
+uv run --locked python -m shift_schedula solve examples/scheduled_cost.json
+uv run --locked python -m shift_schedula solve examples/duty_balance.json
 uv run --locked python -m shift_schedula schema request --schema-version 0.9
 uv run --locked python -m shift_schedula schema verification --schema-version 0.9
 ```

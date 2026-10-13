@@ -88,8 +88,6 @@ def test_sdist_builds_and_runs_without_original_checkout(tmp_path):
         "uv",
         "export",
         "--locked",
-        "--extra",
-        "cp-sat",
         "--no-dev",
         "--no-emit-project",
         "--output-file",
@@ -104,7 +102,7 @@ def test_sdist_builds_and_runs_without_original_checkout(tmp_path):
         str(python),
         "--constraints",
         str(tmp_path / "constraints.txt"),
-        f"{wheel}[cp-sat]",
+        str(wheel),
         "pytest==9.1.1",
     )
     run(

@@ -26,7 +26,7 @@ README の完全な JSON もテストで読み取り、記載した配置と目�
 
 ## 継続する中核検証
 
-既存の `deploy-entrypoint` に CP-SAT 導入下の全テストを維持する。
+既存の `quality-checks` に CP-SAT 導入下の全テストを維持する。
 pytest の `-ra` で失敗・スキップ理由を表示し、JUnit XML に成功・失敗・収集エラー・スキップを保存する。
 後続の確認で `<skipped>` が一つでもあれば CI を失敗させる。
 `pytest-results` artifact は成功・失敗時とも保存し、実行 URL と結果は PR に記録する。

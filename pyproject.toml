@@ -15,10 +15,6 @@ dependencies = [
 Repository = "https://github.com/omitsuhashi/schedula"
 Issues = "https://github.com/omitsuhashi/schedula/issues"
 
-[project.optional-dependencies]
-cp-sat = [
-]
-
 [build-system]
 requires = ["setuptools>=82"]
 build-backend = "setuptools.build_meta"

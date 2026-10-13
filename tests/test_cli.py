@@ -125,6 +125,8 @@ def test_wheel_installs_and_runs_library_and_cli_in_clean_environment(tmp_path, 
         assert metadata.startswith("shift_schedula-")
         assert b"Name: shift-schedula\n" in archive.read(metadata)
         assert b"Requires-Python: >=3.14\n" in archive.read(metadata)
+        assert b"Requires-Dist: ortools>=9.15.6755\n" in archive.read(metadata)
+        assert b"Provides-Extra:" not in archive.read(metadata)
         assert any(name.endswith("/licenses/LICENSE") for name in archive.namelist())
         assert any(name.endswith("/licenses/THIRD_PARTY_NOTICES.md") for name in archive.namelist())
         assert not any("reference/" in name or "tests/" in name for name in archive.namelist())
@@ -134,8 +136,6 @@ def test_wheel_installs_and_runs_library_and_cli_in_clean_environment(tmp_path, 
             "uv",
             "export",
             "--locked",
-            "--extra",
-            "cp-sat",
             "--no-dev",
             "--no-emit-project",
             "--output-file",
@@ -256,7 +256,7 @@ print('clean wheel: library and CLI; assignment, roster, infeasible, invalid inp
                 str(python),
                 "--constraints",
                 str(requirements),
-                f"{wheel}[cp-sat]",
+                str(wheel),
                 "schedula==1.6.15",
             ],
             capture_output=True,

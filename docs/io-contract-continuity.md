@@ -95,8 +95,8 @@ continuityなし、解なし、不正解の場合はnull。有効な計画では
 同率解では不足日が異なる場合がある。
 
 ```sh
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/continuity_month.json
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/continuity_week.json
+uv run --locked python -m shift_schedula solve examples/continuity_month.json
+uv run --locked python -m shift_schedula solve examples/continuity_week.json
 uv run --locked python -m shift_schedula schema request --schema-version 0.6
 ```
 

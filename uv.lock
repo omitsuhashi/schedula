@@ -700,7 +700,6 @@ requires-dist = [
     { name = "ortools", specifier = ">=9.15.6755" },
     { name = "tzdata", specifier = ">=2026.5" },
 ]
-provides-extras = ["cp-sat"]
 
 [package.metadata.requires-dev]
 dev = [

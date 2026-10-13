@@ -24,10 +24,10 @@ JSON 契約0.15に対応し、独立した配置は最小費用流、
 git clone https://github.com/omitsuhashi/schedula.git
 cd schedula
 uv python install
-uv sync --locked --extra cp-sat
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/assignment.json
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/linked_assignment.json
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/roster.json
+uv sync --locked
+uv run --locked python -m shift_schedula solve examples/assignment.json
+uv run --locked python -m shift_schedula solve examples/linked_assignment.json
+uv run --locked python -m shift_schedula solve examples/roster.json
 ```
 
 全例が `OPTIMAL`、`verification.performed: true` / `valid: true`、終了コード0を返します。
@@ -35,31 +35,30 @@ uv run --locked --extra cp-sat python -m shift_schedula solve examples/roster.js
 勤務量は待機を含み、休憩を除きます。目的値は `objectives` の配列順に優先され、
 `proven_optimal` で目的ごとの証明範囲を確認できます。
 
-最小費用流だけを使う場合は `--extra cp-sat` を省略できます。
+OR-Tools は通常の実行依存として導入され、extra の指定は不要です。
 契約0.15の独立した配置でも、すべての正の需要に `minimum_people = required_people` を
 明示すれば完全充足を最小費用流で求められます。下限がすべて省略または0なら不足を許容します。
 中間下限・両者の混在・明示制約・担当切替目的・非既定priority・診断には CP-SAT が必要です。
 探索なしの入力検証、厳密JSON読み取り、型情報は[Python公開API](docs/python-api.md)を参照してください。
-CP-SAT が必要な入力を依存なしで解くと `BACKEND_UNAVAILABLE` になります。
+OR-Tools が欠落・破損した環境で CP-SAT が必要な入力を解くと `BACKEND_UNAVAILABLE` になります。
 標準出力は JSON のみで、結果は `> result.json` で保存できます。
 標準入力と Schema の取得も同じ CLI で実行できます。
 
 ```sh
-uv run --locked --extra cp-sat python -m shift_schedula solve - < examples/assignment.json
-uv run --locked --extra cp-sat python -m shift_schedula schema request
-uv run --locked --extra cp-sat python -m shift_schedula schema response
+uv run --locked python -m shift_schedula solve - < examples/assignment.json
+uv run --locked python -m shift_schedula schema request
+uv run --locked python -m shift_schedula schema response
 ```
 
 ## ブラウザーで担当配置を試す
 
-clone 済みのリポジトリ直下で起動します。連勤を含む機能デモには OR-Tools が必要なため、
-同期・起動に `--extra cp-sat` を指定します。補助入口の従来の担当配置フォームだけならbase依存でも使えます。
+clone 済みのリポジトリ直下で起動します。OR-Tools は通常の同期で導入されます。
 ブラウザーで操作する利用者にNode.jsは不要です。
 
 ```sh
 uv python install
-uv sync --locked --extra cp-sat
-uv run --locked --extra cp-sat python demo/server.py
+uv sync --locked
+uv run --locked python demo/server.py
 ```
 
 [http://127.0.0.1:8765](http://127.0.0.1:8765) をブラウザーで開き、機能を選びます。
@@ -92,8 +91,8 @@ UTF-8 ファイルの読み込み（2 MiBまで）から、契約0.15の入力�
 結果の日付を選ぶと、100人分の担当・休憩・待機・勤務なしと役割別の需要充足を確認できます。
 
 ```sh
-uv sync --locked --extra cp-sat
-uv run --locked --extra cp-sat python demo/server.py
+uv sync --locked
+uv run --locked python demo/server.py
 ```
 
 サンプルは[roster-100-30.json](examples/playground/roster-100-30.json)です。
@@ -109,8 +108,8 @@ uv run --locked --extra cp-sat python demo/server.py
 確認は入力元ごとの値・改訂・期間・参照情報に結びつき、変更の影響を受けた確認だけが失効します。
 
 ```sh
-uv run --locked --extra cp-sat python -m shift_schedula adapter assemble examples/adapter/assignment.manifest.json --request-only
-uv run --locked --extra cp-sat python -m shift_schedula adapter solve examples/adapter/assignment.manifest.json --output run.json
+uv run --locked python -m shift_schedula adapter assemble examples/adapter/assignment.manifest.json --request-only
+uv run --locked python -m shift_schedula adapter solve examples/adapter/assignment.manifest.json --output run.json
 uv run --locked python -m shift_schedula adapter verify-record run.json
 uv run --locked python -m shift_schedula adapter view run.json
 ```
@@ -130,7 +129,7 @@ PARTIALは不足付きの有効な計画で終了コード2、再検証は最適
 
 ```sh
 uv run --locked python -m shift_schedula solve examples/partial_assignment.json > partial-assignment-result.json
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/partial_roster.json > partial-roster-result.json
+uv run --locked python -m shift_schedula solve examples/partial_roster.json > partial-roster-result.json
 ```
 
 どちらも `PARTIAL`、独立検証成功、終了コード2でJSONを保存します。
@@ -151,9 +150,9 @@ uv run --locked --extra cp-sat python -m shift_schedula solve examples/partial_r
 同じ需要・業務条件・共通目的で方式ごとに `solve` を呼び、各案の不足・目的値・変更量と証明を比較します。
 
 ```sh
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/roster_conditions.json
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/partial_replan_preserve_assigned.json
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/partial_replan_rebuild.json
+uv run --locked python -m shift_schedula solve examples/roster_conditions.json
+uv run --locked python -m shift_schedula solve examples/partial_replan_preserve_assigned.json
+uv run --locked python -m shift_schedula solve examples/partial_replan_rebuild.json
 uv run --locked python -m shift_schedula verify examples/roster_conditions.json examples/roster_conditions.solution.json
 ```
 
@@ -197,24 +196,24 @@ uv run --locked python -m shift_schedula verify examples/roster_conditions.json 
 `priority` は不足総量が同じ計画の比較順であり、必須充足の代用にはなりません。
 
 ```sh
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/minimum_assignment.json
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/minimum_roster.json
+uv run --locked python -m shift_schedula solve examples/minimum_assignment.json
+uv run --locked python -m shift_schedula solve examples/minimum_roster.json
 ```
 
 勤務日数と完全休日数の上下限は[現行契約0.15](docs/io-contract-current.md)で指定できます。
 夜勤の開始日と、休憩を含む原勤務区間が占有する暦日を別々に数えます。
 
 ```sh
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/day_counts.json
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/coworkers.json
+uv run --locked python -m shift_schedula solve examples/day_counts.json
+uv run --locked python -m shift_schedula solve examples/coworkers.json
 ```
 
 勤務費用と夜勤・休日の目標偏差は[契約0.9](docs/io-contract-roster-metrics.md)で指定できます。
 明示した整数分単価と、指定区間に重なる勤務分数から独立集計し、目的の配列順で比較します。
 
 ```sh
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/scheduled_cost.json
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/duty_balance.json
+uv run --locked python -m shift_schedula solve examples/scheduled_cost.json
+uv run --locked python -m shift_schedula solve examples/duty_balance.json
 ```
 
 次を `request.json` として UTF-8 で保存すれば、1人・1役割の担当配置を実行できます。
@@ -251,7 +250,7 @@ ID は種類ごとに一意にし、参照先を登録します。不要な配�
 ```
 
 ```sh
-uv run --locked --extra cp-sat python -m shift_schedula solve request.json
+uv run --locked python -m shift_schedula solve request.json
 ```
 
 結果の `solution.assignments` で Aさんの11:00〜12:00の調理担当、
@@ -274,12 +273,12 @@ uv run --locked --extra cp-sat python -m shift_schedula solve request.json
 勤務日・目標勤務量・変更単位は明示し、固定は必須条件として保持します。
 
 ```sh
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/overnight.json
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/split_roster.json
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/fairness.json
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/replan.json
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/diagnosis.json
-uv run --locked --extra cp-sat python -m shift_schedula schema request --schema-version 0.15
+uv run --locked python -m shift_schedula solve examples/overnight.json
+uv run --locked python -m shift_schedula solve examples/split_roster.json
+uv run --locked python -m shift_schedula solve examples/fairness.json
+uv run --locked python -m shift_schedula solve examples/replan.json
+uv run --locked python -m shift_schedula solve examples/diagnosis.json
+uv run --locked python -m shift_schedula schema request --schema-version 0.15
 ```
 
 診断例は元条件の `INFEASIBLE` と終了コード2を維持し、許可した人数変更後の検証済み解を別に返します。
@@ -291,7 +290,7 @@ uv run --locked --extra cp-sat python -m shift_schedula schema request --schema-
 同じ環境で次を実行できます。自作入力に切り替える場合はファイル名を変更します。
 
 ```sh
-uv run --locked --extra cp-sat python - <<'PY'
+uv run --locked python - <<'PY'
 import json
 from pathlib import Path
 from shift_schedula import solve
@@ -322,7 +321,7 @@ PY
 | `INFEASIBLE` | 必須条件を満たす解がないと証明された。需要下限を含む必須条件を満たす計画がない。診断を確認する | 2 |
 | `UNKNOWN` | 解も不可能性の証明もない。予算や問題規模を見直す | 2 |
 | `INVALID_INPUT` | `code` / `json_pointer` / `related_ids` / `facts` を基に入力を修正する | 2 |
-| `BACKEND_UNAVAILABLE` | `cp-sat` extra を導入して再実行する | 2 |
+| `BACKEND_UNAVAILABLE` | 実行依存の OR-Tools を導入し直して再実行する | 2 |
 | `INTERNAL_ERROR` | 解を採用せず、入力・エンジン版・診断を保存して調査する | 2 |
 
 解を返すのは独立検証に成功した `OPTIMAL` / `FEASIBLE` / `PARTIAL` だけです。
@@ -333,8 +332,8 @@ PY
 次の2例は意図的に終了コード2となります。
 
 ```sh
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/infeasible.json
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/invalid-input.json
+uv run --locked python -m shift_schedula solve examples/infeasible.json
+uv run --locked python -m shift_schedula solve examples/invalid-input.json
 ```
 
 前者は勤務可能な従業員がいないため `INFEASIBLE` / `INSUFFICIENT_QUALIFIED_EMPLOYEES`、
@@ -365,14 +364,14 @@ uv run --locked --extra cp-sat python -m shift_schedula solve examples/invalid-i
 ## 検証・ビルド・評価の再実行
 
 ```sh
-uv run --locked --extra cp-sat pre-commit run --all-files --show-diff-on-failure
-uv run --locked --extra cp-sat pytest -q -ra --junitxml=test-results/pytest.xml
+uv run --locked pre-commit run --all-files --show-diff-on-failure
+uv run --locked pytest -q -ra --junitxml=test-results/pytest.xml
 bash -n scripts/deploy
 uv build --wheel
-uv run --locked --extra cp-sat python scripts/evaluate.py examples/assignment.json examples/roster.json docs/evaluations/inputs/assignment-week.json docs/evaluations/inputs/roster-week.json --output test-results/evaluation.json
+uv run --locked python scripts/evaluate.py examples/assignment.json examples/roster.json docs/evaluations/inputs/assignment-week.json docs/evaluations/inputs/roster-week.json --output test-results/evaluation.json
 ```
 
-既存 CI の `deploy-entrypoint` は CP-SAT 導入下で全テストを実行し、スキップがあれば失敗します。
+既存 CI の `quality-checks` は CP-SAT 導入下で全テストを実行し、スキップがあれば失敗します。
 成功・失敗・スキップ理由は pytest ログと保存される `pytest-results` の JUnit XML で追跡できます。
 全探索との比較、両バックエンドの共通問題、独立検証器の違反検出に加え、
 wheel を lock file の実行依存とともに新しい隔離環境へ導入し、ライブラリ・CLI・Schema を確認します。
@@ -412,26 +411,20 @@ Git には採用判断で使う入力・条件・集計・失敗を含む生デ�
 | [設計判断](docs/adr/0001-json-first-engine.md) | JSON を中心にしたエンジンと、[勤務計画の同時最適化](docs/adr/0002-joint-roster-optimization.md) |
 | [出典と採用判断](docs/sources.md) | 元チャット、ZIP、採用箇所、参照資料の来歴 |
 
-## デプロイ
+## PyPIへの公開
 
-デプロイの入口は、環境名とビルド済みの成果物ファイルを引数で受け取ります。
+`v0.2.0` のような正式タグをpushすると、`.github/workflows/publish.yml` が
+タグと配布版・mainへの包含を確認し、wheel/sdistをビルドする。
+対象commitの最新main CIが成功していることを確認し、成果物をTrusted PublishingでPyPIへ公開する。
+タグ時には全回帰テストを再実行しない。
+初回のPyPI登録・GitHub Environmentの設定・タグ操作は[公開手順](docs/publishing.md)を参照する。
+workflowの追加だけではPyPI側の登録や公開は完了しない。
 
-```bash
-scripts/deploy staging ./release.tar.gz
-scripts/deploy production ./release.tar.gz
-```
-
-デプロイ先は未定です。スクリプトは引数を検証し、デプロイが実装されるまでは
-終了コード1で失敗します。引数が不正な場合は終了コード2で失敗します。
-現時点ではビルド・アップロード・デプロイは行いません。
-
-今後導入するリリース workflow では、staging と production に同じ成果物を渡して
-このスクリプトを呼び出します。production は GitHub Environment の承認を待ってから
-実行します。workflow の導入前に、Environment の保護を設定・検証します。
+`scripts/deploy` はWebサービス向けの未実装入口で、PyPI公開には使わない。
 
 ## Repository の変更管理
 
-main の変更には PR と、CI チェック `deploy-entrypoint` の成功が必要です。
+main の変更には PR と、CI チェック `quality-checks` の成功が必要です。
 一人運用のため、PR の必須承認は0名です。merge は squash のみに限定し、
 main の force push と削除は禁止します。ruleset の bypass は許可しません。
 
@@ -439,9 +432,8 @@ main の force push と削除は禁止します。ruleset の bypass は許可�
 @omitsuhashi が該当します。将来 Admin を追加すると、その人もタグを作成できます。
 既存の `v*` タグの移動・削除は禁止し、Admin による bypass も許可しません。
 
-デプロイに関して未確定なのは、production の承認者、実際のビルドコマンド、
-デプロイ先です。デプロイの入口と CI はセットアップ PR で導入し、
-merge 後に main で利用できるようになります。
+PyPI公開には `pypi` Environment を使用します。Webサービスのproduction環境・
+承認者・デプロイ先は別途決めます。
 
 需要priorityは省略0。不足総量を先に最小化し、同量ならpriority群の降順、指定目的の順に比較します。
 [現行契約](docs/io-contract-current.md#日時担当配置需要)と[1人・2役割の例](examples/demand_priority.json)を参照してください。

@@ -50,7 +50,7 @@ W外だけの確定勤務はRequestから、Wに重なる確定勤務は返却�
 Aliceだけを候補にすると480/0・偏差480。計画内勤務240分、費用432000単位である。
 
 ```sh
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/continuity_duty_balance.json
+uv run --locked python -m shift_schedula solve examples/continuity_duty_balance.json
 uv run --locked python -m shift_schedula schema request --schema-version 0.10
 uv run --locked python -m shift_schedula schema verification --schema-version 0.10
 ```

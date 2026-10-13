@@ -42,11 +42,11 @@ assert response["verification"]["valid"] is True
 ライブラリに渡す dict は JSON 型・有限数から構成する。重複キーは dict 化した後には
 検出できないため、外部 JSON を厳密に読む場合は CLI を使用する。
 
-CP-SAT を使う例は `cp-sat` extra を指定する。
+CP-SAT の実行依存 OR-Tools は通常の同期で導入される。
 
 ```sh
-uv sync --locked --extra cp-sat
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/linked_assignment.json
+uv sync --locked
+uv run --locked python -m shift_schedula solve examples/linked_assignment.json
 ```
 
 この例は各従業員の担当時間120分以下・担当切替0回を守り、
@@ -114,7 +114,7 @@ zoneinfo の読み取りなど実行環境の I/O 障害は `INTERNAL_ERROR` と
 - `INFEASIBLE`: 需要・担当資格・勤務可能時間・上限をすべて満たす解がないと証明された。
 - `UNKNOWN`: 探索予算が切れ、完全な解を得られていない。不可能性の証明ではない。
 - `INVALID_INPUT`: 構造、参照、日時、上限または対応範囲を修正する必要がある。
-- `BACKEND_UNAVAILABLE`: CP-SAT の必要な依存がない。`cp-sat` extra を導入する。
+- `BACKEND_UNAVAILABLE`: CP-SAT の必要な依存がない。実行依存 OR-Tools を導入し直す。
 - `INTERNAL_ERROR`: ソルバーの障害、壊れた解、評価値・出力契約の不整合。正式な解は返さない。
 
 `INFEASIBLE` 以下の状態は `solution: null`、`objectives: []`。
@@ -152,12 +152,12 @@ CP-SAT は同じモデルで目的順に探索し、最適性を証明した上�
 ## 検証とビルド
 
 ```sh
-uv run --locked --extra cp-sat pre-commit run --all-files --show-diff-on-failure
-uv run --locked --extra cp-sat pytest -q -ra
+uv run --locked pre-commit run --all-files --show-diff-on-failure
+uv run --locked pytest -q -ra
 uv build --wheel
 ```
 
-既存 CI の `deploy-entrypoint` で、既存テストに加え、全探索比較150件、
+既存 CI の `quality-checks` で、既存テストに加え、全探索比較150件、
 両バックエンドの比較、時間横断条件を含む全探索80件、壊れた解の検出、
 厳密な入力・出力、時計変更、時間切れ、CLI、wheel と依存不足を検証する。
 wheel のテストは、ソース checkout を import せず同梱 Schema・ライブラリ・CLI を実行する。

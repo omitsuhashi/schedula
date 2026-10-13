@@ -98,11 +98,11 @@ manifestを含め総64 MiBです。読み込み中にも上限を検査します
 100人・30日の組み立て/保存はCLI上限内で検証し、詳細表示はdemo上限内で確認します。
 
 ```sh
-uv run --locked --extra cp-sat python -m shift_schedula adapter split examples/roster.json --output draft.json
+uv run --locked python -m shift_schedula adapter split examples/roster.json --output draft.json
 # draft.jsonを編集し、必要な入力元を一件ずつ確認する
-uv run --locked --extra cp-sat python -m shift_schedula adapter confirm draft.json period --output confirmed.json
-uv run --locked --extra cp-sat python -m shift_schedula adapter assemble examples/adapter/assignment.manifest.json
-uv run --locked --extra cp-sat python -m shift_schedula adapter solve examples/adapter/assignment.manifest.json --output run.json
+uv run --locked python -m shift_schedula adapter confirm draft.json period --output confirmed.json
+uv run --locked python -m shift_schedula adapter assemble examples/adapter/assignment.manifest.json
+uv run --locked python -m shift_schedula adapter solve examples/adapter/assignment.manifest.json --output run.json
 uv run --locked python -m shift_schedula adapter verify-record run.json
 uv run --locked python -m shift_schedula adapter view run.json
 uv run --locked python -m shift_schedula adapter schema draft

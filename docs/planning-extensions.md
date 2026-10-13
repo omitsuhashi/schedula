@@ -99,7 +99,7 @@ Schemaだけを先行公開して未対応項目を受理する状態にはし�
 
 ```sh
 python3 docs/designs/check_examples.py
-uv run --locked --extra cp-sat python docs/designs/check_examples.py --cp-sat
+uv run --locked python docs/designs/check_examples.py --cp-sat
 git diff --check
 ```
 

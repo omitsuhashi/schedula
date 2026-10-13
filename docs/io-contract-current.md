@@ -219,7 +219,7 @@ Responseはschema_version/request_id/status/solver/solution/objectives/diagnosti
 | `INFEASIBLE` | 必須条件を満たす解がないと証明 | 2 |
 | `UNKNOWN` | 解も不可能性の証明もない | 2 |
 | `INVALID_INPUT` | 入力不備。指摘箇所を修正 | 2 |
-| `BACKEND_UNAVAILABLE` | 必要なcp-sat extraがない | 2 |
+| `BACKEND_UNAVAILABLE` | 必要な実行依存 OR-Tools が欠落・破損している | 2 |
 | `INTERNAL_ERROR` | 処理・独立検証の障害。解を採用しない | 2 |
 
 解なしはsolution:null/objectives:[]、未実施検証はperformed:false/valid:null、全summaryはnullです。
@@ -291,7 +291,7 @@ save_jsonは原入力保護・原子的保存・明示上書きで既存記録�
 ## 実行例とサポート
 
 ```sh
-uv sync --locked --extra cp-sat
+uv sync --locked
 uv run --no-sync python -m shift_schedula schema request
 uv run --no-sync python -m shift_schedula solve examples/assignment.json
 uv run --no-sync python -m shift_schedula solve examples/combined_conditions.json

@@ -505,7 +505,7 @@ def solve(request: dict, *, num_workers: int = 2) -> dict:
             [
                 diagnostic(
                     "BACKEND_UNAVAILABLE",
-                    "CP-SAT には cp-sat extra の導入が必要です。",
+                    "CP-SAT の実行依存 OR-Tools を導入し直してください。",
                     "/solver/backend",
                 )
             ],
