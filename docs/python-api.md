@@ -106,9 +106,9 @@ Pipe・Queueは作らないため、途中の大きな送信を親が受信し�
 各呼び出しの子とIPCは独立し、一件の取消で他を停止しない。
 
 ```sh
-uv run --locked --extra cp-sat python examples/controlled_solve.py examples/roster.json --num-workers 1 --total-seconds 30
-uv run --locked --extra cp-sat python examples/controlled_solve.py examples/roster.json --total-seconds 0.001
-uv run --locked --extra cp-sat python examples/controlled_solve.py examples/roster.json --cancel-after 0.1
+uv run --locked python examples/controlled_solve.py examples/roster.json --num-workers 1 --total-seconds 30
+uv run --locked python examples/controlled_solve.py examples/roster.json --total-seconds 0.001
+uv run --locked python examples/controlled_solve.py examples/roster.json --cancel-after 0.1
 ```
 
 OSのプロセス起動・終了、親のIPC読み取りや再検証は即時に中断できないため、ハードリアルタイムではない。

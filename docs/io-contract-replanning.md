@@ -167,11 +167,11 @@ OR-Toolsの読み込みや探索は不要。内部モジュールのimportやSch
 0.1・0.2の需要不足は `INVALID_PLAN` で、旧版の完全充足の意味を維持する。
 
 ```sh
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/roster_conditions.json
+uv run --locked python -m shift_schedula solve examples/roster_conditions.json
 uv run --locked python -m shift_schedula verify examples/roster_conditions.json examples/roster_conditions.solution.json
 uv run --locked python -m shift_schedula schema verification --schema-version 0.4
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/partial_replan_preserve_assigned.json
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/partial_replan_rebuild.json
+uv run --locked python -m shift_schedula solve examples/partial_replan_preserve_assigned.json
+uv run --locked python -m shift_schedula solve examples/partial_replan_rebuild.json
 ```
 
 上下限・希望例は目的 `[0, 180]`、固定案は不足30人分の `PARTIAL`、

@@ -1,5 +1,6 @@
 name: CI
 on:
+  workflow_call:
   pull_request:
   push:
     branches: [main]
@@ -11,7 +12,6 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        extra: [base, cp-sat]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     steps:
@@ -20,12 +20,8 @@ jobs:
         with:
           version: "0.12.23"
           enable-cache: true
-      - name: Sync base dependencies
-        if: matrix.extra == 'base'
+      - name: Sync dependencies
         run: uv sync --locked
-      - name: Sync CP-SAT extra
-        if: matrix.extra == 'cp-sat'
-        run: uv sync --locked --extra cp-sat
       - name: Validate timezone data, wheel dependencies and spawn control
         run: uv run --no-sync pytest -q -ra tests/test_timezone.py tests/test_input_contract.py tests/test_execution.py --junitxml=test-results/timezone.xml
       - name: Reject skipped tests
@@ -33,7 +29,7 @@ jobs:
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
-          name: timezone-${{ matrix.os }}-${{ matrix.extra }}
+          name: timezone-${{ matrix.os }}
           path: test-results/
   deploy-entrypoint:
     runs-on: ubuntu-latest
@@ -48,16 +44,16 @@ jobs:
           enable-cache: true
       - name: Sync Python environment
         # 最低対応版と最新安定版はともに3.14（2026-10-07確認）。次の安定版で検証を追加する。
-        run: uv sync --locked --extra cp-sat
+        run: uv sync --locked
       - name: Validate Ruff hooks
-        run: uv run --locked --extra cp-sat pre-commit run --all-files --show-diff-on-failure
+        run: uv run --locked pre-commit run --all-files --show-diff-on-failure
       - name: Validate deployment entry point and scheduling engine
         run: |
           bash -n scripts/deploy
-          uv run --locked --extra cp-sat pytest -q -ra --junitxml=test-results/pytest.xml
+          uv run --locked pytest -q -ra --junitxml=test-results/pytest.xml
       - name: Reject skipped tests
         run: |
-          uv run --locked --extra cp-sat python -c 'import xml.etree.ElementTree as ET; assert not ET.parse("test-results/pytest.xml").findall(".//skipped"), "Skipped tests are not allowed; see the JUnit report and pytest log"'
+          uv run --locked python -c 'import xml.etree.ElementTree as ET; assert not ET.parse("test-results/pytest.xml").findall(".//skipped"), "Skipped tests are not allowed; see the JUnit report and pytest log"'
       - name: Install browser verification tools
         run: |
           npm install --prefix "$RUNNER_TEMP/playground-check" --no-save --package-lock=false playwright@1.62.1

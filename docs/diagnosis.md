@@ -8,7 +8,7 @@
 明示的な `min_cost_flow` への追加診断は `INVALID_INPUT`。未要求の最小費用流の不足診断は継続する。
 
 ```sh
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/diagnosis.json
+uv run --locked python -m shift_schedula solve examples/diagnosis.json
 ```
 
 この例は有資格者Alice一人に2人の需要を要求するため、元結果は `INFEASIBLE`、
@@ -115,8 +115,8 @@ uv run --locked --extra cp-sat python -m shift_schedula solve examples/diagnosis
 新しい必須条件の分類に未対応の場合は `UNSUPPORTED` とし、無断で条件を外さない。
 
 ```sh
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/conflict_refinement.json
-uv run --locked --extra cp-sat python -m shift_schedula schema response --schema-version 0.8
+uv run --locked python -m shift_schedula solve examples/conflict_refinement.json
+uv run --locked python -m shift_schedula schema response --schema-version 0.8
 ```
 
 [架空入力](../examples/conflict_refinement.json)はAliceの勤務量下限60分と上限0分が矛盾する。

@@ -12,9 +12,9 @@
 ## 実行と例
 
 ```sh
-uv sync --locked --extra cp-sat
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/overnight.json
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/split_roster.json
+uv sync --locked
+uv run --locked python -m shift_schedula solve examples/overnight.json
+uv run --locked python -m shift_schedula solve examples/split_roster.json
 ```
 
 ライブラリは `from shift_schedula import solve`、`solve(request)` を使う。
@@ -67,7 +67,7 @@ ID衝突は入力エラーで、同じ配列集合の並べ替えから同じ候
 ## 検証
 
 ```sh
-uv run --locked --extra cp-sat pytest -q tests/test_extended_roster.py tests/test_roster_contract.py tests/test_roster.py tests/test_roster_verification.py
+uv run --locked pytest -q tests/test_extended_roster.py tests/test_roster_contract.py tests/test_roster.py tests/test_roster_verification.py
 ```
 
 夜勤休憩、開始日連勤と履歴、年境界、時計変更、期間外拒否、分割間隔、次勤務との休息、

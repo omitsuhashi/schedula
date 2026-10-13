@@ -93,7 +93,7 @@ make_baselineは元の分類とルールを保存し、原版で再検証する�
 ## 実行例
 
 ```sh
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/shift_patterns.json > result.json
+uv run --locked python -m shift_schedula solve examples/shift_patterns.json > result.json
 uv run --locked python -c 'import json; from shift_schedula import verify, make_baseline; q=json.load(open("examples/shift_patterns.json")); r=json.load(open("result.json")); print(verify(q,r["solution"])["status"]); print(make_baseline(q,r["solution"],"saved")["plan_id"])'
 ```
 

@@ -94,9 +94,9 @@
 最低人数だけを0へ戻す未完成の案と、両方0にする完全な案を区別する。
 
 ```sh
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/minimum_assignment.json
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/minimum_roster.json > result.json
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/minimum_conflict.json
+uv run --locked python -m shift_schedula solve examples/minimum_assignment.json
+uv run --locked python -m shift_schedula solve examples/minimum_roster.json > result.json
+uv run --locked python -m shift_schedula solve examples/minimum_conflict.json
 uv run --locked python -m shift_schedula schema request --schema-version 0.12
 ```
 

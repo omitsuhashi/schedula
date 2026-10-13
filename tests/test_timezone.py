@@ -1,4 +1,3 @@
-import importlib.util
 import os
 import subprocess
 import sys
@@ -37,13 +36,12 @@ def test_wheel_timezone_database_without_system_data(tmp_path):
     )
     assert build.returncode == 0, build.stderr
     (wheel,) = tmp_path.glob("*.whl")
-    extra = importlib.util.find_spec("ortools") is not None
     script = """
 import importlib.util, json, pathlib, sys, zoneinfo
 from importlib.metadata import version
 from shift_schedula import get_schema, solve, verify
 assert zoneinfo.TZPATH == ()
-assert bool(importlib.util.find_spec('ortools')) == (sys.argv[2] == 'True')
+assert importlib.util.find_spec('ortools') is not None
 root = pathlib.Path(sys.argv[1])
 request = json.loads((root / 'examples/assignment.json').read_text(encoding='utf-8'))
 result = solve(request)
@@ -55,8 +53,8 @@ result = solve(request)
 assert result['status'] == 'INVALID_INPUT'
 assert result['diagnostics'][0]['code'] == 'INVALID_TIMEZONE'
 request = json.loads((root / 'examples/linked_assignment.json').read_text(encoding='utf-8'))
-assert solve(request)['status'] == ('OPTIMAL' if sys.argv[2] == 'True' else 'BACKEND_UNAVAILABLE')
-print('tzdata', version('tzdata'), 'cp-sat', sys.argv[2], 'solve/verify/schema OK')
+assert solve(request)['status'] == 'OPTIMAL'
+print('tzdata', version('tzdata'), 'ortools', version('ortools'), 'solve/verify/schema OK')
 """
     result = subprocess.run(
         [
@@ -67,13 +65,12 @@ print('tzdata', version('tzdata'), 'cp-sat', sys.argv[2], 'solve/verify/schema O
             "--python",
             sys.executable,
             "--with",
-            f"{wheel}[cp-sat]" if extra else str(wheel),
+            str(wheel),
             "python",
             "-I",
             "-c",
             script,
             str(ROOT),
-            str(extra),
         ],
         cwd=tmp_path,
         env={**os.environ, "PYTHONTZPATH": ""},

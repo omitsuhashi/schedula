@@ -291,7 +291,7 @@ uv run --locked python demo/server.py
 
 バインドは `127.0.0.1` 固定、ポートは8765、必要時だけ `--port` で変更する。
 自動で外部公開・ブラウザー起動・パッケージ追加を行わない。OR-Tools はこのデモだけなら不要。
-既存開発・CI は `--extra cp-sat` を維持する。
+開発・CI とも通常依存に OR-Tools を含め、extra の指定は不要とする。
 
 | 経路 | 契約 |
 | --- | --- |
@@ -335,7 +335,7 @@ Ruff lint・format、`bash -n scripts/deploy`、`git diff --check` も成功し�
 スクリーンショット取得はブラウザー側で失敗しており、画像での見た目の最終確認は未実施。
 
 ```sh
-uv run --locked --extra cp-sat pytest -q tests/test_playground_scenarios.py
+uv run --locked pytest -q tests/test_playground_scenarios.py
 uv run --locked python -m shift_schedula solve examples/playground/lunch.json
 ```
 

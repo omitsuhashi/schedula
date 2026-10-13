@@ -14,18 +14,17 @@ uv 自体の導入は [公式のインストール手順](https://docs.astral.sh
 macOS ARM64 で実際に依存をインストールして動作を確認した。
 配布の最低要件は `>=3.14` とし、上限で将来版のインストールを一律に禁止しない。
 2026-10-07 の公式配布一覧では最新安定版も 3.14.8、3.15 は pre-release だったため、
-最低版と最新安定版の CI を重複させない。通常の CPython 3.14 で base と `cp-sat` extra の
-隔離導入を検証する。3.15 以降・free-threaded・他の Python 実装は未検証であり、
+最低版と最新安定版の CI を重複させない。通常の CPython 3.14 で通常依存の隔離導入を検証する。3.15 以降・free-threaded・他の Python 実装は未検証であり、
 特に CP-SAT は対象 Python・OS の OR-Tools wheel が必要となる。
 `.python-version` は開発用の `3.14.8` を維持し、利用者向けの許容範囲とは分ける。
-新しい安定版が出たら base/extra を別々に測定し、依存が未対応なら結果と制限を課題に記録する。
+新しい安定版が出たら通常依存で測定し、依存が未対応なら結果と制限を課題に記録する。
 uv は **0.12.23** を使用する。直接インストールした uv は `uv self update 0.12.23` で更新できる。
 
 | 用途 | パッケージ | 設定 |
 | --- | --- | --- |
 | JSON Schema 検証 | jsonschema | 実行依存 |
 | IANA タイムゾーンデータ | tzdata | 実行依存（OSデータがない場合のfallback） |
-| CP-SAT | ortools | `cp-sat` extra |
+| CP-SAT | ortools | 実行依存 |
 | lint・format | ruff | 開発依存 |
 | テストの入口 | pytest | 開発依存 |
 | 公開typingのconsumer検証 | mypy | 開発依存 |
@@ -38,8 +37,8 @@ uv は **0.12.23** を使用する。直接インストールした uv は `uv s
 パッケージは `src/shift_schedula/` に置き、
 setuptools で版別 Schema を同梱する。利用・ビルドは [担当配置の手順](assignment.md)・
 [勤務計画の手順](roster.md)を参照する。
-最小費用流だけを利用する場合は `uv sync --locked` / `uv run --locked ...` で実行でき、
-OR-Tools は不要。開発・CI の検証では既存どおり `--extra cp-sat` を維持する。
+利用・開発・CI とも `uv sync --locked` / `uv run --locked ...` で実行する。
+OR-Tools は通常の実行依存として導入され、extra の指定は不要。
 
 タイムゾーンは標準 `zoneinfo` がOSのTZDBを優先し、見つからなければ直接依存の `tzdata` を使う。
 ライブラリはTZPATHを変更せず、データをネットワークから取得しない。
@@ -48,7 +47,7 @@ WindowsのPowerShellでは `$env:PYTHONTZPATH = ""` としてから起動する�
 再現時にはPython・OS・tzdataの版と、PYTHONTZPATHの設定を記録する。
 存在しないゾーン名は `INVALID_INPUT` / `INVALID_TIMEZONE`、時刻データの欠落・破損・
 読み取り障害は `INTERNAL_ERROR` / `TIMEZONE_DATA_UNAVAILABLE` となる。
-CIの `timezone-distribution` でLinux/Windowsのbaseとextraを別環境で確認する。
+CIの `timezone-distribution` でLinux/Windowsの通常依存を別環境で確認する。
 2026-10-07、[CI実行](https://github.com/omitsuhashi/schedula/actions/runs/37582595920)で
 4環境それぞれ87件、skip 0が成功した。OSのTZDBを使わないwheelの求解・独立検証・
 Schema取得と、不正入力・データ障害の区別を含む。Windowsの全中核テストの結果ではない。
@@ -60,13 +59,13 @@ Schema取得と、不正入力・データ障害の区別を含む。Windowsの�
 
 ```sh
 uv python install
-uv sync --locked --extra cp-sat
+uv sync --locked
 ```
 
 `uv python install` は `.python-version` を参照する。
 `--locked` は依存定義と lock file の不一致をエラーにし、意図しない再解決を防ぐ。
-`dependency-groups.dev` は通常の同期で含まれるが、extras は明示指定が必要である。
-CP-SAT の依存を維持するため、以下の実行でも `--extra cp-sat` を指定する。
+`dependency-groups.dev` は通常の同期で含まれる。OR-Tools も通常依存として導入される。
+旧手順の `--extra cp-sat` と wheel の `[cp-sat]` は削除する。
 
 ## Git hook
 
@@ -77,7 +76,7 @@ CP-SAT の依存を維持するため、以下の実行でも `--extra cp-sat` �
 ```sh
 git config --get core.hooksPath
 git rev-parse --git-path hooks
-uv run --locked --extra cp-sat pre-commit install --install-hooks
+uv run --locked pre-commit install --install-hooks
 ```
 
 `core.hooksPath` が未設定の場合、最初のコマンドは終了コード1となる。
@@ -90,29 +89,29 @@ Git worktree では hook 保存先を同じリポジトリ内で共有する。
 ## 日常の検証
 
 ```sh
-uv run --locked --extra cp-sat pre-commit run --all-files --show-diff-on-failure
-uv run --locked --extra cp-sat pytest -q -ra --junitxml=test-results/pytest.xml
+uv run --locked pre-commit run --all-files --show-diff-on-failure
+uv run --locked pytest -q -ra --junitxml=test-results/pytest.xml
 bash -n scripts/deploy
 ```
 
 既存の `unittest` テストは pytest から収集・実行する。
 テスト未作成やスキップは未検証として記録し、空のテスト実行を成功扱いしない。
-hook を使わない場合は `uv run --locked --extra cp-sat ruff check .` と
-`uv run --locked --extra cp-sat ruff format --check .` で確認する。
+hook を使わない場合は `uv run --locked ruff check .` と
+`uv run --locked ruff format --check .` で確認する。
 両方の経路で同じ Ruff 検証を繰り返す必要はない。
 
 CI の `deploy-entrypoint` も、uv 0.12.23 と `.python-version` を使い、
-`uv sync --locked --extra cp-sat`、Ruff hook、pytest、デプロイスクリプトの構文を確認する。
+`uv sync --locked`、Ruff hook、pytest、デプロイスクリプトの構文を確認する。
 全探索比較・両バックエンド比較・違反検出・依存不足の既存テストも同じ実行に含む。
 CP-SAT 導入下でスキップがあれば JUnit XML の確認を失敗させる。
 pytest の `-ra` で失敗・スキップ理由を表示し、`pytest-results` artifact に
 `test-results/pytest.xml` を成功・失敗時とも保存する。依存読み込みの失敗は収集エラーとなる。
 
-wheel のテストは `uv export --locked --extra cp-sat --no-dev --no-emit-project` で
+wheel のテストは `uv export --locked --no-dev --no-emit-project` で
 実行依存を取り出し、新しい `uv run --no-project --isolated` 環境へ wheel と一緒に導入する。
-別の空環境では wheel の `cp-sat` extra だけをインストール対象とし、
+別の空環境では wheel をインストール対象とし、
 export した実行依存は `uv pip install --constraints` によるバージョン制約としてのみ使う。
-これにより、`Requires-Dist` の依存や extra が欠落した場合は requirements による補完で見逃さない。
+これにより、`Requires-Dist` の通常依存が欠落した場合は requirements による補完で見逃さない。
 ソース checkout の import を避け、担当配置・勤務計画・不可能・不正入力のライブラリと CLI を確認する。
 OR-Tools なしの別の隔離環境では最小費用流が動き、CP-SAT は `BACKEND_UNAVAILABLE` となることを確認する。
 利用者向けのセットアップ・入力作成は [README](../README.md)、
@@ -121,11 +120,11 @@ CI 設定の導入と GitHub 上での実行成功は別であり、実行 URL �
 
 ## 依存の変更と更新
 
-実行時の依存は `uv add <package>`、開発専用の依存は `uv add --dev <package>`、
-CP-SAT 用の任意依存は `uv add --optional cp-sat <package>` で追加する。
-変更後は `uv sync --locked --extra cp-sat` で環境を揃え、日常の検証を実行する。
+OR-Tools を含む実行時の依存は `uv add <package>`、
+開発専用の依存は `uv add --dev <package>` で追加する。
+変更後は `uv sync --locked` で環境を揃え、日常の検証を実行する。
 依存版を更新するときは `uv lock --upgrade-package <package>` を使い、lock file の差分を確認する。
-Ruff 更新時は `uv run --extra cp-sat pre-commit autoupdate` も実行し、
+Ruff 更新時は `uv run pre-commit autoupdate` も実行し、
 hook の `rev` と開発依存の Ruff を同じ版に揃える。
 Python 更新時も、依存の対応と wheel を確認して `uv python pin <version>` で固定し直す。
 

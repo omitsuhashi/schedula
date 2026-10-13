@@ -64,9 +64,9 @@ Responseの改ざん検査でも回数集計・目的参照・評価値の不一
 ## 入力から再計画まで
 
 ```sh
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/shift_count_balance.json
-uv run --locked --extra cp-sat python -m shift_schedula schema request --schema-version 0.15
-uv run --locked --extra cp-sat python -m shift_schedula schema verification --schema-version 0.15
+uv run --locked python -m shift_schedula solve examples/shift_count_balance.json
+uv run --locked python -m shift_schedula schema request --schema-version 0.15
+uv run --locked python -m shift_schedula schema verification --schema-version 0.15
 ```
 
 以下のPython例は不足120人分の計画を確認し、担当を消した手修正を検証で拒否した後、

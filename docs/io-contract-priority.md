@@ -65,8 +65,8 @@
 priority 0のホールに30人分の不足を残す。ID順を逆にしても優先度の意味は変わらない。
 
 ```sh
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/demand_priority.json
-uv run --locked --extra cp-sat pytest -q tests/test_demand_priority.py
+uv run --locked python -m shift_schedula solve examples/demand_priority.json
+uv run --locked pytest -q tests/test_demand_priority.py
 ```
 
 別の検証例では、1日1勤務の同じ従業員が重要需要の30分勤務か通常需要の60分勤務を選ぶ。

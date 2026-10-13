@@ -81,7 +81,7 @@ DSTの23/25時間の日も暦日数は1とし、実経過時間を24時間で割
 最適性・不足最小性の証明は付与しない。
 
 ```sh
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/day_counts.json
+uv run --locked python -m shift_schedula solve examples/day_counts.json
 uv run --locked python -m shift_schedula schema request --schema-version 0.11
 uv run --locked python -m shift_schedula schema verification --schema-version 0.11
 ```

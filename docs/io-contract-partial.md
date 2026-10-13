@@ -152,7 +152,7 @@ CP-SATが計画を取得できていない場合は `UNKNOWN` を維持し、空
 ## 再実行
 
 ```sh
-uv run --locked --extra cp-sat pytest -q tests/test_partial_contract.py tests/test_partial_plans.py tests/test_schema_encoding.py
+uv run --locked pytest -q tests/test_partial_contract.py tests/test_partial_plans.py tests/test_schema_encoding.py
 ```
 
 テストは全状態の合成応答、状態・数値・証明の矛盾、旧版境界、拡張入力の継承、完全な基準計画のみの受理、

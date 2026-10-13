@@ -73,7 +73,7 @@ make_baselineは元ルールを保存し、元契約版で基準を再検証す�
 ## 実行例
 
 ```sh
-uv run --locked --extra cp-sat python -m shift_schedula solve examples/coworkers.json > result.json
+uv run --locked python -m shift_schedula solve examples/coworkers.json > result.json
 uv run --locked python -c 'import json; from shift_schedula import verify, make_baseline; q=json.load(open("examples/coworkers.json")); r=json.load(open("result.json")); print(verify(q,r["solution"])["status"]); print(make_baseline(q,r["solution"],"saved")["plan_id"])'
 ```
 
