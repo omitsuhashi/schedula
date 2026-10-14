@@ -6,6 +6,7 @@ permissions:
   contents: read
 concurrency:
   group: pypi
+  queue: max
   cancel-in-progress: false
 jobs:
   build:
