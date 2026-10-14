@@ -378,8 +378,10 @@ uv build --wheel
 uv run --locked python scripts/evaluate.py examples/assignment.json examples/roster.json docs/evaluations/inputs/assignment-week.json docs/evaluations/inputs/roster-week.json --output test-results/evaluation.json
 ```
 
-既存 CI の `quality-checks` は CP-SAT 導入下で全テストを実行し、スキップがあれば失敗します。
-成功・失敗・スキップ理由は pytest ログと保存される `pytest-results` の JUnit XML で追跡できます。
+CI は PR の変更箇所に応じて検証を選び、main への push では全検証を実行します。
+Python・配布・Chromium の検証を並列化し、`quality-checks` が必要なジョブの成功を確認します。
+実行したテストにスキップがあれば失敗します。選択条件は [CI の検証範囲](docs/ci.md)を参照してください。
+成功・失敗・スキップ理由は pytest ログと `pytest-results`・`distribution-results` の JUnit XML で追跡できます。
 全探索との比較、両バックエンドの共通問題、独立検証器の違反検出に加え、
 wheel を lock file の実行依存とともに新しい隔離環境へ導入し、ライブラリ・CLI・Schema を確認します。
 別の空環境では wheel の依存宣言から導入し、lock file はバージョン制約だけに使います。

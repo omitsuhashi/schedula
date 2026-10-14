@@ -100,12 +100,13 @@ hook を使わない場合は `uv run --locked ruff check .` と
 `uv run --locked ruff format --check .` で確認する。
 両方の経路で同じ Ruff 検証を繰り返す必要はない。
 
-CI の `quality-checks` も、uv 0.12.23 と `.python-version` を使い、
-`uv sync --locked`、Ruff hook、pytest、デプロイスクリプトの構文を確認する。
-全探索比較・両バックエンド比較・違反検出・依存不足の既存テストも同じ実行に含む。
+CI も uv 0.12.23 と `.python-version` を使い、`uv sync --locked` で環境を構築する。
+Ruff hookとデプロイスクリプトの構文は毎回確認し、Python・配布・画面検証は並列ジョブで実行する。
+PRでは変更内容に応じてジョブを選び、mainへのpushでは全探索比較・両バックエンド比較・
+違反検出・依存不足を含む全検証を実行する。選択条件は[CIの検証範囲](ci.md)を参照する。
 CP-SAT 導入下でスキップがあれば JUnit XML の確認を失敗させる。
-pytest の `-ra` で失敗・スキップ理由を表示し、`pytest-results` artifact に
-`test-results/pytest.xml` を成功・失敗時とも保存する。依存読み込みの失敗は収集エラーとなる。
+pytest の `-ra` で失敗・スキップ理由を表示し、`pytest-results`・`distribution-results` artifact に
+各ジョブの JUnit XML を成功・失敗時とも保存する。依存読み込みの失敗は収集エラーとなる。
 
 wheel のテストは `uv export --locked --no-dev --no-emit-project` で
 実行依存を取り出し、新しい `uv run --no-project --isolated` 環境へ wheel と一緒に導入する。

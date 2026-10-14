@@ -6,7 +6,39 @@ on:
 permissions:
   contents: read
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      python: ${{ steps.select.outputs.python }}
+      distribution: ${{ steps.select.outputs.distribution }}
+      browser: ${{ steps.select.outputs.browser }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+      - name: Select checks from the complete PR diff
+        id: select
+        run: python scripts/ci_checks.py select
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: "0.12.23"
+          enable-cache: true
+      - run: uv sync --locked
+      - name: Validate Ruff hooks and CI selection
+        run: |
+          uv run --locked pre-commit run --all-files --show-diff-on-failure
+          bash -n scripts/deploy
+          uv run --no-sync pytest -q -ra tests/test_ci_checks.py --junitxml=ci-tests.xml
+          uv run --no-sync python -c "import xml.etree.ElementTree as ET; assert not ET.parse('ci-tests.xml').findall('.//skipped')"
   timezone-distribution:
+    needs: changes
+    # matrixの必須チェック名を常に生成し、対象外PRはstepsだけを省略する。
     strategy:
       fail-fast: false
       matrix:
@@ -15,58 +47,104 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        if: needs.changes.outputs.python == 'true'
       - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        if: needs.changes.outputs.python == 'true'
         with:
           version: "0.12.23"
           enable-cache: true
       - name: Sync dependencies
+        if: needs.changes.outputs.python == 'true'
         run: uv sync --locked
       - name: Validate timezone data, wheel dependencies and spawn control
+        if: needs.changes.outputs.python == 'true'
         run: uv run --no-sync pytest -q -ra tests/test_timezone.py tests/test_input_contract.py tests/test_execution.py --junitxml=test-results/timezone.xml
       - name: Reject skipped tests
+        if: needs.changes.outputs.python == 'true'
         run: uv run --no-sync python -c "import xml.etree.ElementTree as ET; assert not ET.parse('test-results/timezone.xml').findall('.//skipped')"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        if: always()
+        if: always() && needs.changes.outputs.python == 'true'
         with:
           name: timezone-${{ matrix.os }}
           path: test-results/
-  quality-checks:
+  python-tests:
+    needs: changes
+    if: needs.changes.outputs.python == 'true'
     runs-on: ubuntu-latest
-    # 全体回帰・sdist再構築後のブラウザー確認が10分上限で中断したため、15分を確保する。
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - name: Set up uv
-        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           version: "0.12.23"
           enable-cache: true
-      - name: Sync Python environment
-        # 最低対応版と最新安定版はともに3.14（2026-10-07確認）。次の安定版で検証を追加する。
-        run: uv sync --locked
-      - name: Validate Ruff hooks
-        run: uv run --locked pre-commit run --all-files --show-diff-on-failure
-      - name: Validate scripts and scheduling engine
-        run: |
-          bash -n scripts/deploy
-          uv run --locked pytest -q -ra --junitxml=test-results/pytest.xml
+      - run: uv sync --locked
+      - name: Validate Python tests outside distribution
+        run: uv run --no-sync pytest -q -ra -m 'not distribution' --junitxml=test-results/pytest.xml
       - name: Reject skipped tests
-        run: |
-          uv run --locked python -c 'import xml.etree.ElementTree as ET; assert not ET.parse("test-results/pytest.xml").findall(".//skipped"), "Skipped tests are not allowed; see the JUnit report and pytest log"'
+        run: uv run --no-sync python -c "import xml.etree.ElementTree as ET; assert not ET.parse('test-results/pytest.xml').findall('.//skipped')"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: pytest-results
+          path: test-results/
+  distribution:
+    needs: changes
+    if: needs.changes.outputs.distribution == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: "0.12.23"
+          enable-cache: true
+      - run: uv sync --locked
+      - name: Validate rebuilt distributions and isolated installation
+        run: uv run --no-sync pytest -q -ra -m distribution --junitxml=test-results/distribution.xml
+      - name: Reject skipped tests
+        run: uv run --no-sync python -c "import xml.etree.ElementTree as ET; assert not ET.parse('test-results/distribution.xml').findall('.//skipped')"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: distribution-results
+          path: test-results/
+  browser:
+    needs: changes
+    if: needs.changes.outputs.browser == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: "0.12.23"
+          enable-cache: true
+      - run: uv sync --locked
       - name: Install browser verification tools
         run: |
           npm install --prefix "$RUNNER_TEMP/playground-check" --no-save --package-lock=false playwright@1.62.1
           "$RUNNER_TEMP/playground-check/node_modules/.bin/playwright" install --with-deps chromium
-      - name: Validate playground in Chromium
+      - name: Validate playground and landing page in Chromium
         env:
           PLAYWRIGHT_MODULE_PATH: ${{ runner.temp }}/playground-check/node_modules/playwright
         run: |
           node tests/playground-browser.cjs
           node tests/landing-browser.cjs
-      - name: Save test results
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: pytest-results
+          name: browser-results
           path: test-results/
-          if-no-files-found: warn
+  quality-checks:
+    # 必須チェック名を維持し、必要なジョブの失敗・取消・意図しないskipを拒否する。
+    needs: [changes, lint, timezone-distribution, python-tests, distribution, browser]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Require all selected checks to succeed
+        env:
+          CI_RESULTS: ${{ toJSON(needs) }}
+        run: python scripts/ci_checks.py check
