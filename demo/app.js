@@ -424,7 +424,7 @@ async function calculate() {
   try {
     const result = await Promise.race([
       (async () => {
-        const response = await fetch("/solve", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(input), signal: controller.signal});
+        const response = await fetch("/demo/solve", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(input), signal: controller.signal});
         const value = await response.json();
         if (!response.ok) {
           const error = new Error(value.error?.message || "実行入口から結果を取得できませんでした。");
@@ -614,7 +614,7 @@ async function calculateJSON() {
     const result = await Promise.race([
       (async () => {
         // 原文を送信し、サーバーの厳密な読み取りで重複キーも検出する。
-        const response = await fetch("/solve-json", {method: "POST", headers: {"Content-Type": "application/json"}, body: text, signal: controller.signal});
+        const response = await fetch("/demo/solve-json", {method: "POST", headers: {"Content-Type": "application/json"}, body: text, signal: controller.signal});
         const value = await response.json();
         if (!response.ok) throw new Error(`${value.error?.code || "HTTP_ERROR"}：${value.error?.message || "結果を取得できませんでした。"} (${value.error?.json_pointer ?? ""})`);
         return value;
@@ -647,7 +647,7 @@ $("json-editor").addEventListener("submit", event => { event.preventDefault(); c
 $("json-load-sample").addEventListener("click", () => {
   const name = $("json-sample").value;
   loadJSON(async () => {
-    const response = await fetch(`/samples/${name}.json`);
+    const response = await fetch(`/demo/samples/${name}.json`);
     if (!response.ok) throw new Error("サンプルを取得できませんでした。");
     return response.text();
   });
@@ -664,7 +664,7 @@ $("json-file").addEventListener("change", () => {
 async function start(stillActive = () => true) {
   try {
     [sample, scenarios] = await Promise.all(["lunch", "scenarios"].map(async name => {
-      const response = await fetch(`/samples/${name}.json`);
+      const response = await fetch(`/demo/samples/${name}.json`);
       if (!response.ok) throw new Error("サンプルを読み込めませんでした。");
       return response.json();
     }));

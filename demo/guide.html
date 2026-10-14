@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="shift-schedulaの導入、Python API、入出力と検証結果の読み方。自社システムへの組み込みを始めるためのドキュメント。">
   <title>ドキュメント | shift-schedula</title>
-  <link rel="stylesheet" href="/landing/style.css">
+  <link rel="stylesheet" href="/landing.css">
 </head>
 <body>
 <a class="skip-link" href="#main">本文へ移動</a>
-<header class="site-header"><a class="brand" href="/landing/"><span class="brand-mark" aria-hidden="true">s.</span>shift-schedula</a><nav aria-label="メインナビゲーション"><a href="/">デモ</a><a href="/landing/docs.html" aria-current="page">ドキュメント</a><a class="button small" href="/landing/#contact">導入を相談する <span aria-hidden="true">↗</span></a></nav></header>
+<header class="site-header"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">s.</span>shift-schedula</a><nav aria-label="メインナビゲーション"><a href="/demo/">デモ</a><a href="/docs.html" aria-current="page">ドキュメント</a><a class="button small" href="/#contact">導入を相談する <span aria-hidden="true">↗</span></a></nav></header>
 <main id="main" class="wrap guide">
   <p class="eyebrow">DOCUMENTATION</p>
   <h1>自社の仕組みに、組み込む。</h1>
@@ -17,7 +17,7 @@
   <section aria-labelledby="start-title"><h2 id="start-title">1. はじめて使う</h2><p>配布名は <code>shift-schedula</code>、import名は <code>shift_schedula</code>。Python 3.14以上が必要です。独自コード・文書・デモはMITライセンスで、商用利用も可能です。依存ライブラリはそれぞれのライセンスに従います。</p><p class="guide-note">現在はリポジトリが非公開で、PyPI公開は未実施です。ソースの入手は <a href="mailto:omitsuhashi@the3-o.com?subject=shift-schedula%20ソース入手の問い合わせ">メールでお問い合わせください</a>。以下はソースを入手した後、リポジトリ直下で実行する手順です。</p><pre><code>uv python install
 uv sync --locked
 uv run --locked python -m shift_schedula solve examples/assignment.json
-uv run --locked python demo/server.py</code></pre><div class="guide-links"><a href="/">ブラウザーでデモを試す ↗</a><a href="/landing/docs/python-setup.md">セットアップの詳細（Markdown） ↗</a></div></section>
+uv run --locked python demo/server.py</code></pre><div class="guide-links"><a href="/demo/">ブラウザーでデモを試す ↗</a><a href="/docs/python-setup.md">セットアップの詳細（Markdown） ↗</a></div></section>
   <section aria-labelledby="api-title"><h2 id="api-title">2. Python APIから使う</h2><p>JSONを厳密に読み取り、入力の検証と計画の計算を呼び出します。APIはdict/listで入出力し、呼び出し元の入力を書き換えません。</p><pre><code>from pathlib import Path
 from shift_schedula import load_json, solve, validate
 
@@ -29,10 +29,10 @@ if checked["status"] == "VALID":
     response = solve(request)
     print(response["status"])
 else:
-    print(checked["diagnostics"])</code></pre><p>本番の組み込みでは、求解後の状態・不足・検証結果を確認して採用を判断します。入力不備、未確定、内部障害も別の状態で返されます。</p><div class="guide-links"><a href="/landing/docs/python-api.md">公開APIとエラー処理（Markdown） ↗</a></div></section>
-  <section aria-labelledby="contract-title"><h2 id="contract-title">3. 条件と結果を理解する</h2><ol><li><strong>入力する：</strong>技能、役割、従業員、勤務可能時間、需要、勤務候補、ルールなどを指定します。現在の通常入口は <code>schema_version: "0.15"</code> です。</li><li><strong>計算する：</strong>担当配置は人・時間帯・役割を、勤務計画は出退勤・休憩も含めて扱います。</li><li><strong>結果を読む：</strong><code>OPTIMAL</code> は指定条件と候補集合で最適性が証明された結果、<code>FEASIBLE</code> は最適性未証明の実行可能な結果です。<code>PARTIAL</code> は不足を伴う有効な計画です。</li><li><strong>不成立・未確定を分ける：</strong><code>INFEASIBLE</code> は解が存在しないと証明された状態、<code>UNKNOWN</code> は未確定です。入力不備や内部障害とも区別します。</li><li><strong>手修正後も検証する：</strong><code>verify(request, solution)</code> で元の条件への適合を確認できます。この検証は最適性や不足最小性を認定しません。</li></ol><p class="guide-note">独立検証の成功は、完全な需要充足や法令・就業規則への適合を保証しません。不足の有無は状態と不足集計から確認します。</p><div class="guide-links"><a href="/landing/docs/io-contract-current.md">現行の入出力仕様（Markdown） ↗</a><a href="/landing/docs/distribution.md">配布・サポート範囲（Markdown） ↗</a><a href="/landing/license.txt">MITライセンス ↗</a></div></section>
-  <section aria-labelledby="help-title"><h2 id="help-title">自社の業務への適用を相談する</h2><p>勤務ルールの整理、データ連携、入力・比較・承認画面など、組み込みに必要な範囲から相談できます。対応可否と進め方は要件を確認して決めます。</p><div class="guide-links"><a class="button" href="/landing/#contact">導入・個別開発について相談する <span aria-hidden="true">↗</span></a></div></section>
+    print(checked["diagnostics"])</code></pre><p>本番の組み込みでは、求解後の状態・不足・検証結果を確認して採用を判断します。入力不備、未確定、内部障害も別の状態で返されます。</p><div class="guide-links"><a href="/docs/python-api.md">公開APIとエラー処理（Markdown） ↗</a></div></section>
+  <section aria-labelledby="contract-title"><h2 id="contract-title">3. 条件と結果を理解する</h2><ol><li><strong>入力する：</strong>技能、役割、従業員、勤務可能時間、需要、勤務候補、ルールなどを指定します。現在の通常入口は <code>schema_version: "0.15"</code> です。</li><li><strong>計算する：</strong>担当配置は人・時間帯・役割を、勤務計画は出退勤・休憩も含めて扱います。</li><li><strong>結果を読む：</strong><code>OPTIMAL</code> は指定条件と候補集合で最適性が証明された結果、<code>FEASIBLE</code> は最適性未証明の実行可能な結果です。<code>PARTIAL</code> は不足を伴う有効な計画です。</li><li><strong>不成立・未確定を分ける：</strong><code>INFEASIBLE</code> は解が存在しないと証明された状態、<code>UNKNOWN</code> は未確定です。入力不備や内部障害とも区別します。</li><li><strong>手修正後も検証する：</strong><code>verify(request, solution)</code> で元の条件への適合を確認できます。この検証は最適性や不足最小性を認定しません。</li></ol><p class="guide-note">独立検証の成功は、完全な需要充足や法令・就業規則への適合を保証しません。不足の有無は状態と不足集計から確認します。</p><div class="guide-links"><a href="/docs/io-contract-current.md">現行の入出力仕様（Markdown） ↗</a><a href="/docs/distribution.md">配布・サポート範囲（Markdown） ↗</a><a href="/license.txt">MITライセンス ↗</a></div></section>
+  <section aria-labelledby="help-title"><h2 id="help-title">自社の業務への適用を相談する</h2><p>勤務ルールの整理、データ連携、入力・比較・承認画面など、組み込みに必要な範囲から相談できます。対応可否と進め方は要件を確認して決めます。</p><div class="guide-links"><a class="button" href="/#contact">導入・個別開発について相談する <span aria-hidden="true">↗</span></a></div></section>
 </main>
-<footer class="site-footer wrap"><a class="brand" href="/landing/">shift-schedula</a><nav aria-label="フッターナビゲーション"><a href="/landing/">ホーム</a><a href="/">デモ</a><a href="/landing/license.txt">MIT License</a></nav></footer>
+<footer class="site-footer wrap"><a class="brand" href="/">shift-schedula</a><nav aria-label="フッターナビゲーション"><a href="/">ホーム</a><a href="/demo/">デモ</a><a href="/license.txt">MIT License</a></nav></footer>
 </body>
 </html>

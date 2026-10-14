@@ -21,12 +21,14 @@ async function main() {
       });
     });
   }
+  url = new URL(url).origin;
   browser = await chromium.launch({headless: true, ...(process.env.PLAYWRIGHT_CHANNEL ? {channel: process.env.PLAYWRIGHT_CHANNEL} : {})});
   const page = await browser.newPage({viewport: {width: 1440, height: 1000}, reducedMotion: "reduce"});
   const failures = [];
   page.on("pageerror", error => failures.push(error.message));
   page.on("response", response => { if (response.status() >= 400) failures.push(`${response.status()} ${response.url()}`); });
-  await page.goto(`${url}/landing/`);
+  await page.goto(`${url}/`);
+  const landingStyle = await page.evaluate(() => ({background: getComputedStyle(document.body).backgroundColor, font: getComputedStyle(document.body).fontFamily}));
   await page.keyboard.press("Tab");
   assert.equal(await page.locator(".skip-link").evaluate(element => element === document.activeElement), true);
   await page.keyboard.press("Enter");
@@ -45,33 +47,47 @@ async function main() {
   assert.ok((await page.locator("body").innerText()).includes("Python公開API"));
 
   for (const [label, id] of [["必要人数を変えてみる", "demand"], ["勤務ルールを試す", "consecutive_days"], ["手修正の検証を試す", "verify"]]) {
-    await page.goto(`${url}/landing/`);
+    await page.goto(`${url}/`);
     await page.locator(".demo-card").filter({hasText: label}).click();
+    assert.equal(new URL(page.url()).pathname, "/demo/");
     assert.equal(new URL(page.url()).hash, `#${id}`);
     await page.locator("#feature-title").waitFor({state: "visible"});
     await page.waitForFunction(() => feature?.current && !featureController);
     assert.equal(await page.evaluate(() => feature.current.response.verification.valid), true);
-    await page.getByRole("link", {name: "導入・個別開発の相談", exact: true}).click();
+    await page.getByRole("link", {name: "導入を相談する"}).click();
     assert.equal(new URL(page.url()).hash, "#contact");
   }
 
   for (const width of [1440, 768, 390, 320]) {
     await page.setViewportSize({width, height: 900});
-    for (const path of ["/landing/", "/landing/docs.html"]) {
+    for (const path of ["/", "/docs.html", "/demo/", "/demo/#demand"]) {
       await page.goto(url + path);
+      if (path === "/demo/#demand") await page.waitForFunction(() => feature?.current && !featureController);
+      if (path.startsWith("/demo/")) {
+        assert.deepEqual(await page.evaluate(() => ({background: getComputedStyle(document.body).backgroundColor, font: getComputedStyle(document.body).fontFamily})), landingStyle);
+        if (path.includes("#")) assert.equal(await page.locator("#feature-run").evaluate(element => getComputedStyle(element).backgroundColor), "rgb(67, 91, 53)");
+        await page.screenshot({path: `test-results/demo-${path.includes("#") ? "demand" : "list"}-${width}.png`, fullPage: true});
+      }
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${path} / ${width}px`);
-      if (path === "/landing/") await page.screenshot({path: `test-results/landing-${width}.png`, fullPage: true});
+      if (path === "/") await page.screenshot({path: `test-results/landing-${width}.png`, fullPage: true});
     }
   }
+  await page.goto(`${url}/demo/`);
+  await page.keyboard.press("Tab");
+  assert.equal(await page.locator(".skip-link").evaluate(element => element === document.activeElement), true);
+  await page.keyboard.press("Enter");
+  assert.equal(new URL(page.url()).hash, "#main");
+  await page.getByRole("link", {name: "shift-schedula ホーム"}).click();
+  assert.equal(new URL(page.url()).pathname, "/");
   const noScript = await browser.newContext({javaScriptEnabled: false, viewport: {width: 390, height: 844}});
   const staticPage = await noScript.newPage();
-  await staticPage.goto(`${url}/landing/`);
+  await staticPage.goto(`${url}/`);
   await staticPage.getByRole("link", {name: "自社への導入を相談する"}).click();
   assert.equal(new URL(staticPage.url()).hash, "#contact");
   assert.equal(await staticPage.getByRole("link", {name: "メールで相談する"}).isVisible(), true);
   await noScript.close();
   assert.deepEqual(failures, []);
-  console.log("LP：問い合わせ・文書・3つの実デモ・キーボード・4画面幅・JavaScriptなしの導線確認に成功");
+  console.log("LP：問い合わせ・文書・3つの実デモ・キーボード・LPとデモのスタイル・4画面幅・JavaScriptなしの導線確認に成功");
 }
 
 main().catch(error => { console.error(error); process.exitCode = 1; }).finally(async () => {

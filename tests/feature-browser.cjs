@@ -175,7 +175,7 @@ module.exports = async (browser, url, report) => {
   assert.equal(requests, beforeRetry);
   await page.evaluate(() => { location.hash = "consecutive_days"; });
   await page.waitForFunction(() => lesson?.id === "consecutive_days");
-  release(); await page.unrouteAll({behavior: "wait"}); await ready(page);
+  release(); await ready(page); await page.unrouteAll({behavior: "wait"});
   assert.equal(await page.evaluate(() => feature.current.input.request_id), "demo_consecutive_days");
   const differences = await page.evaluate(() => {
     const before = {employees: [{id: "a", skills: [{skill_id: "s", level: 1}], availability: [{start: "2026-10-01T09:00:00+09:00", end: "2026-10-01T10:00:00+09:00"}]}], objectives: [{metric: "scheduled_cost"}, {metric: "preference_penalty"}]};
@@ -207,7 +207,7 @@ module.exports = async (browser, url, report) => {
   assert.equal(await page.locator("#calculate").isDisabled(), true);
   await page.evaluate(() => { location.hash = "demand"; });
   await page.waitForFunction(() => lesson?.id === "demand");
-  sampleRelease(); await page.unrouteAll({behavior: "wait"}); await ready(page);
+  sampleRelease(); await ready(page); await page.unrouteAll({behavior: "wait"});
   assert.equal(await page.locator("#editor").isVisible(), false);
   await page.goto(`${url}#combined`);
   await page.waitForFunction(() => current?.response.status === "OPTIMAL" && !document.getElementById("controls").disabled);

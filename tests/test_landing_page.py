@@ -19,6 +19,8 @@ class PageLinks(HTMLParser):
             self.ids.add(values["id"])
         if tag in {"a", "link"} and "href" in values:
             self.links.append(values["href"])
+        if tag == "script" and "src" in values:
+            self.links.append(values["src"])
 
 
 def get(instance, path):
@@ -31,7 +33,7 @@ def get(instance, path):
 
 
 def test_landing_links_reach_served_content_and_contact(http_server):
-    for source in ("/landing/", "/landing/docs.html", "/"):
+    for source in ("/", "/docs.html", "/demo/"):
         status, media_type, content = get(http_server, source)
         assert status == 200 and media_type == "text/html; charset=utf-8"
         page = PageLinks(content)
@@ -45,10 +47,10 @@ def test_landing_links_reach_served_content_and_contact(http_server):
             assert status == 200, (source, link)
             if target.fragment and media_type.startswith("text/html"):
                 # デモの主題IDはfeatures.jsが生成するため、実ブラウザーで確認する。
-                if target.path != "/":
+                if target.path != "/demo/":
                     assert target.fragment in PageLinks(body).ids, link
 
-    page = PageLinks(get(http_server, "/landing/")[2])
+    page = PageLinks(get(http_server, "/")[2])
     (contact,) = [link for link in page.links if "body=" in link]
     query = parse_qs(urlsplit(contact).query)
     assert "導入・個別開発" in query["subject"][0]
@@ -57,15 +59,29 @@ def test_landing_links_reach_served_content_and_contact(http_server):
 
 def test_landing_documents_are_allowlisted_and_match_sources(http_server):
     for name in ("python-setup", "python-api", "io-contract-current", "distribution"):
-        status, media_type, body = get(http_server, f"/landing/docs/{name}.md")
+        status, media_type, body = get(http_server, f"/docs/{name}.md")
         assert status == 200 and media_type == "text/plain; charset=utf-8"
         assert body == (server.ROOT / "docs" / f"{name}.md").read_text(encoding="utf-8")
-    assert get(http_server, "/landing/license.txt")[2] == (server.ROOT / "LICENSE").read_text()
+    assert get(http_server, "/license.txt")[2] == (server.ROOT / "LICENSE").read_text()
     for path in (
-        "/landing/docs/../sources.md",
-        "/landing/docs/%2e%2e/sources.md",
-        "/landing/docs/sources.md",
-        "/landing/docs/reference/",
-        "/landing/.git/config",
+        "/docs/../sources.md",
+        "/docs/%2e%2e/sources.md",
+        "/docs/sources.md",
+        "/docs/reference/",
+        "/.git/config",
     ):
+        assert get(http_server, path)[0] == 404
+
+
+def test_page_hierarchy_and_canonical_redirects(http_server):
+    assert 'id="hero-title"' in get(http_server, "/")[2]
+    assert 'id="feature-list"' in get(http_server, "/demo/")[2]
+    for source, target in (("/demo", "/demo/"), ("/landing/", "/")):
+        connection = HTTPConnection("127.0.0.1", http_server.server_port, timeout=10)
+        connection.request("GET", source)
+        response = connection.getresponse()
+        assert response.status == 308 and response.getheader("Location") == target
+        assert response.read() == b""
+        connection.close()
+    for path in ("/demo/../server.py", "/demo/%2e%2e/server.py", "/app.js", "/samples/lunch.json"):
         assert get(http_server, path)[0] == 404
