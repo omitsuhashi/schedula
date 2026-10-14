@@ -60,7 +60,9 @@ jobs:
       - name: Validate playground in Chromium
         env:
           PLAYWRIGHT_MODULE_PATH: ${{ runner.temp }}/playground-check/node_modules/playwright
-        run: node tests/playground-browser.cjs
+        run: |
+          node tests/playground-browser.cjs
+          node tests/landing-browser.cjs
       - name: Save test results
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

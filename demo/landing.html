@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="現場の条件に合うシフト作成を、自社の業務に。shift-schedulaによる担当配置・勤務計画のデモと、業務ルール整理・システム組み込みのご相談。">
+  <title>シフト作成を、自社の業務に。 | shift-schedula</title>
+  <link rel="stylesheet" href="/landing/style.css">
+</head>
+<body>
+<a class="skip-link" href="#main">本文へ移動</a>
+<header class="site-header">
+  <a class="brand" href="/landing/" aria-label="shift-schedula ホーム"><span class="brand-mark" aria-hidden="true">s.</span>shift-schedula</a>
+  <nav aria-label="メインナビゲーション">
+    <a href="#demos">デモ</a><a href="/landing/docs.html">ドキュメント</a><a class="button small" href="#contact">導入を相談する <span aria-hidden="true">↗</span></a>
+  </nav>
+</header>
+<main id="main">
+  <section class="hero wrap" aria-labelledby="hero-title">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> SHIFT PLANNING, BUILT FOR YOUR WORK.</p>
+      <h1 id="hero-title">シフト作成を、<br>自社の<span class="accent">業務</span>に。</h1>
+      <p class="lead">現場の条件を、計画できる仕組みへ。</p>
+      <p class="hero-description">技能、勤務可能時間、必要人数、勤務ルール。<br>複雑な条件を整理して、担当配置・勤務計画を作成。<br>業務への適用からシステムへの組み込みまで、ご相談ください。</p>
+      <div class="actions"><a class="button" href="#contact">自社への導入を相談する <span aria-hidden="true">↗</span></a><a class="text-link" href="#demos">まずはデモを見る <span aria-hidden="true">↓</span></a></div>
+      <p class="fine-print">Pythonライブラリ / MITライセンス / 自社での導入・開発にも利用可能</p>
+    </div>
+    <figure class="planning-preview">
+      <figcaption><span class="eyebrow">FROM RULES TO ROSTER</span><span class="preview-label">仕組みのイメージ</span></figcaption>
+      <div class="preview-input"><span class="preview-caption">現場の条件</span><div class="tags"><span>技能</span><span>勤務可能時間</span><span>必要人数</span><span>勤務ルール</span></div></div>
+      <div class="preview-flow" aria-hidden="true">↓</div>
+      <div class="schedule">
+        <div class="schedule-heading"><strong>担当配置・勤務計画</strong><span>架空の表示例</span></div>
+        <table aria-label="担当配置の説明用の表示例。実計算の結果ではありません。">
+          <thead><tr><th scope="col">担当者</th><th scope="col">11:00</th><th scope="col">12:00</th><th scope="col">13:00</th><th scope="col">14:00</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Aさん</th><td class="cooking" colspan="2">調理</td><td class="break">休憩</td><td class="cooking">調理</td></tr>
+            <tr><th scope="row">Bさん</th><td class="hall">ホール</td><td class="break">休憩</td><td class="hall" colspan="2">ホール</td></tr>
+            <tr><th scope="row">Cさん</th><td class="off">勤務なし</td><td class="cooking" colspan="3">調理</td></tr>
+          </tbody>
+        </table>
+        <div class="preview-results"><span>条件との照合</span><span>不足の確認</span><span>手修正後の検証</span></div>
+      </div>
+      <p class="preview-note">条件を変えた結果は、実際のデモで確かめられます。</p>
+    </figure>
+  </section>
+
+  <section class="problem-section" aria-labelledby="problems-title">
+    <div class="wrap problem-layout">
+      <div><p class="eyebrow">YOUR CHALLENGE</p><h2 id="problems-title">その調整、<br>いつも同じ人に<br>頼っていませんか。</h2></div>
+      <ol class="problem-list">
+        <li><span class="number">01</span><div><h3>条件が多く、作成が属人化する</h3><p>人数だけでは決まらない。技能、休憩、連続勤務まで考えると、担当者の経験に頼る場面が増える。</p></div></li>
+        <li><span class="number">02</span><div><h3>変更のたびに、組み直している</h3><p>急な欠勤や必要人数の変更。その影響を追い、どこが不足するのか確認することに時間がかかる。</p></div></li>
+        <li><span class="number">03</span><div><h3>自動化を、どこから始めればよいか</h3><p>現場のルールをどう整理し、既存システムとどうつなぐか。計算の仕組み以外にも、決めることがある。</p></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="demos" class="wrap section" aria-labelledby="demos-title">
+    <div class="section-heading"><div><p class="eyebrow">TRY THE ENGINE</p><h2 id="demos-title">条件を変える。<br>計画の変化が見える。</h2></div><p>まずは架空データで体験してください。<br>登録やJSONの編集は不要です。</p></div>
+    <div class="demo-grid">
+      <a class="demo-card" href="/#demand"><div class="demo-illustration demand-art" aria-hidden="true"><span></span><span></span><span></span><span></span><b>必要人数</b></div><span class="card-kicker">01 / 人員と不足</span><h3>必要人数が変わったら？</h3><p>時間帯ごとの必要人数を変更し、配置と不足がどう変わるか確認します。</p><span class="card-link">必要人数を変えてみる <span aria-hidden="true">↗</span></span></a>
+      <a class="demo-card" href="/#consecutive_days"><div class="demo-illustration days-art" aria-hidden="true"><span>月</span><span>火</span><span>水</span><span>木</span><span>休</span></div><span class="card-kicker">02 / 勤務ルール</span><h3>連続勤務を制限したら？</h3><p>連続勤務日数の上限を変え、勤務日と不足への影響を比べます。</p><span class="card-link">勤務ルールを試す <span aria-hidden="true">↗</span></span></a>
+      <a class="demo-card" href="/#verify"><div class="demo-illustration verify-art" aria-hidden="true"><span>A → B</span><span class="check-symbol">✓</span></div><span class="card-kicker">03 / 手修正の検証</span><h3>人が調整した、その後も。</h3><p>一枠の担当を変更し、不足や条件違反の位置を確認します。</p><span class="card-link">手修正の検証を試す <span aria-hidden="true">↗</span></span></a>
+    </div>
+    <p class="fine-print">デモは固定日付の架空データを使います。入力した条件への検証であり、法令適合や最適性を一律に保証するものではありません。</p>
+    <div class="section-bottom"><a class="text-link" href="/">すべてのデモを見る <span aria-hidden="true">↗</span></a><a class="text-link accent-link" href="#contact">自社の条件でも実現できるか相談する <span aria-hidden="true">→</span></a></div>
+  </section>
+
+  <section class="implementation-section" aria-labelledby="implementation-title">
+    <div class="wrap section">
+      <p class="eyebrow">FROM ENGINE TO EVERYDAY WORK</p>
+      <h2 id="implementation-title">計算する仕組みを、<br>現場で使える仕組みへ。</h2>
+      <p class="section-intro">ライブラリは、計画の計算と検証を担います。<br>業務で使うためのルール整理、データ連携、画面づくりも含めてご相談いただけます。</p>
+      <div class="scope-layout">
+        <div class="engine-panel"><span class="eyebrow">LIBRARY / MIT</span><h3>shift-schedula</h3><p>担当配置・勤務計画の作成<br>不足・評価値の出力<br>計画の独立検証</p><a href="/landing/docs.html">技術仕様を読む <span aria-hidden="true">↗</span></a></div>
+        <div class="service-list">
+          <div><span class="number">01</span><div><h3>業務ルールを、計算できる条件に。</h3><p>必須条件・希望・例外を整理し、ライブラリでの表現と追加対応の必要性を検討します。</p></div></div>
+          <div><span class="number">02</span><div><h3>必要なデータを、つなぐ。</h3><p>人員・技能・勤務可能時間を整え、人事・勤怠など既存システムとの連携方法を検討します。</p></div></div>
+          <div><span class="number">03</span><div><h3>担当者が使う画面を、つくる。</h3><p>条件入力、計画の比較・手修正、承認など、現場の業務フローに合わせて開発範囲を整理します。</p></div></div>
+          <div><span class="number">04</span><div><h3>実際の規模で、確かめる。</h3><p>対象人数・期間・条件で適用可能性と性能を検証。保守・運用やルール変更への対応範囲も相談できます。</p></div></div>
+        </div>
+      </div>
+      <p class="fine-print">必要な範囲からご相談ください。対応の可否・費用・期間・継続支援の範囲は、要件を確認して個別に決めます。</p>
+    </div>
+  </section>
+
+  <section class="wrap section" aria-labelledby="process-title">
+    <div class="section-heading"><div><p class="eyebrow">HOW WE START</p><h2 id="process-title">まずは、小さな対象から。</h2></div><p>要件が固まる前でもご相談いただけます。<br>進め方は、課題と対象に合わせて決めていきます。</p></div>
+    <ol class="process-list">
+      <li><span class="step-label">STEP 01</span><h3>業務と条件を伺う</h3><p>今の作成方法、困っていること、対象人数や勤務ルールを整理します。</p></li>
+      <li><span class="step-label">STEP 02</span><h3>適用できるか確かめる</h3><p>対象を絞り、条件の表現方法、計画の結果、計算時間を確認します。</p></li>
+      <li><span class="step-label">STEP 03</span><h3>必要な仕組みを開発する</h3><p>検証を踏まえて、データ連携や画面などの開発範囲を決めます。</p></li>
+    </ol>
+  </section>
+
+  <section class="developer-section" aria-labelledby="developer-title">
+    <div class="wrap developer-layout"><div><p class="eyebrow">FOR DEVELOPERS</p><h2 id="developer-title">自社での開発にも、<br>そのまま使えます。</h2><p>独自コードはMITライセンス。Python API・CLIから利用できます。<br>自力で導入する方へ、利用手順と技術仕様を用意しています。</p><p class="fine-print">現在、リポジトリは非公開・PyPI未公開です。ソースの入手はメールでお問い合わせください。公開状況は配布方針をご確認ください。</p></div><div class="developer-links"><a href="/landing/docs.html">ドキュメント <span aria-hidden="true">↗</span></a><a href="/landing/docs/distribution.md">利用条件・配布方針（Markdown） <span aria-hidden="true">↗</span></a><a href="/landing/license.txt">MITライセンス <span aria-hidden="true">↗</span></a><a href="#contact">導入・組み込みの相談 <span aria-hidden="true">→</span></a></div></div>
+  </section>
+
+  <section id="contact" class="contact-section" aria-labelledby="contact-title">
+    <div class="wrap contact-layout"><div><p class="eyebrow">LET’S PLAN YOUR NEXT STEP</p><h2 id="contact-title">自社のシフト作成に<br>使えるか、<br>話してみませんか。</h2><p>「この勤務ルールに対応できる？」<br>「既存システムに組み込みたい」<br>「現場で使う画面も含めて依頼したい」</p><p>今の作成方法と、困っていることからお聞かせください。</p></div><div class="contact-panel"><h3>導入・個別開発のご相談</h3><p>ご相談の際は、会社名・お名前・ご相談内容をお知らせください。人数や対象業務が分かると、より具体的にお話しできます。</p><a class="button contact-button" href="mailto:omitsuhashi@the3-o.com?subject=shift-schedula%20導入・個別開発の相談&amp;body=会社名：%0Aお名前：%0Aご相談内容：%0A%0A対象業務・人数（任意）：">メールで相談する <span aria-hidden="true">↗</span></a><p class="email-address"><a href="mailto:omitsuhashi@the3-o.com">omitsuhashi@the3-o.com</a></p><p class="fine-print">メールアプリが開きます。開かない場合は上記アドレスへご連絡ください。初回のご相談に従業員の個人情報や機密データは不要です。</p></div></div>
+  </section>
+</main>
+<footer class="site-footer wrap"><a class="brand" href="/landing/">shift-schedula</a><p>現場の条件を、計画できる仕組みへ。</p><nav aria-label="フッターナビゲーション"><a href="/">デモ</a><a href="/landing/docs.html">ドキュメント</a><a href="/landing/license.txt">MIT License</a></nav></footer>
+</body>
+</html>
