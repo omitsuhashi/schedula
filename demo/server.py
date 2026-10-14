@@ -27,55 +27,58 @@ SAMPLES = ROOT / "examples" / "playground"
 BASELINE = load_json((SAMPLES / "lunch.json").read_text(encoding="utf-8"))
 TIMES = sorted({value for item in BASELINE["demand"] for value in item["interval"].values()})
 FILES = {
-    "/": (ROOT / "demo" / "index.html", "text/html; charset=utf-8"),
-    "/app.js": (ROOT / "demo" / "app.js", "text/javascript; charset=utf-8"),
-    "/style.css": (ROOT / "demo" / "style.css", "text/css; charset=utf-8"),
-    "/samples/lunch.json": (SAMPLES / "lunch.json", "application/json; charset=utf-8"),
-    "/samples/scenarios.json": (SAMPLES / "scenarios.json", "application/json; charset=utf-8"),
-    "/samples/partial_assignment.json": (
+    "/demo/": (ROOT / "demo" / "index.html", "text/html; charset=utf-8"),
+    "/demo/app.js": (ROOT / "demo" / "app.js", "text/javascript; charset=utf-8"),
+    "/demo/style.css": (ROOT / "demo" / "style.css", "text/css; charset=utf-8"),
+    "/demo/samples/lunch.json": (SAMPLES / "lunch.json", "application/json; charset=utf-8"),
+    "/demo/samples/scenarios.json": (SAMPLES / "scenarios.json", "application/json; charset=utf-8"),
+    "/demo/samples/partial_assignment.json": (
         ROOT / "examples" / "partial_assignment.json",
         "application/json; charset=utf-8",
     ),
-    "/samples/partial_roster.json": (
+    "/demo/samples/partial_roster.json": (
         ROOT / "examples" / "partial_roster.json",
         "application/json; charset=utf-8",
     ),
-    "/samples/roster.json": (ROOT / "examples" / "roster.json", "application/json; charset=utf-8"),
-    "/samples/shift_patterns.json": (
+    "/demo/samples/roster.json": (
+        ROOT / "examples" / "roster.json",
+        "application/json; charset=utf-8",
+    ),
+    "/demo/samples/shift_patterns.json": (
         ROOT / "examples" / "shift_patterns.json",
         "application/json; charset=utf-8",
     ),
-    "/samples/coworkers.json": (
+    "/demo/samples/coworkers.json": (
         ROOT / "examples" / "coworkers.json",
         "application/json; charset=utf-8",
     ),
-    "/samples/shift_count_balance.json": (
+    "/demo/samples/shift_count_balance.json": (
         ROOT / "examples" / "shift_count_balance.json",
         "application/json; charset=utf-8",
     ),
-    "/samples/combined_conditions.json": (
+    "/demo/samples/combined_conditions.json": (
         ROOT / "examples" / "combined_conditions.json",
         "application/json; charset=utf-8",
     ),
-    "/samples/roster-100-30.json": (
+    "/demo/samples/roster-100-30.json": (
         SAMPLES / "roster-100-30.json",
         "application/json; charset=utf-8",
     ),
 }
 FILES.update(
     {
-        "/landing/": (ROOT / "demo" / "landing.html", "text/html; charset=utf-8"),
-        "/landing/style.css": (ROOT / "demo" / "landing.css", "text/css; charset=utf-8"),
-        "/landing/docs.html": (ROOT / "demo" / "guide.html", "text/html; charset=utf-8"),
-        "/landing/license.txt": (ROOT / "LICENSE", "text/plain; charset=utf-8"),
+        "/": (ROOT / "demo" / "landing.html", "text/html; charset=utf-8"),
+        "/landing.css": (ROOT / "demo" / "landing.css", "text/css; charset=utf-8"),
+        "/docs.html": (ROOT / "demo" / "guide.html", "text/html; charset=utf-8"),
+        "/license.txt": (ROOT / "LICENSE", "text/plain; charset=utf-8"),
     }
 )
 for name in ("python-setup", "python-api", "io-contract-current", "distribution"):
-    FILES[f"/landing/docs/{name}.md"] = (
+    FILES[f"/docs/{name}.md"] = (
         ROOT / "docs" / f"{name}.md",
         "text/plain; charset=utf-8",
     )
-FILES["/adapter.js"] = (ROOT / "demo" / "adapter.js", "text/javascript; charset=utf-8")
+FILES["/demo/adapter.js"] = (ROOT / "demo" / "adapter.js", "text/javascript; charset=utf-8")
 for name in (
     "feature-state",
     "count-demo",
@@ -84,7 +87,7 @@ for name in (
     "pattern-demo",
     "features",
 ):
-    FILES[f"/{name}.js"] = (ROOT / "demo" / f"{name}.js", "text/javascript; charset=utf-8")
+    FILES[f"/demo/{name}.js"] = (ROOT / "demo" / f"{name}.js", "text/javascript; charset=utf-8")
 for name in (
     "catalog",
     "lessons",
@@ -112,20 +115,23 @@ for name in (
     "forbidden-successions",
     "worked-date-groups",
 ):
-    FILES[f"/samples/{name}.json"] = (SAMPLES / f"{name}.json", "application/json; charset=utf-8")
+    FILES[f"/demo/samples/{name}.json"] = (
+        SAMPLES / f"{name}.json",
+        "application/json; charset=utf-8",
+    )
 for name in ("assignment", "roster", "partial_roster", "continuity_week", "unconfirmed"):
-    FILES[f"/samples/{name}.draft.json"] = (
+    FILES[f"/demo/samples/{name}.draft.json"] = (
         ROOT / "examples" / "adapter" / f"{name}.draft.json",
         "application/json; charset=utf-8",
     )
 ADAPTER_PATHS = {
-    "/adapter/draft",
-    "/adapter/check",
-    "/adapter/confirm",
-    "/adapter/run",
-    "/adapter/verify",
-    "/adapter/import",
-    "/adapter/split",
+    "/demo/adapter/draft",
+    "/demo/adapter/check",
+    "/demo/adapter/confirm",
+    "/demo/adapter/run",
+    "/demo/adapter/verify",
+    "/demo/adapter/import",
+    "/demo/adapter/split",
 }
 MAX_BODY = 64 * 1024
 MAX_JSON_BODY = 2 * 1024 * 1024
@@ -246,12 +252,12 @@ def verify_action(value):
 
 def adapter_action(path, value):
     # ブラウザーにはパス解決/保存の入口を公開せず、受信JSONだけを処理する。
-    if path == "/adapter/draft":
+    if path == "/demo/adapter/draft":
         check_adapter("draft", value)
         return value
-    if path in {"/adapter/import", "/adapter/split"}:
+    if path in {"/demo/adapter/import", "/demo/adapter/split"}:
         return (import_request if path.endswith("import") else split_request)(value)
-    if path == "/adapter/confirm":
+    if path == "/demo/adapter/confirm":
         if not isinstance(value, dict) or set(value) != {"draft", "source_id"}:
             raise InvalidInput(
                 [
@@ -265,7 +271,7 @@ def adapter_action(path, value):
                 ]
             )
         return confirm_source(value["draft"], value["source_id"])
-    if path == "/adapter/verify":
+    if path == "/demo/adapter/verify":
         record = check_record(value)
         validate_adapter_display(record["request"])
         return {
@@ -279,7 +285,7 @@ def adapter_action(path, value):
             else import_request(record["request"]),
         }
     assembled = assemble(value)
-    if assembled["request"] is None or path == "/adapter/check":
+    if assembled["request"] is None or path == "/demo/adapter/check":
         return assembled
     validate_adapter_display(assembled["request"])
     record = run_draft(value)
@@ -344,6 +350,12 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if not self.allowed_origin():
             return
+        if self.path in {"/demo", "/landing/"}:
+            self.send_response(308)
+            self.send_header("Location", "/demo/" if self.path == "/demo" else "/")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return
         if self.path not in FILES:
             self.error(404, "NOT_FOUND", "配信対象のファイルではありません。")
             return
@@ -356,7 +368,10 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if not self.allowed_origin():
             return
-        if self.path not in {"/solve", "/solve-json", "/verify-json"} | ADAPTER_PATHS:
+        if (
+            self.path
+            not in {"/demo/solve", "/demo/solve-json", "/demo/verify-json"} | ADAPTER_PATHS
+        ):
             self.error(404, "NOT_FOUND", "配信対象の実行入口ではありません。")
             return
         if self.headers.get_all("Transfer-Encoding"):
@@ -367,7 +382,7 @@ class Handler(BaseHTTPRequestHandler):
             self.error(400, "INVALID_BODY", "Content-Length を一つ指定してください。")
             return
         length = int(lengths[0])
-        limit = MAX_BODY if self.path == "/solve" else MAX_JSON_BODY
+        limit = MAX_BODY if self.path == "/demo/solve" else MAX_JSON_BODY
         if length > limit:
             self.error(413, "BODY_TOO_LARGE", f"本文は{limit // 1024} KiB以下にしてください。")
             return
@@ -386,9 +401,9 @@ class Handler(BaseHTTPRequestHandler):
                 self.error(400, "INVALID_BODY", "本文を最後まで読み取れませんでした。")
                 return
             request = load_json(body.decode("utf-8"))
-            if self.path == "/solve":
+            if self.path == "/demo/solve":
                 validate_demo(request)
-            if self.path == "/verify-json":
+            if self.path == "/demo/verify-json":
                 require(isinstance(request, dict) and request.keys() == {"request", "solution"}, "")
         except UnicodeError, RecursionError:
             self.error(400, "INVALID_JSON", "UTF-8 JSON を読み取れません。")
@@ -414,7 +429,7 @@ class Handler(BaseHTTPRequestHandler):
             return
         try:
             try:
-                if self.path == "/verify-json":
+                if self.path == "/demo/verify-json":
                     result = verify_action(request)
                 elif self.path in ADAPTER_PATHS:
                     result = adapter_action(self.path, request)
@@ -424,7 +439,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.server.solve_lock.release()
             self.send_json(200, result)
         except InvalidInput as error:
-            if self.path == "/verify-json":
+            if self.path == "/demo/verify-json":
                 item = error.diagnostics[0]
                 self.error(400, item["code"], item["message"], item["json_pointer"])
                 return
@@ -447,7 +462,7 @@ def main():
         parser.error("port は1〜65535で指定してください。")
     with DemoServer(args.port) as server:
         print(
-            f"http://127.0.0.1:{server.server_port} を開いてください。終了は Ctrl+C。", flush=True
+            f"http://127.0.0.1:{server.server_port}/ を開いてください。終了は Ctrl+C。", flush=True
         )
         try:
             server.serve_forever()

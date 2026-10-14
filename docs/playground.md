@@ -22,7 +22,7 @@
 目標未達は必須条件違反ではありません。原勤務の最初の開始日時で数え、分割区間数や勤務日数へ変換しません。
 
 手修正検証はキッチン担当一枠だけをAlice/Bob/担当なしへ変え、選択勤務とホール担当は保持します。
-`/verify-json`へ元Requestと編集案を送信し、公開verifyを呼びます。求解せず、最適性・不足最小性を付与しません。
+`/demo/verify-json`へ元Requestと編集案を送信し、公開verifyを呼びます。求解せず、最適性・不足最小性を付与しません。
 VALID/PARTIAL/INVALID_INPUT/INVALID_PLANを検証契約で読み分け、無効案・未検証案も検査対象の表に表示します。
 違反は公開診断のJSON位置と表へ表示し、担当を直して再検証できます。有効な勤務表として採用する操作はありません。
 HTTP入口は既存のHost/Origin、UTF-8厳密JSON、2 MiB、表示上限、同時1件の保護を使います。
@@ -286,7 +286,7 @@ API 公開、変更最小化のフォーム、認証は対象外とする。JSON
 uv python install
 uv sync --locked
 uv run --locked python demo/server.py
-# http://127.0.0.1:8765 をブラウザーで開く。終了は Ctrl+C。
+# http://127.0.0.1:8765/demo/ をブラウザーで開く。終了は Ctrl+C。
 ```
 
 バインドは `127.0.0.1` 固定、ポートは8765、必要時だけ `--port` で変更する。
@@ -295,9 +295,9 @@ uv run --locked python demo/server.py
 
 | 経路 | 契約 |
 | --- | --- |
-| `GET /` / `/app.js` / `/style.css` | 明示した3ファイルだけを返す。リポジトリ全体の配信やディレクトリ一覧は禁止 |
-| `GET /samples/lunch.json` / `/samples/scenarios.json` | 固定サンプルと操作定義。期待値を成功結果として返さない |
-| `POST /solve` | 本文に確定 Request を直接渡し、JSON Response を返す |
+| `GET /demo/` / `/demo/*.js` / `/demo/style.css` / `/landing.css` | 許可リストのHTML・JavaScript・CSSだけを返す。リポジトリ全体の配信やディレクトリ一覧は禁止 |
+| `GET /demo/samples/lunch.json` / `/demo/samples/scenarios.json` | 固定サンプルと操作定義。期待値を成功結果として返さない |
+| `POST /demo/solve` | 本文に確定 Request を直接渡し、JSON Response を返す |
 
 `POST` は `application/json`、UTF-8、本文64 KiB以下、明示 `Content-Length` に限定する。
 転送エンコーディング、想定外パス・メソッド、許可しない `Host` / `Origin` は拒否する。
@@ -359,9 +359,9 @@ JSON 入力の結果は固定フォームの比較元にはしない。
 最低人数を守ったPARTIALの不足一覧に `minimum_people` を表示する。
 最低人数を満たせない場合はINFEASIBLE、下限違反・不足集計の改ざんは表示に採用しない。
 
-`/solve-json` は原文を `load_json` で読み、既存 `solve` に渡す。
+`/demo/solve-json` は原文を `load_json` で読み、既存 `solve` に渡す。
 重複キー・非有限数・不正 UTF-8 を拒否し、本文は2 MiBまでとする。
-loopback・Host / Origin・静的ファイルの限定配信・同時1件の計算は `/solve` と共通である。
+loopback・Host / Origin・静的ファイルの限定配信・同時1件の計算は `/demo/solve` と共通である。
 不正な契約・参照はエンジンの `INVALID_INPUT` と診断を保持する。
 JSON の編集・読み込みで前の結果を失効させ、計算中は両方の入力を無効にする。
 待機期限は11分で、サーバーの強制停止を保証しない。入力の探索予算を無断で変更しない。

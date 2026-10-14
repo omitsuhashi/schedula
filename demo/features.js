@@ -295,7 +295,7 @@ async function runFeature() {
   const started = performance.now();
   const timer = setTimeout(() => controller.abort(), 660000);
   try {
-    const response = await fetch(lesson.operation === "verify" ? "/verify-json" : "/solve-json", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(input), signal: controller.signal});
+    const response = await fetch(lesson.operation === "verify" ? "/demo/verify-json" : "/demo/solve-json", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(input), signal: controller.signal});
     const result = await response.json();
     if (feature !== state || revision !== state.revision) return;
     if (!response.ok) throw new Error(`${result.error?.code || "HTTP_ERROR"}：${result.error?.message || "結果を取得できません。"}`);
@@ -361,13 +361,13 @@ async function routeFeature() {
   $("feature-output").replaceChildren();
   $("feature-controls").disabled = true;
   try {
-    const response = await fetch(`/samples/${lesson.request_file}`);
+    const response = await fetch(`/demo/samples/${lesson.request_file}`);
     if (!response.ok) throw new Error("教材を取得できません。");
     const request = await response.json();
     if (revision !== routeRevision) return;
     let input = request;
     if (lesson.operation === "verify") {
-      const solution = await fetch(`/samples/${lesson.solution_file}`);
+      const solution = await fetch(`/demo/samples/${lesson.solution_file}`);
       if (!solution.ok) throw new Error("初期の編集案を取得できません。");
       input = {request, solution: await solution.json()};
     }
@@ -398,7 +398,7 @@ $("feature-restore").addEventListener("click", () => {
 async function startFeatures() {
   try {
     [catalog, lessons] = await Promise.all(["catalog", "lessons"].map(async name => {
-      const response = await fetch(`/samples/${name}.json`);
+      const response = await fetch(`/demo/samples/${name}.json`);
       if (!response.ok) throw new Error("一覧を取得できません。");
       return response.json();
     }));

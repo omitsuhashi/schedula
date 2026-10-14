@@ -115,20 +115,20 @@ function adapterDownload(name, text) {
 
 $("adapter-input").addEventListener("input", adapterEdited);
 $("adapter-load").addEventListener("click", () => adapterOperation(async controller => {
-  const response = await fetch(`/samples/${$("adapter-sample").value}.draft.json`, {signal: controller.signal});
+  const response = await fetch(`/demo/samples/${$("adapter-sample").value}.draft.json`, {signal: controller.signal});
   if (!response.ok) throw new Error("サンプルを読み込めませんでした。");
   return response.json();
 }));
-$("adapter-check").addEventListener("click", () => adapterOperation(controller => adapterPost("/adapter/check", $("adapter-input").value, controller)));
-$("adapter-confirm").addEventListener("click", () => adapterOperation(controller => adapterPost("/adapter/confirm",
+$("adapter-check").addEventListener("click", () => adapterOperation(controller => adapterPost("/demo/adapter/check", $("adapter-input").value, controller)));
+$("adapter-confirm").addEventListener("click", () => adapterOperation(controller => adapterPost("/demo/adapter/confirm",
   `{"draft":${$("adapter-input").value},"source_id":${JSON.stringify($("adapter-source").value)}}`, controller)));
 $("adapter-run").addEventListener("click", () => {
   adapterRecord = null;
   $("adapter-save-record").disabled = true;
   $("adapter-output").replaceChildren();
-  adapterOperation(controller => adapterPost("/adapter/run", $("adapter-input").value, controller));
+  adapterOperation(controller => adapterPost("/demo/adapter/run", $("adapter-input").value, controller));
 });
-for (const action of ["import", "split"]) $("adapter-" + action).addEventListener("click", () => adapterOperation(controller => adapterPost("/adapter/" + action, $("adapter-request-input").value, controller)));
+for (const action of ["import", "split"]) $("adapter-" + action).addEventListener("click", () => adapterOperation(controller => adapterPost("/demo/adapter/" + action, $("adapter-request-input").value, controller)));
 $("adapter-request-input").addEventListener("input", () => {
   $("adapter-input").value = "";
   adapterEdited();
@@ -140,14 +140,14 @@ $("adapter-file").addEventListener("change", () => {
     if (file.size > jsonBodyLimit) throw new Error("ファイルは2 MiB以下にしてください。");
     const text = new TextDecoder("utf-8", {fatal: true}).decode(await file.arrayBuffer());
     const value = JSON.parse(text);
-    if (value.record_version) return adapterPost("/adapter/verify", text, controller);
-    const checked = await adapterPost("/adapter/draft", text, controller);
+    if (value.record_version) return adapterPost("/demo/adapter/verify", text, controller);
+    const checked = await adapterPost("/demo/adapter/draft", text, controller);
     return checked;
   });
   $("adapter-file").value = "";
 });
 $("adapter-save-draft").addEventListener("click", () => adapterOperation(async controller => {
-  const value = await adapterPost("/adapter/draft", $("adapter-input").value, controller);
+  const value = await adapterPost("/demo/adapter/draft", $("adapter-input").value, controller);
   if (!value.adapter_version) return value;
   adapterDownload("draft.json", JSON.stringify(value, null, 2));
   return null;
@@ -156,5 +156,5 @@ $("adapter-save-record").addEventListener("click", () => {
   if (adapterRecord) adapterDownload(`${adapterRecord.run_id}.json`, JSON.stringify(adapterRecord, null, 2));
 });
 $("adapter-reverify").addEventListener("click", () => {
-  if (adapterRecord) adapterOperation(controller => adapterPost("/adapter/verify", JSON.stringify(adapterRecord), controller));
+  if (adapterRecord) adapterOperation(controller => adapterPost("/demo/adapter/verify", JSON.stringify(adapterRecord), controller));
 });

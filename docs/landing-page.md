@@ -11,11 +11,17 @@ uv sync --locked
 uv run --locked python demo/server.py
 ```
 
-- LP：`http://127.0.0.1:8765/landing/`
-- ドキュメント案内：`http://127.0.0.1:8765/landing/docs.html`
-- 既存デモ：`http://127.0.0.1:8765/`
+- LP：`http://127.0.0.1:8765/`
+- ドキュメント案内：`http://127.0.0.1:8765/docs.html`
+- デモ：`http://127.0.0.1:8765/demo/`
 
-既存のデモURL・計算APIは変更しない。LPはJavaScriptや外部フォントを必要とせず、CSSとHTMLで表示する。
+LPを親の `/`、デモを子の `/demo/` に配置する。デモのJavaScript・CSS・サンプル・計算APIも `/demo/` 配下へ揃える。
+LPはJavaScriptや外部フォントを必要とせず、CSSとHTMLで表示する。デモはLPの `/landing.css` を読み込み、
+紙色・深緑・フォント・共通ヘッダーを共有し、操作フォームと結果表は専用CSSで調整する。
+
+旧 `/landing/` は `/`、末尾スラッシュのない `/demo` は `/demo/` へ308で転送する。
+旧デモの `/#demand` などのブックマークは `/demo/#demand` へ更新する。
+旧ルート直下の計算API・資産と `/landing/docs.html` などの旧文書URLは配信しない。
 詳細文書は次の4件のみを許可リストに加えて、`text/plain` のMarkdown原文として表示する。
 文書ディレクトリ全体や参照資料を公開しない。
 
@@ -30,19 +36,21 @@ uv run --locked python demo/server.py
 インターネットへ公開する実行基盤には使わない。
 LPは静的配信できるが、デモには計算APIの実行環境が必要となる。
 
-現在の同一オリジンのパスを維持する場合、静的配信側で次の対応を用意する。
+このパス構成を公開する場合、同一オリジンで次の配信先を用意する。
 
 | URL | ファイル・接続先 |
 | --- | --- |
-| `/landing/` | `demo/landing.html` |
-| `/landing/style.css` | `demo/landing.css` |
-| `/landing/docs.html` | `demo/guide.html` |
-| `/landing/docs/*.md` | 上記4件の文書のみ |
-| `/landing/license.txt` | `LICENSE` |
-| `/` と計算API・デモ資産 | 公開用に別途構成したデモ実行基盤 |
+| `/` | `demo/landing.html` |
+| `/landing.css` | `demo/landing.css` |
+| `/docs.html` | `demo/guide.html` |
+| `/docs/*.md` | 上記4件の文書のみ |
+| `/license.txt` | `LICENSE` |
+| `/demo/` | `demo/index.html` |
+| `/demo/style.css`、`/demo/*.js` | 許可リストのデモ資産のみ |
+| `/demo/samples/*`、`/demo/solve`、`/demo/solve-json`、`/demo/verify-json`、`/demo/adapter/*` | 公開用に別途構成したデモ実行基盤 |
 
-会社HPから `/landing/` へリンクする。LPをサイトのルートに配置する場合は、
-デモの移動先・CSS・文書・戻り先を併せて変更する。
+会社HPからLPの `/` へリンクする。別のベースパスへ配置する場合は、
+デモ・CSS・文書・計算API・戻り先を併せて変更する。
 問い合わせ先を変更する場合は `demo/landing.html` と `demo/guide.html` を更新する。
 
 ## 公開前に確定すること
@@ -62,7 +70,7 @@ node tests/landing-browser.cjs
 
 ブラウザー検証は既存CIと同じPlaywrightを使う。
 `PLAYWRIGHT_MODULE_PATH` で導入済みのモジュールを指定できる。
-相談・デモ・文書への遷移、モバイルの横はみ出し、キーボード、JavaScriptなしの表示を確認する。
+相談・デモ・文書への遷移、LPとデモの背景色・フォント・操作ボタン、モバイルの横はみ出し、キーボード、JavaScriptなしの表示を確認する。
 
 ### 2026-10-14のローカル確認結果
 
@@ -74,3 +82,15 @@ node tests/landing-browser.cjs
   全体のformat確認には、未変更の既存Markdown3件に整形差分が残る。
 - HTTP回帰の初回実行は既存の10秒通信期限で1件が失敗したが、ブラウザー確認完了後の単独再実行では89件すべて成功した。
 - 外部公開、実メール送信・受信、売上や問い合わせ件数の効果測定は未実施。
+
+### パス構成・スタイルの更新確認（2026-10-14）
+
+- LP `/`、デモ `/demo/`、ドキュメント `/docs.html` のリンクとCSS・JavaScriptが配信されることを確認した。
+- HTTP回帰92件が成功。308転送、許可リスト外の拒否、入力検証、計算・独立検証・入力アダプターを含む。
+- ChromiumでLPから3つの実デモの検証済み結果へ到達し、相談・ホームへ戻る導線を確認した。
+- 320・390・768・1440pxで、LP・文書案内・デモ一覧・必要人数デモに横はみ出しがないことを確認した。
+  背景色・フォントの共有と深緑の実行ボタンを比較し、デスクトップと320pxの画面画像を目視した。
+- LPとデモの本文スキップ、キーボードでの移動、JavaScript無効時のLP導線が成功した。
+- 既存の `tests/playground-browser.cjs` も成功。実装済み主題、3シナリオ、100人・30日の勤務計画、JSON読込、入力アダプターの保存・再検証、応答失効を確認した。
+- 変更したPythonのRuff check・format、JavaScript構文確認、`git diff --check` が成功した。
+- 外部公開と実メール送信・受信は未実施。旧デモのブックマーク・旧APIを直接使う呼出元は新パスへ更新が必要。

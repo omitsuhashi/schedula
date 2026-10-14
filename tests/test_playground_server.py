@@ -27,7 +27,14 @@ def http_server():
 
 
 def call(
-    instance, request=None, *, method="POST", path="/solve", body=None, headers=None, timeout=10
+    instance,
+    request=None,
+    *,
+    method="POST",
+    path="/demo/solve",
+    body=None,
+    headers=None,
+    timeout=10,
 ):
     connection = HTTPConnection("127.0.0.1", instance.server_port, timeout=timeout)
     if body is None and request is not None:
@@ -69,29 +76,29 @@ def test_http_matches_cli_and_only_serves_allowlist(http_server):
     assert status == 200
     assert json.loads(cli.stdout)["solution"] == result["solution"]
     for path in (
-        "/samples/lunch.json",
-        "/samples/scenarios.json",
-        "/samples/roster.json",
-        "/samples/coworkers.json",
-        "/samples/roster-100-30.json",
-        "/samples/catalog.json",
-        "/samples/lessons.json",
-        "/samples/demand-adjustment.json",
-        "/samples/consecutive-days.json",
-        "/samples/night-count.json",
-        "/samples/manual-verify.json",
-        "/samples/manual-verify.solution.json",
-        "/samples/skills.json",
-        "/samples/availability.json",
-        "/samples/shift-candidates.json",
-        "/samples/breaks.json",
-        "/samples/overnight.json",
-        "/samples/split-shift.json",
-        "/samples/coverage-24h.json",
-        "/samples/coverage-48h.json",
+        "/demo/samples/lunch.json",
+        "/demo/samples/scenarios.json",
+        "/demo/samples/roster.json",
+        "/demo/samples/coworkers.json",
+        "/demo/samples/roster-100-30.json",
+        "/demo/samples/catalog.json",
+        "/demo/samples/lessons.json",
+        "/demo/samples/demand-adjustment.json",
+        "/demo/samples/consecutive-days.json",
+        "/demo/samples/night-count.json",
+        "/demo/samples/manual-verify.json",
+        "/demo/samples/manual-verify.solution.json",
+        "/demo/samples/skills.json",
+        "/demo/samples/availability.json",
+        "/demo/samples/shift-candidates.json",
+        "/demo/samples/breaks.json",
+        "/demo/samples/overnight.json",
+        "/demo/samples/split-shift.json",
+        "/demo/samples/coverage-24h.json",
+        "/demo/samples/coverage-48h.json",
     ):
         assert call(http_server, method="GET", path=path)[0] == 200
-    for path in ("/../pyproject.toml", "/.git/config", "/samples/", "/solve"):
+    for path in ("/../pyproject.toml", "/.git/config", "/demo/samples/", "/demo/solve"):
         assert call(http_server, method="GET", path=path)[0] == 404
     assert call(http_server, BASELINE, method="PUT")[0] == 405
     assert call(http_server, BASELINE, method="CUSTOM")[1]["error"]["code"] == "METHOD_NOT_ALLOWED"
@@ -157,9 +164,9 @@ def test_partial_http_cli_and_library_agree(http_server):
         "large-length",
     ],
 )
-@pytest.mark.parametrize("path", ["/solve", "/solve-json", "/verify-json"])
+@pytest.mark.parametrize("path", ["/demo/solve", "/demo/solve-json", "/demo/verify-json"])
 def test_http_rejects_invalid_transport(http_server, body, headers, status, code, path):
-    if code == "BODY_TOO_LARGE" and path != "/solve":
+    if code == "BODY_TOO_LARGE" and path != "/demo/solve":
         body = b"{}"
         headers = {
             "Content-Type": "application/json",
@@ -267,7 +274,7 @@ def test_concurrent_solve_is_busy_then_recovers(http_server, monkeypatch):
     thread.start()
     try:
         assert entered.wait(timeout=5)
-        for path in ("/solve", "/solve-json"):
+        for path in ("/demo/solve", "/demo/solve-json"):
             status, result = call(http_server, BASELINE, path=path)
             assert (status, result["error"]["code"]) == (503, "BUSY")
     finally:
@@ -288,7 +295,7 @@ def test_missing_duplicate_headers_and_read_deadline(http_server, monkeypatch):
     ]:
         with socket.create_connection(("127.0.0.1", http_server.server_port), timeout=5) as client:
             client.sendall(
-                f"POST /solve HTTP/1.1\r\nHost: {host}\r\nContent-Type: application/json\r\n"
+                f"POST /demo/solve HTTP/1.1\r\nHost: {host}\r\nContent-Type: application/json\r\n"
                 f"{headers}\r\n".encode()
             )
             content = b""
@@ -301,7 +308,7 @@ def test_missing_duplicate_headers_and_read_deadline(http_server, monkeypatch):
 def test_json_input_uses_engine_contract(http_server, name):
     request = json.loads((server.ROOT / "examples" / f"{name}.json").read_text())
     before = copy.deepcopy(request)
-    status, result = call(http_server, request, path="/solve-json")
+    status, result = call(http_server, request, path="/demo/solve-json")
     assert status == 200
     assert_response(result, "OPTIMAL")
     assert result["schema_version"] == request["schema_version"]
@@ -311,11 +318,11 @@ def test_json_input_uses_engine_contract(http_server, name):
 
 def test_json_input_reports_engine_validation(http_server):
     request = json.loads((server.ROOT / "examples" / "invalid-input.json").read_text())
-    status, result = call(http_server, request, path="/solve-json")
+    status, result = call(http_server, request, path="/demo/solve-json")
     assert status == 200
     assert_response(result, "INVALID_INPUT")
     assert result["diagnostics"][0]["code"] == "UNKNOWN_REFERENCE"
-    assert call(http_server, body=b"null", path="/solve-json")[1]["status"] == "INVALID_INPUT"
+    assert call(http_server, body=b"null", path="/demo/solve-json")[1]["status"] == "INVALID_INPUT"
 
 
 @pytest.mark.parametrize("standby", [False, True], ids=["solver", "feasible-standby"])
@@ -392,7 +399,7 @@ def test_json_sample_100_people_30_days(http_server, monkeypatch, standby):
             ],
         )
         monkeypatch.setattr(server, "solve", lambda _: replay)
-    status, result = call(http_server, body=body, path="/solve-json", timeout=120)
+    status, result = call(http_server, body=body, path="/demo/solve-json", timeout=120)
     assert status == 200
     assert result["status"] in {"OPTIMAL", "FEASIBLE"}
     assert_response(result, result["status"])
@@ -405,25 +412,25 @@ def test_adapter_http_is_inline_and_reverify_preserves_record(http_server):
     from shift_schedula import check_record, confirm_source, split_request
 
     draft = split_request(BASELINE)
-    status, result = call(http_server, draft, path="/adapter/check")
+    status, result = call(http_server, draft, path="/demo/adapter/check")
     assert status == 200 and result["status"] == "INVALID_INPUT"
     for source in draft["sources"]:
         draft = confirm_source(draft, source["id"])
-    status, result = call(http_server, draft, path="/adapter/run")
+    status, result = call(http_server, draft, path="/demo/adapter/run")
     assert status == 200
     record = check_record(result["record"])
     assert result["view"]["current_status"] == "VALID"
     assert all(not o["proven_optimal"] for o in result["view"]["metrics"]["objectives"])
-    status, restored = call(http_server, record, path="/adapter/verify")
+    status, restored = call(http_server, record, path="/demo/adapter/verify")
     assert status == 200 and restored["record"] == record
     assert restored["view"]["run_id"] == record["run_id"]
     assert restored["draft"] == draft
     status, result = call(
-        http_server, {"manifest_version": "1.0", "files": ["/etc/passwd"]}, path="/adapter/run"
+        http_server, {"manifest_version": "1.0", "files": ["/etc/passwd"]}, path="/demo/adapter/run"
     )
     assert status == 200 and result["status"] == "INVALID_INPUT"
-    assert call(http_server, body=b'{"a":1,"a":2}', path="/adapter/check")[0] == 400
-    assert call(http_server, method="GET", path="/samples/assignment.draft.json")[0] == 200
+    assert call(http_server, body=b'{"a":1,"a":2}', path="/demo/adapter/check")[0] == 400
+    assert call(http_server, method="GET", path="/demo/samples/assignment.draft.json")[0] == 200
 
 
 @pytest.mark.parametrize("version", [*(f"0.{i}" for i in range(1, 15)), "0.16", None])
@@ -431,7 +438,7 @@ def test_json_http_rejects_versions_with_current_failure_contract(http_server, v
     request = copy.deepcopy(BASELINE)
     request["schema_version"] = version
     original = copy.deepcopy(request)
-    status, result = call(http_server, request, path="/solve-json")
+    status, result = call(http_server, request, path="/demo/solve-json")
     assert status == 200
     assert_response(result, "INVALID_INPUT")
     assert result["schema_version"] == "0.15"
@@ -462,7 +469,7 @@ def test_public_verify_http_without_solver_and_all_states(http_server, monkeypat
             r["demand"][0]["required_people"] = -1
         payload = {"request": r, "solution": s}
         saved = copy.deepcopy(payload)
-        status, result = call(http_server, payload, path="/verify-json")
+        status, result = call(http_server, payload, path="/demo/verify-json")
         assert status == 200 and result["status"] == name
         assert not schema_errors("verification", result)
         direct = verify(r, s)
@@ -478,11 +485,13 @@ def test_public_verify_http_without_solver_and_all_states(http_server, monkeypat
         {"request": request},
         {"request": request, "solution": solution, "extra": True},
     ):
-        status, result = call(http_server, body=json.dumps(payload).encode(), path="/verify-json")
+        status, result = call(
+            http_server, body=json.dumps(payload).encode(), path="/demo/verify-json"
+        )
         assert status == 400 and result["error"]["code"] == "DEMO_INPUT_OUT_OF_RANGE"
     for r in (None, {}):
         status, result = call(
-            http_server, {"request": r, "solution": solution}, path="/verify-json"
+            http_server, {"request": r, "solution": solution}, path="/demo/verify-json"
         )
         assert status == 200 and result["status"] == "INVALID_INPUT"
         assert not schema_errors("verification", result)
@@ -491,9 +500,11 @@ def test_public_verify_http_without_solver_and_all_states(http_server, monkeypat
 def test_verify_http_display_limit_and_shared_busy_lock(http_server):
     request = json.loads((server.SAMPLES / "roster-100-30.json").read_text())
     request["employees"].append({**copy.deepcopy(request["employees"][0]), "id": "extra_employee"})
-    status, result = call(http_server, {"request": request, "solution": {}}, path="/verify-json")
+    status, result = call(
+        http_server, {"request": request, "solution": {}}, path="/demo/verify-json"
+    )
     assert status == 400 and result["error"]["code"] == "DEMO_LIMIT"
     payload = {"request": BASELINE, "solution": {}}
     with http_server.solve_lock:
-        status, result = call(http_server, payload, path="/verify-json")
+        status, result = call(http_server, payload, path="/demo/verify-json")
     assert status == 503 and result["error"]["code"] == "BUSY"

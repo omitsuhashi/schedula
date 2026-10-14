@@ -712,6 +712,7 @@ async function main() {
       });
     });
   }
+  url = new URL("/demo/", url).href;
   browser = await chromium.launch({headless: true, ...(process.env.PLAYWRIGHT_CHANNEL ? {channel: process.env.PLAYWRIGHT_CHANNEL} : {})});
   report.browser = browser.version();
   const page = await browser.newPage({viewport: {width: 1440, height: 1000}, timezoneId: "UTC"});
