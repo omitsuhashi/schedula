@@ -108,7 +108,7 @@ uv run --extra dev --extra cp-sat python -m skillshift solve examples/roster.jso
 | `docs/evaluations/inputs/` | 再現用の架空入力と、評価文書に記載する生成条件 |
 | `docs/evaluations/*.md` | 評価の目的、合格基準、実行コマンド、入力・source・環境・依存版、集計、採否理由と未確認範囲 |
 | `docs/evaluations/results/` | 上記の判断で参照する測定の生データ。失敗・時間切れ・未実行も含む全試行、母数、目的値・証明範囲、時間・RSS・SHA を保持する |
-| Actions の実行ログ・`pytest-results` artifact | 通常の CI のテストログと JUnit XML。成功・失敗・スキップ理由を追跡し、実行 URL と要点を PR / Issue に記録する |
+| Actions の実行ログ・`pytest-results`・`distribution-results`・`browser-results` artifact | CI のテストログ、JUnit XML、画面検証結果。成功・失敗・スキップ理由を追跡し、実行 URL と要点を PR / Issue に記録する |
 | Git 対象外の `test-results/` | 手元のテスト結果と通常の再測定出力。採用判断に使う場合だけ、入力・条件・集計とともに評価記録へ追加する |
 
 通常の測定では `--output test-results/evaluation.json` を使う。
