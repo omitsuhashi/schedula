@@ -97,7 +97,7 @@ module.exports = async (page, url, report) => {
   await select.selectOption("alice"); await page.locator("#feature-run").click(); await waiting;
   await page.evaluate(() => { location.hash = "demand"; });
   await page.waitForFunction(() => lesson?.id === "demand");
-  release(); await page.unrouteAll({behavior: "wait"}); await ready(page);
+  release(); await ready(page); await page.unrouteAll({behavior: "wait"});
   assert.equal(await page.evaluate(() => feature.current.input.request_id), "demo_demand");
   report.response_samples.push("公開verifyの実INVALID_INPUT、無効案から再検証、証明・形式不整合拒否、HTTP失敗復帰、切替後の古い応答排除");
   report.feature_measurements ||= [];
