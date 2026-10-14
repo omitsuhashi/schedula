@@ -9,7 +9,6 @@ from pathlib import Path
 CHECKS = ("python", "distribution", "browser")
 JOBS = {
     "python-tests": "python",
-    "timezone-distribution": "python",
     "distribution": "distribution",
     "browser": "browser",
 }
@@ -47,7 +46,7 @@ def changed_paths(base, head):
 
 
 def check_results(results):
-    for job in ("changes", "lint"):
+    for job in ("changes", "lint", "timezone-distribution"):
         if results[job]["result"] != "success":
             raise ValueError(f"{job} が成功していません")
     outputs = results["changes"]["outputs"]

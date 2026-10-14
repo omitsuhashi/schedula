@@ -38,7 +38,7 @@ jobs:
           uv run --no-sync python -c "import xml.etree.ElementTree as ET; assert not ET.parse('ci-tests.xml').findall('.//skipped')"
   timezone-distribution:
     needs: changes
-    if: needs.changes.outputs.python == 'true'
+    # matrixの必須チェック名を常に生成し、対象外PRはstepsだけを省略する。
     strategy:
       fail-fast: false
       matrix:
@@ -47,18 +47,23 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        if: needs.changes.outputs.python == 'true'
       - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        if: needs.changes.outputs.python == 'true'
         with:
           version: "0.12.23"
           enable-cache: true
       - name: Sync dependencies
+        if: needs.changes.outputs.python == 'true'
         run: uv sync --locked
       - name: Validate timezone data, wheel dependencies and spawn control
+        if: needs.changes.outputs.python == 'true'
         run: uv run --no-sync pytest -q -ra tests/test_timezone.py tests/test_input_contract.py tests/test_execution.py --junitxml=test-results/timezone.xml
       - name: Reject skipped tests
+        if: needs.changes.outputs.python == 'true'
         run: uv run --no-sync python -c "import xml.etree.ElementTree as ET; assert not ET.parse('test-results/timezone.xml').findall('.//skipped')"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        if: always()
+        if: always() && needs.changes.outputs.python == 'true'
         with:
           name: timezone-${{ matrix.os }}
           path: test-results/
