@@ -62,6 +62,19 @@ FILES = {
         "application/json; charset=utf-8",
     ),
 }
+FILES.update(
+    {
+        "/landing/": (ROOT / "demo" / "landing.html", "text/html; charset=utf-8"),
+        "/landing/style.css": (ROOT / "demo" / "landing.css", "text/css; charset=utf-8"),
+        "/landing/docs.html": (ROOT / "demo" / "guide.html", "text/html; charset=utf-8"),
+        "/landing/license.txt": (ROOT / "LICENSE", "text/plain; charset=utf-8"),
+    }
+)
+for name in ("python-setup", "python-api", "io-contract-current", "distribution"):
+    FILES[f"/landing/docs/{name}.md"] = (
+        ROOT / "docs" / f"{name}.md",
+        "text/plain; charset=utf-8",
+    )
 FILES["/adapter.js"] = (ROOT / "demo" / "adapter.js", "text/javascript; charset=utf-8")
 for name in (
     "feature-state",
