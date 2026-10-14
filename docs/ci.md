@@ -9,9 +9,11 @@ Ruff、deployスクリプトの構文、CIの選択・集約ロジックは毎�
 | docsのMarkdown/HTML/JSON | 省略 | 実行 | 実行 |
 | README.md、AGENTS.md、GLOSSARY.md、THIRD_PARTY_NOTICES.md | 省略 | 実行 | 省略 |
 | LICENSE | 省略 | 実行 | 実行 |
+| docs/designs、docs/evaluations/inputs | 実行 | 実行 | 実行 |
 | 共通エンジン、Python、例・fixture、依存関係、CI設定、その他のファイル | 実行 | 実行 | 実行 |
 
 複数種類の変更は必要な検証の和集合を実行する。分類できないファイルや差分が空の場合は全検証する。
+docs/designsとdocs/evaluations/inputsは文書の一般則より優先し、実行用データと設計断片の専用Pythonテストを維持する。
 PRのbaseとheadの共通祖先からの差分をGitで取得し、削除とrenameの旧・新パスも判定対象にする。
 差分取得に失敗した場合はCIを失敗させ、省略で成功扱いにしない。
 

@@ -19,7 +19,10 @@ def select_checks(paths):
     selected = set()
     for name in paths:
         path = Path(name)
-        if (name.startswith("demo/") and path.suffix in {".html", ".css", ".js"}) or (
+        if name.startswith(("docs/designs/", "docs/evaluations/inputs/")):
+            # 実行用データ・設計断片の検証はsdist内の回帰から除外される。
+            selected.update(CHECKS)
+        elif (name.startswith("demo/") and path.suffix in {".html", ".css", ".js"}) or (
             name.startswith("tests/") and path.suffix == ".cjs"
         ):
             selected.update(("distribution", "browser"))

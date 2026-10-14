@@ -21,6 +21,9 @@ SCRIPT = Path(__file__).resolve().parents[1] / "scripts/ci_checks.py"
         (["tests/playground-browser.cjs"], ("distribution", "browser")),
         (["docs/python-api.md"], ("distribution", "browser")),
         (["docs/adr/0010-single-current-contract.md"], ("distribution", "browser")),
+        (["docs/designs/scheduled-cost.md"], CHECKS),
+        (["docs/evaluations/inputs/assignment-week.json"], CHECKS),
+        (["docs/designs/old.md", "docs/notes/new.md"], CHECKS),
         (["README.md", "GLOSSARY.md"], ("distribution",)),
         (["LICENSE"], ("distribution", "browser")),
         *[
