@@ -5,11 +5,12 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: pypi-${{ github.ref }}
+  group: pypi
   cancel-in-progress: false
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: staging
     timeout-minutes: 10
     permissions:
       contents: read
