@@ -46,7 +46,7 @@ Lambda URLはAWS_IAM、OAC always、会社Distributionだけを許可する。�
 viewer Host・Cookie・queryを転送せず、Origin・Content-Type・X-Demo-Lesson・X-Amz-Content-Sha256だけを転送する。
 クライアントは送る本文のUTF-8バイト列からSHA-256を作る。
 
-WAFはURI pathの `STARTS_WITH /products/schedula/api`（末尾slashなし）をscopeとし、完全一致と配下の404経路も両rate制限へ含める。
+WAFはURI pathの `/products/schedula/api` 完全一致と `/products/schedula/api/` 前方一致のORをscopeとし、完全一致と配下の404経路も両rate制限へ含める。`api-reference` のような別ページを巻き込まない。
 IPごと60回/5分・全体300回/5分、sampled request無効、ログへ本文を保存しない。
 同時実行2・2048MB・Lambda30秒・子プロセス20秒・worker数1を出発点とする。費用の絶対上限や性能保証ではない。
 実公開時に共有IP・連続操作・混雑・費用予算・通知先を確認する。
