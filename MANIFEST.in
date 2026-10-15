@@ -12,5 +12,4 @@ prune docs/evaluations/results
 global-exclude __pycache__ *.py[cod] .DS_Store
 
 recursive-include web *.py Dockerfile
-recursive-include infra *.md *.tf *.tftest.hcl *.hcl.example *.tfvars.example .terraform.lock.hcl
-prune infra/demo/.terraform
+include infra/README.md

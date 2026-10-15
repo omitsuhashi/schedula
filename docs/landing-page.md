@@ -34,7 +34,7 @@ LPはJavaScriptや外部フォントを必要とせず、CSSとHTMLで表示す�
 
 会社サイトと接続する今後の推奨構成は[商品紹介・公開デモ・利用アプリの配信設計](web-deployment.md)を参照する。
 商品紹介・公開デモ・技術案内を会社の `/products/schedula/` 配下へ集約し、会社CloudFrontからschedula専用S3 / Lambdaへ振り分ける。
-`schedula.the3.co.jp` はschedula-appの公開先とする。共有CloudFrontのTerraformはlanding-page側、デモの配信元はschedula側で管理する。
+`schedula.the3.co.jp` はschedula-appの公開先とする。共有CloudFrontとデモ配信元のTerraformはprivateのthe3-infraが一括管理する。各コードrepoは自分の成果物だけを公開する。
 以下はローカル構成に基づく経路対応として残し、公開時にはリンク・資産・サンプル・計算APIも新prefixへ揃える。
 
 現時点では公開環境を作成していない。既存の `demo/server.py` はloopback専用の試用サーバーであり、
@@ -60,7 +60,7 @@ LPは静的配信できるが、デモには計算APIの実行環境が必要と
 
 ## 公開前に確定すること
 
-公開prefixの静的ビルド・Lambda入口・専用基盤は実装し、[構築と配備の手順](../infra/demo/README.md)にまとめた。
+公開prefixの静的ビルド・Lambda入口はこのrepo、基盤はthe3-infraが所有する。[管理先と配備](../infra/README.md)を参照する。
 AWS未適用であり、以下は実公開前の確認事項として残る。
 
 - デモの公開URLと実行基盤。入力上限・プロセス隔離・応答期限などは公開APIとして別途設計する。
