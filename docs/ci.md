@@ -2,7 +2,7 @@
 
 PRでは変更ファイルに応じてジョブを選択し、mainへのpushでは全ジョブを実行する。
 Ruff、deployスクリプトの構文、CIの選択・集約ロジックは毎回確認する。
-`public-deployment` も毎回実行し、read-onlyのLinux Lambdaコンテナーで3教材の実計算・独立検証を確認する。Terraformの検証はprivateのthe3-infraへ移管した。
+`public-deployment` も毎回実行し、read-onlyのLinux Lambdaコンテナーで3教材の実計算・独立検証を確認する。Terraformの検証はprivateのinfraへ移管した。
 
 | PRの変更 | 通常のPythonテスト・Linux/Windows互換性 | 配布検証 | Chromium画面検証 |
 | --- | --- | --- | --- |
