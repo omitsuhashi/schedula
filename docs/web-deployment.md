@@ -210,7 +210,7 @@ schedula-appのセッションは `schedula.the3.co.jp` のhost-only Cookieと�
 探索予算と総応答期限を区別し、ブラウザーのabortだけで計算停止したとは扱わない。期限切れでは子プロセスを終了し、エンジンの有効なResponseを捏造しない。
 `PARTIAL` は不足のある計画、独立検証成功は完全充足とは別、手修正検証は探索・最適性証明なしという意味を維持する。
 
-会社側が共有CloudFrontのWAFを所有し、`/products/schedula/api/` にscopeを限定したIP単位と全体のrate制限を置く。最初はIPごと60回/5分・全体300回/5分を提案値とし、連続操作と共有IPの試験で調整する。
+会社側が共有CloudFrontのWAFを所有し、URI pathの `STARTS_WITH /products/schedula/api`（末尾スラッシュなし）をscopeとするIP単位と全体のrate制限を置く。Lambdaへ転送する完全一致の `/products/schedula/api` と配下の `/products/schedula/api/*` を両方含め、404を返す経路も制限から漏らさない。最初はIPごと60回/5分・全体300回/5分を提案値とし、連続操作と共有IPの試験で調整する。
 同時数上限とrate制限は費用の絶対上限ではない。WAF・ログの料金も含めて見積もり、エラー率・throttle・期限超過・費用の通知先を設定する。
 異常時はschedula側でLambdaのreserved concurrencyを0へ落とせる手順を残す。会社側ではAPIパスだけを遮断できるようにする。
 ログはメタデータ中心で保持14日を案とし、WAFログ等にも本文を含めない。
@@ -256,7 +256,7 @@ PyPI公開・ソース公開・SLA・実績は確認済みの状態だけを書�
 公開ビルドでは共通baseを `/products/schedula/`、API baseを `/products/schedula/api/` とする。
 `index.html` / `guide.html` のリンク、全JSのfetch、サンプル、CSS内URL、ライセンス、フォーム送信先、canonicalと戻り先を同時に変更する。
 公開用に `guide.html` を `products/schedula/docs/index.html` として出力し、LPを複製せず、必要な `landing.css` 等をhash付きassetsとして配信する。
-Markdown本文は現行4文書だけを `docs/` 配下へ出力し、相対リンク・参照先の公開可否を利用者の立場で点検する。
+Markdown本文は現行4文書だけを `docs/` 配下へ出力する。文書間の相対リンクは維持し、LICENSEは公開する `license.txt` へ書き換える。配信しない文書・コードへのリンクは、ソース配布内の参照と分かる通常のテキストへ変換する。元の文書と公開許可リストは変更せず、出力した全Markdownの相対リンクが公開成果物内で解決することをテストする。
 公開ページのどの操作も `/demo/`・`/docs.html`・`/landing.css`・旧APIへ通信しないことを検査する。
 
 ローカルは現行の `/`・`/demo/`・`/docs.html` と `/demo/solve-json` 等を維持する。小さな公開用build設定でURL差分を扱い、エンジンや教材を複製しない。

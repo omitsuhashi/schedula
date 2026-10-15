@@ -5,6 +5,7 @@ import hashlib
 import json
 import re
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from web.lessons import LESSONS, PUBLIC_IDS, ROOT, SAMPLES
 
@@ -71,8 +72,23 @@ def build(destination):
         for key in ("request_file", "solution_file"):
             if key in lesson:
                 (sample_dir / lesson[key]).write_bytes((SAMPLES / lesson[key]).read_bytes())
+
+    def document_link(match):
+        label, link = match.groups()
+        target = urlsplit(link)
+        if target.scheme or target.netloc or not target.path:
+            return match.group(0)
+        if target.path in {f"{name}.md" for name in DOCS}:
+            return match.group(0)
+        if target.path == "../LICENSE":
+            return f"[{label}]({link.replace('../LICENSE', '../license.txt', 1)})"
+        return f"{label}（ソース配布内の `{link}`）"
+
     for name in DOCS:
-        (product / "docs" / f"{name}.md").write_bytes((ROOT / "docs" / f"{name}.md").read_bytes())
+        content = (ROOT / "docs" / f"{name}.md").read_text(encoding="utf-8")
+        content = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", document_link, content)
+        note = "> 公開版の対象外のファイルは、ソース配布内の参照として記載しています。\n\n"
+        (product / "docs" / f"{name}.md").write_text(note + content, encoding="utf-8")
     (product / "license.txt").write_bytes((ROOT / "LICENSE").read_bytes())
     return product
 

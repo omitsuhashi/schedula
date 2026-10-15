@@ -2,12 +2,14 @@ import base64
 import copy
 import hashlib
 import json
+import re
 import subprocess
+from urllib.parse import urljoin, urlsplit
 
 import pytest
 
 from web import handler
-from web.build import BASE, build
+from web.build import BASE, DOCS, build
 from web.lessons import LESSONS, PUBLIC_IDS, SAMPLES, sample, validate_public
 
 
@@ -167,3 +169,25 @@ def test_public_build_is_allowlisted_and_prefixes_all_links(tmp_path):
                 assert (path / "index.html").is_file() if target.endswith("/") else path.is_file()
     with pytest.raises(ValueError):
         build(tmp_path)
+
+
+def test_public_documents_link_only_to_emitted_files(tmp_path):
+    product = build(tmp_path)
+    for name in DOCS:
+        document = product / "docs" / f"{name}.md"
+        content = document.read_text(encoding="utf-8")
+        for link in re.findall(r"\]\(([^)]+)\)", content):
+            target = urlsplit(urljoin(f"{BASE}docs/{name}.md", link))
+            if target.scheme or target.netloc:
+                continue
+            assert target.path.startswith(BASE), (name, link)
+            assert (tmp_path / target.path.lstrip("/")).is_file(), (name, link)
+
+    setup = (product / "docs/python-setup.md").read_text(encoding="utf-8")
+    api = (product / "docs/python-api.md").read_text(encoding="utf-8")
+    distribution = (product / "docs/distribution.md").read_text(encoding="utf-8")
+    assert "[現行契約](io-contract-current.md)" in api
+    assert "[LICENSE](../license.txt)" in distribution
+    assert "担当配置の手順（ソース配布内の `assignment.md`）" in setup
+    assert "README（ソース配布内の `../README.md`）" in setup
+    assert "実行例（ソース配布内の `../examples/typed_api.py`）" in api
