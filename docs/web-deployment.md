@@ -74,6 +74,9 @@ mainのPR/quality-checks、web-v*の作成者制限と移動/削除禁止、prod
 1. schedulaで変更をPRにし、mainへマージする。公開対象文書の変更も同じWeb公開で反映する。
 2. schedulaのcheckoutで対象commitとmain CIを確認する。
 
+以下の `CI_RUN_ID` と `DEPLOY_RUN_ID` は置き換え用の表記である。
+`gh run list` の出力で対象commitのheadSha（公開時は対象タグのheadBranchも）を確認し、その行のdatabaseIdの数値に置き換えてwatchを実行する。まだ表示されなければlistを再実行する。
+
 ```sh
 git fetch origin main --tags
 release_sha=$(git rev-parse origin/main)
@@ -99,7 +102,8 @@ Web公開だけならPythonパッケージの版更新やGitHub Release作成は
 4. Actionsの **Deploy public demo** で対象タグ・commitを確認し、productionの承認が必要なら承認する。
 
 ```sh
-gh run list --repo the3-inc/schedula --workflow deploy-demo.yml --limit 5
+gh run list --repo the3-inc/schedula --workflow deploy-demo.yml --limit 5 \
+  --json databaseId,headBranch,headSha,status,conclusion
 gh run watch DEPLOY_RUN_ID --repo the3-inc/schedula --exit-status
 ```
 
@@ -123,10 +127,12 @@ WAF・IAM・経路などの変更は[infraの更新手順](https://github.com/th
 ```sh
 # 例: 正常に公開できた既存タグを指定する
 gh workflow run deploy-demo.yml --repo the3-inc/schedula --ref main -f tag=web-v1.0.0
-gh run list --repo the3-inc/schedula --workflow deploy-demo.yml --event workflow_dispatch --limit 5
+gh run list --repo the3-inc/schedula --workflow deploy-demo.yml --event workflow_dispatch --limit 5 \
+  --json databaseId,headBranch,headSha,status,conclusion
 gh run watch DEPLOY_RUN_ID --repo the3-inc/schedula --exit-status
 ```
 
+手動公開runのheadBranch/headShaはworkflowを実行したmainを指す。Actionsのbuildログで指定した既存タグと配備対象commitを確認してから承認する。
 再実行でもproduction承認と公開後検証を行う。タグを移動・削除せず、新しい修正には次の版を使う。
 旧タグもmain履歴と対象commitの最新main CI成功が必要で、公開workflow導入後のタグを選ぶ。
 
