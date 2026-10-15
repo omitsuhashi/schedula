@@ -46,7 +46,7 @@ def changed_paths(base, head):
 
 
 def check_results(results):
-    for job in ("changes", "lint", "timezone-distribution"):
+    for job in ("changes", "lint", "timezone-distribution", "public-deployment"):
         if results[job]["result"] != "success":
             raise ValueError(f"{job} が成功していません")
     outputs = results["changes"]["outputs"]

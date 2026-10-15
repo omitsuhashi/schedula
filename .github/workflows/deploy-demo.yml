@@ -1,0 +1,147 @@
+name: Deploy public demo
+on:
+  push:
+    tags: ['web-v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: '公開する既存のweb-vMAJOR.MINOR.PATCHタグ'
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: public-demo-production
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      sha: ${{ steps.release.outputs.sha }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Validate tag, main ancestry and main CI before AWS authentication
+        id: release
+        env:
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/check_web_release.py
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ steps.release.outputs.sha }}
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: '0.12.23'
+      - run: |
+          uv sync --locked
+          uv run --no-sync pytest -q tests/test_public_demo.py tests/test_web_release.py
+          uv run --no-sync python -m web.build test-results/public-site
+          uv build --wheel
+          docker build --provenance=false --platform linux/amd64 -t schedula-demo:release -f web/Dockerfile .
+          docker run --rm --read-only --tmpfs /tmp --entrypoint python schedula-demo:release -m web.smoke
+          docker save schedula-demo:release -o test-results/image.tar
+          tar -czf test-results/site.tar.gz -C test-results/public-site .
+          cd test-results
+          sha256sum image.tar site.tar.gz > SHA256SUMS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: public-demo-release
+          path: |
+            test-results/image.tar
+            test-results/site.tar.gz
+            test-results/SHA256SUMS
+          retention-days: 30
+          if-no-files-found: error
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production
+      url: https://the3.co.jp/products/schedula/demo/
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ needs.build.outputs.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: public-demo-release
+          path: release
+      - name: Verify artifact checksums and destination
+        env:
+          AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          SITE_BUCKET: ${{ vars.SITE_BUCKET }}
+          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+          LAMBDA_FUNCTION: ${{ vars.LAMBDA_FUNCTION }}
+          AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+        run: |
+          set -euo pipefail
+          [[ "$AWS_ACCOUNT_ID" =~ ^[0-9]{12}$ ]]
+          [[ "$AWS_REGION" == ap-northeast-1 ]]
+          [[ "$SITE_BUCKET" == the3-schedula-demo-production-* ]]
+          [[ "$ECR_REPOSITORY" == "${AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-1.amazonaws.com/the3-schedula-demo-production" ]]
+          [[ "$LAMBDA_FUNCTION" == the3-schedula-demo-production ]]
+          [[ "$AWS_ROLE_ARN" == "arn:aws:iam::${AWS_ACCOUNT_ID}:role/the3-schedula-demo-production-deploy" ]]
+          cd release
+          sha256sum -c SHA256SUMS
+      - name: Authenticate with the product OIDC role
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ap-northeast-1
+          allowed-account-ids: ${{ vars.AWS_ACCOUNT_ID }}
+          role-session-name: schedula-demo-${{ github.run_id }}
+      - name: Publish tested container and static files
+        env:
+          EXPECTED_ACCOUNT: ${{ vars.AWS_ACCOUNT_ID }}
+          SITE_BUCKET: ${{ vars.SITE_BUCKET }}
+          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+          LAMBDA_FUNCTION: ${{ vars.LAMBDA_FUNCTION }}
+          RELEASE_SHA: ${{ needs.build.outputs.sha }}
+        run: |
+          set -euo pipefail
+          [[ "$(aws sts get-caller-identity --query Account --output text)" == "$EXPECTED_ACCOUNT" ]]
+          docker load -i release/image.tar
+          registry=${ECR_REPOSITORY%%/*}
+          aws ecr get-login-password | docker login --username AWS --password-stdin "$registry"
+          image_tag="${RELEASE_SHA}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          docker tag schedula-demo:release "$ECR_REPOSITORY:$image_tag"
+          docker push "$ECR_REPOSITORY:$image_tag"
+          digest=$(aws ecr describe-images --repository-name the3-schedula-demo-production --image-ids "imageTag=$image_tag" --query 'imageDetails[0].imageDigest' --output text)
+          [[ "$digest" =~ ^sha256:[a-f0-9]{64}$ ]]
+          previous=$(aws lambda get-alias --function-name "$LAMBDA_FUNCTION" --name live --query FunctionVersion --output text)
+          version=$(aws lambda update-function-code --function-name "$LAMBDA_FUNCTION" --image-uri "$ECR_REPOSITORY@$digest" --publish --query Version --output text)
+          aws lambda wait function-updated-v2 --function-name "$LAMBDA_FUNCTION"
+          aws lambda update-alias --function-name "$LAMBDA_FUNCTION" --name live --function-version "$version"
+          mkdir site
+          tar -xzf release/site.tar.gz -C site
+          source=site/products/schedula
+          target="s3://$SITE_BUCKET/products/schedula"
+          aws s3 sync "$source/assets/" "$target/assets/" --cache-control 'public,max-age=31536000,immutable'
+          aws s3 sync "$source/" "$target/" --exclude 'assets/*' --delete --cache-control no-store
+          for name in python-setup python-api io-contract-current distribution; do
+            aws s3 cp "$source/docs/$name.md" "$target/docs/$name.md" --content-type 'text/plain; charset=utf-8' --cache-control no-store
+          done
+          printf '%s\n' "commit=$RELEASE_SHA" "image=$ECR_REPOSITORY@$digest" "lambda_version=$version" "previous_lambda_version=$previous" >> "$GITHUB_STEP_SUMMARY"
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: '0.12.23'
+      - name: Verify public pages and real computation
+        run: |
+          curl --fail --silent --show-error https://the3.co.jp/products/schedula/demo/ -o /dev/null
+          curl --fail --silent --show-error https://the3.co.jp/products/schedula/docs/ -o /dev/null
+          uv sync --locked --no-dev
+          uv run --no-sync python -m web.smoke --public

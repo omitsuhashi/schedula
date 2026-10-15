@@ -1,5 +1,6 @@
 "use strict";
 
+const publicDemo = document.documentElement.dataset.publicDemo === "true";
 const $ = id => document.getElementById(id);
 const clone = value => structuredClone(value);
 const time = timestamp => timestamp.slice(11, 16);
@@ -475,6 +476,7 @@ async function resetScenario(index) {
   await calculate();
 }
 
+if (!publicDemo) {
 $("editor").addEventListener("input", event => { if (event.target.dataset.pointer) edited(); });
 $("editor").addEventListener("change", event => { if (event.target.dataset.pointer && event.target.tagName === "SELECT") edited(); });
 $("editor").addEventListener("submit", event => { event.preventDefault(); calculate(); });
@@ -485,6 +487,8 @@ $("scenario").addEventListener("change", () => {
   if (changed && !window.confirm("変更した条件と比較結果を置き換えます。シナリオを切り替えますか？")) { $("scenario").value = scenarios[scenarioIndex].id; return; }
   resetScenario(index);
 });
+
+}
 
 let jsonPair = null;
 const jsonBodyLimit = 2 * 1024 * 1024;
@@ -642,6 +646,7 @@ async function calculateJSON() {
   }
 }
 
+if (!publicDemo) {
 $("json-input").addEventListener("input", () => jsonEdited());
 $("json-editor").addEventListener("submit", event => { event.preventDefault(); calculateJSON(); });
 $("json-load-sample").addEventListener("click", () => {
@@ -660,6 +665,8 @@ $("json-file").addEventListener("change", () => {
   });
   $("json-file").value = "";
 });
+
+}
 
 async function start(stillActive = () => true) {
   try {

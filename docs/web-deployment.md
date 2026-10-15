@@ -1,6 +1,6 @@
 # 商品紹介・公開デモ・利用アプリの配信設計
 
-状態: URL配置は利用者指定を反映済み。Terraformの責任分担と実行基盤は推奨案。更新日: 2026-10-15（Asia/Tokyo）。公開・インフラ適用・運用開始の記録ではない。
+状態: URL配置・責任分担を実装へ反映。コードとmock / ローカル検証はPRで確認する。AWS未適用。更新日: 2026-10-15（Asia/Tokyo）。公開・インフラ適用・運用開始の記録ではない。
 
 読者は会社サイトと schedula の実装・運用担当者。読了後に、紹介文、デモ、顧客データをどこへ置き、どのリポジトリから公開するかを判断できることを目的とする。
 中心の問いは「同じURL配下に商品情報を集めながら、各リポジトリで専用基盤を構築・更新する責任をどう保つか」である。
@@ -92,7 +92,7 @@ schedula側はそのsubdirectoryをGit sourceの固定commit SHAで参照し、�
 /the3/production/foundation/v1/github-oidc-provider-arn
 ```
 
-この3値の意味を変更せず、今回必要な接続情報を別のバージョン付きパスへ追加する。以下の2契約は新設案であり、適用済みではない。
+この3値の意味を変更せず、今回必要な接続情報を別のバージョン付きパスへ追加する。以下の2契約を実装する。AWSには未適用である。
 
 | SSMパス（東京・String内のJSON） | 所有・書込元 | 読取元 | 公開する非機密値 |
 | --- | --- | --- | --- |
@@ -190,7 +190,7 @@ schedula-appのセッションは `schedula.the3.co.jp` のhost-only Cookieと�
 
 ### 公開する教材と実行上限
 
-初回の公開対象は、現在のLPが案内している **必要人数・連勤・手修正検証の3教材**を推奨する。
+初回の公開対象として、現在のLPが案内している **必要人数・連勤・手修正検証の3教材**を実装する。
 選定理由は紹介内容との一致と、サーバーが固定入力・編集範囲を検証できる小さな問題であること。他の実装済み教材は、同じ公開条件を確認して追加できる。
 自由JSON、100人・30日、入力アダプター・実行記録の入出力はローカル試用に残す。公開画面からこれらの操作・通信・未公開教材へのリンクを除き、APIでも拒否する。
 既存の11分待機をそのまま公開HTTPの要件にはしない。[現行デモの範囲](playground.md)
@@ -221,7 +221,7 @@ schedula-appのセッションは `schedula.the3.co.jp` のhost-only Cookieと�
 
 ## ソース配置と商品ページ
 
-既存の所有元を使い、提案する追加箇所は次に絞る。ディレクトリは実装時の案であり、本設計では作成していない。
+実装の配置は次のとおり。landing-pageとschedulaの変更をPRで確認し、schedula-appは公開先と責任分担だけを定める。
 
 ```text
 landing-page/
@@ -268,7 +268,7 @@ Markdown本文は現行4文書だけを `docs/` 配下へ出力し、相対リ�
 ### 公開単位とタグ
 
 会社紹介の更新はlanding-pageの `vMAJOR.MINOR.PATCH`、schedulaのWeb公開は **`web-vMAJOR.MINOR.PATCH`** を使う。
-既存 [.github/workflows/publish.yml](../.github/workflows/publish.yml) は `v*` タグでPyPI公開を開始するため、Web更新に同じタグを流用しない。
+既存 [.github/workflows/publish.yml](https://github.com/the3-inc/schedula/blob/205bc941dfab8f635065cbf60251a773e2c30ffd/.github/workflows/publish.yml) は `v*` タグでPyPI公開を開始するため、Web更新に同じタグを流用しない。
 Web公開のためだけにPythonパッケージ版を変更せず、記録にはWebタグ・commit・パッケージ版・JSON契約版・イメージdigest・静的成果物のSHAを残す。
 
 PR #9の方式に合わせ、インフラは管理用認証の `plan → show → 明示的apply`、公開workflowは既存リソースへの配備だけとする。
@@ -356,4 +356,4 @@ Terraformのmockでは契約欠落・他account・誤domain・未登録製品を
 - 紹介文の提供範囲、ソース・PyPIの実公開状況、問い合わせ先と技術文書の公開リンク。
 - 共有CloudFront・同一オリジンによる変更と障害の影響。会社側の経路・WAF誤設定は会社とデモの両方へ影響し得る。
 
-今回変更するのはschedula内の設計文書のみ。landing-page / schedula-appのコードやTerraform、AWS / GitHub設定、実デプロイ、公開性能・費用の検証は変更・実施していない。
+実装とAWS認証なしの検証手順は[デモ基盤のREADME](../infra/demo/README.md)を参照する。landing-page側にも経路登録とSSM契約を実装する。AWS / GitHub設定、実デプロイ、公開性能・費用の検証は実施していない。schedula-appの実装は今回の範囲に含めない。

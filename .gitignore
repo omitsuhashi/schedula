@@ -7,3 +7,10 @@ build/
 dist/
 *.egg-info/
 test-results/
+
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+backend.hcl
