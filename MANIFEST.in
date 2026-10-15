@@ -10,3 +10,6 @@ recursive-include docs *.md *.html *.json *.py
 prune docs/reference
 prune docs/evaluations/results
 global-exclude __pycache__ *.py[cod] .DS_Store
+
+recursive-include web *.py Dockerfile
+include infra/README.md

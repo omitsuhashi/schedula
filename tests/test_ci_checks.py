@@ -60,6 +60,7 @@ def successful_results(enabled):
         "changes": {"result": "success", "outputs": outputs},
         "lint": {"result": "success"},
         "timezone-distribution": {"result": "success"},
+        "public-deployment": {"result": "success"},
         **{
             job: {"result": "success" if check in enabled else "skipped"}
             for job, check in JOBS.items()
@@ -72,7 +73,9 @@ def test_selected_success_and_intentional_skips_are_accepted(enabled):
     check_results(successful_results(enabled))
 
 
-@pytest.mark.parametrize("job", ["changes", "lint", "timezone-distribution", *JOBS])
+@pytest.mark.parametrize(
+    "job", ["changes", "lint", "timezone-distribution", "public-deployment", *JOBS]
+)
 @pytest.mark.parametrize("result", ["failure", "cancelled", "skipped"])
 def test_failures_cancellations_and_required_skips_are_rejected(job, result):
     results = successful_results(CHECKS)

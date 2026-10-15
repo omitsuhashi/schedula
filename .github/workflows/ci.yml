@@ -131,14 +131,28 @@ jobs:
         run: |
           node tests/playground-browser.cjs
           node tests/landing-browser.cjs
+          node tests/public-browser.cjs
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: browser-results
           path: test-results/
+  public-deployment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: "0.12.23"
+      - name: Verify the Linux Lambda container without AWS
+        run: |
+          uv build --wheel
+          docker build --provenance=false --platform linux/amd64 -t schedula-demo:check -f web/Dockerfile .
+          docker run --rm --read-only --tmpfs /tmp --entrypoint python schedula-demo:check -m web.smoke
   quality-checks:
     # 必須チェック名を維持し、必要なジョブの失敗・取消・意図しないskipを拒否する。
-    needs: [changes, lint, timezone-distribution, python-tests, distribution, browser]
+    needs: [changes, lint, timezone-distribution, python-tests, distribution, browser, public-deployment]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5

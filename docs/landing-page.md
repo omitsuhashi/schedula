@@ -32,11 +32,16 @@ LPはJavaScriptや外部フォントを必要とせず、CSSとHTMLで表示す�
 
 ## 公開時の配置
 
+会社サイトと接続する今後の推奨構成は[商品紹介・公開デモ・利用アプリの配信設計](web-deployment.md)を参照する。
+商品紹介・公開デモ・技術案内を会社の `/products/schedula/` 配下へ集約し、会社CloudFrontからschedula専用S3 / Lambdaへ振り分ける。
+`schedula.the3.co.jp` はschedula-appの公開先とする。共有CloudFrontとデモ配信元のTerraformはprivateのthe3-infraが一括管理する。各コードrepoは自分の成果物だけを公開する。
+以下はローカル構成に基づく経路対応として残し、公開時にはリンク・資産・サンプル・計算APIも新prefixへ揃える。
+
 現時点では公開環境を作成していない。既存の `demo/server.py` はloopback専用の試用サーバーであり、
 インターネットへ公開する実行基盤には使わない。
 LPは静的配信できるが、デモには計算APIの実行環境が必要となる。
 
-このパス構成を公開する場合、同一オリジンで次の配信先を用意する。
+ローカル試用では同一オリジンで次の経路を使う。公開時の経路は上記の配信設計を正本とする。
 
 | URL | ファイル・接続先 |
 | --- | --- |
@@ -47,13 +52,16 @@ LPは静的配信できるが、デモには計算APIの実行環境が必要と
 | `/license.txt` | `LICENSE` |
 | `/demo/` | `demo/index.html` |
 | `/demo/style.css`、`/demo/*.js` | 許可リストのデモ資産のみ |
-| `/demo/samples/*`、`/demo/solve`、`/demo/solve-json`、`/demo/verify-json`、`/demo/adapter/*` | 公開用に別途構成したデモ実行基盤 |
+| `/demo/samples/*`、`/demo/solve`、`/demo/solve-json`、`/demo/verify-json`、`/demo/adapter/*` | ローカルの教材配信・計算・独立検証・アダプター |
 
-会社HPからLPの `/` へリンクする。別のベースパスへ配置する場合は、
-デモ・CSS・文書・計算API・戻り先を併せて変更する。
+ローカルLPは `/` から確認する。会社HPで公開するときは `/products/schedula/` を紹介ページとし、
+デモ・CSS・文書・計算API・戻り先を新しいprefixへ併せて変更する。
 問い合わせ先を変更する場合は `demo/landing.html` と `demo/guide.html` を更新する。
 
 ## 公開前に確定すること
+
+公開prefixの静的ビルド・Lambda入口はこのrepo、基盤はthe3-infraが所有する。[管理先と配備](../infra/README.md)を参照する。
+AWS未適用であり、以下は実公開前の確認事項として残る。
 
 - デモの公開URLと実行基盤。入力上限・プロセス隔離・応答期限などは公開APIとして別途設計する。
 - ソース・配布の公開状況。現在は非公開・PyPI未公開として記載し、公開に合わせて案内と入手方法を更新する。

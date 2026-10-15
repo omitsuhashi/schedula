@@ -293,9 +293,16 @@ async function runFeature() {
   $("feature-result").setAttribute("aria-busy", "true");
   renderFeature(lesson.operation === "verify" ? "検証中です。入力時の編集案を公開verifyで検査しています。" : "計算中です。入力時の条件で計算しています。");
   const started = performance.now();
-  const timer = setTimeout(() => controller.abort(), 660000);
+  const timer = setTimeout(() => controller.abort(), publicDemo ? 40000 : 660000);
   try {
-    const response = await fetch(lesson.operation === "verify" ? "/demo/verify-json" : "/demo/solve-json", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(input), signal: controller.signal});
+    const body = JSON.stringify(input), headers = {"Content-Type": "application/json"};
+    const operation = lesson.operation === "verify" ? "verify-json" : "solve-json";
+    if (publicDemo) {
+      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(body));
+      headers["X-Amz-Content-Sha256"] = [...new Uint8Array(digest)].map(value => value.toString(16).padStart(2, "0")).join("");
+      headers["X-Demo-Lesson"] = lesson.id;
+    }
+    const response = await fetch(publicDemo ? `/products/schedula/api/${operation}` : `/demo/${operation}`, {method: "POST", headers, body, signal: controller.signal});
     const result = await response.json();
     if (feature !== state || revision !== state.revision) return;
     if (!response.ok) throw new Error(`${result.error?.code || "HTTP_ERROR"}：${result.error?.message || "結果を取得できません。"}`);
@@ -327,6 +334,10 @@ async function routeFeature() {
   featureController?.abort(); featureController = null;
   if (feature) feature.edit(feature.input);
   feature = null;
+  const id = location.hash.slice(1);
+  if (publicDemo) {
+    $("feature-list").hidden = $("feature-demo").hidden = true;
+  } else {
   generation++; active?.abort(); active = null; setBusy(false);
   adapterToken++; adapterController?.abort(); adapterController = null; adapterBusy(false);
   jsonPair = null; $("json-input").value = ""; $("json-output").replaceChildren();
@@ -335,7 +346,6 @@ async function routeFeature() {
   $("adapter-request-input").value = "";
   $("adapter-save-record").disabled = $("adapter-reverify").disabled = true;
   adapterStatus("分割サンプルを読み込んでください。");
-  const id = location.hash.slice(1);
   for (const area of ["feature-list", "feature-demo", "editor", "json-demo", "adapter-demo"]) $(area).hidden = true;
   if (id === "combined") {
     $("editor").hidden = false; $("controls").disabled = true;
@@ -346,6 +356,7 @@ async function routeFeature() {
     const area = $(id === "records" ? "adapter-demo" : "json-demo"); area.hidden = false; area.open = true;
     if (id === "large") $("json-sample").value = "roster-100-30";
     return;
+  }
   }
   const topic = [...catalog.topics, ...catalog.templates].find(item => item.id === id);
   lesson = lessons.find(item => item.id === id);
@@ -410,12 +421,14 @@ async function startFeatures() {
         return node("li", "", {}, [ready ? node("a", item.title, {href: `#${item.id}`}) : node("strong", `${item.title}（準備中）`),
           node("p", ready ? lessons.find(lesson => lesson.id === item.id).steps[1].instruction : `専用操作は準備中です。担当Issue #${item.issue}`)]);
       })));
+    if (!publicDemo) {
     area.append(node("h3", "補助の入口"), node("p", "", {}, [
       node("a", "複数条件を組み合わせる", {href: "#combined"}), document.createTextNode(" · "),
       node("a", "100人・30日で試す", {href: "#large"}), document.createTextNode(" · "),
       node("a", "JSONで自由に試す", {href: "#json"}), document.createTextNode(" · "),
       node("a", "入力確認・実行記録", {href: "#records"}),
     ]), ...catalog.templates.map(item => node("p", "", {}, lessons.some(lesson => lesson.id === item.id) ? [node("a", item.title, {href: `#${item.id}`})] : [document.createTextNode(`${item.title}：準備中（#${item.issue}）`)])));
+    }
     window.addEventListener("hashchange", routeFeature);
     await routeFeature();
   } catch (error) {
